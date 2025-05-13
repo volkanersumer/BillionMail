@@ -21,41 +21,14 @@ BillionMail is a **future open-source Mail server, Email marketing platform** de
 ## How to use?
 **Install Script:** (✅The script automatically installs all required runtime environments including Docker)
 ```shell
-cd /opt
-git clone https://github.com/aaPanel/BillionMail
-cd BillionMail
-
-# install with interact
-bash install.sh
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && bash install.sh
 ```
 
 
 **Install with Docker:** (Please install Docker and docker-compose-plugin manually, and modify .env file)
 ```shell
-# Navigate to /opt and clone the repository
-cd /opt
-git clone https://github.com/aaPanel/BillionMail
-
-# Enter the BillionMail directory and copy the file
-cd BillionMail
-cp env_init .env
-
-# Modify the default BILLIONMAIL_HOSTNAME value to your domain, e.g., mail.domain.com
-# vi .env
-
-# Initialize the certificate
-mkdir ssl
-cp -d -n ssl-self-signed/* ssl/
-
-# Start BillionMail
-docker compose up -d || docker-compose up -d
-
-# Generate bm command
-echo "$(pwd)" > /opt/PWD-Billion-Mail.txt
-ln -sf $(pwd)/mail_users.sh /usr/bin/bm
-chmod +x $(pwd)/mail_users.sh
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && mkdir ssl && cp -d -n ssl-self-signed/* ssl/ && docker compose up -d || docker-compose up -d
 ```
-
 
 <div align="center">
   <a href="https://www.youtube.com/watch?v=wGHfX1-7S_Y">

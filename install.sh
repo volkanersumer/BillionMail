@@ -99,23 +99,27 @@ case $gogo in
 esac
 fi
 
-while [ -z "${BILLIONMAIL_HOSTNAME}" ]; do
-echo "Press Enter to confirm the detected value '[value]', or enter a custom value."
-echo -e ""
-    echo -e "Mail Server hostname (FQDN), \e[0;33mAs: example.com\e[0m"
-    echo -e ""
-    read -p "Please enter the Mail Server hostname (FQDN: e.g. example.com): " -e BILLIONMAIL_HOSTNAME
-    #if [[ ! "${BILLIONMAIL_HOSTNAME}" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])*$ ]]; then
-    if [[ ! "${BILLIONMAIL_HOSTNAME}" =~ ^([a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$ ]]; then
-        echo -e "\e[31m(${BILLIONMAIL_HOSTNAME}) is not a FQDN!\e[0m"
-        echo "Please change it to a FQDN"
-        exit 1
-    elif [[ "${BILLIONMAIL_HOSTNAME: -1}" == "." ]]; then
-        echo "(${BILLIONMAIL_HOSTNAME}) is ending with a dot. This is not a valid FQDN!"
-        exit 1
+# while [ -z "${BILLIONMAIL_HOSTNAME}" ]; do
+# echo "Press Enter to confirm the detected value '[value]', or enter a custom value."
+# echo -e ""
+#     echo -e "Mail Server hostname (FQDN), \e[0;33mAs: example.com\e[0m"
+#     echo -e ""
+#     read -p "Please enter the Mail Server hostname (FQDN: e.g. example.com): " -e BILLIONMAIL_HOSTNAME
+#     #if [[ ! "${BILLIONMAIL_HOSTNAME}" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])*$ ]]; then
+#     if [[ ! "${BILLIONMAIL_HOSTNAME}" =~ ^([a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$ ]]; then
+#         echo -e "\e[31m(${BILLIONMAIL_HOSTNAME}) is not a FQDN!\e[0m"
+#         echo "Please change it to a FQDN"
+#         exit 1
+#     elif [[ "${BILLIONMAIL_HOSTNAME: -1}" == "." ]]; then
+#         echo "(${BILLIONMAIL_HOSTNAME}) is ending with a dot. This is not a valid FQDN!"
+#         exit 1
 
-    fi
-done
+#     fi
+# done
+
+if [ -z "${BILLIONMAIL_HOSTNAME}" ]; then
+    BILLIONMAIL_HOSTNAME="example.com"
+fi
 
 # Count number of dots in the domain
 DOT_COUNT=$(echo "${BILLIONMAIL_HOSTNAME}" | tr -cd '.' | wc -c)
@@ -138,19 +142,24 @@ elif [ -a /etc/localtime ]; then
     SYSTEM_TIME_ZONE=$(readlink /etc/localtime|sed -n 's|^.*zoneinfo/||p')
 fi
 
-while [ -z "${BILLIONMAIL_TIME_ZONE}" ]; do
-    echo -e ""
-    echo -e "See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of timezones"
-    echo -e "Use a column named "TZ identifier" + note the column named "Notes""
-    echo -e "Please enter your time zone"
-    echo -e ""
-    if [ -z "${SYSTEM_TIME_ZONE}" ]; then
-        read -p "Timezone: " -e BILLIONMAIL_TIME_ZONE
-    else
-        read -p "Timezone [${SYSTEM_TIME_ZONE}]: " -e BILLIONMAIL_TIME_ZONE
-        [ -z "${BILLIONMAIL_TIME_ZONE}" ] && BILLIONMAIL_TIME_ZONE=${SYSTEM_TIME_ZONE}
-    fi
-done
+# while [ -z "${BILLIONMAIL_TIME_ZONE}" ]; do
+#     echo -e ""
+#     echo -e "See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of timezones"
+#     echo -e "Use a column named "TZ identifier" + note the column named "Notes""
+#     echo -e "Please enter your time zone"
+#     echo -e ""
+#     if [ -z "${SYSTEM_TIME_ZONE}" ]; then
+#         read -p "Timezone: " -e BILLIONMAIL_TIME_ZONE
+#     else
+#         read -p "Timezone [${SYSTEM_TIME_ZONE}]: " -e BILLIONMAIL_TIME_ZONE
+#         [ -z "${BILLIONMAIL_TIME_ZONE}" ] && BILLIONMAIL_TIME_ZONE=${SYSTEM_TIME_ZONE}
+#     fi
+# done
+
+BILLIONMAIL_TIME_ZONE=${SYSTEM_TIME_ZONE}
+if [ -z "${BILLIONMAIL_TIME_ZONE}" ]; then
+    BILLIONMAIL_TIME_ZONE="America/New_York"
+fi
 
 DBPASS_file=DBPASS_file.pl
 if [ ! -s "${DBPASS_file}" ]; then
@@ -1252,6 +1261,30 @@ Init_Billionmail()
 
 
 Billionmail(){
+    Check_Port=$(ss -tlnp | grep -E ":(${HTTP_PORT})\b")
+    if [ ! -z "${Check_Port}" ]; then
+        echo -e "${HTTP_PORT} Already used, random ports are being used"
+        while true; do
+        HTTP_PORT=$((RANDOM % 55535 + 10000))
+        if ! ss -tln | grep -q ":${HTTP_PORT} "; then
+            echo "${HTTP_PORT}"
+            break
+        fi
+        done
+    fi
+
+    Check_Port22=$(ss -tlnp | grep -E ":(${HTTPS_PORT})\b")
+    if [ ! -z "${Check_Port22}" ]; then
+        echo -e "${HTTPS_PORT} Already used, random ports are being used"
+        while true; do
+        HTTPS_PORT=$((RANDOM % 55535 + 10000))
+        if ! ss -tln | grep -q ":${HTTPS_PORT} "; then
+            echo "${HTTPS_PORT}"
+            break
+        fi
+        done
+    fi
+
     cat << EOF > billionmail.conf
 # Default BillionMail Username password
 ADMIN_USERNAME=${ADMIN_USERNAME}
@@ -1326,13 +1359,13 @@ EOF
     ${DOCKER_COMPOSE} up -d
     if [ $? -eq 0 ]; then
         echo -e "Billionmail installation completed successfully!"
-    else
-        Red_Error "Billionmail installation failed, please try reinstalling!"
+    # else
+    #     Red_Error "Billionmail installation failed, please try reinstalling!"
     fi
 
-    echo -e "Initialize the data..."
-    sleep 5
-    Init_Billionmail
+    # echo -e "Initialize the data..."
+    # sleep 5
+    # Init_Billionmail
 
     [ ! -d "/opt" ] && mkdir /opt
     echo "${PWD_d}" > /opt/PWD-Billion-Mail.txt
@@ -1344,7 +1377,7 @@ EOF
 
 
 Install_Main(){
-    Check_Port
+    # Check_Port
     LXC_install_tips
 
     Get_Pack_Manager
@@ -1382,17 +1415,31 @@ Install_Main(){
 
 
 Install_Main
-Domain_record
+# Domain_record
 
-echo -e "\e[31mPlease save the following information:\e[0m"
-if [ ${HTTP_PORT} = "80" ]; then
-    echo -e "Webmail address: \e[1;33mhttps://${IPV4_ADDRESS}/roundcube/\e[0m"
-else
-    echo -e "Webmail address: \e[1;33mhttps://${IPV4_ADDRESS}:${HTTP_PORT}/roundcube/\e[0m"
+IPV4_ADDRESS=$(curl -sS -4 --connect-timeout 10 -m 20 https://ifconfig.me)
+if [ -z "${IPV4_ADDRESS}" ]; then
+    IPV4_ADDRESS=$(curl -sSk --connect-timeout 10 -m 20 https://www.aapanel.com/api/common/getClientIP)
 fi
-echo -e "Webmail Username(e-mail): \e[1;33m${mailbox}@${BILLIONMAIL_HOSTNAME}\e[0m Password: \e[1;33m${Generate_mailbox_password}\e[0m"
-echo -e ""
-echo -e "BillionMail address: \e[1;33mhttps://${IPV4_ADDRESS}/${SafePath}\e[0m"
+ipv4_regex="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+if [[ ${IPV4_ADDRESS} =~ ${ipv4_regex} ]]; then        
+    echo "${IPV4_ADDRESS}" >/dev/null 2>&1
+elif [ -z "${IPV4_ADDRESS}" ]; then
+    IPV4_ADDRESS="YOUR_SERVER_IPV4_ADDRESS"
+fi
+echo -e "\e[31mPlease save the following information:\e[0m"
+# if [ ${HTTPS_PORT} = "443" ]; then
+#     echo -e "Webmail address: \e[1;33mhttps://${IPV4_ADDRESS}/roundcube/\e[0m"
+# else
+#     echo -e "Webmail address: \e[1;33mhttps://${IPV4_ADDRESS}:${HTTP_PORT}/roundcube/\e[0m"
+# fi
+# echo -e "Webmail Username(e-mail): \e[1;33m${mailbox}@${BILLIONMAIL_HOSTNAME}\e[0m Password: \e[1;33m${Generate_mailbox_password}\e[0m"
+# echo -e ""
+if [ ${HTTPS_PORT} = "443" ]; then
+    echo -e "BillionMail address: \e[1;33mhttps://${IPV4_ADDRESS}/${SafePath}\e[0m"
+else
+    echo -e "BillionMail address: \e[1;33mhttps://${IPV4_ADDRESS}:${HTTPS_PORT}/${SafePath}\e[0m"
+fi
 echo -e "BillionMail Username: \e[1;33m${ADMIN_USERNAME}\e[0m Password: \e[1;33m${ADMIN_PASSWORD}\e[0m"
 echo -e ""
 echo -e "Tip: Use \e[33m bm \e[0m or \e[33mbash mail_users.sh\e[0m to Add Domain and login info etc."

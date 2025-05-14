@@ -1,6 +1,6 @@
 <template>
 	<n-layout-sider
-		:width="isCollapse ? 64 : 240"
+		:width="isCollapse ? 64 : 200"
 		:content-style="{
 			display: 'flex',
 			flexDirection: 'column',
@@ -10,7 +10,8 @@
 		<!-- 应用标志和名称 -->
 		<div class="app-logo" :class="{ collapse: isCollapse }">
 			<a href="/">
-				<span class="app-name">{{ isCollapse ? 'Mail' : 'Billion Mail' }}</span>
+				<img class="icon" src="@/assets/images/logo.png"></img>
+				<span v-show="!isCollapse" class="app-name">BillionMail</span>
 			</a>
 		</div>
 
@@ -93,7 +94,7 @@ const logoutOptions = ref<MenuOption[]>([
 const renderLabel = (name: string, title: string) => {
 	return (
 		<RouterLink class="flex items-center" to={{ name }}>
-			<span class="ml-10px">{title}</span>
+			<span>{title}</span>
 		</RouterLink>
 	)
 }
@@ -139,7 +140,8 @@ onMounted(() => {
 .app-logo {
 	display: flex;
 	padding: 16px 24px;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid var(--color-border-1);
+	transition: all 0.3s ease;
 
 	&.collapse {
 		justify-content: center;
@@ -149,17 +151,17 @@ onMounted(() => {
 	a {
 		display: flex;
 		align-items: center;
+		gap: 10px;
 	}
 
 	.icon {
-		height: 36px;
+		width: 36px;
 	}
-
+	
 	.app-name {
-		line-height: 30px;
-		font-size: 24px;
+		font-size: 19px;
 		font-weight: bold;
-		color: #20a53a;
+		color: var(--color-text-5);
 	}
 }
 
@@ -169,14 +171,13 @@ onMounted(() => {
 }
 
 .footer-section {
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid var(--color-border-1);
+	transition: all 0.3s ease;
 }
 
 .n-menu {
 	--n-item-height: 48px;
-	--n-font-size: 15px;
-	--n-item-icon-color: #374151;
-	--n-item-text-color: #374151;
+	--n-font-size: 14px;
 	padding: 16px 0;
 
 	:deep(.n-menu-item) {

@@ -11,9 +11,8 @@ const menu = defineModel<string | number>('value')
 <style lang="scss" scoped>
 .bt-tabs {
 	--n-tab-gap: 4px;
-	--n-tab-border-radius: 0;
-	--n-tab-text-color-active: #333;
-	--n-tab-border-color: #cacad9;
+	--n-tab-text-color-active: var(--color-text-1);
+	--n-tab-border-color: var(--color-border-1);
 	--n-tab-padding-vertical: 0 16px;
 	--n-pane-padding-top: 16px;
 	--n-pane-padding-left: 0;

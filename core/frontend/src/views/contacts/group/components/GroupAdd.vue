@@ -1,14 +1,12 @@
 <template>
-	<modal :title="t('contacts.group.add.title')" width="580">
+	<modal :title="t('contacts.group.add.title')" width="500">
 		<div class="pt-12px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="t('contacts.group.form.name')" path="name">
-					<div class="w-240px">
-						<n-input v-model:value="form.name"></n-input>
-					</div>
+					<n-input v-model:value="form.name"></n-input>
 				</n-form-item>
 				<n-form-item :label="t('contacts.group.form.file')" path="file_data">
-					<div class="w-360px">
+					<div class="flex-1">
 						<bt-file-upload :is-upload="false" :accept="['txt']" @change="handleChangeFile">
 						</bt-file-upload>
 						<div class="mt-16px text-desc">

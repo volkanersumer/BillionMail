@@ -12,33 +12,27 @@
 					<div ref="formContentRef">
 						<n-card class="mb-24px">
 							<n-form-item :label="$t('market.task.edit.from')">
-								<from-select
-									v-model:value="form.addresser"
-									v-model:name="form.full_name"></from-select>
+								<from-select v-model:value="form.addresser" v-model:name="form.full_name">
+								</from-select>
 							</n-form-item>
 							<n-form-item :label="$t('market.task.edit.displayName')" path="full_name">
-								<div class="w-360px">
-									<n-input
-										v-model:value="form.full_name"
-										:placeholder="$t('market.task.edit.displayNamePlaceholder')">
-									</n-input>
-								</div>
+								<n-input
+									v-model:value="form.full_name"
+									:placeholder="$t('market.task.edit.displayNamePlaceholder')">
+								</n-input>
 							</n-form-item>
 							<n-form-item :label="$t('market.task.edit.subject')" path="subject">
-								<div class="w-360px">
-									<n-input
-										v-model:value="form.subject"
-										:placeholder="$t('market.task.edit.subjectPlaceholder')">
-									</n-input>
-								</div>
+								<n-input
+									v-model:value="form.subject"
+									:placeholder="$t('market.task.edit.subjectPlaceholder')">
+								</n-input>
 							</n-form-item>
 							<n-form-item :label="$t('market.task.edit.recipients')" type="group_ids">
-								<group-select
-									v-model:value="form.group_ids"
-									v-model:label="groupNames"></group-select>
+								<group-select v-model:value="form.group_ids" v-model:label="groupNames">
+								</group-select>
 							</n-form-item>
 							<n-form-item :label="$t('market.task.edit.template')" path="template_id">
-								<div class="w-260px">
+								<div class="flex-1">
 									<template-select
 										v-model:value="form.template_id"
 										v-model:content="templateContent">
@@ -95,25 +89,21 @@
 								</n-radio-group>
 							</n-form-item>
 							<n-form-item :label="$t('market.task.edit.remark')">
-								<div class="w-360px">
-									<n-input
-										v-model:value="form.remark"
-										:placeholder="$t('market.task.edit.remarkPlaceholder')">
-									</n-input>
-								</div>
+								<n-input
+									v-model:value="form.remark"
+									:placeholder="$t('market.task.edit.remarkPlaceholder')">
+								</n-input>
 							</n-form-item>
 							<n-form-item :label="$t('market.task.edit.testEmail')" :show-feedback="false">
-								<div class="flex w-360px">
-									<div class="flex-1 mr-10px">
-										<n-input
-											v-model:value="testEmail"
-											:placeholder="$t('market.task.edit.testEmailPlaceholder')">
-										</n-input>
-									</div>
-									<n-button @click="handleSendTest">
-										{{ $t('market.task.edit.sendTest') }}
-									</n-button>
+								<div class="flex-1 mr-10px">
+									<n-input
+										v-model:value="testEmail"
+										:placeholder="$t('market.task.edit.testEmailPlaceholder')">
+									</n-input>
 								</div>
+								<n-button @click="handleSendTest">
+									{{ $t('market.task.edit.sendTest') }}
+								</n-button>
 							</n-form-item>
 						</n-card>
 					</div>
@@ -151,7 +141,7 @@
 			<n-button type="primary" @click="handleSubmit">
 				{{ $t('common.actions.confirm') }}
 			</n-button>
-			<n-button class="ml-16px" @click="handleGoBack">
+			<n-button class="ml-16px" secondary @click="handleGoBack">
 				{{ $t('common.actions.back') }}
 			</n-button>
 		</div>
@@ -407,7 +397,7 @@ const handleSubmit = async () => {
 .action-buttons {
 	width: 100%;
 	padding: 23px 24px;
-	background-color: #fff;
-	border-top: 1px solid #e5e7eb;
+	background-color: var(--color-bg-1);
+	border-top: 1px solid var(--color-border-1);
 }
 </style>

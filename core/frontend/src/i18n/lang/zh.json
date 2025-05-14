@@ -74,7 +74,7 @@
 		}
 	},
 	"login": {
-		"title": "Billion Mail",
+		"title": "BillionMail",
 		"form": {
 			"usernamePlaceholder": "用户名",
 			"passwordPlaceholder": "密码",

@@ -1,27 +1,23 @@
 <template>
-	<modal :title="title" :width="560">
+	<modal :title="title" :width="520">
 		<div class="pt-16px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="t('domain.form.domain')" path="domain">
-					<div class="w-320px">
-						<n-input
-							v-model:value="form.domain"
-							:disabled="isEdit"
-							:placeholder="t('domain.form.domainPlaceholder')">
-						</n-input>
-					</div>
+					<n-input
+						v-model:value="form.domain"
+						:disabled="isEdit"
+						:placeholder="t('domain.form.domainPlaceholder')">
+					</n-input>
 				</n-form-item>
 				<n-form-item v-if="false" label="A记录">
-					<div class="w-320px">
-						<n-input
-							v-model:value="form.a_record"
-							:disabled="isEdit"
-							placeholder="请输入A记录，例如：mail.aapanel.com">
-						</n-input>
-					</div>
+					<n-input
+						v-model:value="form.a_record"
+						:disabled="isEdit"
+						placeholder="请输入A记录，例如：mail.aapanel.com">
+					</n-input>
 				</n-form-item>
 				<n-form-item :label="t('domain.form.quota')">
-					<n-input-number v-model:value="form.quota" class="w-200px" :min="0" :show-button="false">
+					<n-input-number v-model:value="form.quota" class="flex-1" :min="0" :show-button="false">
 					</n-input-number>
 					<div class="w-100px ml-20px">
 						<n-select v-model:value="form.quota_unit" :options="unitOptions"></n-select>
@@ -30,7 +26,7 @@
 				<n-form-item :label="t('domain.form.mailboxCount')">
 					<n-input-number
 						v-model:value="form.mailboxes"
-						class="w-320px"
+						class="flex-1"
 						:min="0"
 						:show-button="false">
 					</n-input-number>

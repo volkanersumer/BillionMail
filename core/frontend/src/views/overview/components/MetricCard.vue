@@ -22,7 +22,7 @@ defineProps({
 .metric-card {
 	--n-padding-top: 24px;
 	--n-padding-bottom: 24px;
-	--n-text-color: #1d2630;
+	--n-text-color: var(--color-card-text-1);
 }
 
 .title {

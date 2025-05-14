@@ -7,7 +7,7 @@
 				</div>
 			</div>
 
-			<h2 class="login-title">{{ t('login.title') }}</h2>
+			<h2 class="login-title">BillionMail</h2>
 
 			<n-form ref="formRef" size="large" :model="form" :rules="rules">
 				<n-form-item :show-label="false" path="username">
@@ -159,10 +159,8 @@ getCode()
 
 <style lang="scss" scoped>
 .login-container {
-	--primary-color: #00b9f5;
-	--primary-hover: #0095c8;
-	--text-dark: #333;
-	--text-light: #666;
+	--text-dark: var(--color-text-1);
+	--text-light: var(--color-text-2);
 	--accent-green: #25cdb1;
 	--accent-purple: #7e6ed5;
 	--border-light: #ddd;
@@ -174,7 +172,7 @@ getCode()
 	justify-content: center;
 	align-items: center;
 	min-height: 100%;
-	background: linear-gradient(135deg, #f0f3ff 0%, #e5f8f7 100%);
+	background: var(--color-bg-3);
 	overflow: hidden;
 	&::before {
 		content: '';
@@ -203,7 +201,7 @@ getCode()
 .login-card {
 	width: 100%;
 	max-width: 400px;
-	background-color: #fff;
+	background-color: var(--color-bg-1);
 	padding: 52px 32px 62px;
 	border-radius: 8px;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -214,13 +212,12 @@ getCode()
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
+	width: 70px;
 
 	&-container {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		margin-bottom: 24px;
 	}
 
 	&-icon {
@@ -237,6 +234,7 @@ getCode()
 }
 
 .login-title {
+	margin-top: 0;
 	margin-bottom: 32px;
 	text-align: center;
 	font-weight: 500;

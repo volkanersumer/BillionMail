@@ -1,17 +1,27 @@
 <template>
-	<div class="settings-title">{{ t('settings.service.title') }}</div>
-	<n-data-table :loading="loading" :data="serviceList" :columns="columns"></n-data-table>
+	<div>
+		<div class="settings-title">{{ t('settings.service.title') }}</div>
+		<n-data-table :loading="loading" :data="serviceList" :columns="columns"></n-data-table>
+		<config-modal></config-modal>
+	</div>
 </template>
 
 <script lang="tsx" setup>
-import { NButton, NTag, DataTableColumns } from 'naive-ui'
+import { NButton, NTag, DataTableColumns, NFlex } from 'naive-ui'
 import { confirm, isArray } from '@/utils'
+import { useModal } from '@/hooks/modal/useModal'
 import { getServiceList, restartService } from '@/api/modules/settings'
-import { DockerService } from '../types/common'
+import type { DockerService } from '../types/common'
+
+import ServiceConfig from './ServiceConfig.vue'
 
 const { t } = useI18n()
 const loading = ref(false)
 const serviceList = ref<DockerService[]>([])
+
+const getConfigDisabled = (name: string) => {
+	return name.includes('rspamd') || name.includes('postfix') || name.includes('dovecot')
+}
 
 const columns = ref<DataTableColumns<DockerService>>([
 	{
@@ -39,7 +49,7 @@ const columns = ref<DataTableColumns<DockerService>>([
 		title: t('common.columns.actions'),
 		align: 'right',
 		render: row => (
-			<>
+			<NFlex inline={true}>
 				<NButton
 					type="primary"
 					text
@@ -48,7 +58,16 @@ const columns = ref<DataTableColumns<DockerService>>([
 					}}>
 					{t('common.actions.restart')}
 				</NButton>
-			</>
+				<NButton
+					type="primary"
+					text
+					disabled={!getConfigDisabled(row.Names[0])}
+					onClick={() => {
+						handleShowConfig(row)
+					}}>
+					{t('common.actions.config')}
+				</NButton>
+			</NFlex>
 		),
 	},
 ])
@@ -63,6 +82,15 @@ const handleRestart = async (row: DockerService) => {
 			getList()
 		},
 	})
+}
+
+const [ConfigModal, configModalApi] = useModal({
+	component: ServiceConfig,
+})
+
+const handleShowConfig = (row: DockerService) => {
+	configModalApi.setState({ row: row })
+	configModalApi.open()
 }
 
 const getList = async () => {

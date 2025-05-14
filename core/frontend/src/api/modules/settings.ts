@@ -15,3 +15,16 @@ export const restartService = (params: { container_id: string }) => {
 		},
 	})
 }
+
+export const getServiceConfig = (params: { service_type: string }) => {
+	return instance.post('/services/get_config', params)
+}
+
+export const saveServiceConfig = (params: { service_type: string; content: string }) => {
+	return instance.post('/services/save_config', params, {
+		fetchOptions: {
+			loading: t('settings.api.loading.saving'),
+			successMessage: true,
+		},
+	})
+}

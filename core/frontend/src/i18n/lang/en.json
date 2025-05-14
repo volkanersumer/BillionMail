@@ -38,7 +38,8 @@
 			"test": "Test",
 			"rename": "Rename",
 			"preview": "Preview",
-			"modify": "Modify"
+			"modify": "Modify",
+			"config": "Config"
 		},
 		"useCopy": {
 			"noText": "No text to copy",
@@ -543,6 +544,8 @@
 		"title": "Settings",
 		"service": {
 			"title": "Service Status",
+			"tips": "Tips: Ctrl+F Search keywords, Ctrl+S Save, Ctrl+H Search and replace",
+			"editTitle": "Online Edit {name}",
 			"columns": {
 				"name": "Service Name",
 				"status": "Status"
@@ -561,7 +564,8 @@
 		},
 		"api": {
 			"loading": {
-				"restarting": "Restarting service, please wait..."
+				"restarting": "Restarting service, please wait...",
+				"saving": "Saving configuration, please wait..."
 			}
 		}
 	}

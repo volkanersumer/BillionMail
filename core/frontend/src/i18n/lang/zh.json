@@ -38,7 +38,8 @@
 			"test": "测试",
 			"rename": "重命名",
 			"preview": "预览",
-			"modify": "修改"
+			"modify": "修改",
+			"config": "配置"
 		},
 		"useCopy": {
 			"noText": "没有要复制的文本",
@@ -547,6 +548,8 @@
 		"title": "系统设置",
 		"service": {
 			"title": "服务状态",
+			"tips": "提示：Ctrl+F 搜索关键词，Ctrl+S 保存，Ctrl+H 搜索和替换",
+			"editTitle": "在线编辑 {name}",
 			"columns": {
 				"name": "服务名称",
 				"status": "状态"
@@ -562,7 +565,8 @@
 		},
 		"api": {
 			"loading": {
-				"restarting": "正在重启服务，请稍候..."
+				"restarting": "正在重启服务，请稍候...",
+				"saving": "正在保存配置，请稍候..."
 			}
 		}
 	}

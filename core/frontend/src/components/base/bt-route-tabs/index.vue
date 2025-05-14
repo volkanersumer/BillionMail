@@ -1,8 +1,7 @@
 <template>
 	<div class="bt-title">{{ title }}</div>
 	<n-tabs :value="activeTab" type="line" class="route-tabs" @update:value="handleUpdateTab">
-		<n-tab-pane v-for="tab in tabs" :key="tab.name" :name="tab.name" :tab="$t(tab.title)">
-		</n-tab-pane>
+		<n-tab-pane v-for="tab in tabs" :key="tab.name" :name="tab.name" :tab="tab.title"> </n-tab-pane>
 	</n-tabs>
 	<router-view />
 </template>
@@ -43,8 +42,10 @@ const addTab = (route: RouteLocationNormalized) => {
 
 	if (route.matched[1].children) {
 		tabs.value = route.matched[1].children.map(routeItem => {
+			const key = get(routeItem, 'meta.titleKey', '')
+			const title = get(routeItem, 'meta.title', '')
 			return {
-				title: `${get(routeItem, 'meta.titleKey')}`,
+				title: `${key ? t(String(key)) : title}`,
 				name: String(routeItem.name),
 			}
 		})

@@ -12,10 +12,10 @@
 </template>
 
 <script lang="ts" setup>
+import { isObject } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
 import { getServiceConfig, saveServiceConfig } from '@/api/modules/settings'
 import type { DockerService } from '../types/common'
-import { isObject } from '@/utils'
 
 const { t } = useI18n()
 

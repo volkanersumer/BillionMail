@@ -563,6 +563,34 @@
 				"confirm": "确定要重启【{name}】吗？"
 			}
 		},
+		"bcc": {
+			"title": "BCC管理",
+			"add": "添加BCC",
+			"edit": "编辑BCC",
+			"needCopy": "需要复制",
+			"copyTo": "复制到",
+			"domain": "域名",
+			"type": "BCC类型",
+			"status": "状态",
+			"active": "激活",
+			"types": {
+				"sender": "发送时",
+				"recipient": "接收时"
+			},
+			"delete": {
+				"title": "删除BCC [{address}]",
+				"content": "是否删除此BCC设置？"
+			},
+			"placeholders": {
+				"needCopy": "请输入需要BCC的用户",
+				"copyTo": "请输入需要接收BCC的邮箱"
+			},
+			"loading": {
+				"adding": "正在添加BCC，请稍候...",
+				"saving": "正在保存BCC，请稍候...",
+				"deleting": "正在删除BCC，请稍候..."
+			}
+		},
 		"api": {
 			"loading": {
 				"restarting": "正在重启服务，请稍候...",

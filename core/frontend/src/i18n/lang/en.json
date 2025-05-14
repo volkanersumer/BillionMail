@@ -74,7 +74,7 @@
 		}
 	},
 	"login": {
-		"title": "Billion Mail",
+		"title": "BillionMail",
 		"form": {
 			"usernamePlaceholder": "Username",
 			"passwordPlaceholder": "Password",

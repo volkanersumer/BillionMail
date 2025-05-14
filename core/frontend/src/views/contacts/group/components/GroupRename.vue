@@ -1,11 +1,9 @@
 <template>
-	<modal :title="t('contacts.group.rename.title')" width="480">
+	<modal :title="t('contacts.group.rename.title')" width="400">
 		<div class="pt-12px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="t('contacts.group.form.name')" path="name">
-					<div class="w-240px">
-						<n-input v-model:value="form.name"></n-input>
-					</div>
+					<n-input v-model:value="form.name"></n-input>
 				</n-form-item>
 			</bt-form>
 		</div>

@@ -17,7 +17,7 @@
 			<slot></slot>
 		</div>
 		<template v-if="footer" #action>
-			<n-button class="cancel-btn" color="#cbcbcb" @click="onCancel">
+			<n-button secondary @click="onCancel">
 				{{ $t('common.actions.cancel') }}
 			</n-button>
 			<n-button :type="confirmType" @click="onConfirm">
@@ -105,9 +105,3 @@ const onAfterLeave = () => {
 	props.onAfterLeave?.()
 }
 </script>
-
-<style lang="scss" scoped>
-.cancel-btn {
-	--n-color-hover: #c9302c;
-}
-</style>

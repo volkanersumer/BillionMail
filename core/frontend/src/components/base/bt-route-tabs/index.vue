@@ -1,5 +1,5 @@
 <template>
-	<div class="mb-4px text-24px font-bold">{{ title }}</div>
+	<div class="bt-title">{{ title }}</div>
 	<n-tabs :value="activeTab" type="line" class="route-tabs" @update:value="handleUpdateTab">
 		<n-tab-pane v-for="tab in tabs" :key="tab.name" :name="tab.name" :tab="$t(tab.title)">
 		</n-tab-pane>
@@ -59,6 +59,6 @@ addTab(route)
 	--n-tab-gap: 32px;
 	--n-tab-padding: 12px 4px;
 	--n-pane-padding-top: 16px;
-	--n-tab-border-color: rgba(229, 231, 235, 0.75);
+	--n-tab-border-color: var(--color-border-1);
 }
 </style>

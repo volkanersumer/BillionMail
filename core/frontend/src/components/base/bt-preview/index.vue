@@ -1,5 +1,10 @@
 <template>
-	<iframe width="100%" :height="height" :srcdoc="value" :style="{ border: 'none' }"> </iframe>
+	<iframe
+		width="100%"
+		:height="height"
+		:srcdoc="value"
+		:style="{ border: 'none', borderRadius: '4px' }">
+	</iframe>
 </template>
 
 <script lang="ts" setup>

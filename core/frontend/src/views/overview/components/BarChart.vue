@@ -3,7 +3,10 @@
 </template>
 
 <script setup lang="ts">
+import { useThemeVars } from 'naive-ui'
 import { formatTime } from '@/utils'
+
+const theme = useThemeVars()
 
 const { dateType, chartData } = defineProps({
 	dateType: {
@@ -41,6 +44,9 @@ const chartOptions = computed(() => {
 			icon: 'circle',
 			itemWidth: 10,
 			itemHeight: 10,
+			textStyle: {
+				color: theme.value.textColor2,
+			},
 			data: [success.label, fail.label],
 		},
 		tooltip: {
@@ -69,7 +75,7 @@ const chartOptions = computed(() => {
 				lineStyle: {
 					type: 'dashed',
 					width: 1,
-					color: '#ebeef5',
+					color: theme.value.borderColor,
 				},
 			},
 		},

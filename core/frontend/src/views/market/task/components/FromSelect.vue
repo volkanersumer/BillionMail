@@ -1,5 +1,5 @@
 <template>
-	<div class="w-170px">
+	<div class="flex-1">
 		<n-select
 			v-model:value="domain"
 			:loading="loading"
@@ -7,7 +7,7 @@
 			@update:value="handleUpdateDomain">
 		</n-select>
 	</div>
-	<div class="w-180px ml-10px">
+	<div class="flex-1 ml-10px">
 		<n-select
 			v-model:value="sender"
 			:loading="loading"

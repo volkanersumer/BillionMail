@@ -1,16 +1,15 @@
 <template>
-	<modal :title="$t('market.template.add.title')" width="600">
+	<modal :title="$t('market.template.add.title')" width="480">
 		<div class="pt-12px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="$t('market.template.name')" path="temp_name">
-					<div class="w-320px">
-						<n-input
-							v-model:value="form.temp_name"
-							:placeholder="$t('market.template.add.namePlaceholder')" />
-					</div>
+					<n-input
+						v-model:value="form.temp_name"
+						:placeholder="$t('market.template.add.namePlaceholder')">
+					</n-input>
 				</n-form-item>
 				<n-form-item :label="$t('market.template.file')" path="mode">
-					<div class="w-400px">
+					<div class="flex-1">
 						<n-radio-group v-model:value="form.add_type">
 							<n-radio-button :value="0">{{ $t('market.template.uploadHtml') }}</n-radio-button>
 						</n-radio-group>

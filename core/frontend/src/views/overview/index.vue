@@ -1,5 +1,6 @@
 <template>
 	<div class="email-analytics-container">
+		<div class="bt-title">{{ t('layout.menu.overview') }}</div>
 		<!-- Top Filter Area -->
 		<filter-bar
 			v-model:domain="domain"

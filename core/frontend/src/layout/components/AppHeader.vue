@@ -7,6 +7,9 @@
 		</div>
 
 		<div class="header-right">
+			<n-button class="icon-btn" :bordered="false" @click="handleSetTheme">
+				<i class="icon" :class="theme === 'light' ? 'i-ri-sun-line' : 'i-ri-moon-line'"></i>
+			</n-button>
 			<n-dropdown v-if="langOptions.length > 0" :options="langOptions" @select="handleLangAction">
 				<n-button class="icon-btn" :bordered="false">
 					<i class="icon i-mdi-language text-20px"></i>
@@ -24,7 +27,7 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
 import { DropdownOption } from 'naive-ui'
-import { useUserStore, useGlobalStore } from '@/store'
+import { useUserStore, useGlobalStore, useThemeStore } from '@/store'
 
 defineProps({
 	top: {
@@ -36,9 +39,12 @@ defineProps({
 const { t } = useI18n()
 
 const userStore = useUserStore()
-const globalStore = useGlobalStore()
 
+const globalStore = useGlobalStore()
 const { isCollapse, langList } = storeToRefs(globalStore)
+
+const themeStore = useThemeStore()
+const { theme } = storeToRefs(themeStore)
 
 const handleCollapse = () => {
 	globalStore.setCollapse()
@@ -52,6 +58,10 @@ const userOptions = ref<DropdownOption[]>([
 		key: 'logout',
 	},
 ])
+
+const handleSetTheme = () => {
+	themeStore.setTheme(theme.value === 'dark' ? 'light' : 'dark')
+}
 
 const handleLangAction = async (key: string) => {
 	await globalStore.setLang(key)
@@ -91,7 +101,6 @@ onMounted(() => {
 	align-items: center;
 	height: 48px;
 	padding: 0 12px;
-	background-color: #fff;
 	box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 	z-index: 1000;
 }
@@ -108,7 +117,7 @@ onMounted(() => {
 	--n-height: 48px;
 	--n-padding: 0;
 	--n-font-size: 22px;
-	--n-text-color: #5b6b79;
+	--n-text-color: var(--color-text-4);
 	--n-ripple-color: none;
 }
 </style>

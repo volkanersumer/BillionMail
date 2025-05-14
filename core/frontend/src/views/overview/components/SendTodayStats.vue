@@ -12,9 +12,9 @@
 			<div class="stat-item">
 				<div class="stat-label">{{ $t('overview.send.fail') }}</div>
 				<div class="stat-value">
-					<n-button text type="error" class="text-18px! font-bold" @click="handleShowFail">{{
-						failCount
-					}}</n-button>
+					<n-button text type="error" class="text-18px! font-bold" @click="handleShowFail">
+						{{ failCount }}
+					</n-button>
 				</div>
 			</div>
 		</div>
@@ -110,7 +110,7 @@ const barChartData = computed(() => {
 
 	.stat-label {
 		font-size: 14px;
-		color: #666;
+		color: var(--color-text-2);
 		margin-bottom: 5px;
 	}
 

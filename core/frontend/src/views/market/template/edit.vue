@@ -46,7 +46,7 @@
 			<n-button type="primary" @click="onEdit">
 				{{ $t('common.actions.save') }}
 			</n-button>
-			<n-button class="ml-16px" @click="onGoBack">
+			<n-button class="ml-16px" secondary @click="onGoBack">
 				{{ $t('common.actions.back') }}
 			</n-button>
 		</div>
@@ -149,7 +149,7 @@ getTemplateHtml()
 		}
 
 		.editor-area {
-			border-right: 1px solid #e5e7eb;
+			border-right: 1px solid var(--color-border-1);
 			padding-right: 24px;
 		}
 
@@ -170,7 +170,7 @@ getTemplateHtml()
 	bottom: 0;
 	width: 100%;
 	padding: 23px 24px;
-	background-color: #fff;
-	border-top: 1px solid #e5e7eb;
+	background-color: var(--color-bg-1);
+	border-top: 1px solid var(--color-border-1);
 }
 </style>

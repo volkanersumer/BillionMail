@@ -1,40 +1,30 @@
 <template>
 	<modal :title="title" width="520">
-		<bt-form ref="formRef" :model="form" :rules="rules">
+		<bt-form ref="formRef" class="pt-20px" :model="form" :rules="rules">
 			<n-form-item :label="t('mailbox.form.emailAddress')" path="full_name">
-				<div class="w-280px">
-					<n-input-group>
-						<n-input v-model:value="form.full_name" class="flex-1" :disabled="isEdit"> </n-input>
-						<domain-select
-							v-model:value="form.domain"
-							class="flex-1"
-							:is-all="false"
-							:disabled="isEdit">
-						</domain-select>
-					</n-input-group>
-				</div>
+				<n-input-group>
+					<n-input v-model:value="form.full_name" class="flex-1" :disabled="isEdit"> </n-input>
+					<domain-select
+						v-model:value="form.domain"
+						class="flex-1"
+						:is-all="false"
+						:disabled="isEdit">
+					</domain-select>
+				</n-input-group>
 			</n-form-item>
 			<n-form-item :label="t('mailbox.form.password')" path="password">
-				<div class="w-280px">
-					<n-input
-						v-model:value="form.password"
-						:placeholder="t('mailbox.form.passwordPlaceholder')">
-					</n-input>
-				</div>
+				<n-input v-model:value="form.password" :placeholder="t('mailbox.form.passwordPlaceholder')">
+				</n-input>
 			</n-form-item>
 			<n-form-item :label="t('mailbox.form.quota')" path="quota">
-				<div class="w-280px">
-					<n-input-group>
-						<n-input-number v-model:value="form.quota" class="flex-1" :min="1" :show-button="false">
-						</n-input-number>
-						<n-select v-model:value="form.unit" class="flex-1" :options="unitOptions"> </n-select>
-					</n-input-group>
-				</div>
+				<n-input-group>
+					<n-input-number v-model:value="form.quota" class="flex-1" :min="1" :show-button="false">
+					</n-input-number>
+					<n-select v-model:value="form.unit" class="flex-1" :options="unitOptions"> </n-select>
+				</n-input-group>
 			</n-form-item>
 			<n-form-item :label="t('mailbox.form.userType')" path="userType">
-				<div class="w-280px">
-					<n-select v-model:value="form.isAdmin" :options="userTypeOptions" />
-				</div>
+				<n-select v-model:value="form.isAdmin" :options="userTypeOptions" />
 			</n-form-item>
 			<n-form-item :label="t('mailbox.form.status')" :show-feedback="false">
 				<n-switch v-model:value="form.active" :checked-value="1" :unchecked-value="0" />

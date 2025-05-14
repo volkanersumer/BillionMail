@@ -85,6 +85,6 @@ getList()
 	margin-bottom: 16px;
 	font-size: 16px;
 	font-weight: 600;
-	color: #666666;
+	color: var(--color-text-2);
 }
 </style>

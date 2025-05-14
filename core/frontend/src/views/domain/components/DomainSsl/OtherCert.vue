@@ -133,7 +133,7 @@ init()
 
 		.info-label {
 			font-weight: 500;
-			color: #606266;
+			color: var(--color-text-3);
 		}
 
 		.info-value {
@@ -157,7 +157,7 @@ init()
 			.section-title {
 				font-weight: 500;
 				margin-bottom: 8px;
-				color: #303133;
+				color: var(--color-text-1);
 			}
 		}
 	}

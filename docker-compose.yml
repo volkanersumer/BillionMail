@@ -169,7 +169,7 @@ services:
             - webmail
 
     core-billionmail:
-      image: ghcr.io/aapanel/core:1.1
+      image: ghcr.io/aapanel/core:1.2
       hostname: core-manage
       depends_on:
         - pgsql-billionmail
@@ -186,7 +186,7 @@ services:
         - ./.env:/opt/billionmail/.env
         - ./conf:/opt/billionmail/conf
         - ./logs:/opt/billionmail/logs
-        - ./core:/opt/billionmail/core
+        - ./logs/core:/opt/billionmail/core/logs
         - /var/run/docker.sock:/var/run/docker.sock:ro
       environment:
         - TZ=${TZ}

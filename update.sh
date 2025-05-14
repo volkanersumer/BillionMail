@@ -201,13 +201,9 @@ Update_BillionMail(){
         git checkout "origin/${BRANCH}" update.sh
         MD5_2=$(md5sum update.sh)
         if [[ "${MD5_1}" != "${MD5_2}" ]]; then
-            #echo -e "\033[33m update.sh is changed, please run update.sh script again.\033[0m"
+            echo -e "\033[33m update.sh is changed, please run update.sh script again.\033[0m"
             chmod +x update.sh
-            echo y | ./update.sh
-            #exit 1
-        else
-            chmod +x update.sh
-            echo y | ./update.sh
+            exit 1
         fi
     fi
 

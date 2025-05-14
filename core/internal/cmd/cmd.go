@@ -14,6 +14,7 @@ import (
 	"billionmail-core/internal/controller/mail_services"
 	"billionmail-core/internal/controller/overview"
 	"billionmail-core/internal/controller/rbac"
+	"billionmail-core/internal/controller/relay"
 	"billionmail-core/internal/service/database_initialization"
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/maillog_stat"
@@ -184,6 +185,7 @@ var (
 					abnormal_recipient.NewV1(),
 					languages.NewV1(),
 					mail_services.NewV1(),
+					relay.NewV1(),
 				)
 			})
 

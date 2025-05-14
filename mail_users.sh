@@ -452,7 +452,7 @@ Default_info() {
     if [ "${HTTPS_PORT}" = "443" ];then
         echo  "BillionMail Internal Address:      ${pool}://${LOCAL_IP}/${SafePath}"
     else
-        echo  "BillionMail Internal Address:      ${pool}://${LOCAL_IP}:${HTTPS_PORT}${SafePath}"
+        echo  "BillionMail Internal Address:      ${pool}://${LOCAL_IP}:${HTTPS_PORT}/${SafePath}"
     fi
     
     echo -e "Username: ${ADMIN_USERNAME} \nPassword: ${ADMIN_PASSWORD}"

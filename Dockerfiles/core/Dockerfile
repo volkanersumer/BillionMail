@@ -6,6 +6,16 @@ LABEL maintainer="https://github.com/aaPanel/Billion-Mail"
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
+
+# Platform-specific binary copy
+ARG TARGETARCH
+COPY core/billionmail-${TARGETARCH} /opt/billionmail/core/billionmail
+COPY core/manifest /opt/billionmail/core/manifest
+COPY core/languages /opt/billionmail/core/languages
+COPY core/public /opt/billionmail/core/public
+COPY core/resource /opt/billionmail/core/resource
+COPY core/template /opt/billionmail/core/template
+
 # Copy file
 # COPY repositories /etc/apk/repositories
 COPY stop-supervisor.sh /stop-supervisor.sh
@@ -26,7 +36,7 @@ RUN apk add --no-cache \
     iptables \
     ipset \
     && rm -rf /var/cache/apk/* \
-    && chmod +x /stop-supervisor.sh /core.sh /restart_fail2ban.sh
+    && chmod +x /stop-supervisor.sh /core.sh /restart_fail2ban.sh /opt/billionmail/core/billionmail
 
 # Copy file
 

@@ -1263,6 +1263,10 @@ Init_Billionmail()
 Billionmail(){
     Check_Port=$(ss -tlnp | grep -E ":(${HTTP_PORT})\b")
     if [ ! -z "${Check_Port}" ]; then
+        HTTP_PORT=5678
+        Check_Port=$(ss -tlnp | grep -E ":(${HTTP_PORT})\b")
+    fi
+    if [ ! -z "${Check_Port}" ]; then
         echo -e "${HTTP_PORT} Already used, random ports are being used"
         while true; do
         HTTP_PORT=$((RANDOM % 55535 + 10000))
@@ -1274,6 +1278,10 @@ Billionmail(){
     fi
 
     Check_Port22=$(ss -tlnp | grep -E ":(${HTTPS_PORT})\b")
+    if [ ! -z "${Check_Port22}" ]; then
+        HTTPS_PORT=5679
+        Check_Port22=$(ss -tlnp | grep -E ":(${HTTPS_PORT})\b")
+    fi
     if [ ! -z "${Check_Port22}" ]; then
         echo -e "${HTTPS_PORT} Already used, random ports are being used"
         while true; do

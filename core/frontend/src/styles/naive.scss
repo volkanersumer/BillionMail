@@ -1,5 +1,4 @@
 div.n-card {
-	--n-border-radius: 0px;
 	box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
 }
 
@@ -25,5 +24,26 @@ button.n-button {
 .n-spin-container {
 	.n-spin-content {
 		height: 100%;
+	}
+}
+
+.n-radio-group {
+	.n-radio-group__splitor {
+		display: none;
+	}
+	&.n-radio-group--button-group {
+		padding: 2px;
+		background-color: var(--n-button-color);
+		border-radius: 4px;
+		transition: all 0.3s ease;
+		.n-radio-button {
+			vertical-align: top;
+			height: 30px;
+			line-height: 30px;
+			border-radius: var(--n-button-border-radius);
+		}
+	}
+	.n-radio + .n-radio {
+		margin-left: 16px;
 	}
 }

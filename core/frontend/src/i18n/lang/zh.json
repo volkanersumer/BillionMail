@@ -38,7 +38,8 @@
 			"test": "测试",
 			"rename": "重命名",
 			"preview": "预览",
-			"modify": "修改"
+			"modify": "修改",
+			"config": "配置"
 		},
 		"useCopy": {
 			"noText": "没有要复制的文本",
@@ -74,7 +75,7 @@
 		}
 	},
 	"login": {
-		"title": "Billion Mail",
+		"title": "BillionMail",
 		"form": {
 			"usernamePlaceholder": "用户名",
 			"passwordPlaceholder": "密码",
@@ -547,6 +548,8 @@
 		"title": "系统设置",
 		"service": {
 			"title": "服务状态",
+			"tips": "提示：Ctrl+F 搜索关键词，Ctrl+S 保存，Ctrl+H 搜索和替换",
+			"editTitle": "在线编辑 {name}",
 			"columns": {
 				"name": "服务名称",
 				"status": "状态"
@@ -560,9 +563,38 @@
 				"confirm": "确定要重启【{name}】吗？"
 			}
 		},
+		"bcc": {
+			"title": "BCC管理",
+			"add": "添加BCC",
+			"edit": "编辑BCC",
+			"needCopy": "需要复制",
+			"copyTo": "复制到",
+			"domain": "域名",
+			"type": "BCC类型",
+			"status": "状态",
+			"active": "激活",
+			"types": {
+				"sender": "发送时",
+				"recipient": "接收时"
+			},
+			"delete": {
+				"title": "删除BCC [{address}]",
+				"content": "是否删除此BCC设置？"
+			},
+			"placeholders": {
+				"needCopy": "请输入需要BCC的用户",
+				"copyTo": "请输入需要接收BCC的邮箱"
+			},
+			"loading": {
+				"adding": "正在添加BCC，请稍候...",
+				"saving": "正在保存BCC，请稍候...",
+				"deleting": "正在删除BCC，请稍候..."
+			}
+		},
 		"api": {
 			"loading": {
-				"restarting": "正在重启服务，请稍候..."
+				"restarting": "正在重启服务，请稍候...",
+				"saving": "正在保存配置，请稍候..."
 			}
 		}
 	}

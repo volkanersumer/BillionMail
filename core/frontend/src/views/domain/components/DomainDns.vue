@@ -211,15 +211,15 @@ const [Modal, modalApi] = useModal({
 
 <style lang="scss" scoped>
 .record-title {
-	font-size: 16px;
-	color: #444;
-	font-weight: 600;
 	margin-bottom: 10px;
+	font-size: 16px;
+	color: var(--color-text-1);
+	font-weight: 600;
 }
 
 .record-desc {
-	font-size: 14px;
-	color: #666;
 	margin-bottom: 10px;
+	font-size: 14px;
+	color: var(--color-text-2);
 }
 </style>

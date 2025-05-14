@@ -22,8 +22,7 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-	labelWidth: '130',
-	labelPlacement: 'left',
+	labelPlacement: 'top',
 })
 
 const formRef = ref<FormInst | null>(null)

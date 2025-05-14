@@ -21,11 +21,11 @@ export default defineConfig({
 	transformers: [transformerDirectives({ enforce: 'pre' })],
 	theme: {
 		colors: {
-			primary: '#20a53a',
-			primaryHover: '#1D9534',
-			error: '#ef0808',
-			warning: '#f0ad4e',
-			desc: '#999',
+			primary: 'var(--color-primary-1)',
+			primaryHover: 'var(--color-primary-hover-1)',
+			error: 'var(--color-error-1)',
+			warning: 'var(--color-warning-1)',
+			desc: 'var(--color-text-3)',
 		},
 	},
 	shortcuts: {

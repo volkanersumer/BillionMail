@@ -38,7 +38,8 @@
 			"test": "Test",
 			"rename": "Rename",
 			"preview": "Preview",
-			"modify": "Modify"
+			"modify": "Modify",
+			"config": "Config"
 		},
 		"useCopy": {
 			"noText": "No text to copy",
@@ -74,7 +75,7 @@
 		}
 	},
 	"login": {
-		"title": "Billion Mail",
+		"title": "BillionMail",
 		"form": {
 			"usernamePlaceholder": "Username",
 			"passwordPlaceholder": "Password",
@@ -543,6 +544,8 @@
 		"title": "Settings",
 		"service": {
 			"title": "Service Status",
+			"tips": "Tips: Ctrl+F Search keywords, Ctrl+S Save, Ctrl+H Search and replace",
+			"editTitle": "Online Edit {name}",
 			"columns": {
 				"name": "Service Name",
 				"status": "Status"
@@ -559,9 +562,38 @@
 				"confirm": "Are you sure you want to restart [{name}]?"
 			}
 		},
+		"bcc": {
+			"title": "BCC Management",
+			"add": "Add BCC",
+			"edit": "Edit BCC",
+			"needCopy": "Need Copy",
+			"copyTo": "Copy to",
+			"domain": "Domain",
+			"type": "BCC Type",
+			"status": "Status",
+			"active": "Active",
+			"types": {
+				"sender": "When sending",
+				"recipient": "When receiving"
+			},
+			"delete": {
+				"title": "Delete BCC [{address}]",
+				"content": "Whether to delete the BCC setting?"
+			},
+			"placeholders": {
+				"needCopy": "Enter the users you need to BCC",
+				"copyTo": "Enter the email you need to receive the BCC"
+			},
+			"loading": {
+				"adding": "Adding BCC, please wait...",
+				"saving": "Saving BCC, please wait...",
+				"deleting": "Deleting BCC, please wait..."
+			}
+		},
 		"api": {
 			"loading": {
-				"restarting": "Restarting service, please wait..."
+				"restarting": "Restarting service, please wait...",
+				"saving": "Saving configuration, please wait..."
 			}
 		}
 	}

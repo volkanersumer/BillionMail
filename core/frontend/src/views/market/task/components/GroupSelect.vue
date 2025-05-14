@@ -1,7 +1,7 @@
 <template>
 	<div class="flex-1">
 		<div class="flex items-center">
-			<div class="w-260px">
+			<div class="flex-1">
 				<n-select
 					v-model:value="group"
 					:options="groupOptions"

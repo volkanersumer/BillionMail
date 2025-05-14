@@ -15,8 +15,7 @@
 				</bt-search>
 			</template>
 			<template #table>
-				<n-data-table :bordered="false" :loading="loading" :columns="columns" :data="tableList">
-				</n-data-table>
+				<n-data-table :loading="loading" :columns="columns" :data="tableList"> </n-data-table>
 			</template>
 			<template #pageRight>
 				<bt-table-page

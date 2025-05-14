@@ -10,6 +10,16 @@ const whitePathList = ['/login']
 router.beforeEach(async (to, from, next) => {
 	loadingBar.start()
 
+	const globalStore = useGlobalStore()
+
+	// Set the language
+	try {
+		await globalStore.getLang()
+		setLanguage(globalStore.lang)
+	} catch {
+		setLanguage(globalStore.lang)
+	}
+
 	// Check if the visited route exists in the registered routes
 	const routeExists = routes.some(route => route.path === to.path)
 
@@ -20,15 +30,6 @@ router.beforeEach(async (to, from, next) => {
 	}
 
 	const userStore = useUserStore()
-	const globalStore = useGlobalStore()
-
-	// Set the language
-	try {
-		await globalStore.getLang()
-		setLanguage(globalStore.lang)
-	} catch {
-		setLanguage(globalStore.lang)
-	}
 
 	// User is logged in
 	if (userStore.isLogin) {

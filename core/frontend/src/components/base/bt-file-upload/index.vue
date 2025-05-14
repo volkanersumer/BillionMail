@@ -22,7 +22,7 @@
 			</n-upload-dragger>
 		</template>
 		<template v-else>
-			<n-button :type="buttonType">
+			<n-button secondary :type="buttonType">
 				<slot></slot>
 			</n-button>
 		</template>
@@ -157,11 +157,11 @@ const updateProgress = (e: { progress?: number }) => {
 	padding: 32px 0;
 
 	&:hover {
-		--n-dragger-color: #e9f6eb;
-		--n-dragger-border-hover: 1px dashed #90dda2;
+		--n-dragger-color: var(--color-primary-2);
+		--n-dragger-border-hover: 1px dashed var(--color-primary-3);
 
 		:deep(.drag-icon) {
-			background-color: #20a53a;
+			background-color: var(--color-primary-1);
 			color: #fff;
 		}
 	}
@@ -173,7 +173,7 @@ const updateProgress = (e: { progress?: number }) => {
 		width: 40px;
 		height: 40px;
 		border-radius: 4px;
-		background-color: #e5e7eb;
+		background-color: var(--color-bg-4);
 		font-size: 16px;
 		transition:
 			background-color 0.3s ease,
@@ -188,7 +188,7 @@ const updateProgress = (e: { progress?: number }) => {
 
 	:deep(.drag-suffix) {
 		margin-top: 4px;
-		color: #404040;
+		color: var(--color-text-2);
 	}
 }
 </style>

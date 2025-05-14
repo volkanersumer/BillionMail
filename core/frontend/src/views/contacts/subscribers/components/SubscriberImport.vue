@@ -1,14 +1,12 @@
 <template>
-	<modal :title="$t('contacts.subscribers.import.title')" width="640">
+	<modal :title="$t('contacts.subscribers.import.title')" width="500">
 		<div class="pt-12px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="$t('contacts.subscribers.import.group')" path="group_id">
-					<div class="w-320px">
-						<group-select v-model:value="form.group_ids"></group-select>
-					</div>
+					<group-select v-model:value="form.group_ids"></group-select>
 				</n-form-item>
 				<n-form-item :label="$t('contacts.subscribers.import.data')" path="contacts">
-					<div class="w-440px">
+					<div class="flex-1">
 						<n-radio-group v-model:value="form.import_type">
 							<n-radio-button :value="2">
 								{{ $t('contacts.subscribers.import.pasteData') }}

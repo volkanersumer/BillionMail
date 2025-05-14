@@ -1,16 +1,12 @@
 <template>
-	<modal :title="$t('contacts.subscribers.edit.title')" width="520">
+	<modal :title="$t('contacts.subscribers.edit.title')" width="440">
 		<div class="pt-12px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="$t('contacts.subscribers.edit.email')" path="email">
-					<div class="w-280px">
-						<n-input v-model:value="form.email" :disabled="true"></n-input>
-					</div>
+					<n-input v-model:value="form.email" :disabled="true"></n-input>
 				</n-form-item>
 				<n-form-item :label="$t('contacts.subscribers.edit.group')" path="group_ids">
-					<div class="w-280px">
-						<group-select v-model:value="form.group_ids"></group-select>
-					</div>
+					<group-select v-model:value="form.group_ids"></group-select>
 				</n-form-item>
 			</bt-form>
 		</div>

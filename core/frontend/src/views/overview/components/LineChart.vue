@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { formatTime } from '@/utils'
+import { useThemeVars } from 'naive-ui'
 
 const { chartName, chartColor, dateType, chartData } = defineProps({
 	chartName: {
@@ -25,6 +26,8 @@ const { chartName, chartColor, dateType, chartData } = defineProps({
 		required: true,
 	},
 })
+
+const theme = useThemeVars()
 
 const chartOptions = computed(() => {
 	return {
@@ -61,7 +64,7 @@ const chartOptions = computed(() => {
 				lineStyle: {
 					type: 'dashed',
 					width: 1,
-					color: '#ebeef5',
+					color: theme.value.borderColor,
 				},
 			},
 			max: () => {

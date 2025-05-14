@@ -1,17 +1,15 @@
 <template>
-	<modal :title="t('market.task.createGroup.title')" width="580">
+	<modal :title="t('market.task.createGroup.title')" width="480">
 		<div class="pt-12px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="t('market.task.createGroup.groupName')" path="name">
-					<div class="w-360px">
-						<n-input
-							v-model:value="form.name"
-							:placeholder="t('market.task.createGroup.groupNamePlaceholder')">
-						</n-input>
-					</div>
+					<n-input
+						v-model:value="form.name"
+						:placeholder="t('market.task.createGroup.groupNamePlaceholder')">
+					</n-input>
 				</n-form-item>
 				<n-form-item :label="t('market.task.createGroup.email')" path="file_data">
-					<div class="w-360px">
+					<div class="flex-1">
 						<bt-file-upload :is-upload="false" :accept="['txt']" @change="handleChangeFile">
 						</bt-file-upload>
 						<div class="mt-16px text-12px text-desc">

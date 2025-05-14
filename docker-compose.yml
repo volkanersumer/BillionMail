@@ -44,7 +44,6 @@ services:
       image: ghcr.io/aapanel/rspamd:1.1
       hostname: rspamd
       depends_on:
-        - dovecot-billionmail
         - redis-billionmail
       environment:
         - TZ=${TZ}

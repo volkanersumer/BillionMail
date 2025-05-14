@@ -60,7 +60,21 @@ func init() {
 				update_time int NOT NULL default 0,
 				active smallint NOT NULL DEFAULT 1
 			)`,
-
+			`--  bm_relay 
+			CREATE TABLE IF NOT EXISTS bm_relay (
+				id BIGSERIAL PRIMARY KEY,
+				remark varchar(255), -- Remarks
+				sender_domain varchar(255) NOT NULL, -- Sender domain, e.g., "@example.com"
+				relay_host varchar(255) NOT NULL, -- Relay server address"
+				relay_port varchar(10) NOT NULL, -- Relay server port, e.g., "587"
+				auth_user varchar(255) NOT NULL, -- SMTP authentication username
+				auth_password varchar(255) NOT NULL, -- SMTP authentication password (consider encrypted storage)
+				ip varchar(255), -- IP used to remind users to update SPF records (optional)
+				host varchar(255), -- Host used to remind users to update SPF records (optional)
+				create_time int NOT NULL default 0,
+				update_time int NOT NULL default 0,
+				active smallint NOT NULL DEFAULT 1  -- Whether this relay configuration is enabled
+			)`,
 			`--  alias_domain 
 			CREATE TABLE IF NOT EXISTS alias_domain (
 				alias_domain varchar(255) NOT NULL, 

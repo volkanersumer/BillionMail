@@ -18,17 +18,14 @@ func (c *ControllerV1) SaveConfigFile(ctx context.Context, req *v1.SaveConfigFil
 	res = &v1.SaveConfigFileRes{}
 
 	var configPath string
-	//var serviceNameForCheck string
-	switch req.ServiceType {
-	case v1.ServiceTypePostfix:
-		configPath = v1.ServiceType_Postfix
-		//serviceNameForCheck = "Postfix"
-	case v1.ServiceTypeDovecot:
+	serviceType := strings.ToLower(req.ServiceType)
+	switch {
+	case strings.Contains(serviceType, "dovecot"):
 		configPath = v1.ServiceType_Dovecot
-		//serviceNameForCheck = "Dovecot"
-	case v1.ServiceTypeRspamd:
+	case strings.Contains(serviceType, "postfix"):
+		configPath = v1.ServiceType_Postfix
+	case strings.Contains(serviceType, "rspamd"):
 		configPath = v1.ServiceType_Rspamd
-		//serviceNameForCheck = "Rspamd"
 	default:
 		res.SetError(gerror.New(public.LangCtx(ctx, "Invalid service type")))
 		return nil, err
@@ -65,53 +62,4 @@ func (c *ControllerV1) SaveConfigFile(ctx context.Context, req *v1.SaveConfigFil
 
 	res.SetSuccess(public.LangCtx(ctx, "The configuration file was saved successfully"))
 	return
-}
-
-func getDockerCheckDetails(ctx context.Context, serviceType v1.ServiceType) (containerName string, commandAndArgs []string, execUser string, serviceDisplayName string) {
-	execUser = "root"
-
-	switch serviceType {
-	case v1.ServiceTypePostfix:
-		containerName = "billionmail-postfix-billionmail-1"
-		commandAndArgs = []string{"postfix", "check"}
-		serviceDisplayName = "Postfix"
-		return
-	case v1.ServiceTypeDovecot:
-		containerName = "billionmail-dovecot-billionmail-1"
-		commandAndArgs = []string{"doveconf", "-n"}
-		serviceDisplayName = "Dovecot"
-		return
-	case v1.ServiceTypeRspamd:
-		containerName = "billionmail-rspamd-billionmail-1"
-		commandAndArgs = []string{"rspamd", "configtest", "--insecure"}
-		serviceDisplayName = "Rspamd"
-		return
-	default:
-		return "", nil, "", "Unknown service"
-	}
-}
-
-func extractCheckError(outputStr string, defaultError string) string {
-	if len(outputStr) == 0 {
-		return defaultError
-	}
-	lines := strings.Split(outputStr, "\n")
-	for _, line := range lines {
-		lowerLine := strings.ToLower(line)
-		if strings.Contains(lowerLine, "error") ||
-			strings.Contains(lowerLine, "fatal") ||
-			strings.Contains(lowerLine, "failed") {
-			if len(line) > 256 {
-				return line[:256] + "..."
-			}
-			return line
-		}
-	}
-	if len(lines) > 0 && len(lines[0]) > 0 {
-		if len(lines[0]) > 256 {
-			return lines[0][:256] + "..."
-		}
-		return lines[0]
-	}
-	return defaultError
 }

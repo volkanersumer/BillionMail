@@ -71,6 +71,9 @@
 			"domain": "域名",
 			"mailboxes": "邮箱",
 			"settings": "设置",
+			"common": "常用设置",
+			"bcc": "BCC",
+			"forward": "邮件转发",
 			"logout": "退出"
 		}
 	},
@@ -589,6 +592,36 @@
 				"adding": "正在添加BCC，请稍候...",
 				"saving": "正在保存BCC，请稍候...",
 				"deleting": "正在删除BCC，请稍候..."
+			}
+		},
+		"forward": {
+			"add": "添加转发",
+			"edit": "编辑转发",
+			"columns": {
+				"address": "地址",
+				"goto": "转发至",
+				"domain": "域名",
+				"created": "创建时间",
+				"modified": "修改时间",
+				"status": "状态"
+			},
+			"form": {
+				"status": "状态",
+				"forwardedUsers": "转发用户",
+				"forwardedUsersPlaceholder": "输入需要转发的邮箱",
+				"domain": "域名",
+				"domainPlaceholder": "转发用户的域名",
+				"receivingUser": "接收用户",
+				"receivingUserPlaceholder": "需要接收转发邮件的用户。如果有多个，请用换行符分隔"
+			},
+			"delete": {
+				"title": "删除邮件转发",
+				"content": "您确定要删除邮件转发【{address}】吗？"
+			},
+			"loading": {
+				"adding": "正在添加邮件转发，请稍候...",
+				"editing": "正在编辑邮件转发，请稍候...",
+				"deleting": "正在删除邮件转发，请稍候..."
 			}
 		},
 		"api": {

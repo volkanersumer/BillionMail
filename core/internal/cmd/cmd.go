@@ -28,6 +28,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/util/gconv"
 	"net/http/httputil"
 	"net/url"
 	"path/filepath"
@@ -276,7 +277,17 @@ var (
 
 			// Enable HTTPS
 			s.EnableHTTPS(public.AbsPath(filepath.Join(consts.SSL_PATH, "cert.pem")), public.AbsPath(filepath.Join(consts.SSL_PATH, "key.pem")))
+
+			// attempt add http port
+			if httpPort, err := public.DockerEnv("HTTP_PORT"); err == nil {
+				s.SetPort(gconv.Int(httpPort))
+			}
+
+			// Set HTTPS ports
 			s.SetHTTPSPort(g.Cfg().MustGet(ctx, "server.httpsPort", 443).Int())
+			if httpsPort, err := public.DockerEnv("HTTPS_PORT"); err == nil {
+				s.SetHTTPSPort(gconv.Int(httpsPort))
+			}
 
 			s.Run()
 

@@ -2349,6 +2349,16 @@ func DockerEnv(envName string) (envVal string, err error) {
 	return
 }
 
+// MustGetDockerEnv get Docker Environment Configuration
+func MustGetDockerEnv(envName string, def string) (envVal string) {
+	var err error
+	envVal, err = DockerEnv(envName)
+	if err != nil {
+		envVal = def
+	}
+	return
+}
+
 // WithFileRestoration Create a backup of the specified file
 func WithFileRestoration(filePaths ...string) (doneFunc func(), restoreFunc func(), err error) {
 	// backup paths

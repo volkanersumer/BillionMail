@@ -168,6 +168,20 @@ var (
 
 				// group.Middleware(ghttp.MiddlewareHandlerResponse)
 
+				// Access Control with Demo.
+				group.Middleware(func(r *ghttp.Request) {
+					// Only allow GET methods
+					if r.Method == "GET" {
+						r.Middleware.Next()
+						return
+					}
+
+					resp := public.CodeMap[403]
+					resp.Msg = "Action not supported"
+					r.Response.WriteJson(resp)
+					r.ExitAll()
+				})
+
 				// Add response middleware
 				group.Middleware(middlewares.HandleApiResponse)
 

@@ -2081,22 +2081,7 @@ func TimeCost() func() {
 
 // GetServerIP retrieves the server's public IP address.
 func GetServerIP() (string, error) {
-	resp, err := http.Get("https://ifconfig.me/ip")
-	if err != nil {
-		// Try alternative service
-		resp, err = http.Get("https://www.aapanel.com/api/common/getClientIP")
-		if err != nil {
-			return "", err
-		}
-	}
-	defer resp.Body.Close()
-
-	ip, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(string(ip)), nil
+	return "0.0.0.0", nil
 }
 
 // GetLocalIP retrieves the server's local IP address.

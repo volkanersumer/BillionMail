@@ -279,13 +279,13 @@ var (
 			s.EnableHTTPS(public.AbsPath(filepath.Join(consts.SSL_PATH, "cert.pem")), public.AbsPath(filepath.Join(consts.SSL_PATH, "key.pem")))
 
 			// attempt add http port
-			if httpPort, err := public.DockerEnv("HTTP_PORT"); err == nil {
+			if httpPort, err := public.DockerEnv("HTTP_PORT"); err == nil && httpPort != "" {
 				s.SetPort(gconv.Int(httpPort))
 			}
 
 			// Set HTTPS ports
 			s.SetHTTPSPort(g.Cfg().MustGet(ctx, "server.httpsPort", 443).Int())
-			if httpsPort, err := public.DockerEnv("HTTPS_PORT"); err == nil {
+			if httpsPort, err := public.DockerEnv("HTTPS_PORT"); err == nil && httpsPort != "" {
 				s.SetHTTPSPort(gconv.Int(httpsPort))
 			}
 

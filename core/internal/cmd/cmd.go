@@ -18,7 +18,6 @@ import (
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/maillog_stat"
 	"billionmail-core/internal/service/middlewares"
-	"billionmail-core/internal/service/phpfpm"
 	"billionmail-core/internal/service/public"
 	rbac2 "billionmail-core/internal/service/rbac"
 	"billionmail-core/internal/service/redis_initialization"
@@ -171,7 +170,7 @@ var (
 				// Access Control with Demo.
 				group.Middleware(func(r *ghttp.Request) {
 					// Only allow GET methods
-					if r.Method == "GET" {
+					if r.Method == "GET" || r.URL.Path == "/api/login" || r.URL.Path == "/api/refresh-token" || r.URL.Path == "/api/logout" {
 						r.Middleware.Next()
 						return
 					}
@@ -201,66 +200,12 @@ var (
 				)
 			})
 
-			// Add PHP-FPM middleware
-			s.BindMiddleware("/roundcube/*any", func(r *ghttp.Request) {
-				if r.Method == "POST" && strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-					// Get and store the request body
-					r.GetBody()
-					r.Middleware.Next()
-					return
-				}
-				r.Middleware.Next()
-			})
-
-			// Binding PHP-FPM handler
-			s.BindHandler("/roundcube/*any", phpfpm.PHPFpmHandlerFactory(phpfpm.PHPFpmHandlerConfig{
-				Network: "unix",
-				Addr:    consts.PHP_FPM_SOCK_PATH,
-				Root:    consts.ROUNDCUBE_ROOT_PATH_IN_CONTAINER,
-				Static:  consts.ROUNDCUBE_ROOT_PATH,
-			}))
-
 			// Proxy 60880 port for ACME challenge
 			s.BindHandler("/.well-known/acme-challenge/*any", func(r *ghttp.Request) {
 				proxy := httputil.NewSingleHostReverseProxy(&url.URL{
 					Scheme: "http",
 					Host:   "127.0.0.1:60880",
 				})
-
-				proxy.ServeHTTP(r.Response.BufferWriter, r.Request)
-			})
-
-			// Proxy Rspamd GUI
-			s.BindHandler("/rspamd/*any", func(r *ghttp.Request) {
-				if !r.Session.MustGet("UserLogin", false).Bool() {
-					r.Response.WriteHeader(403)
-					r.Response.Write([]byte("Access denied"))
-					return
-				}
-
-				host := "127.0.0.1:21334"
-
-				if public.IsRunningInContainer() {
-					host = "rspamd:11334"
-				}
-
-				proxy := httputil.NewSingleHostReverseProxy(&url.URL{
-					Scheme: "http",
-					Host:   host,
-				})
-
-				var password string
-				err = public.OptionsMgrInstance.GetOption(ctx, "rspamd_worker_controller_password", &password)
-
-				if err == nil {
-					r.Header.Set("Password", password)
-				}
-
-				r.URL.Path = strings.Replace(r.URL.Path, "/rspamd", "", 1)
-
-				if r.URL.Path == "" {
-					r.URL.Path = "/"
-				}
 
 				proxy.ServeHTTP(r.Response.BufferWriter, r.Request)
 			})

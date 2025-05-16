@@ -888,13 +888,9 @@ Set_Firewall() {
             apt-get install -y ufw
         fi
         if [ -f "/usr/sbin/ufw" ]; then
-            ufw allow 20/tcp >/dev/null 2>&1
-            ufw allow 21/tcp >/dev/null 2>&1
             ufw allow 22/tcp >/dev/null 2>&1
             ufw allow 80/tcp >/dev/null 2>&1
             ufw allow 443/tcp >/dev/null 2>&1
-            ufw allow 888/tcp >/dev/null 2>&1
-            ufw allow 39000:40000/tcp >/dev/null 2>&1
             ufw allow ${SMTP_PORT}/tcp >/dev/null 2>&1
             ufw allow ${SMTPS_PORT}/tcp >/dev/null 2>&1
             ufw allow ${SUBMISSION_PORT}/tcp >/dev/null 2>&1
@@ -912,8 +908,6 @@ Set_Firewall() {
         fi
     else
         if [ -f "/etc/init.d/iptables" ]; then
-            iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 20 -j ACCEPT
-            iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 21 -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
@@ -927,8 +921,6 @@ Set_Firewall() {
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${HTTP_PORT} -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${HTTPS_PORT} -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${sshPort} -j ACCEPT
-            iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 39000:40000 -j ACCEPT
-            #iptables -I INPUT -p tcp -m state --state NEW -m udp --dport 39000:40000 -j ACCEPT
             iptables -A INPUT -p icmp --icmp-type any -j ACCEPT
             iptables -A INPUT -s localhost -d localhost -j ACCEPT
             iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
@@ -949,8 +941,6 @@ Set_Firewall() {
             systemctl enable firewalld
             systemctl start firewalld
             firewall-cmd --set-default-zone=public >/dev/null 2>&1
-            firewall-cmd --permanent --zone=public --add-port=20/tcp >/dev/null 2>&1
-            firewall-cmd --permanent --zone=public --add-port=21/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=22/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=80/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=443/tcp > /dev/null 2>&1
@@ -964,8 +954,6 @@ Set_Firewall() {
             firewall-cmd --permanent --zone=public --add-port=${HTTP_PORT}/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=${HTTPS_PORT}/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=${sshPort}/tcp >/dev/null 2>&1
-            firewall-cmd --permanent --zone=public --add-port=39000-40000/tcp >/dev/null 2>&1
-            #firewall-cmd --permanent --zone=public --add-port=39000-40000/udp > /dev/null 2>&1
             firewall-cmd --reload
         fi
     fi

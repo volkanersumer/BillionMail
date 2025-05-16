@@ -12,6 +12,13 @@
 </div>
 <br/>
 
+## Live Demo
+BillionMail Demo: [https://demo.billionmail.com/billionmail](https://demo.billionmail.com/billionmail)
+
+Username: `billionmail` 
+
+Password: `billionmail` 
+
 ## What is BillionMail?
 
 BillionMail is a **future open-source Mail server, Email marketing platform** designed to help businesses and individuals manage their email campaigns with ease. Whether you're sending newsletters, promotional emails, or transactional messages, this tool will provide **full control** over your email marketing efforts. With features like **advanced analytics**, and **customer management**, you'll be able to create, send, and track emails like a pro.
@@ -56,6 +63,7 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 - Update BillionMail
 
   `bm update`
+
 
 
 ## WebMail

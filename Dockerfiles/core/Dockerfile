@@ -1,6 +1,6 @@
 FROM alpine:3.20
 
-LABEL maintainer="https://github.com/aaPanel/Billion-Mail"
+LABEL maintainer="https://github.com/aaPanel/BillionMail"
 
 # Set environment variables
 ENV LANG=C.UTF-8

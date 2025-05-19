@@ -71,6 +71,9 @@
 			"domain": "Domain",
 			"mailboxes": "Mailboxes",
 			"settings": "Settings",
+			"common": "Common Settings",
+			"bcc": "BCC",
+			"forward": "Mail Forward",
 			"logout": "Logout"
 		}
 	},
@@ -588,6 +591,36 @@
 				"adding": "Adding BCC, please wait...",
 				"saving": "Saving BCC, please wait...",
 				"deleting": "Deleting BCC, please wait..."
+			}
+		},
+		"forward": {
+			"add": "Add Forward",
+			"edit": "Edit Forward",
+			"columns": {
+				"address": "Address",
+				"goto": "Goto",
+				"domain": "Domain",
+				"created": "Created",
+				"modified": "Modified",
+				"status": "Status"
+			},
+			"form": {
+				"status": "Status",
+				"forwardedUsers": "Forwarded users",
+				"forwardedUsersPlaceholder": "Enter the mailbox that needs to be forwarded",
+				"domain": "Domain",
+				"domainPlaceholder": "Domain name of the Forwarded users",
+				"receivingUser": "Receiving user",
+				"receivingUserPlaceholder": "Users who need to accept forwarded mail. If there are multiple, please separate them with newlines"
+			},
+			"delete": {
+				"title": "Delete mail forward",
+				"content": "Are you sure you want to delete mail forward [{address}]?"
+			},
+			"loading": {
+				"adding": "Adding mail forward, please wait...",
+				"editing": "Editing mail forward, please wait...",
+				"deleting": "Deleting mail forward, please wait..."
 			}
 		},
 		"api": {

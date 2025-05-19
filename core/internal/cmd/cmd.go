@@ -14,6 +14,7 @@ import (
 	"billionmail-core/internal/controller/mail_services"
 	"billionmail-core/internal/controller/overview"
 	"billionmail-core/internal/controller/rbac"
+	"billionmail-core/internal/controller/settings"
 	"billionmail-core/internal/service/database_initialization"
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/maillog_stat"
@@ -25,6 +26,7 @@ import (
 	"billionmail-core/internal/service/rspamd"
 	"billionmail-core/internal/service/timers"
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
@@ -41,6 +43,11 @@ var (
 		Usage: consts.DEFAULT_SERVER_NAME,
 		Brief: "start http server",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+			if v := parser.GetOpt("version"); v != nil {
+				fmt.Println(fmt.Sprintf("v%s", g.Cfg().MustGet(ctx, "server.version", "0.1").String()))
+				return nil
+			}
+
 			// Init Database
 			err = database_initialization.InitDatabase()
 
@@ -185,6 +192,7 @@ var (
 					abnormal_recipient.NewV1(),
 					languages.NewV1(),
 					mail_services.NewV1(),
+					settings.NewV1(),
 				)
 			})
 
@@ -259,6 +267,11 @@ var (
 
 			// Add static file handler
 			s.BindHandler("/*any", func(r *ghttp.Request) {
+				if strings.HasPrefix(r.URL.Path, "/api/") {
+					r.Response.WriteHeader(404)
+					return
+				}
+
 				if r.GetCtxVar("JustVisitedSafePath", false).Bool() {
 					r.Response.RedirectTo("/")
 					return

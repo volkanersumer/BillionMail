@@ -310,9 +310,10 @@ func generateRelayConfigFiles(ctx context.Context, configs []*entity.BmRelay) er
 			saslPasswdContent.WriteString(fmt.Sprintf("[%s]:%s %s:%s\n",
 				config.RelayHost, config.RelayPort, config.AuthUser, decryptedPass))
 			// Create sender_transport configuration
-			smtpName := "smtp"
+			smtpName := "smtp_default"
 			if config.SmtpName != "" {
-				smtpName = fmt.Sprintf("smtp_%s", config.SmtpName)
+				cleanedSmtpName := strings.ReplaceAll(config.SmtpName, " ", "")
+				smtpName = fmt.Sprintf("smtp_%s", cleanedSmtpName)
 			}
 
 			senderTransportContent.WriteString(fmt.Sprintf("%s %s:[%s]:%s\n",
@@ -386,7 +387,8 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error
 			// Generate SMTP service name
 			smtpName := "smtp"
 			if config.SmtpName != "" {
-				smtpName = fmt.Sprintf("smtp_%s", config.SmtpName)
+				cleanedSmtpName := strings.ReplaceAll(config.SmtpName, " ", "")
+				smtpName = fmt.Sprintf("smtp_%s", cleanedSmtpName)
 			} else {
 				// Generate a unique name based on the domain
 				domain := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.SenderDomain, "_")

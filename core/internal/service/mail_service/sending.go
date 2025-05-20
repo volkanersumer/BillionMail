@@ -11,8 +11,10 @@ import (
 	"fmt"
 	"github.com/gogf/gf/util/grand"
 	"github.com/gogf/gf/v2/frame/g"
+	"io"
 	"mime"
 	"mime/quotedprintable"
+	"net"
 	"net/smtp"
 	"strings"
 	"sync"
@@ -181,7 +183,7 @@ func (e *EmailSender) Connect() error {
 
 // connectWithSSL establishes a secure SMTP connection
 func (e *EmailSender) connectWithSSL() error {
-	conn, err := tls.Dial("tcp", e.Host+":"+e.Port, &tls.Config{
+	conn, err := tls.Dial("tcp", net.JoinHostPort(e.Host, e.Port), &tls.Config{
 		MinVersion:         tls.VersionTLS12,
 		InsecureSkipVerify: true,
 		ServerName:         e.SNI,
@@ -203,12 +205,13 @@ func (e *EmailSender) connectWithSSL() error {
 	}
 
 	e.client = client
+
 	return nil
 }
 
 // connectPlain establishes a plain SMTP connection
 func (e *EmailSender) connectPlain() error {
-	client, err := smtp.Dial(e.Host + ":" + e.Port)
+	client, err := smtp.Dial(net.JoinHostPort(e.Host, e.Port))
 	if err != nil {
 		return fmt.Errorf("SMTP dial: %w", err)
 	}
@@ -254,7 +257,7 @@ func (e *EmailSender) Disconnect() error {
 	err := e.client.Quit()
 	if err != nil {
 		// Force close connection if Quit fails
-		e.client.Close()
+		_ = e.client.Close()
 		g.Log().Warning(context.Background(), "Error closing SMTP connection: ", err)
 	}
 
@@ -372,25 +375,32 @@ func (e *EmailSender) doSend(message Message, recipients []string) error {
 
 	msg := []byte(headerString)
 
-	// Reset the connection state
-	if err := e.client.Reset(); err != nil {
-		return fmt.Errorf("SMTP reset: %w", err)
-	}
+	var err error
+
+	defer func() {
+		// Reset the connection state if sending fails
+		if err != nil {
+			if err = e.client.Reset(); err != nil {
+				g.Log().Warning(context.Background(), "SMTP reset: %w", err)
+			}
+		}
+	}()
 
 	// Set the sender
-	if err := e.client.Mail(e.Email); err != nil {
+	if err = e.client.Mail(e.Email); err != nil {
 		return fmt.Errorf("SMTP mail: %w", err)
 	}
 
 	// Set the recipients
 	for _, to := range recipients {
-		if err := e.client.Rcpt(to); err != nil {
+		if err = e.client.Rcpt(to); err != nil {
 			return fmt.Errorf("SMTP rcpt: %w", err)
 		}
 	}
 
 	// Get a writer for the message body
-	w, err := e.client.Data()
+	var w io.WriteCloser
+	w, err = e.client.Data()
 	if err != nil {
 		return fmt.Errorf("SMTP data: %w", err)
 	}

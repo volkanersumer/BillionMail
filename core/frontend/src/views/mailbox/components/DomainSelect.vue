@@ -46,7 +46,9 @@ const getDomainSelect = async () => {
 					label: t('common.all.text'),
 					value: '',
 				})
-				domain.value = ''
+				if (!domain.value) {
+					domain.value = ''
+				}
 			} else {
 				if (res.length > 0 && !domain.value) {
 					domain.value = res[0].domain

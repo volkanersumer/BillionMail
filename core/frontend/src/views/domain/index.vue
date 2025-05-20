@@ -57,6 +57,8 @@ const { tableParams, tableList, loading, tableTotal, getTableData } = useTableDa
 	fetchFn: getDomainList,
 })
 
+const router = useRouter()
+
 // Table columns
 const columns = ref<DataTableColumns<MailDomain>>([
 	{
@@ -66,6 +68,19 @@ const columns = ref<DataTableColumns<MailDomain>>([
 		ellipsis: {
 			tooltip: true,
 		},
+		render: row => (
+			<NButton
+				text
+				type="primary"
+				onClick={() => {
+					router.push({
+						path: '/mailbox',
+						state: { domain: row.domain },
+					})
+				}}>
+				{row.domain}
+			</NButton>
+		),
 	},
 	{
 		key: 'quota',

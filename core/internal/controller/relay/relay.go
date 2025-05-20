@@ -25,9 +25,9 @@ import (
 	"strings"
 )
 
-const (
-	// Postfix-related configuration paths
-	postfixConfigDir     = "/opt/Billion-Mail/conf/postfix"
+var (
+	postfixConfigDir = public.AbsPath("./conf/postfix")
+
 	senderRelayFile      = "/conf/sender_relay"
 	saslPasswdFile       = "/conf/sasl_passwd"
 	senderTransportFile  = "/conf/sender_transport_relay"

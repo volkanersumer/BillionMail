@@ -1,16 +1,18 @@
 package v1
 
 import (
+	"billionmail-core/internal/service/public"
 	"billionmail-core/utility/types/api_v1"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
 type ServiceType string
 
-const (
-	ServiceType_Postfix = "/opt/Billion-Mail/conf/postfix/main.cf"
-	ServiceType_Dovecot = "/opt/Billion-Mail/conf/dovecot/dovecot.conf"
-	ServiceType_Rspamd  = "/opt/Billion-Mail/conf/rspamd/rspamd.conf"
+var (
+	BaseConfigDir       = public.AbsPath("./conf")
+	ServiceType_Postfix = BaseConfigDir + "/postfix/main.cf"
+	ServiceType_Dovecot = BaseConfigDir + "/dovecot/dovecot.conf"
+	ServiceType_Rspamd  = BaseConfigDir + "/rspamd/rspamd.conf"
 )
 
 type GetConfigFileReq struct {

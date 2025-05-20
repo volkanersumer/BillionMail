@@ -1,7 +1,7 @@
 # !/bin/sh
 
 # How to use:
-# cd /opt/Billion-Mail
+# cd /opt/BillionMail
 # docker run -d --name p-g-alpine --hostname p-g-alpine --restart=always -v ./core:/opt/core -v ./Dockerfiles/core/repositories:/etc/apk/repositories alpine:3.20 tail -f /dev/null
 # docker exec -it p-g-alpine sh
 # cd /opt/core
@@ -51,38 +51,38 @@ fi
 
 if [[ "$PLATFORMS" == "all" || "$PLATFORMS" == "x86" ]]; then
 
-    # amd64 x86_64
-    echo "build start amd64 : x86_64"
-    rm -f billionmail-x86_64
+    # amd64
+    echo "build start amd64"
+    rm -f billionmail-amd64
     export GOOS=linux
     export GOARCH=amd64
-    go build -ldflags="-s -w" -o billionmail-x86_64 main.go
-    if [ ! -f "billionmail-x86_64" ]; then
-        echo "build x86_64 failed"
+    go build -ldflags="-s -w" -o billionmail-amd64 main.go
+    if [ ! -f "billionmail-amd64" ]; then
+        echo "build amd64 failed"
         exit 1
     fi
 
-    check_file=$(file billionmail-x86_64 | grep "x86-64,")
+    check_file=$(file billionmail-amd64 | grep "x86-64,")
     if [ -z "${check_file}" ];then
-        echo "billionmail-x86_64 is not an arm64 file, package failed.";
+        echo "billionmail-amd64 is not an arm64 file, package failed.";
         exit 0;
     fi
 fi
 
 if [[ "$PLATFORMS" == "all" || "$PLATFORMS" == "arm" ]]; then
-    # arm64 aarch64
-    echo "build start arm64 : aarch64"
-    rm -f billionmail-aarch64
+    # arm64
+    echo "build start arm64"
+    rm -f billionmail-arm64
     export GOOS=linux
     export GOARCH=arm64
-    go build -ldflags="-s -w" -o billionmail-aarch64 main.go
-    if [ ! -f "billionmail-aarch64" ]; then
-        echo "build aarch64 failed"
+    go build -ldflags="-s -w" -o billionmail-arm64 main.go
+    if [ ! -f "billionmail-arm64" ]; then
+        echo "build arm64 failed"
         exit 1
     fi
-    check_file=$(file billionmail-aarch64 | grep "ARM aarch64,")
+    check_file=$(file billionmail-arm64 | grep -E "ARM|aarch64")
     if [ -z "${check_file}" ];then
-        echo "billionmail-aarch64 is not an arm64 file, package failed.";
+        echo "billionmail-arm64 is not an arm64 file, package failed.";
         exit 0;
     fi
 fi

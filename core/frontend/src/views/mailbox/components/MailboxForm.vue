@@ -58,7 +58,7 @@ const form = reactive({
 	isAdmin: 0,
 	full_name: '',
 	domain: null as string | null,
-	password: '',
+	password: getRandomPassword(),
 	active: 1,
 })
 
@@ -133,6 +133,15 @@ const getParams = () => {
 	}
 }
 
+function getRandomPassword(len = 8) {
+	const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+	let password = ''
+	for (let i = 0; i < len; i++) {
+		password += chars.charAt(Math.floor(Math.random() * chars.length))
+	}
+	return password
+}
+
 const [Modal, modalApi] = useModal({
 	onChangeState: isOpen => {
 		if (isOpen) {
@@ -144,6 +153,7 @@ const [Modal, modalApi] = useModal({
 				form.domain = row.domain
 				form.isAdmin = row.is_admin
 				form.active = row.active
+				form.password = row.password
 
 				const quota = getByteUnit(row.quota)
 				const [quotaNum, quotaUnit] = quota.split(' ')
@@ -153,7 +163,7 @@ const [Modal, modalApi] = useModal({
 		} else {
 			form.full_name = ''
 			form.domain = null
-			form.password = ''
+			form.password = getRandomPassword() // Generate a random password by defaul
 			form.quota = 5
 			form.unit = 'GB'
 			form.isAdmin = 0

@@ -48,7 +48,7 @@ const { tableParams, tableList, loading, tableTotal, getTableData } = useTableDa
 	MailDomain,
 	MailDomainParams
 >({
-	immediate: false,
+	immediate: true,
 	params: {
 		page: 1,
 		page_size: 10,

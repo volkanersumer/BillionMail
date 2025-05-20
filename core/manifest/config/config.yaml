@@ -45,6 +45,9 @@ server:
   formParsingMemory: 1048576 # Buffer size (Byte) when parsing forms, generally does not need to be configured. Default is 1024*1024=1MB
   dumpRouterMap: false # Whether to print all route lists when the Server starts. Default is true
 
+  # Version
+  version: "1.0"
+
 viewer:
   Paths: ["template"]
 

@@ -66,17 +66,17 @@ type CreateRelayConfigReq struct {
 	IP            string `json:"ip" v:"max-length:255" dc:"IP for reminding users to update SPF record, e.g., +ip4:23.158.104.237"`
 	Host          string `json:"host" v:"max-length:255" dc:"Host for reminding users to update SPF record, e.g., include:lootk.cn"`
 	Active        int    `json:"active" d:"1" v:"in:0,1" dc:"Whether enabled: 1-enabled, 0-disabled (default is 1)"`
-	// 新增高级选项
+
 	AuthMethod     string `json:"auth_method" v:"max-length:20" dc:"Authentication method: LOGIN, PLAIN, CRAM-MD5, NONE"`
-	TlsProtocol    string `json:"tls_protocol" v:"max-length:20" dc:"TLS protocol: STARTTLS, SSL/TLS, 关闭"`
-	SkipTlsVerify  int    `json:"skip_tls_verify" v:"in:0,1" dc:"是否跳过TLS验证: 1-跳过, 0-不跳过"`
-	HeloName       string `json:"helo_name" v:"max-length:255" dc:"HELO主机名"`
-	SmtpName       string `json:"smtp_name" v:"max-length:50" dc:"SMTP服务器唯一名称"`
-	HeaderJson     string `json:"header_json" dc:"自定义邮件头，JSON格式"`
-	MaxConcurrency int    `json:"max_concurrency" dc:"最大并发连接数"`
-	MaxRetries     int    `json:"max_retries" dc:"最大重试次数"`
-	MaxIdleTime    string `json:"max_idle_time" v:"max-length:10" dc:"最大空闲连接时间，如15s"`
-	MaxWaitTime    string `json:"max_wait_time" v:"max-length:10" dc:"最大等待时间，如5s"`
+	TlsProtocol    string `json:"tls_protocol" v:"max-length:20" dc:"TLS protocol: STARTTLS, SSL/TLS, NONE"`
+	SkipTlsVerify  int    `json:"skip_tls_verify" v:"in:0,1" dc:"Whether to skip TLS verification: 1-skip, 0-do not skip"`
+	HeloName       string `json:"helo_name" v:"max-length:255" dc:"HELO hostname"`
+	SmtpName       string `json:"smtp_name" v:"max-length:50" dc:"Unique name of the SMTP server"`
+	HeaderJson     string `json:"header_json" dc:"Custom email headers in JSON format"`
+	MaxConcurrency int    `json:"max_concurrency" dc:"Maximum concurrent connections"`
+	MaxRetries     int    `json:"max_retries" dc:"Maximum retry attempts"`
+	MaxIdleTime    string `json:"max_idle_time" v:"max-length:10" dc:"Maximum idle connection time, e.g., 15s"`
+	MaxWaitTime    string `json:"max_wait_time" v:"max-length:10" dc:"Maximum wait time, e.g., 5s"`
 }
 
 type CreateRelayConfigRes struct {
@@ -89,7 +89,7 @@ type ListRelayConfigsReq struct {
 	g.Meta        `path:"/relay/list" method:"get" tags:"Relay Configs" summary:"Get the list of relay configurations"`
 	Authorization string `json:"authorization" in:"header" dc:"Authorization" v:"required"`
 	Keyword       string `json:"keyword" dc:"search"`
-	Rtype         string `json:"rtype" dc:"中继类型筛选: gmail, sendgrid, custom, aws, mailgun, local"`
+	Rtype         string `json:"rtype" dc:"gmail, sendgrid, custom, aws, mailgun, local"`
 }
 
 type ListRelayConfigsRes struct {
@@ -105,7 +105,7 @@ type UpdateRelayConfigReq struct {
 	g.Meta        `path:"/relay/edit" method:"post" tags:"Relay Configs" summary:"Update a relay configuration"`
 	Authorization string `json:"authorization" in:"header" dc:"Authorization" v:"required"`
 	ID            int    `json:"id" v:"required|min:1" dc:"The ID of the configuration to update"`
-	Rtype         string `json:"rtype,omitempty" v:"max-length:30" dc:"中继类型: gmail, sendgrid, custom, aws, mailgun, local"`
+	Rtype         string `json:"rtype,omitempty" v:"max-length:30" dc:"rtype: gmail, sendgrid, custom, aws, mailgun, local"`
 	Remark        string `json:"remark,omitempty" v:"max-length:255" dc:"Remark, e.g., AWS SES Japan Region"`
 	SenderDomain  string `json:"sender_domain,omitempty" v:"max-length:255" dc:"Sender domain, e.g., example.com"`
 	RelayHost     string `json:"relay_host,omitempty" v:"max-length:255" dc:"Relay server address"`

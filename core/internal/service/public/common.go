@@ -2349,6 +2349,71 @@ func DockerEnv(envName string) (envVal string, err error) {
 	return
 }
 
+// MustGetDockerEnv get Docker Environment Configuration
+func MustGetDockerEnv(envName string, def string) (envVal string) {
+	var err error
+	envVal, err = DockerEnv(envName)
+	if err != nil {
+		envVal = def
+	}
+	return
+}
+
+// SetDockerEnv set Docker Environment Configuration
+func SetDockerEnv(envName string, envVal string) (err error) {
+	// Read environment from ../.env
+	envFile := AbsPath(consts.DEFAULT_DOCKER_ENV_FILE)
+
+	if !FileExists(envFile) {
+		err = errors.New("environment file not found: " + envFile)
+		return
+	}
+
+	rows := make([]string, 0, 256)
+	updated := false
+
+	// Read each lines
+	err = ReadEach(envFile, func(row string, cnt int) bool {
+		rows = append(rows, strings.TrimRight(row, "\r\n"))
+
+		// Trim whitespace
+		row = strings.TrimSpace(row)
+
+		// Ingore empty line
+		if row == "" {
+			return true
+		}
+
+		// Ingore comment line
+		if strings.HasPrefix(row, "#") {
+			return true
+		}
+
+		// Split by =
+		env := strings.Split(row, "=")
+		if len(env) == 2 {
+			if strings.TrimSpace(env[0]) == envName {
+				row = fmt.Sprintf("%s=%s", envName, envVal)
+				updated = true
+				rows[cnt] = row
+				return true
+			}
+		}
+		return true
+	})
+
+	if !updated {
+		rows = append(rows, fmt.Sprintf("%s=%s", envName, envVal))
+	}
+
+	fmt.Println(rows)
+
+	// Write environment to ../.env
+	_, err = WriteFile(envFile, strings.Join(rows, "\n"))
+
+	return
+}
+
 // WithFileRestoration Create a backup of the specified file
 func WithFileRestoration(filePaths ...string) (doneFunc func(), restoreFunc func(), err error) {
 	// backup paths

@@ -4,8 +4,11 @@ import (
 	v1 "billionmail-core/api/relay/v1"
 	"billionmail-core/internal/service/public"
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
+	"strings"
 	"time"
 )
 
@@ -114,8 +117,29 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 
 	spfRecord := GenerateSPFRecord(req.IP, req.Host, req.SenderDomain)
 
+	if !gfile.Exists(postfixConfigDir) {
+
+		res.SetSuccess(public.LangCtx(ctx, "The relay configuration was created successfully, but could not be synced to Postfix (configuration directory does not exist)"))
+
+		if spfRecord != "" {
+			res.SPFRecord = v1.DNSRecord{
+				Type:  "TXT",
+				Host:  "@",
+				Value: spfRecord,
+			}
+		}
+
+		return res, nil
+	}
+
 	if err := SyncRelayConfigsToPostfix(ctx); err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Created successfully but failed to sync configuration: {}", err.Error())))
+
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "Postfix configuration directory does not exist") {
+			errMsg = fmt.Sprintf("Postfix configuration directory does not exist: %s", postfixConfigDir)
+		}
+
+		res.SetError(gerror.New(public.LangCtx(ctx, "Creation was successful but synchronous configuration failed: {}", errMsg)))
 		return res, nil
 	}
 

@@ -58,13 +58,13 @@ export const useModal = (options: ModalApiOptions = {}) => {
 					show={show.value}
 					{...props}
 					{...attrs}
+					v-slots={slots}
 					onCancel={onCancel}
 					onConfirm={onConfirm}
 					onUpdate:show={val => {
 						show.value = val ?? false
-					}}>
-					{slots.default?.()}
-				</BtModal>
+					}}
+				/>
 			)
 		},
 	})

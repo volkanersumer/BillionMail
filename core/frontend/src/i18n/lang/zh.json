@@ -547,6 +547,55 @@
 			}
 		}
 	},
+	"smtp": {
+		"title": "SMTP中继服务管理",
+		"description": "管理您的SMTP中继服务，支持多种服务提供商",
+		"empty": "暂无SMTP中继服务",
+		"providers": {
+			"custom": "自定义SMTP"
+		},
+		"delete": {
+			"title": "删除中继",
+			"confirm": "确定要删除此中继服务【{name}】吗？"
+		},
+		"card": {
+			"domain": "绑定域名",
+			"server": "服务器",
+			"port": "端口",
+			"username": "用户名"
+		},
+		"form": {
+			"addTitle": "添加SMTP",
+			"editTitle": "编辑SMTP",
+			"remark": "备注",
+			"domain": "绑定域名",
+			"server": "SMTP服务器",
+			"port": "SMTP端口",
+			"username": "用户名",
+			"password": "密码",
+			"testConnection": "测试链接",
+			"validation": {
+				"nameRequired": "请输入中继名称",
+				"domainRequired": "请选择绑定域名",
+				"serverRequired": "请输入SMTP服务器",
+				"portRequired": "请输入SMTP端口",
+				"usernameRequired": "请输入用户名",
+				"passwordRequired": "请输入密码"
+			}
+		},
+		"status": {
+			"online": "在线",
+			"offline": "离线"
+		},
+		"api": {
+			"loading": {
+				"adding": "正在添加SMTP，请稍等...",
+				"editing": "正在编辑SMTP，请稍等...",
+				"testing": "正在测试SMTP连接，请稍等...",
+				"deleting": "正在删除SMTP，请稍等..."
+			}
+		}
+	},
 	"settings": {
 		"title": "系统设置",
 		"service": {

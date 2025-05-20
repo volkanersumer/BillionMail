@@ -3,6 +3,10 @@ import i18n from '@/i18n'
 
 const { t } = i18n.global
 
+export const getVersionInfo = () => {
+	return instance.get('/settings/get_version')
+}
+
 export const getServiceList = () => {
 	return instance.get('/docker_api/list')
 }

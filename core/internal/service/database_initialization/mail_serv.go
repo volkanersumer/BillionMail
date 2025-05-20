@@ -60,7 +60,32 @@ func init() {
 				update_time int NOT NULL default 0,
 				active smallint NOT NULL DEFAULT 1
 			)`,
-
+			`--  bm_relay 
+			CREATE TABLE IF NOT EXISTS bm_relay (
+				id BIGSERIAL PRIMARY KEY,
+				remark varchar(255), -- Remarks
+				rtype varchar(30),  -- Relay type: gmail , sendgrid, custom, aws, mailgun, local 
+				sender_domain varchar(255) NOT NULL, -- Sender domain, e.g., "@example.com"
+				relay_host varchar(255) NOT NULL, -- Relay server address"
+				relay_port varchar(10) NOT NULL, -- Relay server port, e.g., "587"
+				auth_user varchar(255) NOT NULL, -- SMTP authentication username
+				auth_password varchar(255) NOT NULL, -- SMTP authentication password (consider encrypted storage)
+				ip varchar(255), -- IP used to remind users to update SPF records (optional)
+				host varchar(255), -- Host used to remind users to update SPF records (optional)
+				create_time int NOT NULL default 0,
+				update_time int NOT NULL default 0,
+				active smallint NOT NULL DEFAULT 1,  -- Whether this relay configuration is enabled
+				auth_method varchar(20), -- Authentication method: LOGIN, PLAIN, CRAM-MD5, NONE
+				tls_protocol varchar(20), -- TLS protocol: STARTTLS, SSL/TLS, NONE
+				skip_tls_verify smallint DEFAULT 0, -- Whether to skip TLS verification: 1-skip, 0-do not skip
+				helo_name varchar(255), -- HELO hostname
+				smtp_name varchar(50), -- Unique name of the SMTP server
+				header_json text, -- Custom email headers in JSON format
+				max_concurrency int DEFAULT 10, -- Maximum concurrent connections
+				max_retries int DEFAULT 2, -- Maximum retry attempts
+				max_idle_time varchar(10) DEFAULT '15s', -- Maximum idle connection time
+				max_wait_time varchar(10) DEFAULT '5s' -- Maximum wait time
+			)`,
 			`--  alias_domain 
 			CREATE TABLE IF NOT EXISTS alias_domain (
 				alias_domain varchar(255) NOT NULL, 

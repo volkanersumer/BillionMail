@@ -38,7 +38,8 @@
 			"test": "测试",
 			"rename": "重命名",
 			"preview": "预览",
-			"modify": "修改"
+			"modify": "修改",
+			"config": "配置"
 		},
 		"useCopy": {
 			"noText": "没有要复制的文本",
@@ -70,6 +71,9 @@
 			"domain": "域名",
 			"mailboxes": "邮箱",
 			"settings": "设置",
+			"common": "常用设置",
+			"bcc": "BCC",
+			"forward": "邮件转发",
 			"logout": "退出"
 		}
 	},
@@ -543,10 +547,61 @@
 			}
 		}
 	},
+	"smtp": {
+		"title": "SMTP中继服务管理",
+		"description": "管理您的SMTP中继服务，支持多种服务提供商",
+		"empty": "暂无SMTP中继服务",
+		"providers": {
+			"custom": "自定义SMTP"
+		},
+		"delete": {
+			"title": "删除中继",
+			"confirm": "确定要删除此中继服务【{name}】吗？"
+		},
+		"card": {
+			"domain": "绑定域名",
+			"server": "服务器",
+			"port": "端口",
+			"username": "用户名"
+		},
+		"form": {
+			"addTitle": "添加SMTP",
+			"editTitle": "编辑SMTP",
+			"remark": "备注",
+			"domain": "绑定域名",
+			"server": "SMTP服务器",
+			"port": "SMTP端口",
+			"username": "用户名",
+			"password": "密码",
+			"testConnection": "测试链接",
+			"validation": {
+				"nameRequired": "请输入中继名称",
+				"domainRequired": "请选择绑定域名",
+				"serverRequired": "请输入SMTP服务器",
+				"portRequired": "请输入SMTP端口",
+				"usernameRequired": "请输入用户名",
+				"passwordRequired": "请输入密码"
+			}
+		},
+		"status": {
+			"online": "在线",
+			"offline": "离线"
+		},
+		"api": {
+			"loading": {
+				"adding": "正在添加SMTP，请稍等...",
+				"editing": "正在编辑SMTP，请稍等...",
+				"testing": "正在测试SMTP连接，请稍等...",
+				"deleting": "正在删除SMTP，请稍等..."
+			}
+		}
+	},
 	"settings": {
 		"title": "系统设置",
 		"service": {
 			"title": "服务状态",
+			"tips": "提示：Ctrl+F 搜索关键词，Ctrl+S 保存，Ctrl+H 搜索和替换",
+			"editTitle": "在线编辑 {name}",
 			"columns": {
 				"name": "服务名称",
 				"status": "状态"
@@ -560,9 +615,68 @@
 				"confirm": "确定要重启【{name}】吗？"
 			}
 		},
+		"bcc": {
+			"title": "BCC管理",
+			"add": "添加BCC",
+			"edit": "编辑BCC",
+			"needCopy": "需要复制",
+			"copyTo": "复制到",
+			"domain": "域名",
+			"type": "BCC类型",
+			"status": "状态",
+			"active": "激活",
+			"types": {
+				"sender": "发送时",
+				"recipient": "接收时"
+			},
+			"delete": {
+				"title": "删除BCC [{address}]",
+				"content": "是否删除此BCC设置？"
+			},
+			"placeholders": {
+				"needCopy": "请输入需要BCC的用户",
+				"copyTo": "请输入需要接收BCC的邮箱"
+			},
+			"loading": {
+				"adding": "正在添加BCC，请稍候...",
+				"saving": "正在保存BCC，请稍候...",
+				"deleting": "正在删除BCC，请稍候..."
+			}
+		},
+		"forward": {
+			"add": "添加转发",
+			"edit": "编辑转发",
+			"columns": {
+				"address": "地址",
+				"goto": "转发至",
+				"domain": "域名",
+				"created": "创建时间",
+				"modified": "修改时间",
+				"status": "状态"
+			},
+			"form": {
+				"status": "状态",
+				"forwardedUsers": "转发用户",
+				"forwardedUsersPlaceholder": "输入需要转发的邮箱",
+				"domain": "域名",
+				"domainPlaceholder": "转发用户的域名",
+				"receivingUser": "接收用户",
+				"receivingUserPlaceholder": "需要接收转发邮件的用户。如果有多个，请用换行符分隔"
+			},
+			"delete": {
+				"title": "删除邮件转发",
+				"content": "您确定要删除邮件转发【{address}】吗？"
+			},
+			"loading": {
+				"adding": "正在添加邮件转发，请稍候...",
+				"editing": "正在编辑邮件转发，请稍候...",
+				"deleting": "正在删除邮件转发，请稍候..."
+			}
+		},
 		"api": {
 			"loading": {
-				"restarting": "正在重启服务，请稍候..."
+				"restarting": "正在重启服务，请稍候...",
+				"saving": "正在保存配置，请稍候..."
 			}
 		}
 	}

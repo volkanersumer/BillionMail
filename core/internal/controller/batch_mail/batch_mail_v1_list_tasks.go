@@ -1,16 +1,12 @@
 package batch_mail
 
 import (
+	"billionmail-core/api/batch_mail/v1"
 	"billionmail-core/internal/service/batch_mail"
-	"billionmail-core/internal/service/email_template"
 	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/util/gconv"
-	"strings"
-
-	"billionmail-core/api/batch_mail/v1"
 )
 
 func (c *ControllerV1) ListTasks(ctx context.Context, req *v1.ListTasksReq) (res *v1.ListTasksRes, err error) {
@@ -30,24 +26,24 @@ func (c *ControllerV1) ListTasks(ctx context.Context, req *v1.ListTasksReq) (res
 			EmailTask: *task,
 		}
 
-		template, err := email_template.GetTemplate(ctx, task.TemplateId)
-		if err == nil {
-			detail.TemplateName = template.TempName
-		}
-
-		groupIds := strings.Split(task.Etypes, ",")
-
-		groups := make([]*v1.GroupInfo, 0)
-		for _, groupId := range groupIds {
-			groupIdInt := gconv.Int(groupId)
-
-			groupInfo, err := batch_mail.GetGroupInfo(ctx, groupIdInt)
-			if err != nil {
-				continue
-			}
-			groups = append(groups, groupInfo)
-		}
-		detail.Groups = groups
+		//template, err := email_template.GetTemplate(ctx, task.TemplateId)
+		//if err == nil {
+		//	detail.TemplateName = template.TempName
+		//}
+		//
+		//groupIds := strings.Split(task.Etypes, ",")
+		//
+		//groups := make([]*v1.GroupInfo, 0)
+		//for _, groupId := range groupIds {
+		//	groupIdInt := gconv.Int(groupId)
+		//
+		//	groupInfo, err := batch_mail.GetGroupInfo(ctx, groupIdInt)
+		//	if err != nil {
+		//		continue
+		//	}
+		//	groups = append(groups, groupInfo)
+		//}
+		//detail.Groups = groups
 
 		// Get actual sent count
 		sentCount, _ := batch_mail.GetSentCount(ctx, task.Id)

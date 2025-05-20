@@ -23,6 +23,10 @@ const { language, theme, options } = defineProps({
 	},
 })
 
+const emit = defineEmits<{
+	save: []
+}>()
+
 const code = defineModel<string>('value', {
 	default: '',
 })
@@ -65,6 +69,10 @@ const initEditor = async () => {
 		editorInstance.onDidChangeModelContent(() => {
 			const value = editorInstance?.getValue() || ''
 			code.value = value
+		})
+
+		editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function () {
+			emit('save')
 		})
 	} finally {
 		loading.value = false

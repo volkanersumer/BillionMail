@@ -15,14 +15,14 @@ import (
 func (c *ControllerV1) GetConfigFile(ctx context.Context, req *v1.GetConfigFileReq) (res *v1.GetConfigFileRes, err error) {
 	res = &v1.GetConfigFileRes{}
 
-	// get service config file pathe config file path
 	var configPath string
-	switch req.ServiceType {
-	case v1.ServiceTypePostfix:
-		configPath = v1.ServiceType_Postfix
-	case v1.ServiceTypeDovecot:
+	serviceType := strings.ToLower(req.ServiceType)
+	switch {
+	case strings.Contains(serviceType, "dovecot"):
 		configPath = v1.ServiceType_Dovecot
-	case v1.ServiceTypeRspamd:
+	case strings.Contains(serviceType, "postfix"):
+		configPath = v1.ServiceType_Postfix
+	case strings.Contains(serviceType, "rspamd"):
 		configPath = v1.ServiceType_Rspamd
 	default:
 		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "invalid service type")

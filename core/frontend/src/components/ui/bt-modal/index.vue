@@ -17,12 +17,19 @@
 			<slot></slot>
 		</div>
 		<template v-if="footer" #action>
-			<n-button secondary @click="onCancel">
-				{{ $t('common.actions.cancel') }}
-			</n-button>
-			<n-button :type="confirmType" @click="onConfirm">
-				{{ confirmText || $t('common.actions.confirm') }}
-			</n-button>
+			<div class="flex justify-between flex-1">
+				<div>
+					<slot name="footer-left"></slot>
+				</div>
+				<div class="flex gap-12px">
+					<n-button secondary @click="onCancel">
+						{{ $t('common.actions.cancel') }}
+					</n-button>
+					<n-button :type="confirmType" @click="onConfirm">
+						{{ confirmText || $t('common.actions.confirm') }}
+					</n-button>
+				</div>
+			</div>
 		</template>
 	</n-modal>
 </template>

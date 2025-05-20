@@ -20,6 +20,9 @@
 					<i class="icon i-mdi-user-outline"></i>
 				</n-button>
 			</n-dropdown>
+			<n-button type="primary" text class="text-14px" @click="handleGoVersion">
+				{{ version }}
+			</n-button>
 		</div>
 	</n-layout-header>
 </template>
@@ -28,6 +31,8 @@
 import { storeToRefs } from 'pinia'
 import { DropdownOption } from 'naive-ui'
 import { useUserStore, useGlobalStore, useThemeStore } from '@/store'
+import { getVersionInfo } from '@/api/modules/settings'
+import { isObject } from '@/utils'
 
 defineProps({
 	top: {
@@ -37,6 +42,8 @@ defineProps({
 })
 
 const { t } = useI18n()
+
+const version = ref('--')
 
 const userStore = useUserStore()
 
@@ -76,6 +83,10 @@ const handleUserAction = (key: string) => {
 	}
 }
 
+const handleGoVersion = () => {
+	window.open('https://github.com/aaPanel/BillionMail/releases')
+}
+
 const getLangOptions = async () => {
 	langOptions.value = langList.value.map(item => {
 		return {
@@ -85,7 +96,15 @@ const getLangOptions = async () => {
 	})
 }
 
+const getVersion = async () => {
+	const res = await getVersionInfo()
+	if (isObject<{ version: string }>(res)) {
+		version.value = `v${res.version}`
+	}
+}
+
 onMounted(() => {
+	getVersion()
 	getLangOptions()
 })
 </script>
@@ -100,7 +119,7 @@ onMounted(() => {
 	justify-content: space-between;
 	align-items: center;
 	height: 48px;
-	padding: 0 12px;
+	padding: 0 20px 0 12px;
 	box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 	z-index: 1000;
 }
@@ -110,6 +129,13 @@ onMounted(() => {
 	display: flex;
 	align-items: center;
 	gap: 8px;
+}
+
+.header-item {
+	color: var(--color-text-4);
+	font-size: 14px;
+	text-align: center;
+	font-weight: 600;
 }
 
 .icon-btn {

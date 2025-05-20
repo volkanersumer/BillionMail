@@ -1,12 +1,7 @@
 <template>
 	<div class="p-24px">
-		<div class="bt-title">{{ $t('layout.menu.settings') }}</div>
-		<n-card :bordered="false">
-			<settings-service />
-		</n-card>
+		<bt-route-tabs></bt-route-tabs>
 	</div>
 </template>
 
-<script lang="ts" setup>
-import SettingsService from './components/SettingsService.vue'
-</script>
+<script lang="ts" setup></script>

@@ -47,7 +47,7 @@ func SyncBccToPostfix(ctx context.Context) error {
 	mainCfFile := path.Join(postfixConfigDir, "main.cf")
 
 	if !gfile.Exists(postfixConfigDir) {
-		return gerror.Newf(public.LangCtx(ctx, "Postfix configuration directory does not exist : %s", postfixConfigDir))
+		return gerror.New(public.LangCtx(ctx, "Postfix configuration directory does not exist : {}", postfixConfigDir))
 
 	}
 

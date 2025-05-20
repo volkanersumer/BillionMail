@@ -228,6 +228,11 @@ func GenerateSPFRecord(ip string, host string, domain string) string {
 
 // SyncRelayConfigsToPostfix
 func SyncRelayConfigsToPostfix(ctx context.Context) error {
+	// 首先检查配置目录是否存在
+	if !gfile.Exists(postfixConfigDir) {
+		return gerror.New(public.LangCtx(ctx, "Postfix configuration directory does not exist: {}", postfixConfigDir))
+	}
+
 	// 1. Retrieve all active relay configurations
 	var activeConfigs []*entity.BmRelay
 	err := g.DB().Model("bm_relay").Where("active", 1).Scan(&activeConfigs)
@@ -268,7 +273,7 @@ func generateRelayConfigFiles(ctx context.Context, configs []*entity.BmRelay) er
 	headerChecksPath := path.Join(postfixConfigDir, headerChecks)
 
 	if !gfile.Exists(postfixConfigDir) {
-		return gerror.Newf(public.LangCtx(ctx, "Postfix configuration directory does not exist : %s", postfixConfigDir))
+		return gerror.New(public.LangCtx(ctx, "Postfix configuration directory does not exist : {}", postfixConfigDir))
 	}
 	// Generate configuration file content
 	var senderRelayContent strings.Builder

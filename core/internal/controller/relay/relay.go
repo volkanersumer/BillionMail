@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	postfixConfigDir = public.AbsPath("./conf/postfix")
+	postfixConfigDir = public.AbsPath("../conf/postfix")
 
 	senderRelayFile      = "/conf/sender_relay"
 	saslPasswdFile       = "/conf/sasl_passwd"
@@ -229,6 +229,7 @@ func GenerateSPFRecord(ip string, host string, domain string) string {
 // SyncRelayConfigsToPostfix
 func SyncRelayConfigsToPostfix(ctx context.Context) error {
 	// 首先检查配置目录是否存在
+
 	if !gfile.Exists(postfixConfigDir) {
 		return gerror.New(public.LangCtx(ctx, "Postfix configuration directory does not exist: {}", postfixConfigDir))
 	}

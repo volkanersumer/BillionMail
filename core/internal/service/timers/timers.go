@@ -4,6 +4,7 @@ import (
 	"billionmail-core/internal/service/batch_mail"
 	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/maillog_stat"
+	"billionmail-core/internal/service/relay"
 	"context"
 	"github.com/gogf/gf/os/gtimer"
 	"github.com/gogf/gf/v2/frame/g"
@@ -63,6 +64,15 @@ func Start(ctx context.Context) (err error) {
 	gtimer.Add(10*time.Minute, func() {
 		batch_mail.CleanupIdleExecutors()
 		g.Log().Debug(ctx, "Idle task executors cleanup completed")
+	})
+
+	// Test the smtp relay configuration connection status
+	gtimer.AddOnce(5*time.Second, func() {
+		relay.UpdateRelayStatus(ctx)
+	})
+
+	gtimer.Add(5*time.Minute, func() {
+		relay.UpdateRelayStatus(ctx)
 	})
 
 	g.Log().Debug(ctx, "All timers started successfully")

@@ -52,7 +52,7 @@ func (c *ControllerV1) ListRelayConfigs(ctx context.Context, req *v1.ListRelayCo
 
 		bmRelay := toPostfixRelayResponse(ctx, item)
 
-		smtpStatus := relay_service.CheckSmtpConnection(ctx, item.RelayHost, item.RelayPort, item.AuthUser, bmRelay.AuthPassword)
+		smtpStatus := relay_service.CheckSmtpConnection(ctx, item.RelayHost, item.RelayPort, item.AuthUser, "")
 
 		relayWithSPF := &v1.BmRelayWithSPF{
 			BmRelay: bmRelay,

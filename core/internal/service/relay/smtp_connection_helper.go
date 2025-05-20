@@ -2,14 +2,20 @@ package relay
 
 import (
 	"billionmail-core/api/relay/v1"
+	"billionmail-core/internal/model/entity"
 	"billionmail-core/internal/service/public"
 	"context"
 	"crypto/tls"
+	"encoding/hex"
 	"fmt"
+	"github.com/gogf/gf/v2/crypto/gaes"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"net"
 	"net/smtp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -197,12 +203,75 @@ func TestSmtpConnection(host, port, user, password string) *SmtpConnectionTestRe
 	return result
 }
 
-// CheckSmtpConnection Checks the SMTP connection status with caching support.
+// UpdateRelayStatus Periodically updates the SMTP connection status of all relay configurations.
+func UpdateRelayStatus(ctx context.Context) {
+	g.Log().Debug(ctx, "Starting periodic update of SMTP connection statuses...")
+
+	// Query all active relay configurations.
+	var relayConfigs []*entity.BmRelay
+	err := g.DB().Model("bm_relay").Where("active", 1).Scan(&relayConfigs)
+	if err != nil {
+		//g.Log().Error(ctx, "Failed to query relay configurations:", err)
+		return
+	}
+
+	if len(relayConfigs) == 0 {
+		//g.Log().Debug(ctx, "No active relay configurations found, skipping SMTP status update.")
+		return
+	}
+
+	//g.Log().Debugf(ctx, "Found %d active relay configurations, starting to check SMTP connection statuses.", len(relayConfigs))
+
+	// Use WaitGroup to wait for all checks to complete.
+	var wg sync.WaitGroup
+	// Limit concurrency to avoid establishing too many connections simultaneously.
+	semaphore := make(chan struct{}, 5)
+
+	for _, config := range relayConfigs {
+		wg.Add(1)
+
+		// Use goroutines for concurrent checks.
+		go func(cfg *entity.BmRelay) {
+			defer wg.Done()
+
+			// Acquire semaphore to limit concurrency.
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
+
+			// Decrypt password.
+			password, err := DecryptPassword1(ctx, cfg.AuthPassword)
+			if err != nil {
+				g.Log().Warningf(ctx, "Failed to decrypt password for relay configuration ID=%d: %v", cfg.Id, err)
+				return
+			}
+
+			// Perform SMTP connection check.
+			status := checkSmtpConnectionImpl(cfg.RelayHost, cfg.RelayPort, cfg.AuthUser, password)
+
+			// Generate cache key.
+			cacheKey := fmt.Sprintf(smtpStatusCacheKeyFormat, cfg.RelayHost, cfg.RelayPort, cfg.AuthUser)
+
+			// Store result in cache.
+			err = smtpStatusCache.Set(ctx, cacheKey, status, smtpStatusCacheExpire)
+			if err != nil {
+				g.Log().Warningf(ctx, "Failed to cache SMTP status for relay configuration ID=%d: %v", cfg.Id, err)
+			}
+
+			g.Log().Debugf(ctx, "Updated SMTP status for relay configuration (ID=%d, Host=%s:%s): %v - %s",
+				cfg.Id, cfg.RelayHost, cfg.RelayPort, status.Status, status.Msg)
+		}(config)
+	}
+
+	// Wait for all checks to complete.
+	wg.Wait()
+	g.Log().Debug(ctx, "All SMTP connection statuses have been updated.")
+}
+
+// CheckSmtpConnection
 func CheckSmtpConnection(ctx context.Context, host, port, user, password string) *SmtpConnectionStatus {
-	// Generate cache key
+
 	cacheKey := fmt.Sprintf(smtpStatusCacheKeyFormat, host, port, user)
 
-	// Try to retrieve status from cache
 	if v, err := smtpStatusCache.Get(ctx, cacheKey); err == nil && v != nil {
 		var status SmtpConnectionStatus
 		if err := v.Scan(&status); err == nil {
@@ -210,14 +279,21 @@ func CheckSmtpConnection(ctx context.Context, host, port, user, password string)
 		}
 	}
 
-	// Cache miss, perform actual check
+	return &SmtpConnectionStatus{
+		Status:   false,
+		Msg:      "Status unknown (under check)",
+		LastTime: time.Now().Unix(),
+	}
+}
+
+// ForceCheckSmtpConnection
+func ForceCheckSmtpConnection(ctx context.Context, host, port, user, password string) *SmtpConnectionStatus {
+
 	status := checkSmtpConnectionImpl(host, port, user, password)
 
-	// Store result in cache
-	err := smtpStatusCache.Set(ctx, cacheKey, status, smtpStatusCacheExpire)
-	if err != nil {
-		return nil
-	}
+	cacheKey := fmt.Sprintf(smtpStatusCacheKeyFormat, host, port, user)
+
+	smtpStatusCache.Set(ctx, cacheKey, status, smtpStatusCacheExpire)
 
 	return status
 }
@@ -307,4 +383,62 @@ func ForceRefreshSmtpStatus(ctx context.Context, relayConfig *v1.BmRelay) *SmtpC
 // ClearSmtpStatusCache Clears the SMTP status cache.
 func ClearSmtpStatusCache(ctx context.Context) error {
 	return smtpStatusCache.Clear(ctx)
+}
+
+func DecryptPassword1(ctx context.Context, encryptedHex string) (string, error) {
+
+	password, err := DecryptPassword(ctx, encryptedHex)
+	if password == "" {
+		password = "********"
+	}
+	return password, err
+}
+
+func DecryptPassword(ctx context.Context, encryptedHex string) (string, error) {
+	if encryptedHex == "" {
+		return "", nil
+	}
+
+	encryptedBytes, err := hex.DecodeString(encryptedHex)
+	if err != nil {
+		//g.Log().Errorf(ctx, "Decryption failed, invalid hex format: %v", err)
+		return "", gerror.Wrap(err, public.LangCtx(ctx, "Password format is incorrect"))
+	}
+
+	relayEncryptionKey, err := GetRelayEncryptionKey()
+	if err != nil {
+		return "", gerror.Wrap(err, public.LangCtx(ctx, "Failed to retrieve encryption key"))
+	}
+
+	keyBytes, err := hex.DecodeString(relayEncryptionKey)
+	if err != nil {
+		return "", gerror.Wrap(err, public.LangCtx(ctx, "Failed to parse encryption key"))
+	}
+
+	if len(keyBytes) < 16 {
+		return "", gerror.New(public.LangCtx(ctx, "Encryption key length is insufficient"))
+	}
+	keyBytes = keyBytes[:16]
+
+	decrypted, err := gaes.Decrypt(encryptedBytes, keyBytes)
+	if err != nil {
+		//g.Log().Errorf(ctx, "Password decryption failed: %v", err)
+		return "", gerror.Wrap(err, public.LangCtx(ctx, "Password decryption failed"))
+	}
+
+	return string(decrypted), nil
+}
+
+func GetRelayEncryptionKey() (string, error) {
+
+	val, _ := g.DB().Model("bm_options").
+		Where("name", "relay_encryption_key").
+		Value("value")
+
+	if val != nil && val.String() != "" {
+		return val.String(), nil
+	} else {
+		return "", gerror.New("Failed to insert new key and retrieve key again")
+	}
+
 }

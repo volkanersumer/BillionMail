@@ -41,7 +41,7 @@ func processForwardUsers(forwardUsers string) []string {
 func SyncBccToPostfix(ctx context.Context) error {
 
 	// configPath
-	postfixConfigDir := public.AbsPath("./conf/postfix/conf")
+	postfixConfigDir := public.AbsPath("../conf/postfix/conf")
 	senderBccFile := path.Join(postfixConfigDir, "sender_bcc")
 	recipientBccFile := path.Join(postfixConfigDir, "recipient_bcc")
 	mainCfFile := path.Join(postfixConfigDir, "main.cf")

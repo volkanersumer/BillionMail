@@ -9,7 +9,7 @@ import (
 type ServiceType string
 
 var (
-	BaseConfigDir       = public.AbsPath("./conf")
+	BaseConfigDir       = public.AbsPath("../conf")
 	ServiceType_Postfix = BaseConfigDir + "/postfix/main.cf"
 	ServiceType_Dovecot = BaseConfigDir + "/dovecot/dovecot.conf"
 	ServiceType_Rspamd  = BaseConfigDir + "/rspamd/rspamd.conf"

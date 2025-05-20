@@ -6,8 +6,15 @@
 </template>
 
 <script lang="ts" setup>
+const { href } = defineProps({
+	href: {
+		type: String,
+		default: '',
+	},
+})
+
 const handleGoHelp = () => {
-	window.open('https://github.com/aaPanel/BillionMail')
+	window.open(href)
 }
 </script>
 

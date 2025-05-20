@@ -4,7 +4,7 @@
 		<bt-table-layout>
 			<template #toolsLeft>
 				<n-button type="primary" @click="handleAddDomain">{{ t('domain.addDomain') }}</n-button>
-				<!-- <bt-help></bt-help> -->
+				<bt-help href="https://www.billionmail.com/docs/start/domain.html"></bt-help>
 			</template>
 			<template #table>
 				<n-data-table :loading="loading" :columns="columns" :data="tableList">

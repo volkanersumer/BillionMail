@@ -23,6 +23,7 @@ postgresql-socket/
 redis-data/
 php-sock/
 webmail-data/
+core-data/
 conf/postfix/conf/vmail_ssl.map
 conf/postfix/conf/vmail_ssl.map.db
 conf/postfix/conf/extra.cf

@@ -55,11 +55,6 @@ fi
 # fi
 cp -rf /opt/billionmail/conf/core/fail2ban_init/filter.d/*.conf /etc/fail2ban/filter.d/
 
-if [ ! -d "/opt/billionmail/core/public/" ]; then
-    mkdir -p /opt/billionmail/core/public/dist
-    mkdir -p /opt/billionmail/core/public/html
-fi
-
 if [ ! -d "/opt/billionmail/core/template/" ]; then
     mkdir /opt/billionmail/core/template
 fi
@@ -73,14 +68,7 @@ if [ ! -f "/opt/billionmail/core/logs/access-$(date -u +"%Y%m%d").log" ]; then
 fi
 
 cd /opt/billionmail/core/
-rm -f billionmail
-echo $(arch)
-if [ ! -f "billionmail-$(arch)" ]; then 
-    echo "billionmail-$(arch) not found"
-    exit 1
-fi
-ln -sf billionmail-$(arch) billionmail
-chmod +x billionmail*
+chmod +x billionmail
 
 
 exec "$@"

@@ -15,6 +15,7 @@ import (
 	"billionmail-core/internal/controller/overview"
 	"billionmail-core/internal/controller/rbac"
 	"billionmail-core/internal/controller/relay"
+	"billionmail-core/internal/controller/settings"
 	"billionmail-core/internal/service/database_initialization"
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/maillog_stat"
@@ -26,9 +27,11 @@ import (
 	"billionmail-core/internal/service/rspamd"
 	"billionmail-core/internal/service/timers"
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/util/gconv"
 	"net/http/httputil"
 	"net/url"
 	"path/filepath"
@@ -41,6 +44,11 @@ var (
 		Usage: consts.DEFAULT_SERVER_NAME,
 		Brief: "start http server",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+			if v := parser.GetOpt("version"); v != nil {
+				fmt.Println(fmt.Sprintf("v%s", g.Cfg().MustGet(ctx, "server.version", "0.1").String()))
+				return nil
+			}
+
 			// Init Database
 			err = database_initialization.InitDatabase()
 
@@ -186,6 +194,7 @@ var (
 					languages.NewV1(),
 					mail_services.NewV1(),
 					relay.NewV1(),
+					settings.NewV1(),
 				)
 			})
 
@@ -260,6 +269,11 @@ var (
 
 			// Add static file handler
 			s.BindHandler("/*any", func(r *ghttp.Request) {
+				if strings.HasPrefix(r.URL.Path, "/api/") {
+					r.Response.WriteHeader(404)
+					return
+				}
+
 				if r.GetCtxVar("JustVisitedSafePath", false).Bool() {
 					r.Response.RedirectTo("/")
 					return
@@ -278,7 +292,29 @@ var (
 
 			// Enable HTTPS
 			s.EnableHTTPS(public.AbsPath(filepath.Join(consts.SSL_PATH, "cert.pem")), public.AbsPath(filepath.Join(consts.SSL_PATH, "key.pem")))
+
+			// attempt add http port
+			if httpPort, err := public.DockerEnv("HTTP_PORT"); err == nil && httpPort != "" {
+				s.SetPort(gconv.Int(httpPort))
+			}
+
+			// Set HTTPS ports
 			s.SetHTTPSPort(g.Cfg().MustGet(ctx, "server.httpsPort", 443).Int())
+			if httpsPort, err := public.DockerEnv("HTTPS_PORT"); err == nil && httpsPort != "" {
+				s.SetHTTPSPort(gconv.Int(httpsPort))
+			}
+
+			s.SetSwaggerUITemplate(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>openAPI UI</title>
+  </head>
+  <body>
+    <div id="openapi-ui-container" spec-url="{SwaggerUIDocUrl}" theme="light"></div>
+    <script src="https://cdn.jsdelivr.net/npm/openapi-ui-dist@latest/lib/openapi-ui.umd.js"></script>
+  </body>
+</html>`)
 
 			s.Run()
 

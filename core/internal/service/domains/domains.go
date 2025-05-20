@@ -26,6 +26,47 @@ func Add(ctx context.Context, domain *v1.Domain) error {
 	domain.Active = 1
 
 	_, err := g.DB().Model("domain").Ctx(ctx).Insert(domain)
+
+	if err == nil {
+		// attempt update hostname in .env file
+		hostname := public.MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
+
+		if hostname == "" || hostname == "mail.example.com" {
+			err = public.SetDockerEnv("BILLIONMAIL_HOSTNAME", public.FormatMX(domain.Domain))
+
+			if err != nil {
+				return fmt.Errorf("failed to update BILLIONMAIL_HOSTNAME in .env file: %v", err)
+			}
+
+			// update postfix main.cf myhostname
+			mainCFPath := public.AbsPath(consts.POSTFIX_MAIN_CONF)
+
+			content, err := public.ReadFile(mainCFPath)
+
+			if err != nil {
+				return fmt.Errorf("failed to read postfix main.cf: %v", err)
+			}
+
+			// replace the hostname in the content
+			content = strings.ReplaceAll(content, "myhostname = ", fmt.Sprintf("myhostname = %s", public.FormatMX(domain.Domain)))
+			content = strings.ReplaceAll(content, "myhostname = mail.example.com", fmt.Sprintf("myhostname = %s", public.FormatMX(domain.Domain)))
+
+			// write the updated content back to the file
+			_, err = public.WriteFile(mainCFPath, content)
+
+			if err != nil {
+				return fmt.Errorf("failed to write postfix main.cf: %v", err)
+			}
+
+			// restart postfix service
+			err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, "billionmail-postfix-billionmail-1")
+
+			if err != nil {
+				return fmt.Errorf("failed to restart postfix container: %v", err)
+			}
+		}
+	}
+
 	return err
 }
 

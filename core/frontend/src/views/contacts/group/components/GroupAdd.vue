@@ -60,7 +60,7 @@ const handleChangeFile = (file: UploadFileInfo) => {
 }
 
 const handleDownloadTemplate = async () => {
-	await downloadFile({ file_path: '/opt/Billion-Mail/data/example_recipients.txt' })
+	await downloadFile({ file_path: './data/example_recipients.txt' })
 }
 
 const [Modal, modalApi] = useModal({

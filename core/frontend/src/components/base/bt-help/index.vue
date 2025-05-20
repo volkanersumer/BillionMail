@@ -1,13 +1,17 @@
 <template>
 	<n-button text @click="handleGoHelp">
-		<i class="i-custom:help"></i>
-		<span class="ml-4px">{{ $t('common.actions.help') }}</span>
+		<span class="mr-4px">{{ text || $t('common.actions.help') }}</span>
+		<i class="i-custom:help text-primary"></i>
 	</n-button>
 </template>
 
 <script lang="ts" setup>
 const { href } = defineProps({
 	href: {
+		type: String,
+		default: '',
+	},
+	text: {
 		type: String,
 		default: '',
 	},

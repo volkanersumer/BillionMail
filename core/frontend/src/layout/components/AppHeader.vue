@@ -4,18 +4,26 @@
 			<n-button class="icon-btn" :bordered="false" @click="handleCollapse">
 				<i class="icon" :class="isCollapse ? 'i-mdi-menu-close' : 'i-mdi-menu-open'"></i>
 			</n-button>
+			<n-button type="primary" text class="text-14px" @click="handleGoIssues">
+				Submit a Request
+				<i class="i-mdi:arrow-right ml-1px"></i>
+			</n-button>
 		</div>
 
 		<div class="header-right">
 			<n-button class="icon-btn" :bordered="false" @click="handleSetTheme">
 				<i class="icon" :class="theme === 'light' ? 'i-ri-sun-line' : 'i-ri-moon-line'"></i>
 			</n-button>
-			<n-dropdown v-if="langOptions.length > 0" :options="langOptions" @select="handleLangAction">
+			<n-dropdown
+				v-if="langOptions.length > 0"
+				size="large"
+				:options="langOptions"
+				@select="handleLangAction">
 				<n-button class="icon-btn" :bordered="false">
 					<i class="icon i-mdi-language text-20px"></i>
 				</n-button>
 			</n-dropdown>
-			<n-dropdown :options="userOptions" @select="handleUserAction">
+			<n-dropdown size="large" :options="userOptions" @select="handleUserAction">
 				<n-button class="icon-btn" :bordered="false">
 					<i class="icon i-mdi-user-outline"></i>
 				</n-button>
@@ -55,6 +63,10 @@ const { theme } = storeToRefs(themeStore)
 
 const handleCollapse = () => {
 	globalStore.setCollapse()
+}
+
+const handleGoIssues = () => {
+	window.open('https://github.com/aaPanel/BillionMail/issues')
 }
 
 const langOptions = ref<DropdownOption[]>([])

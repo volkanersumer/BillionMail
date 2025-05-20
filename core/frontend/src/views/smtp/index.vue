@@ -1,11 +1,12 @@
 <template>
 	<div class="p-24px">
-		<div class="bt-title">{{ $t('smtp.title') }}</div>
-		<div class="mb-24px text-14px text-desc">{{ $t('smtp.description') }}</div>
-		<div class="mb-16px">
+		<div class="bt-title mb-10px!">{{ $t('smtp.title') }}</div>
+		<div class="mb-20px text-14px text-desc">{{ $t('smtp.description') }}</div>
+		<div class="flex gap-8px mb-16px">
 			<n-dropdown
 				placement="bottom-start"
 				trigger="hover"
+				size="large"
 				:options="addDropdownOptions"
 				@select="handleSelectAdd">
 				<n-button type="primary">
@@ -13,6 +14,7 @@
 					<i class="i-mdi-chevron-down text-17px"></i>
 				</n-button>
 			</n-dropdown>
+			<!-- <bt-help></bt-help> -->
 		</div>
 		<smtp-loading v-if="loading"></smtp-loading>
 		<div

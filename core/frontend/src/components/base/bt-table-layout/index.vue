@@ -1,15 +1,15 @@
 <template>
 	<div>
-		<n-flex v-if="slotLeft || slotRight" class="items-center mb-16px" justify="space-between">
-			<n-flex class="items-center" :size="8">
+		<n-flex v-if="slotLeft || slotRight" class="items-center mb-12px" justify="space-between">
+			<n-flex class="items-center" :size="12">
 				<slot name="toolsLeft"></slot>
 			</n-flex>
-			<n-flex class="items-center" :size="8">
+			<n-flex class="items-center" :size="12">
 				<slot name="toolsRight"></slot>
 			</n-flex>
 		</n-flex>
 		<slot name="table"></slot>
-		<n-flex v-if="slotPage" class="items-center mt-16px" justify="space-between">
+		<n-flex v-if="slotPage" class="items-center mt-12px" justify="space-between">
 			<div>
 				<slot name="pageLeft"></slot>
 			</div>

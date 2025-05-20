@@ -39,7 +39,8 @@
 			"rename": "Rename",
 			"preview": "Preview",
 			"modify": "Modify",
-			"config": "Config"
+			"config": "Config",
+			"help": "Help"
 		},
 		"useCopy": {
 			"noText": "No text to copy",
@@ -574,6 +575,7 @@
 			"username": "Username",
 			"password": "Password",
 			"testConnection": "Test Connection",
+			"bind": " [Bound]",
 			"validation": {
 				"nameRequired": "Please enter a relay name",
 				"domainRequired": "Please select a bound domain",

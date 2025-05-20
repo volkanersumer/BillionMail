@@ -15,7 +15,11 @@
 				</bt-search>
 			</template>
 			<template #table>
-				<n-data-table :loading="loading" :columns="columns" :data="tableList"> </n-data-table>
+				<n-data-table :loading="loading" :columns="columns" :data="tableList">
+					<template #empty>
+						<bt-table-help> </bt-table-help>
+					</template>
+				</n-data-table>
 			</template>
 			<template #pageRight>
 				<bt-table-page

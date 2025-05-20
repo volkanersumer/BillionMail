@@ -4,7 +4,7 @@
 		<bt-table-layout>
 			<template #toolsLeft>
 				<n-button type="primary" @click="handleAddDomain">{{ t('domain.addDomain') }}</n-button>
-				<!-- <bt-help></bt-help> -->
+				<bt-help href="https://www.billionmail.com/docs/start/domain.html"></bt-help>
 			</template>
 			<template #table>
 				<n-data-table :loading="loading" :columns="columns" :data="tableList">
@@ -57,6 +57,8 @@ const { tableParams, tableList, loading, tableTotal, getTableData } = useTableDa
 	fetchFn: getDomainList,
 })
 
+const router = useRouter()
+
 // Table columns
 const columns = ref<DataTableColumns<MailDomain>>([
 	{
@@ -66,6 +68,19 @@ const columns = ref<DataTableColumns<MailDomain>>([
 		ellipsis: {
 			tooltip: true,
 		},
+		render: row => (
+			<NButton
+				text
+				type="primary"
+				onClick={() => {
+					router.push({
+						path: '/mailbox',
+						state: { domain: row.domain },
+					})
+				}}>
+				{row.domain}
+			</NButton>
+		),
 	},
 	{
 		key: 'quota',

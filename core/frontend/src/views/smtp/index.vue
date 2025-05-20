@@ -2,7 +2,7 @@
 	<div class="p-24px">
 		<div class="bt-title mb-10px!">{{ $t('smtp.title') }}</div>
 		<div class="mb-20px text-14px text-desc">{{ $t('smtp.description') }}</div>
-		<div class="flex gap-8px mb-16px">
+		<div class="flex gap-12px mb-16px">
 			<n-dropdown
 				placement="bottom-start"
 				trigger="hover"
@@ -14,7 +14,7 @@
 					<i class="i-mdi-chevron-down text-17px"></i>
 				</n-button>
 			</n-dropdown>
-			<!-- <bt-help></bt-help> -->
+			<bt-help href="https://www.billionmail.com/docs/start/smtp.html"></bt-help>
 		</div>
 		<smtp-loading v-if="loading"></smtp-loading>
 		<div

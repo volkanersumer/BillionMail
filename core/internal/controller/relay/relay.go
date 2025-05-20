@@ -33,6 +33,7 @@ var (
 	senderTransportFile  = "/conf/sender_transport_relay"
 	headerChecks         = "/conf/header_checks"
 	mainCfFile           = "main.cf"
+	mainCfFileExtra      = "/conf/extra.cf"
 	postfixContainerName = "billionmail-postfix-billionmail-1"
 )
 
@@ -228,8 +229,6 @@ func GenerateSPFRecord(ip string, host string, domain string) string {
 
 // SyncRelayConfigsToPostfix
 func SyncRelayConfigsToPostfix(ctx context.Context) error {
-	// 首先检查配置目录是否存在
-
 	if !gfile.Exists(postfixConfigDir) {
 		return gerror.New(public.LangCtx(ctx, "Postfix configuration directory does not exist: {}", postfixConfigDir))
 	}
@@ -255,7 +254,7 @@ func SyncRelayConfigsToPostfix(ctx context.Context) error {
 	if err := updatePostfixMasterCf(ctx, activeConfigs); err != nil {
 		return err
 	}
-	// 4. Update markers in main.cf; if no configurations exist, disable relay functionality
+	// 4. Update markers in main.cf and extra.cf; if no configurations exist, disable relay functionality
 	mainCfPath := path.Join(postfixConfigDir, mainCfFile)
 	if err := ensurePostfixRelayConfig(mainCfPath, totalCount > 0); err != nil {
 		return err
@@ -269,7 +268,6 @@ func generateRelayConfigFiles(ctx context.Context, configs []*entity.BmRelay) er
 	// Ensure the configuration directory exists
 	senderRelayPath := path.Join(postfixConfigDir, senderRelayFile)
 	saslPasswdPath := path.Join(postfixConfigDir, saslPasswdFile)
-	mainCfPath := path.Join(postfixConfigDir, mainCfFile)
 	senderTransportPath := path.Join(postfixConfigDir, senderTransportFile)
 	headerChecksPath := path.Join(postfixConfigDir, headerChecks)
 
@@ -312,7 +310,8 @@ func generateRelayConfigFiles(ctx context.Context, configs []*entity.BmRelay) er
 			// Create sender_transport configuration
 			smtpName := "smtp_default"
 			if config.SmtpName != "" {
-				cleanedSmtpName := strings.ReplaceAll(config.SmtpName, " ", "")
+
+				cleanedSmtpName := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.SmtpName, "_")
 				smtpName = fmt.Sprintf("smtp_%s", cleanedSmtpName)
 			}
 
@@ -357,10 +356,6 @@ func generateRelayConfigFiles(ctx context.Context, configs []*entity.BmRelay) er
 		return gerror.Newf("Failed to write header_checks file: %v", err)
 	}
 
-	if err := ensurePostfixRelayConfig(mainCfPath, len(configs) > 0); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -387,7 +382,8 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error
 			// Generate SMTP service name
 			smtpName := "smtp"
 			if config.SmtpName != "" {
-				cleanedSmtpName := strings.ReplaceAll(config.SmtpName, " ", "")
+
+				cleanedSmtpName := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.SmtpName, "_")
 				smtpName = fmt.Sprintf("smtp_%s", cleanedSmtpName)
 			} else {
 				// Generate a unique name based on the domain
@@ -560,7 +556,26 @@ func reloadPostfixConfigs(ctx context.Context) error {
 
 // ensurePostfixRelayConfig
 func ensurePostfixRelayConfig(mainCfPath string, enableRelay bool) error {
-	content := gfile.GetContents(mainCfPath)
+	//  main.cf
+	if err := writePostfixRelayConfig(mainCfPath, enableRelay); err != nil {
+		return err
+	}
+
+	//  extra.cf
+	extraCfPath := path.Join(postfixConfigDir, mainCfFileExtra)
+	return writePostfixRelayConfig(extraCfPath, enableRelay)
+}
+
+// writePostfixRelayConfig
+func writePostfixRelayConfig(cfPath string, enableRelay bool) error {
+
+	if !gfile.Exists(cfPath) {
+		if err := gfile.PutContents(cfPath, ""); err != nil {
+			return gerror.Newf("Failed to create configuration file %s: %v", cfPath, err)
+		}
+	}
+
+	content := gfile.GetContents(cfPath)
 
 	beginMarker := "# BEGIN RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
 	endMarker := "# END RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
@@ -587,7 +602,7 @@ smtp_header_checks = regexp:/etc/postfix/conf/header_checks
 
 	if enableRelay {
 		if hasConfigBlock {
-			g.Log().Debug(nil, "Relay configuration block already exists, no modification needed")
+			g.Log().Debugf(nil, "Relay configuration block already exists in %s, no modification needed", cfPath)
 		} else {
 			// Need to add the configuration block
 			if strings.HasSuffix(content, "\n") {
@@ -617,8 +632,8 @@ smtp_header_checks = regexp:/etc/postfix/conf/header_checks
 	}
 	// If there are modifications, write to the file
 	if modified {
-		if err := gfile.PutContents(mainCfPath, content); err != nil {
-			return gerror.Newf("Failed to write main.cf file: %v", err)
+		if err := gfile.PutContents(cfPath, content); err != nil {
+			return gerror.Newf("Failed to write to file %s: %v", cfPath, err)
 		}
 	}
 

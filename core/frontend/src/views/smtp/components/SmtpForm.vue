@@ -123,7 +123,7 @@ const getDomainList = async () => {
 		const domainList = res.filter(item => !item.is_bound)
 		domainOptions.value = res.map(item => {
 			return {
-				label: item.domain,
+				label: `${item.domain}${item.is_bound ? t('smtp.form.bind') : ''}`,
 				value: item.domain,
 				disabled: item.is_bound,
 			}

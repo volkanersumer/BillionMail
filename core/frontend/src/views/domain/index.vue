@@ -4,9 +4,14 @@
 		<bt-table-layout>
 			<template #toolsLeft>
 				<n-button type="primary" @click="handleAddDomain">{{ t('domain.addDomain') }}</n-button>
+				<!-- <bt-help></bt-help> -->
 			</template>
 			<template #table>
-				<n-data-table :loading="loading" :columns="columns" :data="tableList"> </n-data-table>
+				<n-data-table :loading="loading" :columns="columns" :data="tableList">
+					<template #empty>
+						<bt-table-help></bt-table-help>
+					</template>
+				</n-data-table>
 			</template>
 			<template #pageRight>
 				<bt-table-page
@@ -43,7 +48,7 @@ const { tableParams, tableList, loading, tableTotal, getTableData } = useTableDa
 	MailDomain,
 	MailDomainParams
 >({
-	immediate: true,
+	immediate: false,
 	params: {
 		page: 1,
 		page_size: 10,

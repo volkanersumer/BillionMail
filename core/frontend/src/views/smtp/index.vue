@@ -29,7 +29,7 @@
 			</SmtpCard>
 		</div>
 		<div v-else class="flex-center h-400px text-center text-desc">
-			<n-empty size="large" description="{{ $t('smtp.empty') }}"></n-empty>
+			<bt-table-help></bt-table-help>
 		</div>
 
 		<form-modal></form-modal>
@@ -125,7 +125,7 @@ const handleDelete = (service: SmtpService) => {
 	})
 }
 
-getCardList()
+// getCardList()
 </script>
 
 <style lang="scss" scoped></style>

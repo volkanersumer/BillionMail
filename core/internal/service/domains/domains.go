@@ -83,6 +83,15 @@ func Delete(ctx context.Context, domainName string) error {
 		Ctx(ctx).
 		Where("domain", domainName).
 		Delete()
+
+	if err == nil {
+		// remove associated mailboxes
+		_, err = g.DB().Model("mailbox").
+			Ctx(ctx).
+			Where("domain", domainName).
+			Delete()
+	}
+
 	return err
 }
 

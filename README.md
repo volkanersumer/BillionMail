@@ -2,13 +2,12 @@
   <a name="readme-top"></a>
   <h1><a href="https://www.billionmail.com/" target="_blank">BillionMail 📧</a></h1>
 
+
 ## An Open-Source MailServer, Email Marketing Solution for Smarter Campaigns
 
-[![][license-shield]][license-link]
-[![][docs-shield]][docs-link]
-[![][github-release-shield]][github-release-link]
-[![][github-stars-shield]][github-stars-link]
+[![][license-shield]][license-link] [![][docs-shield]][docs-link] [![][github-release-shield]][github-release-link] [![][github-stars-shield]][github-stars-link]
 
+English | [简体中文](README-zh_CN.md)
 </div>
 <br/>
 

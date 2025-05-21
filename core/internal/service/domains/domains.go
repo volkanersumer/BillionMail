@@ -39,7 +39,7 @@ func Add(ctx context.Context, domain *v1.Domain) error {
 			}
 
 			// update postfix environment parameter
-			_, err = public.DockerApiFromCtx(ctx).ExecCommandByName(ctx, "billionmail-postfix-billionmail-1", []string{"BILLIONMAIL_HOSTNAME=" + public.FormatMX(domain.Domain)}, "root")
+			_, err = public.DockerApiFromCtx(ctx).ExecCommandByName(ctx, "billionmail-postfix-billionmail-1", []string{"bash", "-c", fmt.Sprintf("sed -i '/^BILLIONMAIL_HOSTNAME=/d' /postfix.sh && sed -i '/^#!\\/bin\\/bash/a BILLIONMAIL_HOSTNAME=%s' /postfix.sh", public.FormatMX(domain.Domain))}, "root")
 
 			if err != nil {
 				return fmt.Errorf("failed to update BILLIONMAIL_HOSTNAME in postfix container: %v", err)

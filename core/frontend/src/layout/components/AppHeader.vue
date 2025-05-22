@@ -5,7 +5,7 @@
 				<i class="icon" :class="isCollapse ? 'i-mdi-menu-close' : 'i-mdi-menu-open'"></i>
 			</n-button>
 			<n-button type="primary" text class="text-14px" @click="handleGoIssues">
-				Submit a Request
+				{{ t('layout.header.submit') }}
 				<i class="i-mdi:arrow-right ml-1px"></i>
 			</n-button>
 		</div>

@@ -49,6 +49,10 @@
 		}
 	},
 	"components": {
+		"tableHelp": {
+			"text1": "Submit {issues} for questions or suggestions, and light up a {star} on Github to support the project.",
+			"text2": "We highly value your active participation. Thank you."
+		},
 		"upload": {
 			"error": {
 				"fileSizeExceeded": "The size of file [{fileName}] cannot exceed {maxSize}MB",
@@ -61,6 +65,9 @@
 		}
 	},
 	"layout": {
+		"header": {
+			"submit": "Submit a Request"
+		},
 		"menu": {
 			"overview": "Overview",
 			"market": "Email Marketing",
@@ -442,15 +449,18 @@
 				"mxPriority": "MX Priority"
 			},
 			"step1": {
-				"title": "Step 1: Add MX Record",
-				"description": "Login to your domain service provider and add an MX record for email service (please copy the following parameters directly)"
+				"title": "Step 1: Add A Record"
 			},
 			"step2": {
-				"title": "Step 2: Add TXT Record",
-				"description": "Add TXT records for email anti-spam (please copy the following parameters directly)"
+				"title": "Step 2: Add MX Record",
+				"description": "Login to your domain service provider and add an MX record for email service (please copy the following parameters directly)"
 			},
 			"step3": {
-				"title": "Step 3: Add PTR Record",
+				"title": "Step 3: Add TXT Record",
+				"description": "Add TXT records for email anti-spam (please copy the following parameters directly)"
+			},
+			"step4": {
+				"title": "Step 4: Add PTR Record",
 				"description1": "(Optional) PTR record is used for reverse DNS lookup",
 				"description2": "Contact your IP provider to create PTR record"
 			}

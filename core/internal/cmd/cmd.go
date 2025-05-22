@@ -4,6 +4,7 @@ import (
 	"billionmail-core/internal/consts"
 	"billionmail-core/internal/controller/abnormal_recipient"
 	"billionmail-core/internal/controller/batch_mail"
+	"billionmail-core/internal/controller/campaign"
 	"billionmail-core/internal/controller/contact"
 	"billionmail-core/internal/controller/dockerapi"
 	"billionmail-core/internal/controller/domains"
@@ -159,6 +160,23 @@ var (
 				// ghttp.HookAfterOutput: func(r *ghttp.Request) {},
 			})
 
+			// Register Common Handlers
+			s.Group("/", func(group *ghttp.RouterGroup) {
+				// Add CORS middleware
+				group.Middleware(ghttp.MiddlewareCORS)
+
+				// Add docker client middleware
+				group.Middleware(func(r *ghttp.Request) {
+					r.SetCtxVar(consts.DEFAULT_DOCKER_CLIENT_CTX_KEY, dk)
+					r.Middleware.Next()
+				})
+
+				group.Bind(
+					campaign.NewV1(),
+				)
+			})
+
+			// Register Apis
 			s.Group("/api", func(group *ghttp.RouterGroup) {
 				// Add CORS middleware
 				group.Middleware(ghttp.MiddlewareCORS)

@@ -1,14 +1,32 @@
 <template>
 	<modal :title="t('domain.dns.title')" :width="750" :footer="false">
 		<div>
-			<n-data-table class="mb-20px" :data="statusData" :columns="statusColumns"></n-data-table>
+			<n-data-table size="small" class="mb-20px" :data="statusData" :columns="statusColumns">
+			</n-data-table>
 			<div class="record-title">{{ t('domain.dns.step1.title') }}</div>
-			<div class="record-desc">{{ t('domain.dns.step1.description') }}</div>
-			<n-table class="mb-30px">
+			<n-table size="small" class="mb-24px">
 				<thead>
 					<tr>
-						<th>{{ t('domain.dns.table.recordType') }}</th>
-						<th>{{ t('domain.dns.table.host') }}</th>
+						<th width="140">{{ t('domain.dns.table.recordType') }}</th>
+						<th width="160">{{ t('domain.dns.table.host') }}</th>
+						<th>{{ t('domain.dns.table.value') }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>A</td>
+						<td>{{ aHost }}</td>
+						<td>{{ aValue }}</td>
+					</tr>
+				</tbody>
+			</n-table>
+			<div class="record-title">{{ t('domain.dns.step2.title') }}</div>
+			<div class="record-desc">{{ t('domain.dns.step2.description') }}</div>
+			<n-table size="small" class="mb-24px">
+				<thead>
+					<tr>
+						<th width="140">{{ t('domain.dns.table.recordType') }}</th>
+						<th width="160">{{ t('domain.dns.table.host') }}</th>
 						<th>{{ t('domain.dns.table.value') }}</th>
 						<th>{{ t('domain.dns.table.mxPriority') }}</th>
 					</tr>
@@ -16,19 +34,19 @@
 				<tbody>
 					<tr>
 						<td>MX</td>
-						<td>@</td>
+						<td>{{ mxHost }}</td>
 						<td>{{ mxValue }}</td>
 						<td>10</td>
 					</tr>
 				</tbody>
 			</n-table>
-			<div class="record-title">{{ t('domain.dns.step2.title') }}</div>
-			<div class="record-desc">{{ t('domain.dns.step2.description') }}</div>
-			<n-table class="mb-30px">
+			<div class="record-title">{{ t('domain.dns.step3.title') }}</div>
+			<div class="record-desc">{{ t('domain.dns.step3.description') }}</div>
+			<n-table size="small" class="mb-24px">
 				<thead>
 					<tr>
-						<th>{{ t('domain.dns.table.recordType') }}</th>
-						<th>{{ t('domain.dns.table.host') }}</th>
+						<th width="140">{{ t('domain.dns.table.recordType') }}</th>
+						<th width="160">{{ t('domain.dns.table.host') }}</th>
 						<th>{{ t('domain.dns.table.value') }}</th>
 					</tr>
 				</thead>
@@ -37,7 +55,7 @@
 						<td>TXT</td>
 						<td>@</td>
 						<td>
-							<n-ellipsis class="mr-4px max-w-360px!">{{ command }}</n-ellipsis>
+							<n-ellipsis class="mr-4px max-w-320px!">{{ command }}</n-ellipsis>
 							<n-button text type="primary" @click="() => copyText(command)">
 								{{ t('common.actions.copy') }}
 							</n-button>
@@ -47,7 +65,7 @@
 						<td>TXT</td>
 						<td>default._domainkey</td>
 						<td>
-							<n-ellipsis class="mr-4px max-w-360px!">
+							<n-ellipsis class="mr-4px max-w-320px!">
 								{{ dkimValue || '--' }}
 							</n-ellipsis>
 							<n-button v-if="dkimValue" text type="primary" @click="() => copyText(dkimValue)">
@@ -59,7 +77,7 @@
 						<td>TXT</td>
 						<td>_dmarc</td>
 						<td>
-							<n-ellipsis class="mr-4px max-w-360px!">
+							<n-ellipsis class="mr-4px max-w-320px!">
 								{{ dmarcValue }}
 							</n-ellipsis>
 							<n-button v-if="dmarcValue" text type="primary" @click="() => copyText(dmarcValue)">
@@ -69,9 +87,9 @@
 					</tr>
 				</tbody>
 			</n-table>
-			<div class="record-title">{{ t('domain.dns.step3.title') }}</div>
-			<div class="record-desc">{{ t('domain.dns.step3.description1') }}</div>
-			<div class="record-desc">{{ t('domain.dns.step3.description2') }}</div>
+			<div class="record-title">{{ t('domain.dns.step4.title') }}</div>
+			<div class="record-desc">{{ t('domain.dns.step4.description1') }}</div>
+			<div class="record-desc">{{ t('domain.dns.step4.description2') }}</div>
 		</div>
 		<div class="flex justify-center mt-24px">
 			<n-button type="primary" @click="onVerify">{{ t('domain.dns.verify') }}</n-button>
@@ -94,9 +112,9 @@ const { copyText } = useCopy()
 
 const statusData = ref<MailDomain[]>([])
 
-const getRecordValue = (record: string) => {
+const getRecordValue = (record: string, key: 'host' | 'value' = 'value') => {
 	if (statusData.value.length > 0) {
-		return statusData.value[0].dns_records[record].value
+		return statusData.value[0].dns_records[record][key]
 	}
 	return ''
 }
@@ -105,8 +123,20 @@ const dkimValue = computed(() => {
 	return getRecordValue('dkim')
 })
 
+const aValue = computed(() => {
+	return getRecordValue('a')
+})
+
+const aHost = computed(() => {
+	return getRecordValue('a', 'host')
+})
+
 const mxValue = computed(() => {
 	return getRecordValue('mx')
+})
+
+const mxHost = computed(() => {
+	return getRecordValue('mx', 'host')
 })
 
 const dmarcValue = computed(() => {
@@ -212,14 +242,14 @@ const [Modal, modalApi] = useModal({
 <style lang="scss" scoped>
 .record-title {
 	margin-bottom: 10px;
-	font-size: 16px;
+	font-size: 14px;
 	color: var(--color-text-1);
 	font-weight: 600;
 }
 
 .record-desc {
 	margin-bottom: 10px;
-	font-size: 14px;
+	font-size: 12px;
 	color: var(--color-text-2);
 }
 </style>

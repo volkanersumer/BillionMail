@@ -1,20 +1,23 @@
 <template>
 	<n-empty>
 		<template #default>
-			<div class="text-14px text-desc text-center">
-				<span>Submit </span>
-				<n-button class="text-14px" type="primary" text @click="handleGoIssues">
-					<span>issues</span>
-					<i class="i-mdi:arrow-right ml-1px"></i>
-				</n-button>
-				<span> for questions or suggestions, and light up a </span>
-				<n-button class="text-14px" type="primary" text @click="handleGoStar">
-					Star
-					<i class="i-mdi:arrow-right ml-1px"></i>
-				</n-button>
-				<span> on Github to support the project.</span>
+			<div class="leading-22px text-13px text-desc text-center">
+				<i18n-t tag="span" scope="global" keypath="components.tableHelp.text1">
+					<template #issues>
+						<n-button class="text-13px" type="primary" text @click="handleGoIssues">
+							<span>Issues</span>
+							<i class="i-mdi:arrow-right ml-1px"></i>
+						</n-button>
+					</template>
+					<template #star>
+						<n-button class="text-13px" type="primary" text @click="handleGoStar">
+							Star
+							<i class="i-mdi:arrow-right ml-1px"></i>
+						</n-button>
+					</template>
+				</i18n-t>
 				<br />
-				<span>We highly value your active participation. Thank you.</span>
+				<span>{{ $t('components.tableHelp.text2') }}</span>
 			</div>
 		</template>
 	</n-empty>

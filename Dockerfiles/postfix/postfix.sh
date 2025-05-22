@@ -83,22 +83,35 @@ EOF
 
 # Append myhostname and User configuration
 if [ -z "${BILLIONMAIL_HOSTNAME}" ]; then
-  BILLIONMAIL_HOSTNAME=Postfix
+  BILLIONMAIL_HOSTNAME=mail.example.com
 fi
-# Delete all contents of Overrides-configuration matching line to the end of the file
-sed '/Overrides-configuration/q' /etc/postfix/main.cf > /tmp/main.cf.tmp
-cat /tmp/main.cf.tmp > /etc/postfix/main.cf
-# rm -f /tmp/main.cf.tmp
 
-echo >> /etc/postfix/main.cf
-echo -e "\n# User Overrides-configuration" >> /etc/postfix/main.cf
-if [ ! -f "/etc/postfix/conf/extra.cf" ]; then
-  touch /etc/postfix/conf/extra.cf
+
+if [ -f "/etc/postfix/conf/extra.cf" ]; then
+  # Delete all contents of Overrides-configuration matching line to the end of the file
+  sed '/Overrides-configuration/q' /etc/postfix/main.cf > /tmp/main.cf.tmp
+
+  if [ -s "/tmp/main.cf.tmp" ]; then
+      cat /tmp/main.cf.tmp > /etc/postfix/main.cf
+      # rm -f /tmp/main.cf.tmp
+      echo >> /etc/postfix/main.cf
+      echo -e "\n# User Overrides-configuration" >> /etc/postfix/main.cf
+      # Append User configuration
+      sed -i '/\$myhostname/! { /myhostname/d }' /etc/postfix/conf/extra.cf
+      echo -e "myhostname = ${BILLIONMAIL_HOSTNAME}\n$(cat /etc/postfix/conf/extra.cf)" > /etc/postfix/conf/extra.cf
+      cat /etc/postfix/conf/extra.cf >> /etc/postfix/main.cf
+      rm -f /etc/postfix/conf/extra.cf
+  else
+      echo "Rewriting /etc/postfix/main.cf failed, /tmp/main.cf.tmp is empty."
+  fi
 fi
-# Append User configuration
-sed -i '/\$myhostname/! { /myhostname/d }' /etc/postfix/conf/extra.cf
-echo -e "myhostname = ${BILLIONMAIL_HOSTNAME}\n$(cat /etc/postfix/conf/extra.cf)" > /etc/postfix/conf/extra.cf
-cat /etc/postfix/conf/extra.cf >> /etc/postfix/main.cf
+
+CHECK_MYHOSTNAME=$(grep "myhostname" /etc/postfix/main.cf | grep -v '$myhostname')
+if [ -z "${CHECK_MYHOSTNAME}" ]; then
+  echo >> /etc/postfix/main.cf
+  echo -e "\n# User Overrides-configuration" >> /etc/postfix/main.cf
+  echo "myhostname = ${BILLIONMAIL_HOSTNAME}" >> /etc/postfix/main.cf
+fi
 
 if [ ! -f "/etc/postfix/conf/vmail_ssl.map" ]; then
   touch /etc/postfix/conf/vmail_ssl.map

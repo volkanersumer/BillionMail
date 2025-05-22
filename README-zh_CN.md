@@ -33,7 +33,7 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 
 **使用Docker安装：** (请手动安装Docker和docker-compose-plugin，并修改.env文件)
 ```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && mkdir ssl && cp -d -n ssl-self-signed/* ssl/ && docker compose up -d || docker-compose up -d
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
 ```
 
 <div align="center">

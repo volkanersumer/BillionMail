@@ -33,7 +33,7 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 
 **Install with Docker:** (Please install Docker and docker-compose-plugin manually, and modify .env file)
 ```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && mkdir ssl && cp -d -n ssl-self-signed/* ssl/ && docker compose up -d || docker-compose up -d
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
 ```
 
 <div align="center">

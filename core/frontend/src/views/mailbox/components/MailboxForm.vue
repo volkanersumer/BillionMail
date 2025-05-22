@@ -137,7 +137,7 @@ const getParams = () => {
  * @description Generate a random password that contains lowercase letters, uppercase letters and numbers
  * @param len Password length, default is 8
  */
-function getRandomPassword(len = 8) {
+function getRandomPassword(len = 16) {
 	// Ensure the password length is at least 3 to include all required character types
 	len = Math.max(len, 3)
 

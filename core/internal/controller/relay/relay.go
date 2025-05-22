@@ -28,12 +28,12 @@ import (
 var (
 	postfixConfigDir = public.AbsPath("../conf/postfix")
 
-	senderRelayFile      = "/conf/sender_relay"
-	saslPasswdFile       = "/conf/sasl_passwd"
-	senderTransportFile  = "/conf/sender_transport_relay"
-	headerChecks         = "/conf/header_checks"
-	mainCfFile           = "main.cf"
-	mainCfFileExtra      = "/conf/extra.cf"
+	senderRelayFile     = "/conf/sender_relay"
+	saslPasswdFile      = "/conf/sasl_passwd"
+	senderTransportFile = "/conf/sender_transport_relay"
+	headerChecks        = "/conf/header_checks"
+	mainCfFile          = "main.cf"
+	//mainCfFileExtra      = "/conf/extra.cf"
 	postfixContainerName = "billionmail-postfix-billionmail-1"
 )
 
@@ -561,9 +561,10 @@ func ensurePostfixRelayConfig(mainCfPath string, enableRelay bool) error {
 		return err
 	}
 
-	//  extra.cf
-	extraCfPath := path.Join(postfixConfigDir, mainCfFileExtra)
-	return writePostfixRelayConfig(extraCfPath, enableRelay)
+	////  extra.cf
+	//extraCfPath := path.Join(postfixConfigDir, mainCfFileExtra)
+	//return writePostfixRelayConfig(extraCfPath, enableRelay)
+	return nil
 }
 
 // writePostfixRelayConfig

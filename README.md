@@ -17,17 +17,28 @@ BillionMail is a **future open-source Mail server, Email marketing platform** de
 
 ![BillionMail Banner](https://www.billionmail.com/home.png?v1)
 
-## How to use?
-**Install Script:** (✅It takes **only 8 minutes** from installation to **successful email sending**)
+# Just 5 steps to send a billion emails!
+**Billion emails. Any business. Guaranteed.**
+
+### Step 1️⃣ Install BillionMail: 
+✅ It takes **only 8️⃣ minutes** from installation to **✅ successful email sending**
 ```shell
 cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && bash install.sh
 ```
 
 
-**Install with Docker:** (Please install Docker and docker-compose-plugin manually, and modify .env file)
-```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
-```
+### Step 2️⃣: Connect Your Domain
+- Add the sending domain
+- Verify DNS records
+- Auto-enable free SSL
+
+
+### Step 3️⃣: Build Your Campaign
+
+- Write or paste your email
+- Choose list & tags
+- Set send time or send now
+
 
 <div align="center">
   <a href="https://www.youtube.com/embed/UHgxZa_9jGs?si=0-f1B5hDtcWImvQv" target="_blank">
@@ -62,6 +73,17 @@ BillionMail Demo: [https://demo.billionmail.com/billionmail](https://demo.billio
 Username: `billionmail` 
 
 Password: `billionmail` 
+
+## Other installation methods
+👉 https://www.aapanel.com/new/download.html
+
+### One-click installation on aaPanel
+
+
+**Docker**
+```shell
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
+```
 
 ## WebMail
 

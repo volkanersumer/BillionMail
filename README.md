@@ -3,7 +3,7 @@
   <h1><a href="https://www.billionmail.com/" target="_blank">BillionMail 📧</a></h1>
 
 
-## An Open-Source MailServer, Email Marketing Solution for Smarter Campaigns
+## An Open-Source MailServer, NewsLetter, Email Marketing Solution for Smarter Campaigns
 
 [![][license-shield]][license-link] [![][docs-shield]][docs-link] [![][github-release-shield]][github-release-link] [![][github-stars-shield]][github-stars-link]
 
@@ -11,30 +11,34 @@ English | [简体中文](README-zh_CN.md)
 </div>
 <br/>
 
-## Live Demo
-BillionMail Demo: [https://demo.billionmail.com/billionmail](https://demo.billionmail.com/billionmail)
-
-Username: `billionmail` 
-
-Password: `billionmail` 
-
 ## What is BillionMail?
 
 BillionMail is a **future open-source Mail server, Email marketing platform** designed to help businesses and individuals manage their email campaigns with ease. Whether you're sending newsletters, promotional emails, or transactional messages, this tool will provide **full control** over your email marketing efforts. With features like **advanced analytics**, and **customer management**, you'll be able to create, send, and track emails like a pro.
 
 ![BillionMail Banner](https://www.billionmail.com/home.png?v1)
 
-## How to use?
-**Install Script:** (✅The script automatically installs all required runtime environments including Docker)
+# Just 5 steps to send a billion emails!
+**Billion emails. Any business. Guaranteed.**
+
+### Step 1️⃣ Install BillionMail: 
+✅ It takes **only 8️⃣ minutes** from installation to **✅ successful email sending**
 ```shell
 cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && bash install.sh
 ```
 
 
-**Install with Docker:** (Please install Docker and docker-compose-plugin manually, and modify .env file)
-```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
-```
+### Step 2️⃣: Connect Your Domain
+- Add the sending domain
+- Verify DNS records
+- Auto-enable free SSL
+
+
+### Step 3️⃣: Build Your Campaign
+
+- Write or paste your email
+- Choose list & tags
+- Set send time or send now
+
 
 <div align="center">
   <a href="https://www.youtube.com/embed/UHgxZa_9jGs?si=0-f1B5hDtcWImvQv" target="_blank">
@@ -45,6 +49,17 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
   </a>
 </div>
 
+
+## Other installation methods
+👉 https://www.aapanel.com/new/download.html
+
+### One-click installation on aaPanel
+
+
+**Docker**
+```shell
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
+```
 
 ## Management script
 - Management help
@@ -63,6 +78,12 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 
   `bm update`
 
+## Live Demo
+BillionMail Demo: [https://demo.billionmail.com/billionmail](https://demo.billionmail.com/billionmail)
+
+Username: `billionmail` 
+
+Password: `billionmail` 
 
 
 ## WebMail
@@ -101,6 +122,18 @@ If you encounter any issues or have feature requests, please [open an issue](htt
 - Steps to reproduce the issue (if applicable).
 - Screenshots or error logs (if applicable).
 
+## Install Now:
+✅It takes **only 8 minutes** from installation to **successful email sending**
+```shell
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && bash install.sh
+```
+
+
+**Install with Docker:** (Please install Docker and docker-compose-plugin manually, and modify .env file)
+```shell
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
+```
+
 ## License
 
 BillionMail is licensed under the **AGPLv3 License**. This means you can:
@@ -112,8 +145,6 @@ BillionMail is licensed under the **AGPLv3 License**. This means you can:
 See the [LICENSE](LICENSE) file for more details.
 
 ---
-
-📬 **BillionMail – Coming Soon. Star This Repo to Make It Happen Faster!**
 
 <!-- BillionMail official link -->
 [docs-link]: https://www.billionmail.com/

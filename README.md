@@ -25,7 +25,7 @@ BillionMail is a **future open-source Mail server, Email marketing platform** de
 ![BillionMail Banner](https://www.billionmail.com/home.png?v1)
 
 ## How to use?
-**Install Script:** (✅The script automatically installs all required runtime environments including Docker)
+**Install Script:** (✅It takes **only 8 minutes** from installation to **successful email sending**)
 ```shell
 cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && bash install.sh
 ```

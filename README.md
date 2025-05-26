@@ -50,6 +50,17 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 </div>
 
 
+## Other installation methods
+👉 https://www.aapanel.com/new/download.html
+
+### One-click installation on aaPanel
+
+
+**Docker**
+```shell
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
+```
+
 ## Management script
 - Management help
 
@@ -74,16 +85,6 @@ Username: `billionmail`
 
 Password: `billionmail` 
 
-## Other installation methods
-👉 https://www.aapanel.com/new/download.html
-
-### One-click installation on aaPanel
-
-
-**Docker**
-```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
-```
 
 ## WebMail
 

@@ -113,8 +113,6 @@ See the [LICENSE](LICENSE) file for more details.
 
 ---
 
-📬 **BillionMail – Coming Soon. Star This Repo to Make It Happen Faster!**
-
 <!-- BillionMail official link -->
 [docs-link]: https://www.billionmail.com/
 

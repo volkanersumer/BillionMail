@@ -11,13 +11,6 @@ English | [简体中文](README-zh_CN.md)
 </div>
 <br/>
 
-## Live Demo
-BillionMail Demo: [https://demo.billionmail.com/billionmail](https://demo.billionmail.com/billionmail)
-
-Username: `billionmail` 
-
-Password: `billionmail` 
-
 ## What is BillionMail?
 
 BillionMail is a **future open-source Mail server, Email marketing platform** designed to help businesses and individuals manage their email campaigns with ease. Whether you're sending newsletters, promotional emails, or transactional messages, this tool will provide **full control** over your email marketing efforts. With features like **advanced analytics**, and **customer management**, you'll be able to create, send, and track emails like a pro.
@@ -63,7 +56,12 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 
   `bm update`
 
+## Live Demo
+BillionMail Demo: [https://demo.billionmail.com/billionmail](https://demo.billionmail.com/billionmail)
 
+Username: `billionmail` 
+
+Password: `billionmail` 
 
 ## WebMail
 
@@ -100,6 +98,18 @@ If you encounter any issues or have feature requests, please [open an issue](htt
 - A clear description of the problem or request.
 - Steps to reproduce the issue (if applicable).
 - Screenshots or error logs (if applicable).
+
+## Install Now:
+✅It takes **only 8 minutes** from installation to **successful email sending**
+```shell
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && bash install.sh
+```
+
+
+**Install with Docker:** (Please install Docker and docker-compose-plugin manually, and modify .env file)
+```shell
+cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
+```
 
 ## License
 

@@ -17,7 +17,7 @@ BillionMail is a **future open-source Mail server, Email marketing platform** de
 
 ![BillionMail Banner](https://www.billionmail.com/home.png?v1)
 
-# Just 5 steps to send a billion emails!
+# Just 3 steps to send a billion emails!
 **Billion emails. Any business. Guaranteed.**
 
 ### Step 1️⃣ Install BillionMail: 

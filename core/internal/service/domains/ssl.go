@@ -96,6 +96,8 @@ func ApplyCertToService(domain, crtPem, keyPem string) (err error) {
 		return err
 	}
 
+	UpdateBaseURL()
+
 	// Attempt apply the certificate to the console panel if domain is the console domain
 	rawurl := GetBaseURL()
 
@@ -104,6 +106,9 @@ func ApplyCertToService(domain, crtPem, keyPem string) (err error) {
 	if err != nil {
 		return err
 	}
+
+	g.Log().Debug(context.Background(), "HostName: ", u.Hostname())
+	g.Log().Debug(context.Background(), "ssl domain: ", public.FormatMX(domain))
 
 	if u.Hostname() == public.FormatMX(domain) {
 		_, err = public.WriteFile(public.AbsPath(filepath.Join(consts.SSL_PATH, "cert.pem")), crtPem)

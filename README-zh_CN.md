@@ -11,6 +11,10 @@
 </div>
 <br/>
 
+<div align="center">
+<a href="https://trendshift.io/repositories/13842" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13842" alt="aaPanel%2FBillionMail | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+</div>
+
 ## 在线演示
 BillionMail 演示: [https://demo.billionmail.com/billionmail](https://demo.billionmail.com/billionmail)
 

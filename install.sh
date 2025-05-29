@@ -402,6 +402,7 @@ Docker_Start() {
     if Command_Exists docker || [ -f /lib/systemd/system/docker.service ]; then
         if Command_Exists systemctl; then
             # systemctl mask getty@tty1.service
+            grep docker /etc/group >/dev/null 2>&1 || groupadd docker
             systemctl enable docker
             systemctl reset-failed docker.service
             systemctl start docker.service

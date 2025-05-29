@@ -507,6 +507,62 @@ Default_info() {
     echo -e "=================================================================="
 }
 
+# Modify the apply SSL interface access port
+MODIFY_HTTP_SSL_PORT() { 
+
+    NEW_PORT="$2"
+    if [ -z "${NEW_PORT}" ]; then
+        echo -e "\033[31m Let's Encrypt SSL certificate can only be applied using port 80, other ports cannot be applied.\033[0m"
+        read -p "Please enter the new apply SSL port: " NEW_PORT
+    fi
+
+    # Verify that the input is a number
+    if ! echo "${NEW_PORT}" | grep -qE '^[0-9]+$' || ((NEW_PORT < 1 || NEW_PORT > 65535)); then
+        echo -e "\033[31m Error: The port number must be a number between 1-65535 \033[0m"
+        exit 1
+    fi
+
+    Check_Port=$(ss -tlnp | grep -E ":(${NEW_PORT})\b")
+    if [ ! -z "${Check_Port}" ]; then
+        echo "${Check_Port}"
+        echo -e "\033[31m Error: The ${NEW_PORT} port is already in use. \033[0m"
+        exit 1
+    fi
+
+    # Perform modification
+    sed -i 's/^HTTP_PORT=.*/HTTP_PORT='"${NEW_PORT}"'/' .env
+    echo -e "The BillionMail apply SSL port has been modified to: ${NEW_PORT} \n Rebuild the container, please wait..."
+
+    sleep 3
+    # Find the container ID of the core image in the current project and rebuild the container
+    CONTAINER_ID=$(${DOCKER_COMPOSE} ps -a --format "{{.ID}} {{.Image}}" |grep "/core:" | awk '{print $1}' )
+    if [ "${CONTAINER_ID}" ]; then
+        echo "Rebuilding Manage Container..."
+        docker stop ${CONTAINER_ID}
+        docker rm -f ${CONTAINER_ID}
+        ${DOCKER_COMPOSE} up -d
+    else
+        echo "The "core" container does not exist"
+        echo "Starting BillionMail..."
+        ${DOCKER_COMPOSE} up -d
+    fi
+
+    if [ -f "/usr/sbin/ufw" ]; then
+        /usr/sbin/ufw allow ${NEW_PORT}/tcp >/dev/null 2>&1
+        /usr/sbin/ufw reload
+    elif [ -f "/usr/sbin/firewall-cmd" ]; then
+        /usr/sbin/firewall-cmd --permanent --zone=public --add-port=${NEW_PORT}/tcp >/dev/null 2>&1
+        /usr/sbin/firewall-cmd --reload
+    elif [ -f "/etc/sysconfig/iptables" ]; then
+        iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${NEW_PORT} -j ACCEPT
+        service iptables save
+    fi
+
+    if [[ ${NEW_PORT} != "80" ]]; then 
+        echo -e "\033[31m Let's Encrypt SSL certificate can only be applied using port 80, other ports cannot be applied.\033[0m"
+    fi
+}
+
 # Modify the management interface access port
 MODIFY_HTTPS_PORT() { 
 
@@ -598,17 +654,18 @@ MODIFY_TZ() {
 case "$1" in
     h | -h | help | --help | -help)
         echo "Help Information:"
-        echo "  default                - Show BillionMail login default info: $0 default"
-        echo "  update                 - Update BillionMail: $0 update"
-        echo "  change-port            - Modify BillionMail access management port: $0 change-port"
-        echo "  change-tz              - Modify BillionMail time zone: $0 change-tz"
-        echo "  add-domain <domain>    - Add domain. Example: $0 add-domain example.com"
-        echo "  del-domain <domain>    - Delete domain. Example: $0 del-domain example.com"
-        echo "  add-email <email>      - Add email. Example: $0 add-email user@example.com"
-        echo "  del-email <email>      - Delete email. Example: $0 del-email user@example.com"
-        echo "  show-domain            - Show domain data."
-        echo "  show-email             - Show email data."
-        echo "  show-record            - Show domain DNS record."
+        echo "  default                 - Show BillionMail login default info: $0 default"
+        echo "  update                  - Update BillionMail: $0 update"
+        echo "  change-port             - Modify BillionMail access management port: $0 change-port"
+        echo "  change-tz               - Modify BillionMail time zone: $0 change-tz"
+        echo "  change-apply-ssl-port   - Modify BillionMail apply ssl port: $0 change-apply-ssl-port"
+        echo "  add-domain <domain>     - Add domain. Example: $0 add-domain example.com"
+        echo "  del-domain <domain>     - Delete domain. Example: $0 del-domain example.com"
+        echo "  add-email <email>       - Add email. Example: $0 add-email user@example.com"
+        echo "  del-email <email>       - Delete email. Example: $0 del-email user@example.com"
+        echo "  show-domain             - Show domain data."
+        echo "  show-email              - Show email data."
+        echo "  show-record             - Show domain DNS record."
         ;;
     default | info)
         Default_info
@@ -641,6 +698,9 @@ case "$1" in
     show-record|show_dns_record)
         Init_Domain "$@"
         Domain_record
+        ;;
+    MODIFY_HTTP_PORT|modify_http_port|change-apply-ssl-port)
+        MODIFY_HTTP_SSL_PORT
         ;;
     MODIFY_HTTPS_PORT|modify_https_port|change-port)
         MODIFY_HTTPS_PORT

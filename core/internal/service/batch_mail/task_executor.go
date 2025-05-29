@@ -865,7 +865,7 @@ func (e *TaskExecutor) processEmailContent(ctx context.Context, content string, 
 			content = public.AddUnsubscribeButton(content)
 		}
 		// get current domain
-		domain := domains.GetBaseURL()
+		domain := domains.GetBaseURLBySender(task.Addresser)
 
 		// generate unsubscribe URL placeholder
 		unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
@@ -934,7 +934,7 @@ func (e *TaskExecutor) sendEmail(ctx context.Context, task *entity.EmailTask, re
 	messageID := sender.GenerateMessageID()
 
 	//Tracking emails
-	baseURL := domains.GetBaseURL()
+	baseURL := domains.GetBaseURLBySender(task.Addresser)
 	mail_tracker := maillog_stat.NewMailTracker(content, task.Id, messageID, recipient.Recipient, baseURL)
 	mail_tracker.TrackLinks()
 	mail_tracker.AppendTrackingPixel()

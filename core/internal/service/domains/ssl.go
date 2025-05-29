@@ -97,7 +97,7 @@ func ApplyCertToService(domain, crtPem, keyPem string) (err error) {
 		return err
 	}
 
-	UpdateBaseURL()
+	UpdateBaseURL(context.Background())
 
 	// Attempt apply the certificate to the console panel if domain is the console domain
 	rawurl := GetBaseURL()

@@ -545,6 +545,19 @@ MODIFY_HTTPS_PORT() {
         echo "Starting BillionMail..."
         ${DOCKER_COMPOSE} up -d
     fi
+
+    if [ -f "/usr/sbin/ufw" ]; then
+        /usr/sbin/ufw allow ${NEW_PORT}/tcp >/dev/null 2>&1
+        /usr/sbin/ufw reload
+    elif [ -f "/usr/sbin/firewall-cmd" ]; then
+        /usr/sbin/firewall-cmd --permanent --zone=public --add-port=${NEW_PORT}/tcp >/dev/null 2>&1
+        /usr/sbin/firewall-cmd --reload
+    elif [ -f "/etc/sysconfig/iptables" ]; then
+        iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${NEW_PORT} -j ACCEPT
+        service iptables save
+    fi
+
+    # Display login information
     bash bm.sh default
 }
 

@@ -18,8 +18,8 @@ if [ $(whoami) != "root" ];then
 fi
 
 PWD_d=`pwd`
-# Check if the path contains "BillionMail"
-if [[ "${PWD_d}" != *"BillionMail"* ]] || [[ "${PWD_d}" != *"Billion-Mail"* ]]; then
+
+SWITCH_TO_BILLIONMAIL_DIR(){
     if [ -f "/opt/PWD-Billion-Mail.txt" ]; then
         DIR=$(cat /opt/PWD-Billion-Mail.txt)
         if [ -d "${DIR}" ]; then
@@ -27,15 +27,24 @@ if [[ "${PWD_d}" != *"BillionMail"* ]] || [[ "${PWD_d}" != *"Billion-Mail"* ]]; 
             echo "Enter the BillionMail project directory: ${DIR}"
         fi
     fi
-fi
+}
 
+if [ -s ".env" ]; then
+   CHECK_BILLIONMAIL=$(grep "BILLIONMAIL_HOSTNAME" .env)
+   if [ -z "${CHECK_BILLIONMAIL}" ]; then
+        SWITCH_TO_BILLIONMAIL_DIR
+   fi
+else
+    SWITCH_TO_BILLIONMAIL_DIR
+fi
 
 if [ ! -s ".env" ]; then
     ls -al
     echo " The .env file does not exist. Cannot continue operation, please operate in the BillionMail project directory"
     exit 1
 fi
-. .env
+
+source .env
 if [ -z "${DBUSER}" ] || [ -z "${DBNAME}" ] || [ -z "${DBPASS}" ]; then
     echo "The obtained .env configuration exception is empty."   
     exit 1
@@ -47,6 +56,42 @@ Red_Error(){
     # GetSysInfo
     exit 1;
 }
+
+Command_Exists() {
+    command -v "$@" >/dev/null 2>&1
+}
+
+
+Docker_Compose_Check(){
+
+    if Command_Exists docker-compose; then
+        DOCKER_COMPOSE="docker-compose"
+    else 
+        if Command_Exists docker; then
+            Docker_compose="docker compose version"
+            if $Docker_compose; then
+                DOCKER_COMPOSE="docker compose"
+            fi
+        else
+            Red_Error "ERROR: Docker Compose does not exist"
+        fi
+
+    fi
+}
+Docker_Compose_Check
+
+# GET_CONTAINER_ID() {
+
+#     if [[ "$1" == "/core:" ]]; then
+#         echo "Getting the "$1" container ID..."
+#         CONTAINER_ID=$(${DOCKER_COMPOSE} ps -a --format "{{.ID}} {{.Image}}" |grep "/core:" | awk '{print $1}' )
+#         if [ -z "${CONTAINER_ID}" ]; then
+#             echo "ERROR: The "$1" container does not exist"
+#         fi
+#     fi
+# }
+
+
 
 Init_Email() {
     input="$2"
@@ -462,12 +507,88 @@ Default_info() {
     echo -e "=================================================================="
 }
 
+# Modify the management interface access port
+MODIFY_HTTPS_PORT() { 
+
+    NEW_PORT="$2"
+    if [ -z "${NEW_PORT}" ]; then
+        read -p "Please enter the new BillionMail management port: " NEW_PORT
+    fi
+
+    # Verify that the input is a number
+    if ! echo "${NEW_PORT}" | grep -qE '^[0-9]+$' || ((NEW_PORT < 1 || NEW_PORT > 65535)); then
+        echo -e "\033[31m Error: The port number must be a number between 1-65535 \033[0m"
+        exit 1
+    fi
+
+    Check_Port=$(ss -tlnp | grep -E ":(${NEW_PORT})\b")
+    if [ ! -z "${Check_Port}" ]; then
+        echo "${Check_Port}"
+        echo -e "\033[31m Error: The ${NEW_PORT} port is already in use. \033[0m"
+        exit 1
+    fi
+
+    # Perform modification
+    sed -i 's/^HTTPS_PORT=.*/HTTPS_PORT='"${NEW_PORT}"'/' .env
+    echo -e "The BillionMail management port has been modified to: ${NEW_PORT} \n Rebuild the container, please wait..."
+
+    sleep 3
+    # Find the container ID of the core image in the current project and rebuild the container
+    CONTAINER_ID=$(${DOCKER_COMPOSE} ps -a --format "{{.ID}} {{.Image}}" |grep "/core:" | awk '{print $1}' )
+    if [ "${CONTAINER_ID}" ]; then
+        echo "Rebuilding Manage Container..."
+        docker stop ${CONTAINER_ID}
+        docker rm -f ${CONTAINER_ID}
+        ${DOCKER_COMPOSE} up -d
+    else
+        echo "The "core" container does not exist"
+        echo "Starting BillionMail..."
+        ${DOCKER_COMPOSE} up -d
+    fi
+    bash bm.sh default
+}
+
+# Modify time zone
+MODIFY_TZ() { 
+    if [ -a /etc/timezone ]; then
+        SYSTEM_TIME_ZONE=$(cat /etc/timezone)
+    elif [ -a /etc/localtime ]; then
+        SYSTEM_TIME_ZONE=$(readlink /etc/localtime|sed -n 's|^.*zoneinfo/||p')
+    fi
+    NEW_TZ="$2"
+    echo -e ""
+    echo -e "See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of timezones"
+    echo -e "Use a column named "TZ identifier" + note the column named "Notes""
+    echo -e "Please enter your time zone"
+    echo -e ""
+    if [ -z "${SYSTEM_TIME_ZONE}" ]; then
+        read -p "Timezone: " -e NEW_TZ
+    else
+        read -p "Timezone [${SYSTEM_TIME_ZONE}]: " -e NEW_TZ
+        [ -z "${NEW_TZ}" ] && NEW_TZ=${SYSTEM_TIME_ZONE}
+    fi
+
+    if [ -z "${NEW_TZ}" ]; then
+        echo -e "\033[31m Error: Please enter the time zone \033[0m"
+        exit 1
+    fi
+
+    # Perform modification
+    sed -i "s|^TZ=.*|TZ=${NEW_TZ}|" .env
+    echo -e "The BillionMail management port has been modified to: ${NEW_TZ} \n Rebuild the container, please wait..."
+    sleep 3
+    ${DOCKER_COMPOSE} down
+    ${DOCKER_COMPOSE} up -d
+
+}
 
 case "$1" in
     h | -h | help | --help | -help)
         echo "Help Information:"
         echo "  default                - Show BillionMail login default info: $0 default"
         echo "  update                 - Update BillionMail: $0 update"
+        echo "  change-port            - Modify BillionMail access management port: $0 change-port"
+        echo "  change-tz              - Modify BillionMail time zone: $0 change-tz"
         echo "  add-domain <domain>    - Add domain. Example: $0 add-domain example.com"
         echo "  del-domain <domain>    - Delete domain. Example: $0 del-domain example.com"
         echo "  add-email <email>      - Add email. Example: $0 add-email user@example.com"
@@ -508,8 +629,14 @@ case "$1" in
         Init_Domain "$@"
         Domain_record
         ;;
+    MODIFY_HTTPS_PORT|modify_https_port|change-port)
+        MODIFY_HTTPS_PORT
+        ;;
+    MODIFY_TZ|modify_tz|change-tz)
+        MODIFY_TZ
+        ;;
     *)
-        echo "Usage: $0 {default|update|add-domain|del-domain|add-email|del-email|show-domain|show-email|show-record|help}"
+        echo "Usage: $0 {default|update|change-port|change-tz|show-record|help}"
         exit 1
         ;;
 esac

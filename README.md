@@ -37,7 +37,7 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 ```
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=wGHfX1-7S_Y">
+  <a href="https://www.youtube.com/watch?v=UHgxZa_9jGs">
     <img src="https://img.youtube.com/vi/wGHfX1-7S_Y/maxresdefault.jpg" alt="" width="80%">
     <br />
     <img src="https://www.iconfinder.com/icons/317714/download/png/16" alt="YouTube" width="16"/>

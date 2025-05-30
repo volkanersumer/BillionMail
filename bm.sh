@@ -586,8 +586,12 @@ MODIFY_HTTPS_PORT() {
 
     # Perform modification
     sed -i 's/^HTTPS_PORT=.*/HTTPS_PORT='"${NEW_PORT}"'/' .env
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31m Error: The BillionMail management port modification failed! \033[0m"
+        exit 1
+    fi
+    
     echo -e "The BillionMail management port has been modified to: ${NEW_PORT} \n Rebuild the container, please wait..."
-
     sleep 3
     # Find the container ID of the core image in the current project and rebuild the container
     CONTAINER_ID=$(${DOCKER_COMPOSE} ps -a --format "{{.ID}} {{.Image}}" |grep "/core:" | awk '{print $1}' )
@@ -644,28 +648,164 @@ MODIFY_TZ() {
 
     # Perform modification
     sed -i "s|^TZ=.*|TZ=${NEW_TZ}|" .env
-    echo -e "The BillionMail management port has been modified to: ${NEW_TZ} \n Rebuild the container, please wait..."
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31m Error: The BillionMail time zone modification failed! \033[0m"
+        exit 1
+    fi    
+    
+    echo -e "The BillionMail time zone has been modified to: ${NEW_TZ} \n Rebuild the container, please wait..."
     sleep 3
     ${DOCKER_COMPOSE} down
     ${DOCKER_COMPOSE} up -d
 
 }
 
+
+# Modify Admin Username
+MODIFY_ADMIN_USERNAME() { 
+
+    NEW_ADMIN="$2"
+    if [ -z "${NEW_ADMIN}" ]; then
+        read -p "Please enter the new BillionMail administrator username (minimum 5 characters): " NEW_ADMIN
+    fi
+    if [ -z "${NEW_ADMIN}" ]; then
+        echo -e "\033[31mError: Administrator username is required!\033[0m"
+        exit 1
+    fi
+    if [ ${#NEW_ADMIN} -lt 5 ]; then
+        echo -e "\033[31mError: Username must be at least 5 characters long!\033[0m"
+        exit 1
+    fi
+    if ! [[ "${NEW_ADMIN}" =~ ^[a-zA-Z0-9@#_.!+-]+$ ]]; then
+        echo -e "\033[31mError: Username can only contain letters, numbers, symbols: @ # _ - + . !\033[0m"
+        exit 1
+    fi
+    # Perform modification
+    sed -i "s|^ADMIN_USERNAME=.*|ADMIN_USERNAME="${NEW_ADMIN}"|" .env
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31mError: Failed to update BillionMail administrator username!\033[0m"
+        exit 1
+    fi
+    echo -e "BillionMail administrator username has been updated. Restarting container, please wait..."
+    sleep 3
+    # Find the container ID of the core image in the current project and rebuild the container
+    CONTAINER_ID=$(${DOCKER_COMPOSE} ps -a --format "{{.ID}} {{.Image}}" |grep "/core:" | awk '{print $1}' )
+    if [ "${CONTAINER_ID}" ]; then
+        echo "Restarting Manage Container..."
+        docker restart ${CONTAINER_ID}
+    else
+        echo "The "core" container does not exist"
+        echo "Starting BillionMail..."
+        ${DOCKER_COMPOSE} up -d
+    fi
+    # Display login information
+    bash bm.sh default
+}
+
+
+# Modify Admin Password
+MODIFY_ADMIN_PASSWORD() { 
+
+    NEW_PASSWORD="$2"
+    if [ -z "${NEW_PASSWORD}" ]; then
+        read -p "Please enter the new BillionMail administrator password (minimum 5 characters): " NEW_PASSWORD
+    fi
+    if [ -z "${NEW_PASSWORD}" ]; then
+        echo -e "\033[31mError: Administrator password is required!\033[0m"
+        exit 1
+    fi
+    if [ ${#NEW_PASSWORD} -lt 5 ]; then
+        echo -e "\033[31mError: Password must be at least 5 characters long!\033[0m"
+        exit 1
+    fi
+    if ! [[ "${NEW_PASSWORD}" =~ ^[a-zA-Z0-9@#_.!+-]+$ ]]; then
+        echo -e "\033[31mError: Password can only contain letters, numbers, symbols: @ # _ - + . !\033[0m"
+        exit 1
+    fi
+    # Perform modification
+    sed -i "s|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD="${NEW_PASSWORD}"|" .env
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31mError: Failed to update BillionMail administrator password!\033[0m"
+        exit 1
+    fi
+    echo -e "BillionMail administrator password has been updated. Restarting container, please wait..."
+    sleep 3
+    # Find the container ID of the core image in the current project and rebuild the container
+    CONTAINER_ID=$(${DOCKER_COMPOSE} ps -a --format "{{.ID}} {{.Image}}" |grep "/core:" | awk '{print $1}' )
+    if [ "${CONTAINER_ID}" ]; then
+        echo "Restarting Manage Container..."
+        docker restart ${CONTAINER_ID}
+    else
+        echo "The "core" container does not exist"
+        echo "Starting BillionMail..."
+        ${DOCKER_COMPOSE} up -d
+    fi
+    # Display login information
+    bash bm.sh default
+
+}
+
+
+# Modify Safe entrance
+MODIFY_SAFE_ENTRANCE() { 
+
+    NEW_ENTRANCE="$2"
+    if [ -z "${NEW_ENTRANCE}" ]; then
+        read -p "Please enter the new BillionMail security entrance path (minimum 5 characters): " NEW_ENTRANCE
+    fi
+    if [ -z "${NEW_ENTRANCE}" ]; then
+        echo -e "\033[31mError: Security entrance path is required!\033[0m"
+        exit 1
+    fi
+    if [ ${#NEW_ENTRANCE} -lt 5 ]; then
+        echo -e "\033[31mError: Security entrance path must be at least 5 characters long!\033[0m"
+        exit 1
+    fi
+    if ! [[ "${NEW_ENTRANCE}" =~ ^[a-zA-Z0-9]+$ ]]; then
+        echo -e "\033[31mError: Security entrance path can only contain letters and numbers!\033[0m"
+        exit 1
+    fi
+    # Perform modification
+    sed -i "s|^SafePath=.*|SafePath=${NEW_ENTRANCE}|" .env
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31mError: Failed to update BillionMail security entrance path!\033[0m"
+        exit 1
+    fi
+    echo -e "BillionMail security entrance path has been updated. Restarting container, please wait..."
+    sleep 3
+    # Find the container ID of the core image in the current project and rebuild the container
+    CONTAINER_ID=$(${DOCKER_COMPOSE} ps -a --format "{{.ID}} {{.Image}}" |grep "/core:" | awk '{print $1}' )
+    if [ "${CONTAINER_ID}" ]; then
+        echo "Restarting Manage Container..."
+        docker restart ${CONTAINER_ID}
+    else
+        echo "The "core" container does not exist"
+        echo "Starting BillionMail..."
+        ${DOCKER_COMPOSE} up -d
+    fi
+    # Display login information
+    bash bm.sh default
+}
+
+
 case "$1" in
     h | -h | help | --help | -help)
         echo "Help Information:"
-        echo "  default                 - Show BillionMail login default info: $0 default"
-        echo "  update                  - Update BillionMail: $0 update"
-        echo "  change-port             - Modify BillionMail access management port: $0 change-port"
-        echo "  change-tz               - Modify BillionMail time zone: $0 change-tz"
-        echo "  change-apply-ssl-port   - Modify BillionMail apply ssl port: $0 change-apply-ssl-port"
-        echo "  add-domain <domain>     - Add domain. Example: $0 add-domain example.com"
-        echo "  del-domain <domain>     - Delete domain. Example: $0 del-domain example.com"
-        echo "  add-email <email>       - Add email. Example: $0 add-email user@example.com"
-        echo "  del-email <email>       - Delete email. Example: $0 del-email user@example.com"
-        echo "  show-domain             - Show domain data."
-        echo "  show-email              - Show email data."
-        echo "  show-record             - Show domain DNS record."
+        echo "  default                   - Show BillionMail login default info: $0 default"
+        echo "  update                    - Update BillionMail: $0 update"
+        echo "  change-port               - Modify BillionMail access management port: $0 change-port"
+        echo "  change-tz                 - Modify BillionMail time zone: $0 change-tz"
+        echo "  change-user               - Modify BillionMail Administrator user: $0 change-user"
+        echo "  change-password           - Modify BillionMail Administrator password: $0 change-password"
+        echo "  change-safe-path          - Modify BillionMail security entrance path: $0 change-safe-path"
+        echo "  change-apply-ssl-port     - Modify BillionMail apply ssl port: $0 change-apply-ssl-port"
+        echo "  add-domain <domain>       - Add domain. Example: $0 add-domain example.com"
+        echo "  del-domain <domain>       - Delete domain. Example: $0 del-domain example.com"
+        echo "  add-email <email>         - Add email. Example: $0 add-email user@example.com"
+        echo "  del-email <email>         - Delete email. Example: $0 del-email user@example.com"
+        echo "  show-domain               - Show domain data."
+        echo "  show-email                - Show email data."
+        echo "  show-record               - Show domain DNS record."
         ;;
     default | info)
         Default_info
@@ -707,6 +847,15 @@ case "$1" in
         ;;
     MODIFY_TZ|modify_tz|change-tz)
         MODIFY_TZ
+        ;;
+    MODIFY_ADMIN_USERNAME|modify_user|change-user)
+        MODIFY_ADMIN_USERNAME
+        ;;
+    MODIFY_ADMIN_PASSWORD|modify_password|change-password)
+        MODIFY_ADMIN_PASSWORD
+        ;;
+    MODIFY_SAFE_ENTRANCE|modify_safe_path|change-safe-path)
+        MODIFY_SAFE_ENTRANCE
         ;;
     *)
         echo "Usage: $0 {default|update|change-port|change-tz|show-record|help}"

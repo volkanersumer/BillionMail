@@ -79,8 +79,7 @@ func (c *ControllerV1) SendTestEmail(ctx context.Context, req *v1.SendTestEmailR
 	// send email
 	err = sender.Send(message, []string{req.Recipient})
 	if err != nil {
-		g.Log().Error(ctx, "send email to %s failed: %v", req.Recipient, err)
-		res.SetError(gerror.New(public.LangCtx(ctx, "send email to %s failed: %v", req.Recipient, err)))
+		res.SetError(gerror.New(public.LangCtx(ctx, "send email to {} failed: {}", req.Recipient, err)))
 		return
 	}
 

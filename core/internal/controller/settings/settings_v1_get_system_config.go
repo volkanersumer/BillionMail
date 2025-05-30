@@ -2,6 +2,7 @@ package settings
 
 import (
 	"billionmail-core/api/settings/v1"
+	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 )
@@ -11,8 +12,8 @@ func (c *ControllerV1) GetSystemConfig(ctx context.Context, req *v1.GetSystemCon
 
 	envMap, err := loadEnvFile()
 	if err != nil {
-		res.SetError(gerror.New("failed to load environment variables"))
-		return res, err
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to read environment variable file: {}", err)))
+		return res, nil
 	}
 
 	config := convertEnvToConfig(envMap)
@@ -25,5 +26,6 @@ func (c *ControllerV1) GetSystemConfig(ctx context.Context, req *v1.GetSystemCon
 	// TODO: Whitelist ip
 
 	res.Data = config
+	res.SetSuccess(public.LangCtx(ctx, "Successfully retrieved system configuration"))
 	return res, nil
 }

@@ -125,7 +125,7 @@ const handleDelete = (service: SmtpService) => {
 	})
 }
 
-// getCardList()
+getCardList()
 </script>
 
 <style lang="scss" scoped></style>

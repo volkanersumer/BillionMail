@@ -5,11 +5,14 @@ import (
 	"billionmail-core/internal/model"
 	"billionmail-core/internal/model/entity"
 	"billionmail-core/internal/service/acme"
+	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/public"
 	"context"
 	"encoding/json"
 	"github.com/gogf/gf/v2/frame/g"
+	"net/url"
+	"path/filepath"
 	"time"
 )
 
@@ -18,6 +21,7 @@ func ApplyLetsEncryptCertWithHttp(ctx context.Context, domain string, accountInf
 	// Find the existing certificate for the domain
 	if crt, err := FindSSLByDomain(domain); err == nil && crt != nil {
 		if crt.Status == 1 && crt.EndTime > time.Now().Unix() {
+			g.Log().Debug(ctx, "Found existing certificate for domain:", domain)
 			return ApplyCertToService(domain, crt.Certificate, crt.PrivateKey)
 		}
 	}
@@ -77,7 +81,7 @@ func ApplyLetsEncryptCertWithHttp(ctx context.Context, domain string, accountInf
 
 // FindSSLByDomain retrieves the SSL certificate information for a given domain.
 func FindSSLByDomain(domain string) (crt *entity.Letsencrypt, err error) {
-	err = g.DB().Model("letsencrypts").Where("dns::jsonb ? $1", public.FormatMX(domain)).Where("status = 1").Order("endtime desc").Limit(1).Scan(&crt)
+	err = g.DB().Model("letsencrypts").Where("dns::jsonb ? $1", public.FormatMX(domain)).Where("status = 1").Where("endtime > $1", time.Now().Unix()).Order("endtime desc").Limit(1).Scan(&crt)
 	return
 }
 
@@ -88,6 +92,55 @@ func ApplyCertToService(domain, crtPem, keyPem string) (err error) {
 	defer crt.Close()
 
 	err = crt.SetSNI(public.FormatMX(domain), crtPem, keyPem)
+
+	if err != nil {
+		return err
+	}
+
+	UpdateBaseURL(context.Background())
+
+	// Attempt apply the certificate to the console panel if domain is the console domain
+	rawurl := GetBaseURL()
+
+	u, err := url.Parse(rawurl)
+
+	if err != nil {
+		return err
+	}
+
+	g.Log().Debug(context.Background(), "HostName: ", u.Hostname())
+	g.Log().Debug(context.Background(), "ssl domain: ", public.FormatMX(domain))
+
+	if u.Hostname() == public.FormatMX(domain) {
+		_, err = public.WriteFile(public.AbsPath(filepath.Join(consts.SSL_PATH, "cert.pem")), crtPem)
+
+		if err != nil {
+			return err
+		}
+
+		_, err = public.WriteFile(public.AbsPath(filepath.Join(consts.SSL_PATH, "key.pem")), keyPem)
+
+		if err != nil {
+			return err
+		}
+
+		// Reload server ssl
+		go func() {
+			time.Sleep(time.Millisecond * 500)
+
+			var dk *docker.DockerAPI
+			dk, err = docker.NewDockerAPI()
+
+			if err != nil {
+				g.Log().Warning(context.Background(), "Get docker api instance failed")
+				return
+			}
+
+			defer dk.Close()
+
+			err = dk.RestartContainerByName(context.Background(), "billionmail-core-billionmail-1")
+		}()
+	}
 
 	return
 }

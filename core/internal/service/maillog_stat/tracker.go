@@ -151,7 +151,7 @@ func (t *MailTracker) GetTrackingURL(url string) string {
 
 // AppendTrackingPixel appends a tracking pixel to the email HTML
 func (t *MailTracker) AppendTrackingPixel() {
-	trackingPixel := fmt.Sprintf(`<img src="%s" style="display:none" />`, t.GetTrackingPixel())
+	trackingPixel := fmt.Sprintf(`<img src="%s" style="display:none" alt="" />`, t.GetTrackingPixel())
 
 	if strings.Contains(t.mailHTML, "</body>") {
 		t.mailHTML = strings.Replace(t.mailHTML, "</body>", trackingPixel+"</body>", 1)

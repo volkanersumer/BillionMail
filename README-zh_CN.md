@@ -11,6 +11,10 @@
 </div>
 <br/>
 
+<div align="center">
+<a href="https://trendshift.io/repositories/13842" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13842" alt="aaPanel%2FBillionMail | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+</div>
+
 ## 在线演示
 BillionMail 演示: [https://demo.billionmail.com/billionmail](https://demo.billionmail.com/billionmail)
 
@@ -37,8 +41,8 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 ```
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=UHgxZa_9jGs">
-    <img src="https://img.youtube.com/vi/wGHfX1-7S_Y/maxresdefault.jpg" alt="" width="80%">
+  <a href="https://www.youtube.com/embed/UHgxZa_9jGs?si=0-f1B5hDtcWImvQv" target="_blank">
+    <img src="https://img.youtube.com/vi/UHgxZa_9jGs/maxresdefault.jpg" alt="" width="80%">
     <br />
     <img src="https://www.iconfinder.com/icons/317714/download/png/16" alt="YouTube" width="16"/>
     <b>在YouTube上观看</b>

@@ -3,6 +3,7 @@ package timers
 import (
 	"billionmail-core/internal/service/batch_mail"
 	"billionmail-core/internal/service/domains"
+	"billionmail-core/internal/service/mail_boxes"
 	"billionmail-core/internal/service/maillog_stat"
 	"billionmail-core/internal/service/relay"
 	"context"
@@ -14,6 +15,20 @@ import (
 // Start 启动所有定时任务 (主入口函数)
 func Start(ctx context.Context) (err error) {
 	g.Log().Debug(ctx, "Starting timers...")
+
+	// Normalize mailboxes to lowercase
+	gtimer.AddOnce(1*time.Second, func() {
+		g.Log().Debug(ctx, "Mailboxes normalization started")
+
+		err = mail_boxes.NormalizeMailboxes()
+
+		if err != nil {
+			g.Log().Warning(ctx, "NormalizeMailboxes failed: ", err)
+			err = nil // Ignore the error to allow the service to continue
+		} else {
+			g.Log().Debug(ctx, "Mailboxes normalized successfully")
+		}
+	})
 
 	// Start DNS Records checking
 	// Ensure the DNS records are fresh on startup

@@ -49,7 +49,7 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
     <img src="https://img.youtube.com/vi/UHgxZa_9jGs/maxresdefault.jpg" alt="" width="80%">
     <br />
     <img src="https://www.iconfinder.com/icons/317714/download/png/16" alt="YouTube" width="16"/>
-    <b>Watching on the YouTube</b>
+    <b>Watch on Youtube</b>
   </a>
 </div>
 

@@ -90,10 +90,11 @@ func NewMessage(title string, content string) Message {
 
 type EmailSender struct {
 	Email     string       `json:"email" v:"required|email"` // email of sender
-	Host      string       `json:"host" v:"required"`        // SMTP server address
-	Port      string       `json:"port" v:"required"`        // SMTP server port
-	Password  string       `json:"password" v:"required"`    // SMTP password
-	SNI       string       `json:"sni"`                      // SNI for TLS
+	UserName  string       `json:"username" v:"required"`
+	Host      string       `json:"host" v:"required"`     // SMTP server address
+	Port      string       `json:"port" v:"required"`     // SMTP server port
+	Password  string       `json:"password" v:"required"` // SMTP password
+	SNI       string       `json:"sni"`                   // SNI for TLS
 	client    *smtp.Client // persistent SMTP client connection
 	mutex     sync.Mutex   // mutex for thread safety
 	connected bool         // connection status
@@ -134,6 +135,7 @@ func NewEmailSenderWithLocal(email string) (es *EmailSender, err error) {
 	es = NewEmailSender()
 
 	es.Email = email
+	es.UserName = email
 	es.Password, err = mail_boxes.PasswordByEmail(context.Background(), email)
 
 	if err != nil {
@@ -198,7 +200,7 @@ func (e *EmailSender) connectWithSSL() error {
 		return fmt.Errorf("new SMTP client: %w", err)
 	}
 
-	auth := smtp.PlainAuth("", e.Email, e.Password, e.Host)
+	auth := smtp.PlainAuth("", e.UserName, e.Password, e.Host)
 	if err = client.Auth(auth); err != nil {
 		client.Close()
 		return fmt.Errorf("SMTP auth: %w", err)
@@ -231,9 +233,9 @@ func (e *EmailSender) connectPlain() error {
 	var auth smtp.Auth
 
 	if e.Port == "25" {
-		auth = &customAuth{e.Email, e.Password}
+		auth = &customAuth{e.UserName, e.Password}
 	} else {
-		auth = smtp.PlainAuth("", e.Email, e.Password, e.Host)
+		auth = smtp.PlainAuth("", e.UserName, e.Password, e.Host)
 	}
 
 	if err = client.Auth(auth); err != nil {
@@ -271,14 +273,7 @@ func (e *EmailSender) GenerateMessageID() string {
 	randomBytes := grand.B(16)
 	randomID := hex.EncodeToString(randomBytes)
 	timestampMillis := time.Now().UnixMilli()
-
-	domain := strings.Split(e.Email, "@")
-	domainPart := e.Host
-	if len(domain) > 1 {
-		domainPart = domain[1]
-	}
-
-	return fmt.Sprintf("<%d.%s@%s>", timestampMillis, randomID, domainPart)
+	return fmt.Sprintf("<%d.%s@billionmail>", timestampMillis, randomID)
 }
 
 // Send sends an email to specified recipients
@@ -437,9 +432,10 @@ func (e *EmailSender) IsConfigured() bool {
 	e.Email = strings.TrimSpace(e.Email)
 	e.Host = strings.TrimSpace(e.Host)
 	e.Port = strings.TrimSpace(e.Port)
+	e.UserName = strings.TrimSpace(e.UserName)
 	e.Password = strings.TrimSpace(e.Password)
 
-	if e.Email == "" || e.Host == "" || e.Port == "" || e.Password == "" {
+	if e.UserName == "" || e.Host == "" || e.Port == "" || e.Password == "" || e.Email == "" {
 		return false
 	}
 

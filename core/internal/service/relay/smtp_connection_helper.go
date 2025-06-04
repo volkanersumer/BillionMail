@@ -61,7 +61,8 @@ func TestSmtpConnection(host, port, user, password string) *SmtpConnectionTestRe
 	sender := mail_service.NewEmailSender()
 	sender.Host = host
 	sender.Port = port
-	sender.Email = user
+	sender.Email = "test_connection@billionmail.com" // Temporary email for testing
+	sender.UserName = user
 	sender.Password = password
 
 	if !sender.IsConfigured() {

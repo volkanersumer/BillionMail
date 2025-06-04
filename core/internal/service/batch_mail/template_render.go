@@ -30,6 +30,16 @@ func NewTemplateEngine() *TemplateEngine {
 			}
 			return ""
 		},
+		"UnsubscribeURL": func(data ...interface{}) interface{} {
+			if len(data) > 0 {
+				if m, ok := data[0].(g.Map); ok {
+					if url, ok := m["UnsubscribeURL"].(string); ok {
+						return url
+					}
+				}
+			}
+			return ""
+		},
 	})
 
 	return &TemplateEngine{view: view}

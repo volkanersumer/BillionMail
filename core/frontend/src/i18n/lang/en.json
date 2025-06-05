@@ -345,7 +345,24 @@
 				"pasteData": "Paste Data",
 				"uploadFile": "Upload File",
 				"pastePlaceholder": "Please paste data, one email per line",
-				"fileTypeHint": "File type: txt, one email per line, not exceeding 5 MB",
+				"fileTypeHint": "File type: csv, not exceeding 5 MB",
+				"overwriteLabel": "Overwrite Existing Users",
+				"overwriteDescription": "Whether to overwrite existing customer information in the list according to imported data during import",
+				"subscriptionStatus": "Subscription Status",
+				"status": "Status",
+				"exampleCsvLabel": "Example CSV",
+				"overwriteOptions": {
+					"no": "No",
+					"yes": "Yes"
+				},
+				"subscriptionOptions": {
+					"subscribe": "Subscribe",
+					"unsubscribe": "Unsubscribe"
+				},
+				"statusOptions": {
+					"confirmed": "Confirmed",
+					"unconfirmed": "Unconfirmed"
+				},
 				"validation": {
 					"groupRequired": "Please select group",
 					"dataRequired": "Please paste data, one email per line",
@@ -384,7 +401,7 @@
 				"confirm": "Are you sure to delete group {name}?"
 			},
 			"fileUpload": {
-				"hint": "File type: txt, one email per line, not exceeding 5 MB",
+				"hint": "File type: csv, not exceeding 5 MB",
 				"emptyHint": "An empty group will be created when no file is uploaded"
 			},
 			"loading": {
@@ -687,6 +704,66 @@
 				"adding": "Adding mail forward, please wait...",
 				"editing": "Editing mail forward, please wait...",
 				"deleting": "Deleting mail forward, please wait..."
+			}
+		},
+		"common": {
+			"confirm": "Update",
+			"security": {
+				"title": "Security Settings",
+				"username": "Change Username",
+				"currentUsername": "Current Username",
+				"newUsernamePlaceholder": "Enter new username",
+				"usernameRule": "4-20 characters, letters and numbers",
+				"usernameExists": "Username already exists",
+				"changePassword": "Change Password",
+				"currentPassword": "Current Password",
+				"newPassword": "New Password",
+				"confirmPassword": "Confirm New Password",
+				"passwordStrength": "Password Strength",
+				"passwordMismatch": "Passwords do not match",
+				"strength": {
+					"weak": "Weak",
+					"medium": "Medium",
+					"strong": "Strong"
+				},
+				"securityPath": "Change Security Path",
+				"currentPath": "Current Path",
+				"newPathPlaceholder": "Enter new path, e.g. admin-abc123",
+				"pathRule": "Recommend using complex path for enhanced security",
+				"usernameValidation": {
+					"lengthError": "Username length must be between 4 and 20 characters",
+					"formatError": "Username must consist of letters, numbers or underscores",
+					"duplicateError": "Username cannot be the same as current username"
+				}
+			},
+			"network": {
+				"title": "Network Configuration",
+				"domain": "Domain Settings",
+				"currentDomain": "Current Domain",
+				"newDomainPlaceholder": "Enter new domain, e.g. admin.yourdomain.com",
+				"domainRule": "Please enter a valid domain",
+				"ssl": "SSL Certificate Configuration",
+				"sslEnabled": "SSL Enabled",
+				"certStatus": "Certificate Status",
+				"certValid": "({days} days remaining)",
+				"sslCert": "SSL Certificate (PEM format)",
+				"sslKey": "Private Key (PEM format)",
+				"certPlaceholder": "-----BEGIN CERTIFICATE-----\nMIIFazCCA1OgAwIBAgIURv...\n-----END CERTIFICATE-----",
+				"keyPlaceholder": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG...\n-----END PRIVATE KEY-----",
+				"updateSSL": "Update SSL Certificate",
+				"certValidStatus": "Certificate Valid",
+				"certExpiredStatus": "Certificate Expired",
+				"certExpireTime": "Certificate expires: {time}"
+			},
+			"system": {
+				"title": "System Configuration",
+				"port": "Port Settings",
+				"currentPort": "Current Port",
+				"terminalRequired": "This setting requires terminal operation",
+				"copyCommand": "Copy the above command and execute it in the server terminal",
+				"commandCopied": "Command copied to clipboard",
+				"timezone": "Timezone Settings",
+				"currentTime": "Current System Timezone"
 			}
 		},
 		"api": {

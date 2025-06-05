@@ -349,7 +349,24 @@
 				"pasteData": "粘贴数据",
 				"uploadFile": "上传文件",
 				"pastePlaceholder": "请粘贴数据，每行一个邮箱",
-				"fileTypeHint": "文件类型：txt 每行一个邮箱 不超过5 MB",
+				"fileTypeHint": "文件类型：csv，不超过5 MB",
+				"overwriteLabel": "覆盖现有用户",
+				"overwriteDescription": "在导入时是否按照导入数据来覆盖列表中存在的客户信息",
+				"subscriptionStatus": "订阅状态",
+				"status": "状态",
+				"exampleCsvLabel": "CSV示例",
+				"overwriteOptions": {
+					"no": "否",
+					"yes": "是"
+				},
+				"subscriptionOptions": {
+					"subscribe": "订阅",
+					"unsubscribe": "取消订阅"
+				},
+				"statusOptions": {
+					"confirmed": "已确认",
+					"unconfirmed": "未确认"
+				},
 				"validation": {
 					"groupRequired": "请选择分组",
 					"dataRequired": "请粘贴数据，每行一个邮箱",
@@ -383,7 +400,7 @@
 				"confirm": "确定要删除分组 {name} 吗？"
 			},
 			"fileUpload": {
-				"hint": "文件类型：txt 每行一个邮箱 不超过5 MB",
+				"hint": "文件类型：csv，不超过5 MB",
 				"emptyHint": "文件传空时，会自动创建一个空分组"
 			},
 			"loading": {
@@ -684,6 +701,66 @@
 				"adding": "正在添加邮件转发，请稍候...",
 				"editing": "正在编辑邮件转发，请稍候...",
 				"deleting": "正在删除邮件转发，请稍候..."
+			}
+		},
+		"common": {
+			"confirm": "确认修改",
+			"security": {
+				"title": "账户安全设置",
+				"username": "修改用户名",
+				"currentUsername": "当前用户名",
+				"newUsernamePlaceholder": "输入新用户名",
+				"usernameRule": "4-20位字母数字组合",
+				"usernameExists": "用户名已存在",
+				"changePassword": "修改密码",
+				"currentPassword": "当前密码",
+				"newPassword": "新密码",
+				"confirmPassword": "确认新密码",
+				"passwordStrength": "密码强度",
+				"passwordMismatch": "两次输入的密码不一致",
+				"strength": {
+					"weak": "弱",
+					"medium": "中",
+					"strong": "强"
+				},
+				"securityPath": "修改安全入口",
+				"currentPath": "当前入口路径",
+				"newPathPlaceholder": "输入新路径，如admin-abc123",
+				"pathRule": "建议使用复杂路径增强安全性",
+				"usernameValidation": {
+					"lengthError": "用户名长度不能小于4位，不能大于20位",
+					"formatError": "用户名必须由字母、数字或下划线组成",
+					"duplicateError": "用户名不能与当前用户名相同"
+				}
+			},
+			"network": {
+				"title": "网络配置",
+				"domain": "域名设置",
+				"currentDomain": "当前域名",
+				"newDomainPlaceholder": "输入新域名，如admin.yourdomain.com",
+				"domainRule": "请输入有效的域名",
+				"ssl": "SSL证书配置",
+				"sslEnabled": "SSL已启用",
+				"certStatus": "证书状态",
+				"certValid": "（剩余 {days} 天）",
+				"sslCert": "SSL证书 (PEM格式)",
+				"sslKey": "私钥 (PEM格式)",
+				"certPlaceholder": "-----BEGIN CERTIFICATE-----\nMIIFazCCA1OgAwIBAgIURv...\n-----END CERTIFICATE-----",
+				"keyPlaceholder": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG...\n-----END PRIVATE KEY-----",
+				"updateSSL": "更新SSL证书",
+				"certValidStatus": "证书有效",
+				"certExpiredStatus": "证书过期",
+				"certExpireTime": "证书到期：{time}"
+			},
+			"system": {
+				"title": "系统配置",
+				"port": "端口设置",
+				"currentPort": "当前端口",
+				"terminalRequired": "此设置需要终端操作",
+				"copyCommand": "复制以上命令并在服务器终端执行",
+				"commandCopied": "命令已复制到剪贴板",
+				"timezone": "时区设置",
+				"currentTime": "当前系统时区"
 			}
 		},
 		"api": {

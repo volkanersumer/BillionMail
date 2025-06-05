@@ -140,7 +140,9 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
 ```
 
+## Star History
 
+[![Star History Chart](https://api.star-history.com/svg?repos=aapanel/billionmail&type=Date)](https://www.star-history.com/#aapanel/billionmail&Date)
 
 ## License
 

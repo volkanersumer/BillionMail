@@ -167,10 +167,22 @@ var (
 
 				// group.Middleware(ghttp.MiddlewareHandlerResponse)
 
+				allowActions := map[string]struct{}{
+					"/api/login":         {},
+					"/api/refresh-token": {},
+					"/api/logout":        {},
+					"/api/languages/set": {},
+				}
+
 				// Access Control with Demo.
 				group.Middleware(func(r *ghttp.Request) {
 					// Only allow GET methods
-					if r.Method == "GET" || r.URL.Path == "/api/login" || r.URL.Path == "/api/refresh-token" || r.URL.Path == "/api/logout" {
+					if r.Method == "GET" {
+						r.Middleware.Next()
+						return
+					}
+
+					if _, ok := allowActions[r.URL.Path]; ok {
 						r.Middleware.Next()
 						return
 					}

@@ -21,6 +21,7 @@ type SSLConfig struct {
 	IssuerCommonName  string   `json:"issuer_common_name" dc:"issuer common name"`
 	SubjectCommonName string   `json:"subject_common_name" dc:"subject common name"`
 	Version           int      `json:"version" dc:"version"`
+	Status            bool     `json:"status" dc:"ssl certificate status"`
 }
 
 // SystemConfig

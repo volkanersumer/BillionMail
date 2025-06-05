@@ -115,9 +115,6 @@ BillionMail根据**AGPLv3许可证**授权。这意味着您可以：
 
 有关更多详细信息，请参阅[LICENSE](LICENSE)文件。
 
----
-
-📬 **BillionMail – 即将推出。为此仓库加星，使其更快实现！**
 
 <!-- BillionMail official link -->
 [docs-link]: https://www.billionmail.com/

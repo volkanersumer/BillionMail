@@ -7,7 +7,7 @@
 
 [![][license-shield]][license-link] [![][docs-shield]][docs-link] [![][github-release-shield]][github-release-link] [![][github-stars-shield]][github-stars-link]
 
-English | [简体中文](README-zh_CN.md)
+English | [简体中文](README-zh_CN.md) | [日本語](README-ja.md)
 </div>
 <br/>
 
@@ -49,7 +49,7 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
     <img src="https://img.youtube.com/vi/UHgxZa_9jGs/maxresdefault.jpg" alt="" width="80%">
     <br />
     <img src="https://www.iconfinder.com/icons/317714/download/png/16" alt="YouTube" width="16"/>
-    <b>Watching on the YouTube</b>
+    <b>Watch on Youtube</b>
   </a>
 </div>
 

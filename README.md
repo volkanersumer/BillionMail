@@ -55,9 +55,11 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 
 
 ## Other installation methods
-👉 https://www.aapanel.com/new/download.html
 
 ### One-click installation on aaPanel
+👉 https://www.aapanel.com/new/download.html  (Log in to ✅aaPanel --> 🐳Docker --> 1️⃣OneClick install)
+
+
 
 
 **Docker**
@@ -137,6 +139,8 @@ cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail &&
 ```shell
 cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
 ```
+
+
 
 ## License
 

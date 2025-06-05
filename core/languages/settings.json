@@ -1,14 +1,20 @@
 [
   {
+    "name": "en",
+    "google": "en",
+    "title": "English",
+    "cn": "English"
+  },
+  {
     "name": "zh",
     "google": "zh-cn",
     "title": "Simplified Chinese",
     "cn": "Simplified Chinese"
   },
   {
-    "name": "en",
-    "google": "en",
-    "title": "English",
-    "cn": "English"
+    "name": "ja",
+    "google": "ja",
+    "title": "Japanese",
+    "cn": "Japanese"
   }
 ]

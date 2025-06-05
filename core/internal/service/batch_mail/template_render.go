@@ -61,19 +61,18 @@ func (e *TemplateEngine) RenderEmailTemplate(ctx context.Context, content string
 	).Replace(content)
 
 	// prepare subscriber data
-	subscriberData := g.Map{
-		"Email":   "",
-		"Active":  0,
-		"Status":  0,
-		"Attribs": g.Map{},
-	}
+	subscriberData := make(map[string]interface{})
 	if contact != nil {
+		// Custom properties are added directly to subscriberData
+		if contact.Attribs != nil {
+			for k, v := range contact.Attribs {
+				subscriberData[k] = v
+			}
+		}
 		subscriberData["Email"] = contact.Email
 		subscriberData["Active"] = contact.Active
 		subscriberData["Status"] = contact.Status
-		if contact.Attribs != nil {
-			subscriberData["Attribs"] = contact.Attribs
-		}
+
 	}
 
 	// prepare task data

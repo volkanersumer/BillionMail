@@ -13,6 +13,12 @@ import (
 func (c *ControllerV1) SetSystemConfigKey(ctx context.Context, req *v1.SetSystemConfigKeyReq) (res *v1.SetSystemConfigKeyRes, err error) {
 	res = &v1.SetSystemConfigKeyRes{}
 
+	// Parameter validation
+	if err := validateConfigValue(req.Key, req.Value); err != nil {
+		res.SetError(gerror.New(public.LangCtx(ctx, "Parameter validation failed: {}", err)))
+		return res, nil
+	}
+
 	// 1. Read the current .env file content
 	envMap, err := loadEnvFile()
 	if err != nil {

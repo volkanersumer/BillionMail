@@ -74,6 +74,16 @@ const columns = ref<DataTableColumns<Template>>([
 		ellipsis: {
 			tooltip: true,
 		},
+		render: row => (
+			<NButton
+				type="primary"
+				text
+				onClick={() => {
+					handleEdit(row)
+				}}>
+				{row.temp_name}
+			</NButton>
+		),
 	},
 	{
 		key: 'add_type',
@@ -82,7 +92,7 @@ const columns = ref<DataTableColumns<Template>>([
 		render: row => {
 			if (row.add_type === 1) {
 				return (
-					<NTag size="small" bordered={false} type="warning">
+					<NTag size="small" bordered={false} type="primary">
 						Drag
 					</NTag>
 				)

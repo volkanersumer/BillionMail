@@ -1,21 +1,32 @@
 <template>
 	<div :ref="setContainerRef" class="canvas-area" @click.stop="onSelectEmpty">
-		<div ref="canvasRef" class="canvas-container" :style="pageStyle" @mousemove="handleMouseMove"
+		<div
+			ref="canvasRef"
+			class="canvas-container"
+			:style="pageStyle"
+			@mousemove="handleMouseMove"
 			@mouseleave="handleMouseLeave">
 			<!-- 遍历渲染列，插入占位块 -->
 			<template v-for="(item, index) in displayItems" :key="item.key || `placeholder-${index}`">
 				<!-- 真实的列组件 -->
-				<div v-if="item.type === 'columns'" :ref="(el: HTMLElement) => registerColumnRef(el, index)"
+				<div
+					v-if="item.type === 'columns'"
+					:ref="(el: HTMLElement) => registerColumnRef(el, index)"
 					class="block-columns-wrapper">
 					<block-columns :data="item" :index="getOriginalIndex(index)"> </block-columns>
 				</div>
 				<!-- 占位块 -->
-				<div v-if="item.type === 'placeholder'" class="block-placeholder" :class="{ active: dragState.isDragging }">
+				<div
+					v-if="item.type === 'placeholder'"
+					class="block-placeholder"
+					:class="{ active: dragState.isDragging }">
 					<div class="placeholder-content">
 						<span>Place the new content here</span>
 					</div>
 				</div>
 			</template>
+
+			<block-copyright></block-copyright>
 
 			<!-- 空状态提示 -->
 			<div v-if="columnsMaps.length === 0 && !dragState.isDragging" class="empty-container">
@@ -32,14 +43,14 @@ import { useConfig } from '../../hooks/useConfig'
 import { BlockColumnsType, DropBaseBlock } from '../../types/base'
 
 import BlockColumns from './Columns.vue'
+import BlockCopyright from '../elements/Copyright.vue'
 
 // ------------------------
 // 状态和引用管理
 // ------------------------
 
 // 获取上下文和状态
-const { pageConfig, columnsMaps, selectBlock, insertColumnSourceAt, moveColumnSource } =
-	useConfig()
+const { pageConfig, columnsMaps, selectBlock, insertColumnSourceAt, moveColumnSource } = useConfig()
 
 // DOM引用
 const containerRef = ref<HTMLElement | null>(null)

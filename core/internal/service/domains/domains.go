@@ -3,12 +3,15 @@ package domains
 import (
 	v2 "billionmail-core/api/dockerapi/v1"
 	v1 "billionmail-core/api/domains/v1"
+	mail_v1 "billionmail-core/api/mail_boxes/v1"
 	"billionmail-core/internal/consts"
 	docker "billionmail-core/internal/service/dockerapi"
+	"billionmail-core/internal/service/mail_boxes"
 	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/public"
 	"context"
 	"fmt"
+	"github.com/gogf/gf/util/grand"
 	"github.com/gogf/gf/v2/frame/g"
 	"os"
 	"path/filepath"
@@ -28,6 +31,22 @@ func Add(ctx context.Context, domain *v1.Domain) error {
 	_, err := g.DB().Model("domain").Ctx(ctx).Insert(domain)
 
 	if err == nil {
+		// Create mailbox abuse, postmaster, admin, noreply, and support for the new domain
+		mailboxes := []string{"abuse", "postmaster", "admin", "noreply", "support"}
+
+		for _, mailbox := range mailboxes {
+			_ = mail_boxes.Add(ctx, &mail_v1.Mailbox{
+				Username:  mailbox + "@" + domain.Domain,
+				Password:  grand.S(16),
+				FullName:  mailbox,
+				IsAdmin:   0,
+				Quota:     5242880,
+				LocalPart: mailbox,
+				Domain:    domain.Domain,
+				Active:    1,
+			})
+		}
+
 		// attempt update hostname in .env file
 		hostname := public.MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
 

@@ -23,6 +23,7 @@ type IBatchMailV1 interface {
 	TaskMailProviderStat(ctx context.Context, req *v1.TaskMailProviderStatReq) (res *v1.TaskMailProviderStatRes, err error)
 	GetTaskMailLogs(ctx context.Context, req *v1.GetTaskMailLogsReq) (res *v1.GetTaskMailLogsRes, err error)
 	SendTestEmail(ctx context.Context, req *v1.SendTestEmailReq) (res *v1.SendTestEmailRes, err error)
+	TaskStatChart(ctx context.Context, req *v1.TaskStatChartReq) (res *v1.TaskStatChartRes, err error)
 	UpdateTaskSpeed(ctx context.Context, req *v1.UpdateTaskSpeedReq) (res *v1.UpdateTaskSpeedRes, err error)
 	PauseTask(ctx context.Context, req *v1.PauseTaskReq) (res *v1.PauseTaskRes, err error)
 	ResumeTask(ctx context.Context, req *v1.ResumeTaskReq) (res *v1.ResumeTaskRes, err error)

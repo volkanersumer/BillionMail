@@ -45,13 +45,12 @@ type TaskDetail struct {
 	TemplateName string       `json:"template_name"  dc:"template name"`
 	SuccessCount int          `json:"success_count"  dc:"success count"`
 	ErrorCount   int          `json:"error_count"    dc:"error count"`
-	// 新增统计字段
-	Opened       int     `json:"opened"        dc:"邮件打开数"`
-	Clicked      int     `json:"clicked"       dc:"链接点击数"`
-	DeliveryRate float64 `json:"delivery_rate" dc:"送达率"`
-	BounceRate   float64 `json:"bounce_rate"  dc:"退信率"`
-	OpenRate     float64 `json:"open_rate"    dc:"打开率"`
-	ClickRate    float64 `json:"click_rate"   dc:"点击率"`
+	Opened       int          `json:"opened"        dc:"opened count"`
+	Clicked      int          `json:"clicked"       dc:"clicked count"`
+	DeliveryRate float64      `json:"delivery_rate" dc:"delivery rate"`
+	BounceRate   float64      `json:"bounce_rate"  dc:"bounce rate"`
+	OpenRate     float64      `json:"open_rate"    dc:"open rate"`
+	ClickRate    float64      `json:"click_rate"   dc:"click rate"`
 }
 
 type ListTasksReq struct {
@@ -187,23 +186,22 @@ type SendTestEmailRes struct {
 }
 
 type TaskStatChartReq struct {
-	g.Meta        `path:"/batch_mail/task/stat_chart" method:"get" tags:"BatchMail" summary:"获取任务统计图表"`
+	g.Meta        `path:"/batch_mail/task/stat_chart" method:"get" tags:"BatchMail" summary:"get task stat chart"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	TaskId        int64  `json:"task_id" v:"required" dc:"任务ID"`
-	Domain        string `json:"domain" v:"domain" dc:"邮件域名过滤"`
-	StartTime     int64  `json:"start_time" v:"required" dc:"开始时间"`
-	EndTime       int64  `json:"end_time" v:"required" dc:"结束时间"`
+	TaskId        int64  `json:"task_id" v:"required" dc:"task id"`
+	Domain        string `json:"domain" v:"domain" dc:"domain"`
+	StartTime     int64  `json:"start_time" v:"required" dc:"start time"`
+	EndTime       int64  `json:"end_time" v:"required" dc:"end time"`
 }
 
-// 响应结构
 type TaskStatChartRes struct {
 	api_v1.StandardRes
 	Data struct {
-		Dashboard       interface{} `json:"dashboard" dc:"统计概览"`
-		MailProviders   interface{} `json:"mail_providers" dc:"邮件服务商统计"`
-		SendMailChart   interface{} `json:"send_mail_chart" dc:"发送邮件图表"`
-		BounceRateChart interface{} `json:"bounce_rate_chart" dc:"退信率图表"`
-		OpenRateChart   interface{} `json:"open_rate_chart" dc:"打开率图表"`
-		ClickRateChart  interface{} `json:"click_rate_chart" dc:"点击率图表"`
+		Dashboard       interface{} `json:"dashboard" dc:"dashboard"`
+		MailProviders   interface{} `json:"mail_providers" dc:"mail providers"`
+		SendMailChart   interface{} `json:"send_mail_chart" dc:"send mail chart"`
+		BounceRateChart interface{} `json:"bounce_rate_chart" dc:"bounce rate chart"`
+		OpenRateChart   interface{} `json:"open_rate_chart" dc:"open rate chart"`
+		ClickRateChart  interface{} `json:"click_rate_chart" dc:"click rate chart"`
 	} `json:"data"`
 }

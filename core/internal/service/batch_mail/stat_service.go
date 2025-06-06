@@ -8,35 +8,29 @@ import (
 	"time"
 )
 
-// TaskStatService 任务统计服务
 type TaskStatService struct{}
 
 func NewTaskStatService() *TaskStatService {
 	return &TaskStatService{}
 }
 
-// buildBaseQuery 构建基础查询
+// buildBaseQuery
 func (s *TaskStatService) buildBaseQuery(taskId int64, domain string, startTime, endTime int64) *gdb.Model {
-	// 基础查询
+
 	query := g.DB().Model("mailstat_send_mails sm")
 
-	// 关联发件人表
 	query.LeftJoin("mailstat_senders s", "sm.postfix_message_id=s.postfix_message_id")
 	query.Where("s.postfix_message_id is not null")
 
-	// 关联消息ID和任务收件人信息
 	query.LeftJoin("mailstat_message_ids mi", "sm.postfix_message_id=mi.postfix_message_id")
 	query.LeftJoin("recipient_info ri", "mi.message_id=ri.message_id")
 
-	// 过滤指定任务
 	query.Where("ri.task_id = ?", taskId)
 
-	// 域名过滤
 	if domain != "" {
 		query.Where("sm.recipient LIKE ?", "%@"+domain)
 	}
 
-	// 时间范围过滤
 	if startTime > 0 {
 		query.Where("sm.log_time_millis > ?", startTime*1000-1)
 	}
@@ -48,7 +42,7 @@ func (s *TaskStatService) buildBaseQuery(taskId int64, domain string, startTime,
 	return query
 }
 
-// GetTaskStatChart 获取任务统计图表
+// GetTaskStatChart
 func (s *TaskStatService) GetTaskStatChart(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
 	startTime, endTime = s.filterAndPrepareTimeSection(startTime, endTime)
 
@@ -62,7 +56,7 @@ func (s *TaskStatService) GetTaskStatChart(taskId int64, domain string, startTim
 	}
 }
 
-// filterAndPrepareTimeSection 处理时间区间
+// filterAndPrepareTimeSection
 func (s *TaskStatService) filterAndPrepareTimeSection(startTime, endTime int64) (int64, int64) {
 	if startTime > 0 && endTime < 0 {
 		endTime = time.Now().Unix()
@@ -75,7 +69,7 @@ func (s *TaskStatService) filterAndPrepareTimeSection(startTime, endTime int64) 
 	return startTime, endTime
 }
 
-// prepareChartData 准备图表数据
+// prepareChartData
 func (s *TaskStatService) prepareChartData(startTime, endTime int64) (string, string) {
 	columnType := "daily"
 	secs := endTime - startTime
@@ -89,7 +83,7 @@ func (s *TaskStatService) prepareChartData(startTime, endTime int64) (string, st
 	return columnType, xAxisField
 }
 
-// getTaskDashboard 获取仪表盘数据
+// getTaskDashboard
 func (s *TaskStatService) getTaskDashboard(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
 	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
 
@@ -128,7 +122,7 @@ func (s *TaskStatService) getTaskDashboard(taskId int64, domain string, startTim
 	return stats
 }
 
-// fillChartData 填充图表数据
+// fillChartData
 func (s *TaskStatService) fillChartData(data []map[string]interface{}, columnType string, startTime, endTime int64) []map[string]interface{} {
 	switch columnType {
 	case "daily":
@@ -140,7 +134,7 @@ func (s *TaskStatService) fillChartData(data []map[string]interface{}, columnTyp
 	}
 }
 
-// fillChartDataHourly 填充小时数据
+// fillChartDataHourly
 func (s *TaskStatService) fillChartDataHourly(data []map[string]interface{}) []map[string]interface{} {
 	result := make([]map[string]interface{}, 24)
 	dataMap := make(map[int]map[string]interface{})
@@ -166,7 +160,7 @@ func (s *TaskStatService) fillChartDataHourly(data []map[string]interface{}) []m
 	return result
 }
 
-// fillChartDataDaily 填充每日数据
+// fillChartDataDaily
 func (s *TaskStatService) fillChartDataDaily(data []map[string]interface{}, startTime, endTime int64) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0)
 	dataMap := make(map[string]map[string]interface{})
@@ -193,7 +187,7 @@ func (s *TaskStatService) fillChartDataDaily(data []map[string]interface{}, star
 	return result
 }
 
-// getTaskBounceRateChart 获取退信率图表
+// getTaskBounceRateChart
 func (s *TaskStatService) getTaskBounceRateChart(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
 	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
 	columnType, xAxisField := s.prepareChartData(startTime, endTime)
@@ -217,7 +211,7 @@ func (s *TaskStatService) getTaskBounceRateChart(taskId int64, domain string, st
 	}
 }
 
-// getTaskOpenRateChart 获取打开率图表
+// getTaskOpenRateChart
 func (s *TaskStatService) getTaskOpenRateChart(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
 	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
 	query.LeftJoin("mailstat_opened o", "sm.postfix_message_id=o.postfix_message_id")
@@ -243,7 +237,7 @@ func (s *TaskStatService) getTaskOpenRateChart(taskId int64, domain string, star
 	}
 }
 
-// getTaskClickRateChart 获取点击率图表
+// getTaskClickRateChart
 func (s *TaskStatService) getTaskClickRateChart(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
 	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
 	query.LeftJoin("mailstat_clicked c", "sm.postfix_message_id=c.postfix_message_id")
@@ -269,7 +263,7 @@ func (s *TaskStatService) getTaskClickRateChart(taskId int64, domain string, sta
 	}
 }
 
-// getTaskMailProviders 获取邮件服务商统计
+// getTaskMailProviders
 func (s *TaskStatService) getTaskMailProviders(taskId int64, domain string, startTime, endTime int64) []map[string]interface{} {
 	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
 	query.LeftJoin("mailstat_opened o", "sm.postfix_message_id=o.postfix_message_id")
@@ -307,11 +301,11 @@ func (s *TaskStatService) getTaskMailProviders(taskId int64, domain string, star
 	return providers
 }
 
-// getTaskSendMailChart 获取发送邮件图表数据
+// getTaskSendMailChart
 func (s *TaskStatService) getTaskSendMailChart(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
 	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
 
-	// 根据时间跨度决定按小时还是按天统计
+	// Depending on the time span, decide whether to count by the hour or day
 	columnType, xAxisField := s.prepareChartData(startTime, endTime)
 
 	query.Fields(

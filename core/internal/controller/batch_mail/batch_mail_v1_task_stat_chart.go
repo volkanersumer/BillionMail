@@ -26,9 +26,8 @@ func (c *ControllerV1) TaskStatChart(ctx context.Context, req *v1.TaskStatChartR
 		return
 	}
 
-	// 获取统计数据
 	statService := batch_mail.NewTaskStatService()
-	// 修改这里: 直接调用实例的方法
+
 	chartData := statService.GetTaskStatChart(req.TaskId, req.Domain, req.StartTime, req.EndTime)
 
 	res.Data.Dashboard = chartData["dashboard"]

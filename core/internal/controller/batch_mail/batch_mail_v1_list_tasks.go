@@ -26,7 +26,6 @@ func (c *ControllerV1) ListTasks(ctx context.Context, req *v1.ListTasksReq) (res
 			EmailTask: *task,
 		}
 
-		// 获取任务统计数据
 		stats := GetTaskStats(ctx, int64(task.Id))
 		if stats != nil {
 
@@ -103,34 +102,28 @@ func (c *ControllerV1) ListTasks(ctx context.Context, req *v1.ListTasksReq) (res
 func GetTaskStats(ctx context.Context, taskId int64) map[string]interface{} {
 	query := g.DB().Model("mailstat_send_mails sm")
 
-	// 关联消息ID和任务收件人信息
 	query = query.LeftJoin("mailstat_message_ids mi", "sm.postfix_message_id=mi.postfix_message_id")
 	query = query.LeftJoin("recipient_info ri", "mi.message_id=ri.message_id")
 
-	// 关联打开和点击记录
 	query = query.LeftJoin("mailstat_opened o", "sm.postfix_message_id=o.postfix_message_id")
 	query = query.LeftJoin("mailstat_clicked c", "sm.postfix_message_id=c.postfix_message_id")
 
-	// 过滤指定任务
 	query = query.Where("ri.task_id = ?", taskId)
 
-	// 统计各项指标
 	query.Fields(
-		"count(*) as sends", // 总发送数
-		"coalesce(sum(case when sm.status='sent' and sm.dsn like '2.%' then 1 else 0 end), 0) as delivered", // 成功送达数
-		"count(distinct o.postfix_message_id) as opened",                                                    // 打开数
-		"count(distinct c.postfix_message_id) as clicked",                                                   // 点击数
-		"coalesce(sum(case when sm.status='bounced' then 1 else 0 end), 0) as bounced",                      // 退信数
+		"count(*) as sends",
+		"coalesce(sum(case when sm.status='sent' and sm.dsn like '2.%' then 1 else 0 end), 0) as delivered", // success count
+		"count(distinct o.postfix_message_id) as opened",                                                    // opened count
+		"count(distinct c.postfix_message_id) as clicked",                                                   // clicked count
+		"coalesce(sum(case when sm.status='bounced' then 1 else 0 end), 0) as bounced",                      // bounced count
 	)
 
-	// 执行查询
 	result, err := query.One()
 	if err != nil {
 		g.Log().Error(ctx, err)
 		return nil
 	}
 
-	// 转换结果
 	stats := map[string]interface{}{
 		"sends":     result["sends"].Int(),
 		"delivered": result["delivered"].Int(),
@@ -139,7 +132,6 @@ func GetTaskStats(ctx context.Context, taskId int64) map[string]interface{} {
 		"bounced":   result["bounced"].Int(),
 	}
 
-	// 计算比率
 	sends := stats["sends"].(int)
 	if sends > 0 {
 		stats["delivery_rate"] = public.Round(float64(stats["delivered"].(int))/float64(sends)*100, 2)

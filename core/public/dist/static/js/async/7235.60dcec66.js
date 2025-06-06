@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkfrontend=self.webpackChunkfrontend||[]).push([["7235"],{92382:function(e,n,t){t.r(n),t.d(n,{default:()=>d});var f=t(58786),u=t(4640);let a={class:"w-1200px p-24px"},d=(0,f.aZ)({__name:"index",setup:e=>(e,n)=>((0,f.wg)(),(0,f.iD)("div",a,[(0,f.Wm)(u.default,{ref:"editorRef"},null,512)]))})}}]);

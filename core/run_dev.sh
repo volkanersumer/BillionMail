@@ -20,8 +20,35 @@ else
     exit 1
 fi
 
+echo "Copying the compiled binary from p-g-alpine to billionmail-core-billionmail-1..."
+
 # Copy the compiled binary to the billionmail-core-billionmail-1 container
 docker cp $BINARY billionmail-core-billionmail-1:/opt/billionmail/core/billionmail
+
+
+echo "Removing the public/dist/ directory from billionmail-core-billionmail-1 container..."
+
+# Remove the public/dist/ directory from the billionmail-core-billionmail-1 container
+docker exec billionmail-core-billionmail-1 sh -c "rm -rf /opt/billionmail/core/public/dist"
+
+
+echo "Copying the public/ directory to billionmail-core-billionmail-1 container..."
+
+# Copy the public directory to the billionmail-core-billionmail-1 container
+docker cp public/. billionmail-core-billionmail-1:/opt/billionmail/core/public/
+
+
+echo "Copying the manifest/ directory to billionmail-core-billionmail-1 container..."
+
+# Copy the manifest/ directory to the billionmail-core-billionmail-1 container
+docker cp manifest/. billionmail-core-billionmail-1:/opt/billionmail/core/manifest/
+
+
+echo "Copying the template/ directory to billionmail-core-billionmail-1 container..."
+
+# Copy the template/ directory to the billionmail-core-billionmail-1 container
+docker cp template/. billionmail-core-billionmail-1:/opt/billionmail/core/template/
+
 
 echo "Restarting billionmail-core-billionmail-1 container..."
 

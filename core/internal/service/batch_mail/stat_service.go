@@ -5,6 +5,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
+	"strconv"
 	"time"
 )
 
@@ -73,11 +74,13 @@ func (s *TaskStatService) filterAndPrepareTimeSection(startTime, endTime int64) 
 func (s *TaskStatService) prepareChartData(startTime, endTime int64) (string, string) {
 	columnType := "daily"
 	secs := endTime - startTime
-	xAxisField := "to_char(to_timestamp(sm.log_time_millis / 1000), 'YYYY-MM-DD') as x"
+	// xAxisField := "to_char(to_timestamp(sm.log_time_millis / 1000), 'YYYY-MM-DD') as x"
+	xAxisField := "EXTRACT(EPOCH FROM to_timestamp(sm.log_time_millis / 1000))::bigint as x"
 
 	if secs < 86400 {
 		columnType = "hourly"
-		xAxisField = "to_char(to_timestamp(sm.log_time_millis / 1000), 'HH24')::integer as x"
+		// xAxisField = "to_char(to_timestamp(sm.log_time_millis / 1000), 'HH24')::integer as x"
+		xAxisField = "EXTRACT(EPOCH FROM date_trunc('hour', to_timestamp(sm.log_time_millis / 1000)))::bigint as x"
 	}
 
 	return columnType, xAxisField
@@ -123,24 +126,24 @@ func (s *TaskStatService) getTaskDashboard(taskId int64, domain string, startTim
 }
 
 // fillChartData
-func (s *TaskStatService) fillChartData(data []map[string]interface{}, columnType string, startTime, endTime int64) []map[string]interface{} {
-	switch columnType {
+func (s *TaskStatService) fillChartData(data []map[string]interface{}, fillItem map[string]interface{}, fillType, fillKey string, startTime, endTime int64) []map[string]interface{} {
+	switch fillType {
 	case "daily":
-		return s.fillChartDataDaily(data, startTime, endTime)
+		return s.fillChartDataDaily(data, fillItem, fillKey, startTime, endTime)
 	case "hourly":
-		return s.fillChartDataHourly(data)
+		return s.fillChartDataHourly(data, fillItem, fillKey)
 	default:
 		return data
 	}
 }
 
 // fillChartDataHourly
-func (s *TaskStatService) fillChartDataHourly(data []map[string]interface{}) []map[string]interface{} {
+func (s *TaskStatService) fillChartDataHourly(data []map[string]interface{}, fillItem map[string]interface{}, fillKey string) []map[string]interface{} {
 	result := make([]map[string]interface{}, 24)
 	dataMap := make(map[int]map[string]interface{})
 
 	for _, item := range data {
-		hour := item["x"].(int)
+		hour := item[fillKey].(int)
 		dataMap[hour] = item
 	}
 
@@ -148,12 +151,12 @@ func (s *TaskStatService) fillChartDataHourly(data []map[string]interface{}) []m
 		if item, exists := dataMap[i]; exists {
 			result[i] = item
 		} else {
-			result[i] = map[string]interface{}{
-				"x":         i,
-				"sends":     0,
-				"delivered": 0,
-				"failed":    0,
+			item := make(map[string]interface{}, len(fillItem))
+			for k, v := range fillItem {
+				item[k] = v
 			}
+			item[fillKey] = i
+			result[i] = item
 		}
 	}
 
@@ -161,30 +164,56 @@ func (s *TaskStatService) fillChartDataHourly(data []map[string]interface{}) []m
 }
 
 // fillChartDataDaily
-func (s *TaskStatService) fillChartDataDaily(data []map[string]interface{}, startTime, endTime int64) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0)
-	dataMap := make(map[string]map[string]interface{})
+func (s *TaskStatService) fillChartDataDaily(data []map[string]interface{}, fillItem map[string]interface{}, fillKey string, startTime, endTime int64) []map[string]interface{} {
+	if startTime < 0 || endTime < 0 {
+		return data
+	}
 
+	if startTime > endTime {
+		return data
+	}
+
+	// 使用开始日期的0点
+	// startTime = time.Unix(startTime, 0).Truncate(24 * time.Hour).Unix()
+
+	m := make(map[int64]map[string]interface{}, len(data))
 	for _, item := range data {
-		date := item["x"].(string)
-		dataMap[date] = item
-	}
-
-	for t := startTime; t <= endTime; t += 86400 {
-		date := time.Unix(t, 0).Format("2006-01-02")
-		if item, exists := dataMap[date]; exists {
-			result = append(result, item)
-		} else {
-			result = append(result, map[string]interface{}{
-				"x":         date,
-				"sends":     0,
-				"delivered": 0,
-				"failed":    0,
-			})
+		// 确保类型转换正确
+		var timestamp int64
+		switch x := item[fillKey].(type) {
+		case int64:
+			timestamp = x
+		case float64:
+			timestamp = int64(x)
+		case string:
+			t, err := strconv.ParseInt(x, 10, 64)
+			if err != nil {
+				continue
+			}
+			timestamp = t
+		default:
+			continue
 		}
+		m[timestamp] = item
 	}
 
-	return result
+	lst := make([]map[string]interface{}, 0, (endTime-startTime)/86400+1)
+	for t := startTime; t <= endTime; t += 86400 {
+		if item, ok := m[t]; ok {
+			lst = append(lst, item)
+			continue
+		}
+
+		item := make(map[string]interface{}, len(fillItem))
+		for k, v := range fillItem {
+			item[k] = v
+		}
+		item[fillKey] = t
+		lst = append(lst, item)
+	}
+
+	return lst
+
 }
 
 // getTaskBounceRateChart
@@ -205,9 +234,13 @@ func (s *TaskStatService) getTaskBounceRateChart(taskId int64, domain string, st
 		return nil
 	}
 
+	fillItem := map[string]interface{}{
+		"bounce_rate": 0.0,
+	}
+
 	return map[string]interface{}{
 		"column_type": columnType,
-		"data":        s.fillChartData(results.List(), columnType, startTime, endTime),
+		"data":        s.fillChartData(results.List(), fillItem, columnType, "x", startTime, endTime),
 	}
 }
 
@@ -230,10 +263,13 @@ func (s *TaskStatService) getTaskOpenRateChart(taskId int64, domain string, star
 	if err != nil {
 		return nil
 	}
+	fillItem := map[string]interface{}{
+		"open_rate": 0.0,
+	}
 
 	return map[string]interface{}{
 		"column_type": columnType,
-		"data":        s.fillChartData(results.List(), columnType, startTime, endTime),
+		"data":        s.fillChartData(results.List(), fillItem, columnType, "x", startTime, endTime),
 	}
 }
 
@@ -256,10 +292,12 @@ func (s *TaskStatService) getTaskClickRateChart(taskId int64, domain string, sta
 	if err != nil {
 		return nil
 	}
-
+	fillItem := map[string]interface{}{
+		"click_rate": 0.0,
+	}
 	return map[string]interface{}{
 		"column_type": columnType,
-		"data":        s.fillChartData(results.List(), columnType, startTime, endTime),
+		"data":        s.fillChartData(results.List(), fillItem, columnType, "x", startTime, endTime),
 	}
 }
 
@@ -304,8 +342,6 @@ func (s *TaskStatService) getTaskMailProviders(taskId int64, domain string, star
 // getTaskSendMailChart
 func (s *TaskStatService) getTaskSendMailChart(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
 	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
-
-	// Depending on the time span, decide whether to count by the hour or day
 	columnType, xAxisField := s.prepareChartData(startTime, endTime)
 
 	query.Fields(
@@ -323,8 +359,55 @@ func (s *TaskStatService) getTaskSendMailChart(taskId int64, domain string, star
 		return nil
 	}
 
+	fillItem := map[string]interface{}{
+		"sends":     0,
+		"delivered": 0,
+		"failed":    0,
+	}
+
 	return map[string]interface{}{
 		"column_type": columnType,
-		"data":        s.fillChartData(results.List(), columnType, startTime, endTime),
+		"dashboard":   s.getTaskSendMailDashboard(taskId, domain, startTime, endTime),
+		"data":        s.fillChartData(results.List(), fillItem, columnType, "x", startTime, endTime),
 	}
+}
+
+// getTaskSendMailDashboard 获取发送邮件仪表盘数据
+func (s *TaskStatService) getTaskSendMailDashboard(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
+	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
+
+	query.Fields(
+		"count(*) as sends",
+		"coalesce(sum(case when status='sent' and dsn like '2.%' then 1 else 0 end), 0) as delivered",
+		"count(*) - coalesce(sum(case when status='sent' and dsn like '2.%' then 1 else 0 end), 0) as failed",
+	)
+
+	aggregate := map[string]interface{}{
+		"sends":     0,
+		"delivered": 0,
+		"failed":    0,
+	}
+
+	result, err := query.One()
+	if err != nil {
+		g.Log().Error(context.Background(), err)
+		return aggregate
+	}
+
+	for k, v := range result {
+		if _, ok := aggregate[k]; !ok {
+			continue
+		}
+		aggregate[k] = v.Int()
+	}
+
+	if aggregate["sends"].(int) > 0 {
+		aggregate["delivery_rate"] = public.Round(float64(aggregate["delivered"].(int))/float64(aggregate["sends"].(int))*100, 2)
+		aggregate["failure_rate"] = public.Round(float64(aggregate["failed"].(int))/float64(aggregate["sends"].(int))*100, 2)
+	} else {
+		aggregate["delivery_rate"] = 0.0
+		aggregate["failure_rate"] = 0.0
+	}
+
+	return aggregate
 }

@@ -1,6 +1,11 @@
 <template>
-	<block-section :data="data" :cell-key="cellKey" :block-type="data.type" :block-index="blockIndex"
-		@select="handleSelect" @unSelect="handleUnSelect">
+	<block-section
+		:data="data"
+		:cell-key="cellKey"
+		:block-type="data.type"
+		:block-index="blockIndex"
+		@select="handleSelect"
+		@unSelect="handleUnSelect">
 		<div :style="style">
 			<text-editor ref="editorRef" v-model:value="info.content" />
 		</div>
@@ -31,6 +36,7 @@ const { data } = defineProps({
 })
 
 const { blockConfigMap } = useConfig()
+
 const { configToStyle } = useStyle()
 
 const editorRef = useTemplateRef('editorRef')

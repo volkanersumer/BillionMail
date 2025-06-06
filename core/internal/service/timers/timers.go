@@ -2,6 +2,7 @@ package timers
 
 import (
 	"billionmail-core/internal/service/batch_mail"
+	"billionmail-core/internal/service/collect"
 	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/mail_boxes"
 	"billionmail-core/internal/service/maillog_stat"
@@ -72,6 +73,14 @@ func Start(ctx context.Context) (err error) {
 	gtimer.AddOnce(5*time.Second, func() {
 		me := maillog_stat.NewMallogEventHandler("", 1*time.Second)
 		me.Start()
+	})
+
+	// Collect mail-sent total and mail-relay total
+	gtimer.AddOnce(5*time.Second, func() {
+		collect.Collect(ctx)
+	})
+	gtimer.Add(2*time.Hour, func() {
+		collect.Collect(ctx)
 	})
 
 	// ========== Mail task processing: one executor per task ==========

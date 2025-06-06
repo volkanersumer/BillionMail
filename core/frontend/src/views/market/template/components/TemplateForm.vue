@@ -14,22 +14,35 @@
 				</n-form-item-gi>
 			</n-grid>
 			<n-form-item :label="typeLabel" :show-feedback="false">
-				<div class="flex-1 h-580px">
-					<template v-if="form.add_type === 1">
-						<email-editor v-model:config="form.drag_data" v-model:html="form.html_content">
-						</email-editor>
-					</template>
-					<template v-if="form.add_type === 0">
-						<bt-editor v-model:value="form.html_content" language="html"> </bt-editor>
-					</template>
+				<div class="flex flex-col flex-1 h-580px">
+					<div class="flex justify-end gap-12px mb-8px">
+						<div>
+							<bt-file-upload
+								mode="button"
+								button-type="primary"
+								:is-upload="false"
+								:accept="['html']"
+								@change="handleFileUpload">
+								{{ $t('market.template.uploadHtml') }}
+							</bt-file-upload>
+						</div>
+						<n-button type="primary" ghost @click="handlePreview">
+							{{ $t('common.actions.preview') }}
+						</n-button>
+					</div>
+					<div class="flex-1">
+						<template v-if="form.add_type === 1">
+							<email-editor v-model:config="form.drag_data" v-model:html="form.html_content">
+							</email-editor>
+						</template>
+						<template v-if="form.add_type === 0">
+							<bt-editor v-model:value="form.html_content" language="html"> </bt-editor>
+						</template>
+					</div>
 				</div>
 			</n-form-item>
 		</bt-form>
-		<template #footer-left>
-			<n-button type="primary" ghost @click="handlePreview">
-				{{ $t('common.actions.preview') }}
-			</n-button>
-		</template>
+		<template #footer-left> </template>
 	</modal>
 </template>
 
@@ -37,6 +50,7 @@
 import { useModal } from '@/hooks/modal/useModal'
 import { addTemplate, updateTemplate } from '@/api/modules/market/template'
 import type { Template } from '../interface'
+import { UploadFileInfo } from 'naive-ui'
 
 const EmailEditor = defineAsyncComponent(() => import('@/features/EmailEditor/index.vue'))
 
@@ -63,6 +77,16 @@ const typeOptions = [
 const typeLabel = computed(() => {
 	return typeOptions.find(item => item.value === form.add_type)?.label || ''
 })
+
+const handleFileUpload = (file: UploadFileInfo) => {
+	const reader = new FileReader()
+	reader.onload = e => {
+		form.html_content = e.target?.result as string
+	}
+	if (file.file) {
+		reader.readAsText(file.file)
+	}
+}
 
 const handlePreview = () => {
 	// eslint-disable-next-line no-unused-vars

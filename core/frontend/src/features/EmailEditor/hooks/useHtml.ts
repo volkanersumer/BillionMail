@@ -1,8 +1,9 @@
-import { StyleValue } from 'vue'
+import { render, StyleValue } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEmailEditorStore } from '../store'
 import { BaseConfig, BaseStyle } from '../types/base'
 import { useStyle } from './useStyle'
+import { copyrightVNode } from '../config/config'
 
 export const useHtml = () => {
 	const store = useEmailEditorStore()
@@ -35,6 +36,7 @@ export const useHtml = () => {
 				table.appendChild(columnTrMap[columnKey].dom)
 			}
 		})
+		table.appendChild(cellToCopyright())
 		return table
 	}
 
@@ -62,7 +64,16 @@ export const useHtml = () => {
 				dom: tr,
 			}
 		})
+
 		return trMap
+	}
+
+	const cellToCopyright = () => {
+		const tr = document.createElement('tr')
+		const td = document.createElement('td')
+		render(copyrightVNode, td)
+		tr.appendChild(td)
+		return tr
 	}
 
 	const cellToTd = () => {

@@ -381,7 +381,7 @@ export const menuConfig: BaseConfig = {
 		},
 	},
 	containerStyle: {
-		textAlign: 'center',
+		textAlign: 'left',
 		padding: {
 			more: false,
 			all: '10px',
@@ -402,3 +402,32 @@ export const baseConfigMap = new Map<BlockType, BaseConfig>([
 	['image', imageConfig],
 	['menu', menuConfig],
 ])
+
+export const copyrightVNode = h(
+	'div',
+	{
+		style: {
+			display: 'block',
+			padding: '10px',
+			lineHeight: '140%',
+			color: '#999',
+			textAlign: 'center',
+			fontSize: '12px',
+		},
+	},
+	[
+		h('span', 'Powered by '),
+		h(
+			'a',
+			{
+				href: 'https://www.billionmail.com',
+				target: '_blank',
+				style: {
+					color: '#999',
+					textDecoration: 'underline',
+				},
+			},
+			'BillionMail'
+		),
+	]
+)

@@ -32,19 +32,21 @@ import (
 // )`,
 
 type ApiTemplates struct {
-	Id          int    `json:"id" dc:"id"`
-	ApiKey      string `json:"api_key" dc:"api key"`
-	ApiName     string `json:"api_name" dc:"api name"`
-	TemplateId  int    `json:"template_id" dc:"template id"`
-	Subject     string `json:"subject" dc:"subject"`
-	Addresser   string `json:"addresser" dc:"addresser"`
-	FullName    string `json:"full_name" dc:"full name"`
-	Unsubscribe int    `json:"unsubscribe" dc:"unsubscribe"`
-	TrackOpen   int    `json:"track_open" dc:"track open"`
-	TrackClick  int    `json:"track_click" dc:"track click"`
-	Active      int    `json:"active" dc:"active"`
-	CreateTime  int    `json:"create_time" dc:"create time"`
-	UpdateTime  int    `json:"update_time" dc:"update time"`
+	Id                int    `json:"id" dc:"id"`
+	ApiKey            string `json:"api_key" dc:"api key"`
+	ApiName           string `json:"api_name" dc:"api name"`
+	TemplateId        int    `json:"template_id" dc:"template id"`
+	Subject           string `json:"subject" dc:"subject"`
+	Addresser         string `json:"addresser" dc:"addresser"`
+	FullName          string `json:"full_name" dc:"full name"`
+	Unsubscribe       int    `json:"unsubscribe" dc:"unsubscribe"`
+	TrackOpen         int    `json:"track_open" dc:"track open"`
+	TrackClick        int    `json:"track_click" dc:"track click"`
+	Active            int    `json:"active" dc:"active"`
+	CreateTime        int    `json:"create_time" dc:"create time"`
+	UpdateTime        int    `json:"update_time" dc:"update time"`
+	ExpireTime        int    `json:"expire_time" dc:"expire time"`
+	LastKeyUpdateTime int    `json:"last_key_update_time" dc:"last key update time"`
 }
 
 type ApiMailLogs struct {
@@ -56,9 +58,8 @@ type ApiMailLogs struct {
 	SendTime  int    `json:"send_time" dc:"send time"`
 }
 
-// api 配置列表  分页 搜索   (查询api同时  统计api_mail_logs表 将统计结果返回)
 type ApiTemplatesListReq struct {
-	g.Meta        `path:"/batch_mail/api/list" method:"get" tags:"ApiMail" summary:"api 配置列表"`
+	g.Meta        `path:"/batch_mail/api/list" method:"get" tags:"ApiMail" summary:"api list"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
 	Page          int    `json:"page" dc:"page"`
 	PageSize      int    `json:"page_size" dc:"page size"`
@@ -68,7 +69,6 @@ type ApiTemplatesListReq struct {
 	EndTime       int    `json:"end_time" dc:"end time"`
 }
 
-// 补充结构体 ApiTemplates中增加 SendCount  每个api模板发送次数  成功次数 失败次数 打开率 点击率 退订率
 type ApiTemplatesInfo struct {
 	ApiTemplates
 	SendCount        int     `json:"send_count" dc:"send count"`
@@ -99,9 +99,8 @@ type ApiSummaryStats struct {
 	TotalUnsubscribe int     `json:"total_unsubscribe" dc:"total unsubscribe count"`
 }
 
-// api 总览统计
 type ApiOverviewStatsReq struct {
-	g.Meta        `path:"/batch_mail/api/overview_stats" method:"get" tags:"ApiMail" summary:"api 总览统计"`
+	g.Meta        `path:"/batch_mail/api/overview_stats" method:"get" tags:"ApiMail" summary:"api Overview"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
 	StartTime     int    `json:"start_time" dc:"start time"`
 	EndTime       int    `json:"end_time" dc:"end time"`
@@ -112,9 +111,8 @@ type ApiOverviewStatsRes struct {
 	Data ApiSummaryStats `json:"data"`
 }
 
-// api 配置创建
 type ApiTemplatesCreateReq struct {
-	g.Meta        `path:"/batch_mail/api/create" method:"post" tags:"ApiMail" summary:"api 配置创建"`
+	g.Meta        `path:"/batch_mail/api/create" method:"post" tags:"ApiMail" summary:"api create"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
 	ApiName       string `json:"api_name" dc:"api name"`
 	TemplateId    int    `json:"template_id" dc:"template id"`
@@ -122,18 +120,16 @@ type ApiTemplatesCreateReq struct {
 	Addresser     string `json:"addresser" dc:"addresser"`
 	FullName      string `json:"full_name" dc:"full name"`
 	Unsubscribe   int    `json:"unsubscribe" dc:"unsubscribe"`
-	//TrackOpen     int    `json:"track_open" dc:"track open"`
-	//TrackClick    int    `json:"track_click" dc:"track click"`
-	Active int `json:"active" dc:"active"`
+	Active        int    `json:"active" dc:"active"`
+	ExpireTime    int    `json:"expire_time" dc:"expire time"` // 0 is a permanently valid unit of seconds
 }
 
 type ApiTemplatesCreateRes struct {
 	api_v1.StandardRes
 }
 
-// api 配置更新
 type ApiTemplatesUpdateReq struct {
-	g.Meta        `path:"/batch_mail/api/update" method:"post" tags:"ApiMail" summary:"api 配置更新"`
+	g.Meta        `path:"/batch_mail/api/update" method:"post" tags:"ApiMail" summary:"api update"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
 	ID            int    `json:"id" dc:"id"`
 	ApiName       string `json:"api_name" dc:"api name"`
@@ -145,15 +141,16 @@ type ApiTemplatesUpdateReq struct {
 	TrackOpen     int    `json:"track_open" dc:"track open"`
 	TrackClick    int    `json:"track_click" dc:"track click"`
 	Active        int    `json:"active" dc:"active"`
+	ExpireTime    int    `json:"expire_time" dc:"Key expiration time (0 is permanent)"`
+	ResetKey      bool   `json:"reset_key" dc:"reset key"`
 }
 
 type ApiTemplatesUpdateRes struct {
 	api_v1.StandardRes
 }
 
-// api 配置删除
 type ApiTemplatesDeleteReq struct {
-	g.Meta        `path:"/batch_mail/api/delete" method:"post" tags:"ApiMail" summary:"api 配置删除"`
+	g.Meta        `path:"/batch_mail/api/delete" method:"post" tags:"ApiMail" summary:"api delete"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
 	ID            int    `json:"id" dc:"id"`
 }
@@ -162,11 +159,10 @@ type ApiTemplatesDeleteRes struct {
 	api_v1.StandardRes
 }
 
-// 调用api 发送邮件
 type ApiMailSendReq struct {
-	g.Meta        `path:"/batch_mail/api/send" method:"post" tags:"ApiMail" summary:"调用api 发送邮件"`
+	g.Meta        `path:"/batch_mail/api/send" method:"post" tags:"ApiMail" summary:"call api send mail"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	ApiKey        string `json:"x-api-key" dc:"API Key" in:"header"` // 移到请求头
+	ApiKey        string `json:"x-api-key" dc:"API Key" in:"header"`
 	Addresser     string `json:"addresser" dc:"addresser"`
 	Recipient     string `json:"recipient" dc:"recipient"`
 }

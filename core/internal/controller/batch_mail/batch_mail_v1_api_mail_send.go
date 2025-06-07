@@ -19,78 +19,89 @@ import (
 func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) (res *v1.ApiMailSendRes, err error) {
 	res = &v1.ApiMailSendRes{}
 
-	// 1. 校验API Key
+	// 1. check API Key
 	apiTemplate, err := getApiTemplateByKey(ctx, req.ApiKey)
 	if err != nil {
 		res.Code = 1001
-		res.SetError(gerror.New(public.LangCtx(ctx, "API密钥无效")))
+		res.SetError(gerror.New(public.LangCtx(ctx, "API key is invalid")))
 		return res, nil
 	}
 
-	// 2. 校验邮件模板
+	var expireAt int64
+	if apiTemplate.ExpireTime > 0 {
+		expireAt = int64(apiTemplate.LastKeyUpdateTime) + int64(apiTemplate.ExpireTime)
+		if time.Now().Unix() > expireAt {
+			// expired
+			res.Code = 1002
+			res.SetError(gerror.New(public.LangCtx(ctx, "API key has expired")))
+			return res, nil
+		}
+	}
+
+	// 2. check email template
 	emailTemplate, err := getEmailTemplateById(ctx, apiTemplate.TemplateId)
 	if err != nil {
 		res.Code = 1004
-		res.SetError(gerror.New(public.LangCtx(ctx, "邮件模板不存在")))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Email template does not exist")))
 		return res, nil
 	}
 
-	// 3. 校验收件人
+	// 3. check recipient
 	if req.Recipient == "" || !strings.Contains(req.Recipient, "@") {
 		res.Code = 1003
-		res.SetError(gerror.New(public.LangCtx(ctx, "收件人无效")))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Invalid recipient")))
 		return res, nil
 	}
 
-	// 4. 处理联系人和分组
+	// 4. process contact and group
 	contact, err := ensureContactAndGroup(ctx, req.Recipient, apiTemplate.Id)
 	if err != nil {
 		res.Code = 1003
-		res.SetError(gerror.New(public.LangCtx(ctx, "收件人处理失败: {}", err.Error())))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to process recipient: {}", err.Error())))
 		return res, nil
 	}
 
-	// 发件人处理
+	// 5. process addresser
 	if req.Addresser == "" {
 		req.Addresser = apiTemplate.Addresser
 	}
 
-	// 5. 处理邮件内容和主题
+	// 6. process mail content and subject
 	content, subject := processMailContentAndSubject(ctx, emailTemplate.Content, apiTemplate.Subject, apiTemplate, contact, req)
 
-	// 6. 发送邮件
+	// 7. send email
 	err = sendApiMail(ctx, apiTemplate, subject, content, req.Recipient, req.Addresser)
 	if err != nil {
 		res.Code = 1005
-		res.SetError(gerror.New(public.LangCtx(ctx, "发送邮件失败: {}", err.Error())))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to send email: {}", err.Error())))
 		return res, nil
 	}
 
-	res.SetSuccess(public.LangCtx(ctx, "发送邮件成功"))
+	res.SetSuccess(public.LangCtx(ctx, "Email sent successfully"))
 	return res, nil
 }
 
-// 获取API模板
+// get API template
 func getApiTemplateByKey(ctx context.Context, apiKey string) (*entity.ApiTemplates, error) {
 	var apiTemplate entity.ApiTemplates
 	err := g.DB().Model("api_templates").Where("api_key", apiKey).Where("active", 1).Scan(&apiTemplate)
 	if err != nil || apiTemplate.Id == 0 {
-		return nil, gerror.New("API密钥无效")
+		return nil, gerror.New(public.LangCtx(ctx, "API key is invalid"))
 	}
 	return &apiTemplate, nil
 }
 
-// 获取邮件模板
+// get email template
 func getEmailTemplateById(ctx context.Context, templateId int) (*entity.EmailTemplate, error) {
 	var emailTemplate entity.EmailTemplate
 	err := g.DB().Model("email_templates").Where("id", templateId).Scan(&emailTemplate)
 	if err != nil || emailTemplate.Id == 0 {
-		return nil, gerror.New("邮件模板不存在")
+		return nil, gerror.New(public.LangCtx(ctx, "Email template does not exist"))
 	}
 	return &emailTemplate, nil
 }
 
-// 确保联系人和分组存在
+// ensure contact and group exists
 func ensureContactAndGroup(ctx context.Context, email string, apiId int) (entity.Contact, error) {
 	var contact entity.Contact
 	err := g.DB().Model("bm_contacts").Where("email", email).Scan(&contact)
@@ -108,7 +119,7 @@ func ensureContactAndGroup(ctx context.Context, email string, apiId int) (entity
 		if group.Id == 0 {
 			groupResult, err := g.DB().Model("bm_contact_groups").Insert(g.Map{
 				"name":        apiGroupName,
-				"description": fmt.Sprintf("API %d 自动创建的联系人组", apiId),
+				"description": fmt.Sprintf(public.LangCtx(ctx, "API %d automatically created contact group"), apiId),
 				"create_time": now,
 				"update_time": now,
 			})
@@ -139,9 +150,9 @@ func ensureContactAndGroup(ctx context.Context, email string, apiId int) (entity
 	return contact, nil
 }
 
-// 处理邮件内容和主题
+// process mail content and subject
 func processMailContentAndSubject(ctx context.Context, content, subject string, apiTemplate *entity.ApiTemplates, contact entity.Contact, req *v1.ApiMailSendReq) (string, string) {
-	// 退订链接处理
+	// unsubscribe link processing
 	if apiTemplate.Unsubscribe == 1 {
 		if !strings.Contains(content, "__UNSUBSCRIBE_URL__") && !strings.Contains(content, "{{ UnsubscribeURL . }}") {
 			content = public.AddUnsubscribeButton(content)
@@ -179,40 +190,39 @@ func processMailContentAndSubject(ctx context.Context, content, subject string, 
 	return content, subject
 }
 
-// 发送邮件
+// send email
 func sendApiMail(ctx context.Context, apiTemplate *entity.ApiTemplates, subject, content, recipient, addresser string) error {
 
-	// 创建邮件发送器
+	// create email sender
 	sender, err := mail_service.NewEmailSenderWithLocal(addresser)
 	if err != nil {
-		return gerror.New(public.LangCtx(ctx, "创建邮件发送器失败: {}", err))
+		return gerror.New(public.LangCtx(ctx, "Failed to create email sender: {}", err))
 	}
 	defer sender.Close()
 
-	// 生成消息ID
+	// generate message ID
 	messageId := sender.GenerateMessageID()
-	// 添加邮件追踪
+	// add 1 billion to prevent conflict with marketing task id
 	baseURL := domains.GetBaseURLBySender(addresser)
-	// 追踪id加上一千万 防止和营销任务的id冲突
 	apiTemplate_id := apiTemplate.Id + 1000000000
 	mailTracker := maillog_stat.NewMailTracker(content, apiTemplate_id, messageId, recipient, baseURL)
 	mailTracker.TrackLinks()
 	mailTracker.AppendTrackingPixel()
 	content = mailTracker.GetHTML()
 
-	// 创建邮件消息
+	// create email message
 	message := mail_service.NewMessage(subject, content)
 	message.SetMessageID(messageId)
-	// 设置发件人显示名称
+	// set sender display name
 	if apiTemplate.FullName != "" {
 		message.SetRealName(apiTemplate.FullName)
 	}
-	// 发送邮件
+	// send email
 	err = sender.Send(message, []string{recipient})
 	if err != nil {
 		return err
 	}
-	// 记录邮件日志
+	// record email log
 	messageId = strings.Trim(messageId, "<>")
 	_, err = g.DB().Model("api_mail_logs").Insert(g.Map{
 		"api_id":     apiTemplate.Id,

@@ -11,14 +11,14 @@ import (
 func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplatesListReq) (res *v1.ApiTemplatesListRes, err error) {
 	res = &v1.ApiTemplatesListRes{}
 
-	// 构建查询条件
+	// build query conditions
 	model := g.DB().Model("api_templates").Safe()
 
-	// 添加api_name模糊搜索
+	// add api_name fuzzy search
 	if req.Keyword != "" {
 		model = model.WhereLike("api_name", "%"+req.Keyword+"%")
 	}
-	// active筛选
+	// active filter
 	if req.Active != -1 {
 		model = model.Where("active", req.Active)
 	}
@@ -27,13 +27,13 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 		req.EndTime = int(time.Now().Unix())
 	}
 
-	// 获取总数
+	// get total
 	total, err := model.Count()
 	if err != nil {
 		return nil, err
 	}
 
-	// 分页查询
+	// query by page
 	var list []*v1.ApiTemplatesInfo
 	err = model.Page(req.Page, req.PageSize).
 		OrderDesc("id").
@@ -43,7 +43,7 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 	}
 
 	for _, item := range list {
-		// 构建基础查询
+		// build base query
 		query := g.DB().Model("api_mail_logs aml")
 
 		query = query.LeftJoin("mailstat_message_ids mi", "aml.message_id=mi.message_id")
@@ -58,7 +58,7 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 			query.Where("sm.log_time_millis < ?", req.EndTime*1000+1)
 		}
 
-		// 统计各项数据
+		// count各项数据
 		query.Fields(
 			"count(*) as sends",
 			"coalesce(sum(case when sm.status='sent' and sm.dsn like '2.%' then 1 else 0 end), 0) as delivered",
@@ -67,16 +67,15 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 
 		result, err := query.One()
 		if err != nil {
-			g.Log().Error(ctx, "统计API发送数据失败:", err)
+			// g.Log().Error(ctx, "Stats API failed to send data:", err)
 			continue
 		}
 
-		// 填充统计数据
 		item.SendCount = result["sends"].Int()
 		item.SuccessCount = result["delivered"].Int()
 		item.FailCount = result["bounced"].Int()
 
-		// 统计打开、点击（直接用campaign_id）
+		// count opened, clicked (use campaign_id directly)
 		apiCampaignId := item.Id + 1000000000
 		openedCount, _ := g.DB().Model("mailstat_opened").
 			Where("campaign_id", apiCampaignId).
@@ -103,7 +102,7 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 			item.ClickRate = 0
 		}
 
-		// 统计退订数量
+		// count unsubscribe
 		recipients := []string{}
 		_, err = g.DB().Model("api_mail_logs").Where("api_id", item.Id).Fields("recipient").Array(&recipients)
 		unsubscribeCount := 0
@@ -117,36 +116,8 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 		item.UnsubscribeCount = unsubscribeCount
 	}
 
-	// 汇总全局统计
-	//var totalSend, totalDelivered, totalBounced, totalOpened, totalClicked, totalUnsub int
-	//for _, item := range list {
-	//	totalSend += item.SendCount
-	//	totalDelivered += item.SuccessCount
-	//	totalBounced += item.FailCount
-	//	totalOpened += int(item.OpenRate * float64(item.SendCount) / 100)
-	//	totalClicked += int(item.ClickRate * float64(item.SendCount) / 100)
-	//	totalUnsub += item.UnsubscribeCount
-	//}
-	//var avgDeliveryRate, avgOpenRate, avgClickRate, avgBounceRate, avgUnsubRate float64
-	//if totalSend > 0 {
-	//	avgDeliveryRate = public.Round(float64(totalDelivered)/float64(totalSend)*100, 2)
-	//	avgOpenRate = public.Round(float64(totalOpened)/float64(totalSend)*100, 2)
-	//	avgClickRate = public.Round(float64(totalClicked)/float64(totalSend)*100, 2)
-	//	avgBounceRate = public.Round(float64(totalBounced)/float64(totalSend)*100, 2)
-	//	avgUnsubRate = public.Round(float64(totalUnsub)/float64(totalSend)*100, 2)
-	//}
-	//res.Data.Summary = map[string]interface{}{
-	//	"total_send": totalSend,
-	//	"avg_delivery_rate": avgDeliveryRate,
-	//	"avg_open_rate": avgOpenRate,
-	//	"avg_click_rate": avgClickRate,
-	//	"avg_bounce_rate": avgBounceRate,
-	//	"avg_unsub_rate": avgUnsubRate,
-	//	"total_unsubscribe": totalUnsub,
-	//}
-
 	res.Data.Total = total
 	res.Data.List = list
-	res.SetSuccess("获取API列表成功")
+	res.SetSuccess(public.LangCtx(ctx, "Get API list successfully"))
 	return res, nil
 }

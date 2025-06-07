@@ -11,7 +11,7 @@ import (
 func (c *ControllerV1) ApiOverviewStats(ctx context.Context, req *v1.ApiOverviewStatsReq) (res *v1.ApiOverviewStatsRes, err error) {
 	res = &v1.ApiOverviewStatsRes{}
 
-	// 查询所有API模板
+	// query all API templates
 	apiList := []struct {
 		Id         int
 		CreateTime int
@@ -24,7 +24,7 @@ func (c *ControllerV1) ApiOverviewStats(ctx context.Context, req *v1.ApiOverview
 	var totalSend, totalDelivered, totalBounced, totalOpened, totalClicked, totalUnsub int
 
 	for _, api := range apiList {
-		// 统计发送、送达、退信
+
 		query := g.DB().Model("api_mail_logs aml")
 		query = query.LeftJoin("mailstat_message_ids mi", "aml.message_id=mi.message_id")
 		query = query.LeftJoin("mailstat_send_mails sm", "mi.postfix_message_id=sm.postfix_message_id")
@@ -65,7 +65,7 @@ func (c *ControllerV1) ApiOverviewStats(ctx context.Context, req *v1.ApiOverview
 		totalOpened += openedCount.Int()
 		totalClicked += clickedCount.Int()
 
-		// 统计退订数量
+		// count unsubscribe
 		recipients := []string{}
 		_, _ = g.DB().Model("api_mail_logs").Where("api_id", api.Id).Fields("recipient").Array(&recipients)
 		unsubscribeCount := 0
@@ -96,6 +96,6 @@ func (c *ControllerV1) ApiOverviewStats(ctx context.Context, req *v1.ApiOverview
 		AvgUnsubRate:     avgUnsubRate,
 		TotalUnsubscribe: totalUnsub,
 	}
-	res.SetSuccess("统计成功")
+	res.SetSuccess(public.LangCtx(ctx, "Statistics successful"))
 	return res, nil
 }

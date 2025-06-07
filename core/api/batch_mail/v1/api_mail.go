@@ -63,20 +63,22 @@ type ApiTemplatesListReq struct {
 	Page          int    `json:"page" dc:"page"`
 	PageSize      int    `json:"page_size" dc:"page size"`
 	Keyword       string `json:"keyword" dc:"Search Keyword"`
+	Active        int    `json:"active" dc:"active"`
+	StartTime     int    `json:"start_time" dc:"start time"`
+	EndTime       int    `json:"end_time" dc:"end time"`
 }
 
 // 补充结构体 ApiTemplates中增加 SendCount  每个api模板发送次数  成功次数 失败次数 打开率 点击率 退订率
 type ApiTemplatesInfo struct {
 	ApiTemplates
-	SendCount    int     `json:"send_count" dc:"send count"`
-	SuccessCount int     `json:"success_count" dc:"success count"`
-	FailCount    int     `json:"fail_count" dc:"fail count"`
-	OpenRate     float64 `json:"open_rate" dc:"open rate"`
-	ClickRate    float64 `json:"click_rate" dc:"click rate"`
-	DeliveryRate float64 `json:"delivery_rate" dc:"delivery rate"`
-	BounceRate   float64 `json:"bounce_rate" dc:"bounce rate"`
-
-	//UnsubscribeRate float64 `json:"unsubscribe_rate" dc:"unsubscribe rate"`
+	SendCount        int     `json:"send_count" dc:"send count"`
+	SuccessCount     int     `json:"success_count" dc:"success count"`
+	FailCount        int     `json:"fail_count" dc:"fail count"`
+	OpenRate         float64 `json:"open_rate" dc:"open rate"`
+	ClickRate        float64 `json:"click_rate" dc:"click rate"`
+	DeliveryRate     float64 `json:"delivery_rate" dc:"delivery rate"`
+	BounceRate       float64 `json:"bounce_rate" dc:"bounce rate"`
+	UnsubscribeCount int     `json:"unsubscribe_count" dc:"unsubscribe count"`
 }
 
 type ApiTemplatesListRes struct {
@@ -85,6 +87,29 @@ type ApiTemplatesListRes struct {
 		Total int                 `json:"total" dc:"total"`
 		List  []*ApiTemplatesInfo `json:"list"  dc:"api templates list"`
 	} `json:"data"`
+}
+
+type ApiSummaryStats struct {
+	TotalSend        int     `json:"total_send" dc:"total send count"`
+	AvgDeliveryRate  float64 `json:"avg_delivery_rate" dc:"average delivery rate"`
+	AvgOpenRate      float64 `json:"avg_open_rate" dc:"average open rate"`
+	AvgClickRate     float64 `json:"avg_click_rate" dc:"average click rate"`
+	AvgBounceRate    float64 `json:"avg_bounce_rate" dc:"average bounce rate"`
+	AvgUnsubRate     float64 `json:"avg_unsub_rate" dc:"average unsubscribe rate"`
+	TotalUnsubscribe int     `json:"total_unsubscribe" dc:"total unsubscribe count"`
+}
+
+// api 总览统计
+type ApiOverviewStatsReq struct {
+	g.Meta        `path:"/batch_mail/api/overview_stats" method:"get" tags:"ApiMail" summary:"api 总览统计"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	StartTime     int    `json:"start_time" dc:"start time"`
+	EndTime       int    `json:"end_time" dc:"end time"`
+}
+
+type ApiOverviewStatsRes struct {
+	api_v1.StandardRes
+	Data ApiSummaryStats `json:"data"`
 }
 
 // api 配置创建

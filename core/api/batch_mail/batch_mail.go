@@ -12,6 +12,7 @@ import (
 
 type IBatchMailV1 interface {
 	ApiTemplatesList(ctx context.Context, req *v1.ApiTemplatesListReq) (res *v1.ApiTemplatesListRes, err error)
+	ApiOverviewStats(ctx context.Context, req *v1.ApiOverviewStatsReq) (res *v1.ApiOverviewStatsRes, err error)
 	ApiTemplatesCreate(ctx context.Context, req *v1.ApiTemplatesCreateReq) (res *v1.ApiTemplatesCreateRes, err error)
 	ApiTemplatesUpdate(ctx context.Context, req *v1.ApiTemplatesUpdateReq) (res *v1.ApiTemplatesUpdateRes, err error)
 	ApiTemplatesDelete(ctx context.Context, req *v1.ApiTemplatesDeleteReq) (res *v1.ApiTemplatesDeleteRes, err error)

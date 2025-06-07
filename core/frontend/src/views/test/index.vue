@@ -1,6 +1,8 @@
 <template>
-	<div class="w-1200px p-24px">
-		<email-editor ref="editorRef"></email-editor>
+	<div class="flex-center">
+		<div class="w-1200px h-600px p-24px">
+			<email-editor ref="editorRef"></email-editor>
+		</div>
 	</div>
 </template>
 

@@ -1167,8 +1167,8 @@ case "$1" in
     STOP_PROJECT|stop_project|stop)
         STOP_PROJECT
         ;;
-    GET_SERVICE_STATUS|get_service_status|status)
-        GET_SERVICE_STATUS
+    GET_CONTAINER_STATUS|get_container_status|status)
+        GET_CONTAINER_STATUS
         ;;
     DOWN_PROJECT|down_project|down)
         DOWN_PROJECT

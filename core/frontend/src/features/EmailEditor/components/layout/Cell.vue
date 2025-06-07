@@ -52,6 +52,7 @@ import BlockHeader from '../elements/Header.vue'
 import BlockText from '../elements/Text.vue'
 import BlockImage from '../elements/Image.vue'
 import BlockMenu from '../elements/Menu.vue'
+import BlockCopyright from '../elements/Copyright.vue'
 
 const { data, blockKey } = defineProps({
 	data: {
@@ -72,6 +73,7 @@ const {
 	moveBlockInCell,
 	moveBlockBetweenCells,
 } = useConfig()
+
 const { configToStyle } = useStyle()
 
 // 使用ref进行DOM引用，避免重复查询
@@ -427,6 +429,7 @@ const resolveBlockComponent = (type: BlockType) => {
 		text: BlockText,
 		image: BlockImage,
 		menu: BlockMenu,
+		copyright: BlockCopyright,
 	}
 
 	return componentMap[type] || null

@@ -4,7 +4,9 @@
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="$t('contacts.subscribers.import.overwriteLabel')">
 					<div class="flex-1">
-						<div class="mb-8px text-desc">{{ $t('contacts.subscribers.import.overwriteDescription') }}</div>
+						<div class="mb-8px text-desc">
+							{{ $t('contacts.subscribers.import.overwriteDescription') }}
+						</div>
 						<div class="w-260px">
 							<n-select v-model:value="form.overwrite" :options="overwriteOptions"></n-select>
 						</div>
@@ -53,7 +55,7 @@
 						</div>
 					</div>
 				</n-form-item>
-				<n-form-item v-if="form.import_type === 1" :label="$t('contacts.subscribers.import.exampleCsvLabel')">
+				<n-form-item :label="$t('contacts.subscribers.import.exampleCsvLabel')">
 					<pre class="csv-example">{{ example }}</pre>
 				</n-form-item>
 			</bt-form>

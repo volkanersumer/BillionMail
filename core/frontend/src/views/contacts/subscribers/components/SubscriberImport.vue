@@ -142,7 +142,7 @@ const handleChangeFile = (file: UploadFileInfo) => {
 }
 
 const handleDownloadTemplate = async () => {
-	await downloadFile({ file_path: '../data/example_recipients.csv' })
+	await downloadFile({ file_path: './template/example_recipients.csv' })
 }
 
 const validateForm = async () => {

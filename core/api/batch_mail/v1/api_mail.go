@@ -73,6 +73,9 @@ type ApiTemplatesInfo struct {
 	FailCount    int     `json:"fail_count" dc:"fail count"`
 	OpenRate     float64 `json:"open_rate" dc:"open rate"`
 	ClickRate    float64 `json:"click_rate" dc:"click rate"`
+	DeliveryRate float64 `json:"delivery_rate" dc:"delivery rate"`
+	BounceRate   float64 `json:"bounce_rate" dc:"bounce rate"`
+
 	//UnsubscribeRate float64 `json:"unsubscribe_rate" dc:"unsubscribe rate"`
 }
 
@@ -138,7 +141,7 @@ type ApiTemplatesDeleteRes struct {
 type ApiMailSendReq struct {
 	g.Meta        `path:"/batch_mail/api/send" method:"post" tags:"ApiMail" summary:"调用api 发送邮件"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	ApiKey        string `json:"api_key" dc:"api key"`
+	ApiKey        string `json:"x-api-key" dc:"API Key" in:"header"` // 移到请求头
 	Addresser     string `json:"addresser" dc:"addresser"`
 	Recipient     string `json:"recipient" dc:"recipient"`
 }

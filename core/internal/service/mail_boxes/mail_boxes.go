@@ -11,6 +11,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"math/rand"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -25,6 +26,10 @@ func Add(ctx context.Context, mailbox *v1.Mailbox) (err error) {
 		err = fmt.Errorf("Generate password md5-crypt failed: %w", err)
 		return
 	}
+
+	mailbox.Username = strings.ToLower(mailbox.Username)
+	mailbox.LocalPart = strings.ToLower(mailbox.LocalPart)
+	mailbox.Domain = strings.ToLower(mailbox.Domain)
 
 	now := time.Now().Unix()
 	mailbox.CreateTime = now
@@ -48,6 +53,11 @@ func Update(ctx context.Context, mailbox *v1.Mailbox) (err error) {
 
 		mailbox.PasswordEncode = PasswdEncode(ctx, mailbox.Password)
 	}
+
+	mailbox.Username = strings.ToLower(mailbox.Username)
+	mailbox.LocalPart = strings.ToLower(mailbox.LocalPart)
+	mailbox.Domain = strings.ToLower(mailbox.Domain)
+	mailbox.Maildir = fmt.Sprintf("%s@%s/", mailbox.LocalPart, mailbox.Domain)
 
 	_, err = g.DB().Model("mailbox").
 		Ctx(ctx).
@@ -269,4 +279,17 @@ func BatchAdd(ctx context.Context, domain, password string, quota int, count int
 	}
 
 	return createdEmails, nil
+}
+
+// NormalizeMailboxes normalizes mailbox usernames, local parts, domains, and maildirs to lowercase.
+func NormalizeMailboxes() (err error) {
+	// Attempt update mailboxes with uppercase letters in username
+	_, err = g.DB().Model("mailbox").Where("username ~ '[A-Z]+'").Update(g.Map{
+		"username":   gdb.Raw("LOWER(username)"),
+		"local_part": gdb.Raw("LOWER(local_part)"),
+		"domain":     gdb.Raw("LOWER(domain)"),
+		"maildir":    gdb.Raw("LOWER(maildir)"),
+	})
+
+	return
 }

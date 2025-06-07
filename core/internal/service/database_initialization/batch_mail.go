@@ -25,6 +25,8 @@ func init() {
                 active INTEGER DEFAULT 1,
                 task_id INTEGER DEFAULT 0,
                 create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+                status INTEGER DEFAULT 0, -- 0: Unconfirmed, 1: Confirmed
+                attribs   JSONB DEFAULT '{}'::jsonb,
                 FOREIGN KEY (group_id) REFERENCES bm_contact_groups(id) ON DELETE SET NULL,
                 UNIQUE(group_id, email)
             )`,
@@ -99,11 +101,66 @@ func init() {
     			UNIQUE(recipient)
             )`,
 
+			`CREATE TABLE IF NOT EXISTS api_templates (
+                id SERIAL PRIMARY KEY,
+                api_key VARCHAR(64) NOT NULL,
+                api_name VARCHAR(255) NOT NULL,
+                template_id INTEGER NOT NULL,
+                subject TEXT NOT NULL,
+                addresser VARCHAR(320) NOT NULL,
+                full_name VARCHAR(255),
+                unsubscribe SMALLINT NOT NULL DEFAULT 0,
+                track_open SMALLINT NOT NULL DEFAULT 1,
+                track_click SMALLINT NOT NULL DEFAULT 1,
+                active SMALLINT NOT NULL DEFAULT 1,
+                create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+                update_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+                UNIQUE(api_key)
+            )`,
+
+			`CREATE TABLE IF NOT EXISTS api_mail_logs (
+                id SERIAL PRIMARY KEY,
+                api_id INTEGER NOT NULL,
+                recipient VARCHAR(320) NOT NULL,
+                message_id TEXT NOT NULL,
+                addresser VARCHAR(320) NOT NULL,
+                send_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())
+            )`,
+
 			`CREATE INDEX IF NOT EXISTS idx_unsubscribe_email ON unsubscribe_records (email)`,
 			`CREATE INDEX IF NOT EXISTS idx_unsubscribe_time ON unsubscribe_records (unsubscribe_time)`,
 			`CREATE INDEX IF NOT EXISTS idx_bm_contacts_email ON bm_contacts (email)`,
 			`CREATE INDEX IF NOT EXISTS idx_bm_contacts_active ON bm_contacts (active)`,
 			`CREATE INDEX IF NOT EXISTS idx_abnormal_recipient_count ON abnormal_recipient (recipient,count)`,
+			`CREATE INDEX IF NOT EXISTS idx_group_email ON bm_contacts(group_id, email)`,
+			//  attribs
+			`DO $$ 
+			BEGIN
+				IF NOT EXISTS (
+					SELECT 1 
+					FROM information_schema.columns 
+					WHERE table_name = 'bm_contacts' 
+					AND column_name = 'attribs'
+				) THEN
+					ALTER TABLE bm_contacts ADD COLUMN attribs JSONB DEFAULT '{}'::jsonb;
+				END IF;
+			END $$;`,
+			//  status
+			`DO $$ 
+			BEGIN
+				IF NOT EXISTS (
+					SELECT 1 
+					FROM information_schema.columns 
+					WHERE table_name = 'bm_contacts' 
+					AND column_name = 'status'
+				) THEN
+					ALTER TABLE bm_contacts ADD COLUMN status INTEGER DEFAULT 0;
+				END IF;
+			END $$;`,
+
+			`CREATE INDEX IF NOT EXISTS idx_api_mail_logs_api_id ON api_mail_logs (api_id)`,
+			`CREATE INDEX IF NOT EXISTS idx_api_mail_logs_recipient ON api_mail_logs (recipient)`,
+			`CREATE INDEX IF NOT EXISTS idx_api_mail_logs_message_id ON api_mail_logs (message_id)`,
 		}
 
 		for _, sql := range batchMailSQLList {

@@ -7,6 +7,7 @@ package mail_services
 import (
 	"billionmail-core/internal/model/entity"
 	docker "billionmail-core/internal/service/dockerapi"
+	"billionmail-core/internal/service/public"
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -40,13 +41,13 @@ func processForwardUsers(forwardUsers string) []string {
 func SyncBccToPostfix(ctx context.Context) error {
 
 	// configPath
-	postfixConfigDir := "/opt/Billion-Mail/conf/postfix/conf"
+	postfixConfigDir := public.AbsPath("../conf/postfix/conf")
 	senderBccFile := path.Join(postfixConfigDir, "sender_bcc")
 	recipientBccFile := path.Join(postfixConfigDir, "recipient_bcc")
 	mainCfFile := path.Join(postfixConfigDir, "main.cf")
 
 	if !gfile.Exists(postfixConfigDir) {
-		return gerror.Newf("Postfix configuration directory does not exist : %s", postfixConfigDir)
+		return gerror.New(public.LangCtx(ctx, "Postfix configuration directory does not exist : {}", postfixConfigDir))
 
 	}
 

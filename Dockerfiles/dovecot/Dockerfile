@@ -1,6 +1,6 @@
 FROM debian:bookworm-slim
 
-LABEL maintainer="https://github.com/aaPanel/Billion-Mail"
+LABEL maintainer="https://github.com/aaPanel/BillionMail"
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV LC_ALL=C

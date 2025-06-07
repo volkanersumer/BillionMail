@@ -1,6 +1,9 @@
 <template>
 	<n-layout-sider
-		:width="isCollapse ? 64 : 200"
+		collapse-mode="width"
+		:collapsed="isCollapse"
+		:width="200"
+		:collapsed-width="64"
 		:content-style="{
 			display: 'flex',
 			flexDirection: 'column',
@@ -104,7 +107,8 @@ const iconMap: Record<string, VNodeChild> = {
 	market: <i class="i-mdi-email-fast-outline"></i>,
 	contacts: <i class="i-mdi-user-multiple-outline"></i>,
 	domain: <i class="i-mdi-web"></i>,
-	mailbox: <i class="i-mdi-email"></i>,
+	mailbox: <i class="i-custom:mailbox"></i>,
+	smtp: <i class="i-custom:smtp"></i>,
 	settings: <i class="i-mdi-settings-outline"></i>,
 	logout: <i class="i-mdi-logout"></i>,
 }

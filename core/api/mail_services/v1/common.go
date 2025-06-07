@@ -1,27 +1,23 @@
 package v1
 
 import (
+	"billionmail-core/internal/service/public"
 	"billionmail-core/utility/types/api_v1"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
 type ServiceType string
 
-const (
-	ServiceTypePostfix ServiceType = "postfix"
-	ServiceTypeDovecot ServiceType = "dovecot"
-	ServiceTypeRspamd  ServiceType = "rspamd"
-)
-
-const (
-	ServiceType_Postfix = "/opt/Billion-Mail/conf/postfix/main.cf"
-	ServiceType_Dovecot = "/opt/Billion-Mail/conf/dovecot/dovecot.conf"
-	ServiceType_Rspamd  = "/opt/Billion-Mail/conf/rspamd/rspamd.conf"
+var (
+	BaseConfigDir       = public.AbsPath("../conf")
+	ServiceType_Postfix = BaseConfigDir + "/postfix/main.cf"
+	ServiceType_Dovecot = BaseConfigDir + "/dovecot/dovecot.conf"
+	ServiceType_Rspamd  = BaseConfigDir + "/rspamd/rspamd.conf"
 )
 
 type GetConfigFileReq struct {
 	g.Meta      `path:"/services/get_config" method:"post" summary:"get config file"`
-	ServiceType ServiceType `json:"service_type" v:"required" desc:"service type"`
+	ServiceType string `json:"service_type" v:"required" desc:"service type"`
 }
 
 type GetConfigFileRes struct {
@@ -38,8 +34,8 @@ type GetConfigFileRes struct {
 
 type SaveConfigFileReq struct {
 	g.Meta      `path:"/services/save_config" method:"post" summary:"save config file"`
-	ServiceType ServiceType `json:"service_type" v:"required" desc:"service type"`
-	Content     string      `json:"content" v:"required" desc:"file content"`
+	ServiceType string `json:"service_type" v:"required" desc:"service type"`
+	Content     string `json:"content" v:"required" desc:"file content"`
 }
 
 type SaveConfigFileRes struct {

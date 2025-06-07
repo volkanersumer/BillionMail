@@ -3,12 +3,15 @@ package domains
 import (
 	v2 "billionmail-core/api/dockerapi/v1"
 	v1 "billionmail-core/api/domains/v1"
+	mail_v1 "billionmail-core/api/mail_boxes/v1"
 	"billionmail-core/internal/consts"
 	docker "billionmail-core/internal/service/dockerapi"
+	"billionmail-core/internal/service/mail_boxes"
 	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/public"
 	"context"
 	"fmt"
+	"github.com/gogf/gf/util/grand"
 	"github.com/gogf/gf/v2/frame/g"
 	"os"
 	"path/filepath"
@@ -26,6 +29,50 @@ func Add(ctx context.Context, domain *v1.Domain) error {
 	domain.Active = 1
 
 	_, err := g.DB().Model("domain").Ctx(ctx).Insert(domain)
+
+	if err == nil {
+		// Create mailbox abuse, postmaster, admin, noreply, and support for the new domain
+		mailboxes := []string{"abuse", "postmaster", "admin", "noreply", "support"}
+
+		for _, mailbox := range mailboxes {
+			_ = mail_boxes.Add(ctx, &mail_v1.Mailbox{
+				Username:  mailbox + "@" + domain.Domain,
+				Password:  grand.S(16),
+				FullName:  mailbox,
+				IsAdmin:   0,
+				Quota:     5242880,
+				LocalPart: mailbox,
+				Domain:    domain.Domain,
+				Active:    1,
+			})
+		}
+
+		// attempt update hostname in .env file
+		hostname := public.MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
+
+		if hostname == "" || hostname == "mail.example.com" {
+			err = public.SetDockerEnv("BILLIONMAIL_HOSTNAME", public.FormatMX(domain.Domain))
+
+			if err != nil {
+				return fmt.Errorf("failed to update BILLIONMAIL_HOSTNAME in .env file: %v", err)
+			}
+
+			// update postfix environment parameter
+			_, err = public.DockerApiFromCtx(ctx).ExecCommandByName(ctx, "billionmail-postfix-billionmail-1", []string{"bash", "-c", fmt.Sprintf("sed -i '/^BILLIONMAIL_HOSTNAME=/d' /postfix.sh && sed -i '/^#!\\/bin\\/bash/a BILLIONMAIL_HOSTNAME=%s' /postfix.sh", public.FormatMX(domain.Domain))}, "root")
+
+			if err != nil {
+				return fmt.Errorf("failed to update BILLIONMAIL_HOSTNAME in postfix container: %v", err)
+			}
+
+			// restart postfix service
+			err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, "billionmail-postfix-billionmail-1")
+
+			if err != nil {
+				return fmt.Errorf("failed to restart postfix container: %v", err)
+			}
+		}
+	}
+
 	return err
 }
 
@@ -42,6 +89,15 @@ func Delete(ctx context.Context, domainName string) error {
 		Ctx(ctx).
 		Where("domain", domainName).
 		Delete()
+
+	if err == nil {
+		// remove associated mailboxes
+		_, err = g.DB().Model("mailbox").
+			Ctx(ctx).
+			Where("domain", domainName).
+			Delete()
+	}
+
 	return err
 }
 

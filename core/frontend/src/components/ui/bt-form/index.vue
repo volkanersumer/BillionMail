@@ -5,8 +5,7 @@
 		:model="model"
 		:rules="rules"
 		:label-width="labelWidth"
-		:label-placement="labelPlacement"
-		:show-require-mark="false">
+		:label-placement="labelPlacement">
 		<slot></slot>
 	</n-form>
 </template>

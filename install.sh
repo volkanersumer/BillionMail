@@ -402,6 +402,7 @@ Docker_Start() {
     if Command_Exists docker || [ -f /lib/systemd/system/docker.service ]; then
         if Command_Exists systemctl; then
             # systemctl mask getty@tty1.service
+            grep docker /etc/group >/dev/null 2>&1 || groupadd docker
             systemctl enable docker
             systemctl reset-failed docker.service
             systemctl start docker.service
@@ -888,13 +889,9 @@ Set_Firewall() {
             apt-get install -y ufw
         fi
         if [ -f "/usr/sbin/ufw" ]; then
-            ufw allow 20/tcp >/dev/null 2>&1
-            ufw allow 21/tcp >/dev/null 2>&1
             ufw allow 22/tcp >/dev/null 2>&1
             ufw allow 80/tcp >/dev/null 2>&1
             ufw allow 443/tcp >/dev/null 2>&1
-            ufw allow 888/tcp >/dev/null 2>&1
-            ufw allow 39000:40000/tcp >/dev/null 2>&1
             ufw allow ${SMTP_PORT}/tcp >/dev/null 2>&1
             ufw allow ${SMTPS_PORT}/tcp >/dev/null 2>&1
             ufw allow ${SUBMISSION_PORT}/tcp >/dev/null 2>&1
@@ -912,8 +909,6 @@ Set_Firewall() {
         fi
     else
         if [ -f "/etc/init.d/iptables" ]; then
-            iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 20 -j ACCEPT
-            iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 21 -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
@@ -927,8 +922,6 @@ Set_Firewall() {
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${HTTP_PORT} -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${HTTPS_PORT} -j ACCEPT
             iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${sshPort} -j ACCEPT
-            iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 39000:40000 -j ACCEPT
-            #iptables -I INPUT -p tcp -m state --state NEW -m udp --dport 39000:40000 -j ACCEPT
             iptables -A INPUT -p icmp --icmp-type any -j ACCEPT
             iptables -A INPUT -s localhost -d localhost -j ACCEPT
             iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
@@ -949,8 +942,6 @@ Set_Firewall() {
             systemctl enable firewalld
             systemctl start firewalld
             firewall-cmd --set-default-zone=public >/dev/null 2>&1
-            firewall-cmd --permanent --zone=public --add-port=20/tcp >/dev/null 2>&1
-            firewall-cmd --permanent --zone=public --add-port=21/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=22/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=80/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=443/tcp > /dev/null 2>&1
@@ -964,8 +955,6 @@ Set_Firewall() {
             firewall-cmd --permanent --zone=public --add-port=${HTTP_PORT}/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=${HTTPS_PORT}/tcp >/dev/null 2>&1
             firewall-cmd --permanent --zone=public --add-port=${sshPort}/tcp >/dev/null 2>&1
-            firewall-cmd --permanent --zone=public --add-port=39000-40000/tcp >/dev/null 2>&1
-            #firewall-cmd --permanent --zone=public --add-port=39000-40000/udp > /dev/null 2>&1
             firewall-cmd --reload
         fi
     fi
@@ -1322,7 +1311,7 @@ IMAP_PORT=${IMAP_PORT}
 IMAPS_PORT=${IMAPS_PORT}
 POP_PORT=${POP_PORT}
 POPS_PORT=${POPS_PORT}
-REDIS_PORT=${SMTP_REDIS_PORTPORT}
+REDIS_PORT=${REDIS_PORT}
 SQL_PORT=${SQL_PORT}
 
 ## Manage Ports
@@ -1377,9 +1366,8 @@ EOF
 
     [ ! -d "/opt" ] && mkdir /opt
     echo "${PWD_d}" > /opt/PWD-Billion-Mail.txt
-    ln -sf ${PWD_d}/mail_users.sh /usr/bin/bm
-    ln -sf ${PWD_d}/mail_users.sh ${PWD_d}/bm
-    chmod +x ${PWD_d}/mail_users.sh
+    ln -sf ${PWD_d}/bm.sh /usr/bin/bm
+    chmod +x ${PWD_d}/bm.sh
 
 }
 
@@ -1450,7 +1438,7 @@ else
 fi
 echo -e "BillionMail Username: \e[1;33m${ADMIN_USERNAME}\e[0m Password: \e[1;33m${ADMIN_PASSWORD}\e[0m"
 echo -e ""
-echo -e "Tip: Use \e[33m bm \e[0m or \e[33mbash mail_users.sh\e[0m to Add Domain and login info etc."
+echo -e "Tip: Use \e[33m bm \e[0m or \e[33mbash bm.sh\e[0m to Add Domain and login info etc."
 
 # Install
 curl -o /dev/null -fsSLk --connect-time 10 -X POST "https://www.aapanel.com/api/panel/panel_count_daily?name=billionmail" >/dev/null 2>&1

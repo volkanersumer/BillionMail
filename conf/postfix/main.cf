@@ -1,5 +1,3 @@
-# Please create an extra file: conf/extra.cf . Used to persist overrides main.cf
-
 # See /usr/share/postfix/main.cf.dist for a commented, more complete version
 
 

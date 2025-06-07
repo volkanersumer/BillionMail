@@ -74,7 +74,10 @@ type DeleteMailboxReq struct {
 type DeleteMailboxRes struct {
 	api_v1.StandardRes
 }
-
+type MailboxWithMxRecord struct {
+	Mailbox
+	MxRecord string `json:"mx" dc:"MX record for the domain"`
+}
 type GetMailboxReq struct {
 	g.Meta        `path:"/mailbox/list" tags:"MailBox" method:"get" summary:"Get mailbox" in:"query"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
@@ -87,8 +90,8 @@ type GetMailboxReq struct {
 type GetMailboxRes struct {
 	api_v1.StandardRes
 	Data struct {
-		Total int       `json:"total"`
-		List  []Mailbox `json:"list"`
+		Total int                   `json:"total"`
+		List  []MailboxWithMxRecord `json:"list"`
 	} `json:"data"`
 }
 

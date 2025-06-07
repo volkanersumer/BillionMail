@@ -20,7 +20,11 @@
 				</bt-search>
 			</template>
 			<template #table>
-				<n-data-table :loading="loading" :columns="columns" :data="tableList"> </n-data-table>
+				<n-data-table :loading="loading" :columns="columns" :data="tableList">
+					<template #empty>
+						<bt-table-help> </bt-table-help>
+					</template>
+				</n-data-table>
 			</template>
 			<template #pageRight>
 				<bt-table-page
@@ -39,6 +43,7 @@
 
 <script lang="tsx" setup>
 import { DataTableColumns, NButton, NFlex, NSwitch } from 'naive-ui'
+import { useBrowserLocation } from '@vueuse/core'
 import { confirm, getByteUnit } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
 import { useCopy } from '@/hooks/useCopy'
@@ -50,6 +55,8 @@ import TablePassword from '@/components/base/bt-table-password/index.vue'
 import DomainSelect from './components/DomainSelect.vue'
 import MailboxForm from './components/MailboxForm.vue'
 
+const location = useBrowserLocation()
+
 const { t } = useI18n()
 
 const { copyText } = useCopy()
@@ -59,11 +66,11 @@ const { tableParams, tableList, loading, tableTotal, getTableData } = useTableDa
 	MailBoxParams
 >({
 	loading: true,
-	immediate: false,
+	immediate: true,
 	params: {
 		page: 1,
 		page_size: 10,
-		domain: null,
+		domain: location.value.state.domain || '',
 		keyword: '',
 	},
 	fetchFn: getMailboxList,
@@ -100,6 +107,7 @@ const columns = ref<DataTableColumns<MailBox>>([
 								webmail: window.location.origin + '/roundcube',
 								username: row.username,
 								password: row.password,
+								mx: row.mx,
 							})
 						)
 					}}>

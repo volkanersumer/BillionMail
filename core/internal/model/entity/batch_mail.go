@@ -11,12 +11,14 @@ type ContactGroup struct {
 
 // Contact Entity
 type Contact struct {
-	Id         int    `json:"id"          dc:"Contact ID"`
-	Email      string `json:"email"       dc:"Email Address"`
-	GroupId    int    `json:"group_id"    dc:"Group ID"`
-	Active     int    `json:"active"      dc:"Status(1:Subscribed 0:Unsubscribed)"`
-	TaskId     int    `json:"task_id"     dc:"Bulk Mail Task ID"`
-	CreateTime int    `json:"create_time" dc:"Create Time"`
+	Id         int               `json:"id"          dc:"Contact ID"`
+	Email      string            `json:"email"       dc:"Email Address"`
+	GroupId    int               `json:"group_id"    dc:"Group ID"`
+	Active     int               `json:"active"      dc:"Status(1:Subscribed 0:Unsubscribed)"`
+	TaskId     int               `json:"task_id"     dc:"Bulk Mail Task ID"`
+	CreateTime int               `json:"create_time" dc:"Create Time"`
+	Status     int               `json:"Status" dc:"1:Confirmed   0:Unconfirmed"`
+	Attribs    map[string]string `json:"attribs"`
 }
 
 // EmailTemplate Entity
@@ -73,4 +75,35 @@ type AbnormalRecipient struct {
 	Count       int    `json:"count"       dc:"Count"`
 	AddType     int    `json:"add_type"    dc:"Add Type"`
 	// AddType 1: Manually added, 2: Automatically scanned, 3: Manually scanned
+}
+
+type MailTemplateContext struct {
+	Subscriber     *Contact
+	Task           *EmailTask
+	UnsubscribeURL string
+}
+
+type ApiTemplates struct {
+	Id          int    `json:"id" dc:"id"`
+	ApiKey      string `json:"api_key" dc:"api key"`
+	ApiName     string `json:"api_name" dc:"api name"`
+	TemplateId  int    `json:"template_id" dc:"template id"`
+	Subject     string `json:"subject" dc:"subject"`
+	Addresser   string `json:"addresser" dc:"addresser"`
+	FullName    string `json:"full_name" dc:"full name"`
+	Unsubscribe int    `json:"unsubscribe" dc:"unsubscribe"`
+	TrackOpen   int    `json:"track_open" dc:"track open"`
+	TrackClick  int    `json:"track_click" dc:"track click"`
+	Active      int    `json:"active" dc:"active"`
+	CreateTime  int    `json:"create_time" dc:"create time"`
+	UpdateTime  int    `json:"update_time" dc:"update time"`
+}
+
+type ApiMailLogs struct {
+	Id        int    `json:"id" dc:"id"`
+	ApiId     int    `json:"api_id" dc:"api id"`
+	Recipient string `json:"recipient" dc:"recipient"`
+	MessageId string `json:"message_id" dc:"message id"`
+	Addresser string `json:"addresser" dc:"addresser"`
+	SendTime  int    `json:"send_time" dc:"send time"`
 }

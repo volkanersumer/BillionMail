@@ -58,7 +58,7 @@ const form = reactive({
 	isAdmin: 0,
 	full_name: '',
 	domain: null as string | null,
-	password: '',
+	password: getRandomPassword(),
 	active: 1,
 })
 
@@ -133,6 +133,38 @@ const getParams = () => {
 	}
 }
 
+/**
+ * @description Generate a random password that contains lowercase letters, uppercase letters and numbers
+ * @param len Password length, default is 8
+ */
+function getRandomPassword(len = 16) {
+	// Ensure the password length is at least 3 to include all required character types
+	len = Math.max(len, 3)
+
+	const lowerChars = 'abcdefghijklmnopqrstuvwxyz'
+	const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	const numbers = '0123456789'
+	const allChars = lowerChars + upperChars + numbers
+
+	// Ensure at least one lowercase letter, one uppercase letter and one number
+	let pwd = ''
+	pwd += lowerChars.charAt(Math.floor(Math.random() * lowerChars.length))
+	pwd += upperChars.charAt(Math.floor(Math.random() * upperChars.length))
+	pwd += numbers.charAt(Math.floor(Math.random() * numbers.length))
+
+	// Generate remaining random characters
+	for (let i = 3; i < len; i++) {
+		const index = Math.floor(Math.random() * allChars.length)
+		pwd += allChars[index]
+	}
+
+	// Shuffle password characters to avoid fixed patterns
+	return pwd
+		.split('')
+		.sort(() => Math.random() - 0.5)
+		.join('')
+}
+
 const [Modal, modalApi] = useModal({
 	onChangeState: isOpen => {
 		if (isOpen) {
@@ -144,6 +176,7 @@ const [Modal, modalApi] = useModal({
 				form.domain = row.domain
 				form.isAdmin = row.is_admin
 				form.active = row.active
+				form.password = row.password
 
 				const quota = getByteUnit(row.quota)
 				const [quotaNum, quotaUnit] = quota.split(' ')
@@ -153,7 +186,7 @@ const [Modal, modalApi] = useModal({
 		} else {
 			form.full_name = ''
 			form.domain = null
-			form.password = ''
+			form.password = getRandomPassword() // Generate a random password by default
 			form.quota = 5
 			form.unit = 'GB'
 			form.isAdmin = 0

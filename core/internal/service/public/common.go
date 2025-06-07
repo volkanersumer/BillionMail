@@ -723,13 +723,15 @@ func FileAppend(filename string, content string) (err error) {
 
 // Get language
 func GetLanguage() string {
-	defaultLanguage := "en"
-	r := GetReq()
-	if r == nil {
-		return defaultLanguage
-	}
+	//defaultLanguage := "en"
+	//r := GetReq()
+	//if r == nil {
+	//	return defaultLanguage
+	//}
 
-	return GetLanguageFromCtx(r.Context())
+	//return GetLanguageFromCtx(r.Context())
+
+	return GetLanguageFromCtx(context.Background())
 }
 
 // Get language list
@@ -780,20 +782,18 @@ func GetLanguageList() []map[string]interface{} {
 // Get language from context
 func GetLanguageFromCtx(ctx context.Context) string {
 	r := g.RequestFromCtx(ctx)
-	if r == nil {
-		return getDefaultLanguageFromDB("en")
-	}
+	if r != nil {
+		// 1. URL
+		if lang := r.Get("lang").String(); lang != "" {
+			cleanLang := strings.ToLower(strings.Split(lang, "-")[0])
+			_ = r.Session.Set("language", cleanLang)
+			return cleanLang
+		}
 
-	// 1. URL
-	if lang := r.Get("lang").String(); lang != "" {
-		cleanLang := strings.ToLower(strings.Split(lang, "-")[0])
-		r.Session.Set("language", cleanLang)
-		return cleanLang
-	}
-
-	// 2. Session
-	if language, err := r.Session.Get("language"); err == nil && !language.IsEmpty() {
-		return language.String()
+		// 2. Session
+		if language, err := r.Session.Get("language"); err == nil && !language.IsEmpty() {
+			return language.String()
+		}
 	}
 
 	// 3. Cache
@@ -807,27 +807,29 @@ func GetLanguageFromCtx(ctx context.Context) string {
 	}
 
 	// 5. Accept
-	acceptLang := r.Header.Get("Accept-Language")
-	if acceptLang != "" {
+	if r != nil {
+		acceptLang := r.Header.Get("Accept-Language")
+		if acceptLang != "" {
 
-		browserLang := strings.ToLower(strings.Split(acceptLang, ",")[0])
-		browserLang = strings.Split(browserLang, "-")[0]
+			browserLang := strings.ToLower(strings.Split(acceptLang, ",")[0])
+			browserLang = strings.Split(browserLang, "-")[0]
 
-		// check if the language is supported
-		languages := GetLanguageList()
-		for _, v := range languages {
-			if v["name"] == browserLang {
-				// save to db
-				_, err := g.DB().Model("bm_options").
-					Where("name", "CurrentLanguage").
-					Data(g.Map{"value": browserLang}).
-					Save()
+			// check if the language is supported
+			languages := GetLanguageList()
+			for _, v := range languages {
+				if v["name"] == browserLang {
+					// save to db
+					_, err := g.DB().Model("bm_options").
+						Where("name", "CurrentLanguage").
+						Data(g.Map{"value": browserLang}).
+						Save()
 
-				if err == nil {
-					SetCache("language", browserLang, 3600)
-					return browserLang
+					if err == nil {
+						SetCache("language", browserLang, 3600)
+						return browserLang
+					}
+					break
 				}
-				break
 			}
 		}
 	}
@@ -2334,6 +2336,71 @@ func DockerEnv(envName string) (envVal string, err error) {
 	return
 }
 
+// MustGetDockerEnv get Docker Environment Configuration
+func MustGetDockerEnv(envName string, def string) (envVal string) {
+	var err error
+	envVal, err = DockerEnv(envName)
+	if err != nil {
+		envVal = def
+	}
+	return
+}
+
+// SetDockerEnv set Docker Environment Configuration
+func SetDockerEnv(envName string, envVal string) (err error) {
+	// Read environment from ../.env
+	envFile := AbsPath(consts.DEFAULT_DOCKER_ENV_FILE)
+
+	if !FileExists(envFile) {
+		err = errors.New("environment file not found: " + envFile)
+		return
+	}
+
+	rows := make([]string, 0, 256)
+	updated := false
+
+	// Read each lines
+	err = ReadEach(envFile, func(row string, cnt int) bool {
+		rows = append(rows, strings.TrimRight(row, "\r\n"))
+
+		// Trim whitespace
+		row = strings.TrimSpace(row)
+
+		// Ingore empty line
+		if row == "" {
+			return true
+		}
+
+		// Ingore comment line
+		if strings.HasPrefix(row, "#") {
+			return true
+		}
+
+		// Split by =
+		env := strings.Split(row, "=")
+		if len(env) == 2 {
+			if strings.TrimSpace(env[0]) == envName {
+				row = fmt.Sprintf("%s=%s", envName, envVal)
+				updated = true
+				rows[cnt] = row
+				return true
+			}
+		}
+		return true
+	})
+
+	if !updated {
+		rows = append(rows, fmt.Sprintf("%s=%s", envName, envVal))
+	}
+
+	fmt.Println(rows)
+
+	// Write environment to ../.env
+	_, err = WriteFile(envFile, strings.Join(rows, "\n"))
+
+	return
+}
+
 // WithFileRestoration Create a backup of the specified file
 func WithFileRestoration(filePaths ...string) (doneFunc func(), restoreFunc func(), err error) {
 	// backup paths
@@ -2465,10 +2532,10 @@ func SanitizeUTF8(s string) string {
 
 func AddUnsubscribeButton(content string) string {
 	// Unsubscribe button HTML
-	unsubscribeButton := `<div style="padding: 16px 0; text-align: center"><a href="__UNSUBSCRIBE_URL__" style="color: #ccc; font-size: 12px">Unsubscribe</a></div>`
+	unsubscribeButton := `<div style="padding: 16px 0; text-align: center"><a href="{{ UnsubscribeURL . }}" style="color: #ccc; font-size: 12px">Unsubscribe</a></div>`
 
 	// If content already contains unsubscribe link, return directly
-	if strings.Contains(content, "__UNSUBSCRIBE_URL__") {
+	if strings.Contains(content, "{{ UnsubscribeURL . }}") {
 		return content
 	}
 

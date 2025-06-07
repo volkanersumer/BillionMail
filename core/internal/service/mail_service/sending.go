@@ -11,8 +11,10 @@ import (
 	"fmt"
 	"github.com/gogf/gf/util/grand"
 	"github.com/gogf/gf/v2/frame/g"
+	"io"
 	"mime"
 	"mime/quotedprintable"
+	"net"
 	"net/smtp"
 	"strings"
 	"sync"
@@ -88,10 +90,11 @@ func NewMessage(title string, content string) Message {
 
 type EmailSender struct {
 	Email     string       `json:"email" v:"required|email"` // email of sender
-	Host      string       `json:"host" v:"required"`        // SMTP server address
-	Port      string       `json:"port" v:"required"`        // SMTP server port
-	Password  string       `json:"password" v:"required"`    // SMTP password
-	SNI       string       `json:"sni"`                      // SNI for TLS
+	UserName  string       `json:"username" v:"required"`
+	Host      string       `json:"host" v:"required"`     // SMTP server address
+	Port      string       `json:"port" v:"required"`     // SMTP server port
+	Password  string       `json:"password" v:"required"` // SMTP password
+	SNI       string       `json:"sni"`                   // SNI for TLS
 	client    *smtp.Client // persistent SMTP client connection
 	mutex     sync.Mutex   // mutex for thread safety
 	connected bool         // connection status
@@ -132,6 +135,7 @@ func NewEmailSenderWithLocal(email string) (es *EmailSender, err error) {
 	es = NewEmailSender()
 
 	es.Email = email
+	es.UserName = email
 	es.Password, err = mail_boxes.PasswordByEmail(context.Background(), email)
 
 	if err != nil {
@@ -181,7 +185,7 @@ func (e *EmailSender) Connect() error {
 
 // connectWithSSL establishes a secure SMTP connection
 func (e *EmailSender) connectWithSSL() error {
-	conn, err := tls.Dial("tcp", e.Host+":"+e.Port, &tls.Config{
+	conn, err := tls.Dial("tcp", net.JoinHostPort(e.Host, e.Port), &tls.Config{
 		MinVersion:         tls.VersionTLS12,
 		InsecureSkipVerify: true,
 		ServerName:         e.SNI,
@@ -196,19 +200,20 @@ func (e *EmailSender) connectWithSSL() error {
 		return fmt.Errorf("new SMTP client: %w", err)
 	}
 
-	auth := smtp.PlainAuth("", e.Email, e.Password, e.Host)
+	auth := smtp.PlainAuth("", e.UserName, e.Password, e.Host)
 	if err = client.Auth(auth); err != nil {
 		client.Close()
 		return fmt.Errorf("SMTP auth: %w", err)
 	}
 
 	e.client = client
+
 	return nil
 }
 
 // connectPlain establishes a plain SMTP connection
 func (e *EmailSender) connectPlain() error {
-	client, err := smtp.Dial(e.Host + ":" + e.Port)
+	client, err := smtp.Dial(net.JoinHostPort(e.Host, e.Port))
 	if err != nil {
 		return fmt.Errorf("SMTP dial: %w", err)
 	}
@@ -228,9 +233,9 @@ func (e *EmailSender) connectPlain() error {
 	var auth smtp.Auth
 
 	if e.Port == "25" {
-		auth = &customAuth{e.Email, e.Password}
+		auth = &customAuth{e.UserName, e.Password}
 	} else {
-		auth = smtp.PlainAuth("", e.Email, e.Password, e.Host)
+		auth = smtp.PlainAuth("", e.UserName, e.Password, e.Host)
 	}
 
 	if err = client.Auth(auth); err != nil {
@@ -254,7 +259,7 @@ func (e *EmailSender) Disconnect() error {
 	err := e.client.Quit()
 	if err != nil {
 		// Force close connection if Quit fails
-		e.client.Close()
+		_ = e.client.Close()
 		g.Log().Warning(context.Background(), "Error closing SMTP connection: ", err)
 	}
 
@@ -268,14 +273,7 @@ func (e *EmailSender) GenerateMessageID() string {
 	randomBytes := grand.B(16)
 	randomID := hex.EncodeToString(randomBytes)
 	timestampMillis := time.Now().UnixMilli()
-
-	domain := strings.Split(e.Email, "@")
-	domainPart := e.Host
-	if len(domain) > 1 {
-		domainPart = domain[1]
-	}
-
-	return fmt.Sprintf("<%d.%s@%s>", timestampMillis, randomID, domainPart)
+	return fmt.Sprintf("<%d.%s@billionmail>", timestampMillis, randomID)
 }
 
 // Send sends an email to specified recipients
@@ -372,25 +370,32 @@ func (e *EmailSender) doSend(message Message, recipients []string) error {
 
 	msg := []byte(headerString)
 
-	// Reset the connection state
-	if err := e.client.Reset(); err != nil {
-		return fmt.Errorf("SMTP reset: %w", err)
-	}
+	var err error
+
+	defer func() {
+		// Reset the connection state if sending fails
+		if err != nil {
+			if err = e.client.Reset(); err != nil {
+				g.Log().Warning(context.Background(), "SMTP reset: %w", err)
+			}
+		}
+	}()
 
 	// Set the sender
-	if err := e.client.Mail(e.Email); err != nil {
+	if err = e.client.Mail(e.Email); err != nil {
 		return fmt.Errorf("SMTP mail: %w", err)
 	}
 
 	// Set the recipients
 	for _, to := range recipients {
-		if err := e.client.Rcpt(to); err != nil {
+		if err = e.client.Rcpt(to); err != nil {
 			return fmt.Errorf("SMTP rcpt: %w", err)
 		}
 	}
 
 	// Get a writer for the message body
-	w, err := e.client.Data()
+	var w io.WriteCloser
+	w, err = e.client.Data()
 	if err != nil {
 		return fmt.Errorf("SMTP data: %w", err)
 	}
@@ -427,9 +432,10 @@ func (e *EmailSender) IsConfigured() bool {
 	e.Email = strings.TrimSpace(e.Email)
 	e.Host = strings.TrimSpace(e.Host)
 	e.Port = strings.TrimSpace(e.Port)
+	e.UserName = strings.TrimSpace(e.UserName)
 	e.Password = strings.TrimSpace(e.Password)
 
-	if e.Email == "" || e.Host == "" || e.Port == "" || e.Password == "" {
+	if e.UserName == "" || e.Host == "" || e.Port == "" || e.Password == "" || e.Email == "" {
 		return false
 	}
 

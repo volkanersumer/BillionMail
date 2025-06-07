@@ -1,6 +1,6 @@
 FROM alpine:3.20
 
-LABEL maintainer="https://github.com/aaPanel/Billion-Mail"
+LABEL maintainer="https://github.com/aaPanel/BillionMail"
 
 # Set environment variables
 ENV LANG=C.UTF-8
@@ -14,6 +14,7 @@ COPY core/manifest /opt/billionmail/core/manifest
 COPY core/languages /opt/billionmail/core/languages
 COPY core/public /opt/billionmail/core/public
 COPY core/resource /opt/billionmail/core/resource
+COPY core/template /opt/billionmail/core/template
 
 # Copy file
 # COPY repositories /etc/apk/repositories

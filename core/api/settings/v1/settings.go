@@ -64,8 +64,9 @@ type SystemConfig struct {
 
 	// Time zone configuration
 	ManageTimeZone struct {
-		TimeZone string `json:"timezone" dc:"time zone"`
-		Command  string `json:"command" dc:"command"`
+		TimeZone     string              `json:"timezone" dc:"time zone"`
+		Command      string              `json:"command" dc:"command"`
+		AllTimeZones map[string][]string `json:"zones" dc:"available time zones"`
 	} `json:"manage_timezone" dc:"time zone configuration"`
 
 	// IPv4 network configuration

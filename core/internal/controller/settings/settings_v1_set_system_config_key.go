@@ -2,6 +2,8 @@ package settings
 
 import (
 	"context"
+	"github.com/gogf/gf/os/gtimer"
+	"time"
 
 	"billionmail-core/api/settings/v1"
 	"billionmail-core/internal/service/public"
@@ -40,12 +42,14 @@ func (c *ControllerV1) SetSystemConfigKey(ctx context.Context, req *v1.SetSystem
 	}
 
 	// 4. Restart the container
-	g.Log().Info(ctx, public.LangCtx(ctx, "Configuration updated, preparing to restart container"))
-	err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, "billionmail-core-billionmail-1")
-	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to restart container: {}", err)))
-		return res, nil
-	}
+	gtimer.AddOnce(500*time.Millisecond, func() {
+		err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, "billionmail-core-billionmail-1")
+		if err != nil {
+			g.Log().Error(ctx, "Failed to restart container: {}", err)
+			return
+		}
+
+	})
 
 	res.SetSuccess(public.LangCtx(ctx, "Configuration updated successfully"))
 	return res, nil

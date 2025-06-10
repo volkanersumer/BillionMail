@@ -64,9 +64,8 @@ type SystemConfig struct {
 
 	// Time zone configuration
 	ManageTimeZone struct {
-		TimeZone     string              `json:"timezone" dc:"time zone"`
-		Command      string              `json:"command" dc:"command"`
-		AllTimeZones map[string][]string `json:"zones" dc:"available time zones"`
+		TimeZone string `json:"timezone" dc:"time zone"`
+		Command  string `json:"command" dc:"command"`
 	} `json:"manage_timezone" dc:"time zone configuration"`
 
 	// IPv4 network configuration
@@ -134,4 +133,12 @@ type SetSSLConfigReq struct {
 
 type SetSSLConfigRes struct {
 	api_v1.StandardRes
+}
+
+type GetTimeZoneListReq struct {
+	g.Meta `path:"/settings/get_timezone_list" tags:"Settings" method:"get" summary:"Get available time zones"`
+}
+type GetTimeZoneListRes struct {
+	api_v1.StandardRes
+	Data map[string][]string `json:"data" dc:"available time zones"`
 }

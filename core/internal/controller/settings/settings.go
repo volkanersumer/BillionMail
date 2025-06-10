@@ -9,23 +9,18 @@ import (
 	"billionmail-core/internal/consts"
 	"billionmail-core/internal/service/public"
 	"crypto/x509"
-	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"github.com/gogf/gf/v2/os/gfile"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
 
 var (
-	//envPath    = "../.env"
 	envPath     = public.AbsPath("../.env")
 	projectPath = public.AbsPath("../")
-	zoneFile    = public.AbsPath("../core/data/zoneinfo_list.json")
 )
 
 // loadEnvFile .env
@@ -187,67 +182,11 @@ func convertEnvToConfig(envMap map[string]string) *v1.SystemConfig {
 	config.ManageTimeZone.TimeZone = envMap["TZ"]
 	config.ManageTimeZone.Command = fmt.Sprintf("cd %s && echo \"TIME ZONE\" | bash bm.sh change-tz", projectPath)
 
-	group, err := loadTimeZoneGroupFromFile(zoneFile)
-	if err != nil || len(group.ZoneList) == 0 {
-		group, _ = getTimeZoneGroup()
-		err = saveTimeZoneGroupToFile(group, zoneFile)
-	}
-	config.ManageTimeZone.AllTimeZones = group.Zones
-
 	// Network configuration
 	config.IPv4Network = envMap["IPV4_NETWORK"]
 	config.Fail2ban = envMap["FAIL2BAN_INIT"] == "y"
 
 	return config
-}
-
-type TimeZoneGroup struct {
-	ZoneList []string            `json:"zoneList"`
-	Zones    map[string][]string `json:"zones"`
-}
-
-func getTimeZoneGroup() (TimeZoneGroup, error) {
-	zoneList := []string{"Asia", "Africa", "America", "Antarctica", "Arctic", "Atlantic", "Australia", "Europe", "Indian", "Pacific"}
-	zones := make(map[string][]string)
-	root := "/usr/share/zoneinfo"
-
-	for _, mainZone := range zoneList {
-		dir := filepath.Join(root, mainZone)
-		files, err := os.ReadDir(dir)
-		if err != nil {
-			continue
-		}
-		for _, f := range files {
-			if !f.IsDir() {
-				zones[mainZone] = append(zones[mainZone], f.Name())
-			}
-		}
-		sort.Strings(zones[mainZone])
-	}
-	return TimeZoneGroup{
-		ZoneList: zoneList,
-		Zones:    zones,
-	}, nil
-}
-
-func saveTimeZoneGroupToFile(group TimeZoneGroup, filePath string) error {
-	data, err := json.Marshal(group)
-	if err != nil {
-		return err
-	}
-	return gfile.PutContents(filePath, string(data))
-}
-
-func loadTimeZoneGroupFromFile(filePath string) (TimeZoneGroup, error) {
-	var group TimeZoneGroup
-	if !gfile.Exists(filePath) {
-		return group, os.ErrNotExist
-	}
-	data := gfile.GetContents(filePath)
-	if err := json.Unmarshal([]byte(data), &group); err != nil {
-		return group, err
-	}
-	return group, nil
 }
 
 // parseInt Safely convert string to integer

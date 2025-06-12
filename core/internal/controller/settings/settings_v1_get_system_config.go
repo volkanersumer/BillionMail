@@ -22,6 +22,11 @@ func (c *ControllerV1) GetSystemConfig(ctx context.Context, req *v1.GetSystemCon
 	if err == nil {
 		config.SSL = *sslInfo
 	}
+	serverIP, err := public.GetServerIP()
+	if err != nil {
+		serverIP = "unknown"
+	}
+	config.ServerIP = serverIP
 
 	// TODO: Whitelist ip
 

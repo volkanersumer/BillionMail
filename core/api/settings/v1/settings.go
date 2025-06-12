@@ -26,6 +26,7 @@ type SSLConfig struct {
 
 // SystemConfig
 type SystemConfig struct {
+	ServerIP string `json:"server_ip" dc:"server ip"`
 	// Basic configuration
 	AdminUsername string `json:"admin_username" dc:"admin username"`
 	AdminPassword string `json:"admin_password" dc:"admin password"`

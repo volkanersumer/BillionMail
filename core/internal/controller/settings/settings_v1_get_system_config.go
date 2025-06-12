@@ -10,7 +10,7 @@ import (
 func (c *ControllerV1) GetSystemConfig(ctx context.Context, req *v1.GetSystemConfigReq) (res *v1.GetSystemConfigRes, err error) {
 	res = &v1.GetSystemConfigRes{}
 
-	envMap, err := loadEnvFile()
+	envMap, err := public.LoadEnvFile()
 	if err != nil {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to read environment variable file: {}", err)))
 		return res, nil

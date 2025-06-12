@@ -22,7 +22,7 @@ func (c *ControllerV1) SetSystemConfigKey(ctx context.Context, req *v1.SetSystem
 	}
 
 	// 1. Read the current .env file content
-	envMap, err := loadEnvFile()
+	envMap, err := public.LoadEnvFile()
 	if err != nil {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to read environment variable file: {}", err)))
 		return res, nil

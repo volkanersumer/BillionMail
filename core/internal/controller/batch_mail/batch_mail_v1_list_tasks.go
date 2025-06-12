@@ -105,16 +105,11 @@ func GetTaskStats(ctx context.Context, taskId int64) map[string]interface{} {
 	query = query.LeftJoin("mailstat_message_ids mi", "sm.postfix_message_id=mi.postfix_message_id")
 	query = query.LeftJoin("recipient_info ri", "mi.message_id=ri.message_id")
 
-	query = query.LeftJoin("mailstat_opened o", "sm.postfix_message_id=o.postfix_message_id")
-	query = query.LeftJoin("mailstat_clicked c", "sm.postfix_message_id=c.postfix_message_id")
-
 	query = query.Where("ri.task_id = ?", taskId)
 
 	query.Fields(
 		"count(*) as sends",
 		"coalesce(sum(case when sm.status='sent' and sm.dsn like '2.%' then 1 else 0 end), 0) as delivered", // success count
-		"count(distinct o.postfix_message_id) as opened",                                                    // opened count
-		"count(distinct c.postfix_message_id) as clicked",                                                   // clicked count
 		"coalesce(sum(case when sm.status='bounced' then 1 else 0 end), 0) as bounced",                      // bounced count
 	)
 
@@ -124,18 +119,32 @@ func GetTaskStats(ctx context.Context, taskId int64) map[string]interface{} {
 		return nil
 	}
 
+	sends := result["sends"].Int()
+	delivered := result["delivered"].Int()
+	bounced := result["bounced"].Int()
+
+	// 通过campaign_id查打开和点击
+	campaignId := int(taskId)
+	openedCount, _ := g.DB().Model("mailstat_opened").
+		Where("campaign_id", campaignId).
+		Fields("count(distinct postfix_message_id) as opened").
+		Value()
+	clickedCount, _ := g.DB().Model("mailstat_clicked").
+		Where("campaign_id", campaignId).
+		Fields("count(distinct postfix_message_id) as clicked").
+		Value()
+
 	stats := map[string]interface{}{
-		"sends":     result["sends"].Int(),
-		"delivered": result["delivered"].Int(),
-		"opened":    result["opened"].Int(),
-		"clicked":   result["clicked"].Int(),
-		"bounced":   result["bounced"].Int(),
+		"sends":     sends,
+		"delivered": delivered,
+		"opened":    openedCount.Int(),
+		"clicked":   clickedCount.Int(),
+		"bounced":   bounced,
 	}
 
-	sends := stats["sends"].(int)
 	if sends > 0 {
-		stats["delivery_rate"] = public.Round(float64(stats["delivered"].(int))/float64(sends)*100, 2)
-		stats["bounce_rate"] = public.Round(float64(stats["bounced"].(int))/float64(sends)*100, 2)
+		stats["delivery_rate"] = public.Round(float64(delivered)/float64(sends)*100, 2)
+		stats["bounce_rate"] = public.Round(float64(bounced)/float64(sends)*100, 2)
 		stats["open_rate"] = public.Round(float64(stats["opened"].(int))/float64(sends)*100, 2)
 		stats["click_rate"] = public.Round(float64(stats["clicked"].(int))/float64(sends)*100, 2)
 	} else {

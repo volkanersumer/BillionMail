@@ -90,14 +90,9 @@ func (s *TaskStatService) prepareChartData(startTime, endTime int64) (string, st
 func (s *TaskStatService) getTaskDashboard(taskId int64, domain string, startTime, endTime int64) map[string]interface{} {
 	query := s.buildBaseQuery(taskId, domain, startTime, endTime)
 
-	query.LeftJoin("mailstat_opened o", "sm.postfix_message_id=o.postfix_message_id")
-	query.LeftJoin("mailstat_clicked c", "sm.postfix_message_id=c.postfix_message_id")
-
 	query.Fields(
 		"count(*) as sends",
 		"coalesce(sum(case when status='sent' and dsn like '2.%' then 1 else 0 end), 0) as delivered",
-		"count(distinct o.postfix_message_id) as opened",
-		"count(distinct c.postfix_message_id) as clicked",
 		"coalesce(sum(case when status='bounced' then 1 else 0 end), 0) as bounced",
 	)
 
@@ -107,14 +102,34 @@ func (s *TaskStatService) getTaskDashboard(taskId int64, domain string, startTim
 		return nil
 	}
 
-	stats := result.Map()
 	sends := result["sends"].Int()
+	delivered := result["delivered"].Int()
+	bounced := result["bounced"].Int()
+
+	// 通过campaign_id查打开和点击
+	campaignId := int(taskId)
+	openedCount, _ := g.DB().Model("mailstat_opened").
+		Where("campaign_id", campaignId).
+		Fields("count(distinct postfix_message_id) as opened").
+		Value()
+	clickedCount, _ := g.DB().Model("mailstat_clicked").
+		Where("campaign_id", campaignId).
+		Fields("count(distinct postfix_message_id) as clicked").
+		Value()
+
+	stats := map[string]interface{}{
+		"sends":     sends,
+		"delivered": delivered,
+		"opened":    openedCount.Int(),
+		"clicked":   clickedCount.Int(),
+		"bounced":   bounced,
+	}
 
 	if sends > 0 {
-		stats["delivery_rate"] = public.Round(float64(result["delivered"].Int())/float64(sends)*100, 2)
-		stats["bounce_rate"] = public.Round(float64(result["bounced"].Int())/float64(sends)*100, 2)
-		stats["open_rate"] = public.Round(float64(result["opened"].Int())/float64(sends)*100, 2)
-		stats["click_rate"] = public.Round(float64(result["clicked"].Int())/float64(sends)*100, 2)
+		stats["delivery_rate"] = public.Round(float64(delivered)/float64(sends)*100, 2)
+		stats["bounce_rate"] = public.Round(float64(bounced)/float64(sends)*100, 2)
+		stats["open_rate"] = public.Round(float64(stats["opened"].(int))/float64(sends)*100, 2)
+		stats["click_rate"] = public.Round(float64(stats["clicked"].(int))/float64(sends)*100, 2)
 	} else {
 		stats["delivery_rate"] = 0.0
 		stats["bounce_rate"] = 0.0

@@ -1067,6 +1067,81 @@ GET_CONTAINER_STATUS() {
     done
 }
 
+CLEAR_OLD_IMAGE() {
+    # Remove only outdated versions of images defined in docker-compose.yml
+
+    # Check if docker-compose.yml exists
+    if [ ! -f "docker-compose.yml" ]; then
+        Red_Error "Error: docker-compose.yml file not found"      
+    fi
+
+    # Extract complete image names (including tags) defined in compose file
+    # echo "Extracting billionmail images from docker-compose.yml..."
+    # COMPOSE_IMAGES=$(grep -oP 'image:\s*\K[^"\s]+' docker-compose.yml | sort -u)
+    COMPOSE_IMAGES=$(grep -oP 'image:\s*\K(?:billionmail|ghcr\.io/aapanel)[^"\s]+' docker-compose.yml | sort -u)
+
+    # Check if any images were found
+    if [ -z "${COMPOSE_IMAGES}" ]; then
+        echo "Warning: No image definitions found in docker-compose.yml"
+        exit 1
+    fi
+
+    # Get all local Docker images (excluding <none> images)
+    # echo "Getting all local Docker images..."
+    ALL_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>:<none>")
+
+    # Find outdated images to remove
+    IMAGES_TO_REMOVE=""
+
+    while IFS= read -r compose_image; do
+        # Extract image name (without tag)
+        image_name=$(echo "${compose_image}" | awk -F: '{print $1}')
+        
+        # Extract tag defined in compose file
+        compose_tag=$(echo "${compose_image}" | awk -F: '{print $2}')
+        
+        # Find all local images with the same name
+        local_images=$(echo "${ALL_IMAGES}" | grep "^${image_name}:")
+        
+        # Filter images with different tags
+        for local_image in ${local_images}; do
+            local_tag=$(echo "${local_image}" | awk -F: '{print $2}')
+            
+            # If local tag differs from compose tag, add to removal list
+            if [ "${local_tag}" != "${compose_tag}" ]; then
+                IMAGES_TO_REMOVE="${IMAGES_TO_REMOVE} ${local_image}"
+            fi
+        done
+    done <<< "${COMPOSE_IMAGES}"
+
+    # Display results
+    if [ -z "${IMAGES_TO_REMOVE}" ]; then
+        echo ""
+        echo "No outdated images found to remove"
+        exit 0
+    fi
+
+    echo -e "\n--- Outdated images to remove ---"
+    echo "${IMAGES_TO_REMOVE}" | tr ' ' '\n' | grep -v '^$'
+    IMAGE_COUNT=$(echo "${IMAGES_TO_REMOVE}" | wc -w)
+    echo -e "\nTotal: ${IMAGE_COUNT} outdated images to remove"
+
+    # Ask for confirmation
+    read -p "Remove these outdated images? (y/n): " confirm
+    if [ "${confirm}" = "y" ] || [ "${confirm}" = "Y" ]; then
+        sleep 5
+        for image in ${IMAGES_TO_REMOVE}; do
+            echo "Removing image: ${image}"
+            docker rmi "${image}" || echo "Warning: Failed to remove ${image}"
+        done
+        echo "Outdated images removed successfully"
+        echo -e "For deeper Docker system cleanup, ensure all containers to keep are running before executing:\n docker system prune"
+    else
+        echo "Operation cancelled"
+    fi
+}
+
+
 SHOW_HELP() {
         echo "Help Information:"
         echo "  default                   - Show BillionMail login default info: $0 default"
@@ -1089,6 +1164,7 @@ SHOW_HELP() {
         echo "  log-file <service>            - View logs of a specific service: $0 l-f postfix"
         echo "  log-container <container>     - View logs of a specific container: $0 l-c postfix"
         echo "  restart-service <service>     - Restart a specific service and its container: $0 r-s postfix"
+        echo "  clear                     - Clear BillionMail old images: $0 clear"
         # echo "  add-domain <domain>       - Add domain. Example: $0 add-domain example.com"
         # echo "  del-domain <domain>       - Delete domain. Example: $0 del-domain example.com"
         # echo "  add-email <email>         - Add email. Example: $0 add-email user@example.com"
@@ -1194,6 +1270,9 @@ case "$1" in
     RESTART_SERVICE_ADMIN|restart_service_admin|restart-service-admin|restart-admin)
         RESTART_SERVICE_ADMIN
         ;;
+    clear)
+    CLEAR_OLD_IMAGE
+    ;;    
 
     *)
         echo "=============== BillionMail CLI =================="

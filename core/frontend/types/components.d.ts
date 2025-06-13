@@ -25,6 +25,7 @@ declare module 'vue' {
     BtTablePage: typeof import('./../src/components/ui/bt-table-page/index.vue')['default']
     BtTablePassword: typeof import('./../src/components/base/bt-table-password/index.vue')['default']
     BtTabs: typeof import('./../src/components/ui/bt-tabs/index.vue')['default']
+    BtTime: typeof import('./../src/components/base/bt-time/index.vue')['default']
     BtTips: typeof import('./../src/components/base/bt-tips/index.vue')['default']
     Message: typeof import('./../src/components/utils/message/index.tsx')['default']
     MessageList: typeof import('./../src/components/utils/message/message-list.tsx')['default']

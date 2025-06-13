@@ -7,7 +7,7 @@
     "time": {
       "today": "今天",
       "yesterday": "昨天",
-      "last7days": "过去7天",
+      "last7days": "近7天",
       "custom": "自定义"
     },
     "columns": {
@@ -436,7 +436,7 @@
       "addTitle": "添加域名",
       "editTitle": "编辑域名",
       "domain": "域名",
-      "domainPlaceholder": "请输入域名，例如：aapanelCom",
+      "domainPlaceholder": "请输入域名，例如：billionmail.com",
       "aRecord": "A记录",
       "aRecordPlaceholder": "请输入A记录，例如：mailAapanelCom",
       "quota": "域名配额",
@@ -736,7 +736,7 @@
       "network": {
         "title": "网络配置",
         "domain": "域名设置",
-        "currentDomain": "当前域名",
+        "currentDomain": "控制台的访问域名",
         "newDomainPlaceholder": "输入新域名，如admin.yourdomain.com",
         "domainRule": "请输入有效的域名",
         "ssl": "SSL证书配置",

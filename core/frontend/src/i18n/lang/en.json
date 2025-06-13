@@ -433,7 +433,7 @@
       "addTitle": "Add Domain",
       "editTitle": "Edit Domain",
       "domain": "Domain",
-      "domainPlaceholder": "Please enter domain, e.g.: aapanel.com",
+      "domainPlaceholder": "Please enter domain, e.g.: billionmail.com",
       "aRecord": "A Record",
       "aRecordPlaceholder": "Please enter A record, e.g.: mail.aapanel.com",
       "quota": "Domain Quota",
@@ -739,7 +739,7 @@
       "network": {
         "title": "Network Configuration",
         "domain": "Domain Settings",
-        "currentDomain": "Current Domain",
+        "currentDomain": "The access domain name of the console",
         "newDomainPlaceholder": "Enter new domain, e.g. admin.yourdomain.com",
         "domainRule": "Please enter a valid domain",
         "ssl": "SSL Certificate Configuration",

@@ -103,6 +103,10 @@ func Start(ctx context.Context) (err error) {
 		relay.UpdateRelayStatus(ctx)
 	})
 
+	gtimer.Add(24*time.Hour, func() {
+		domains.AutoRenewSSL(ctx)
+	})
+
 	g.Log().Debug(ctx, "All timers started successfully")
 	return nil
 }

@@ -215,10 +215,10 @@ func ApplyConsoleCert(ctx context.Context) error {
 	if hostname == "" {
 		return gerror.New("BILLIONMAIL_HOSTNAME environment variable is not set")
 	}
-	mailDomain := public.FormatMX(hostname)
+	//mailDomain := public.FormatMX(hostname)
 
 	// Check for the existence of a certificate
-	sql := fmt.Sprintf("dns::jsonb ? '%s' AND status = 1 AND endtime > %d", mailDomain, time.Now().Unix())
+	sql := fmt.Sprintf("dns::jsonb ? '%s' AND status = 1 AND endtime > %d", hostname, time.Now().Unix())
 	crt := &entity.Letsencrypt{}
 	err = g.DB().Model("letsencrypts").
 		Where(sql).
@@ -276,7 +276,7 @@ func ApplyConsoleCert(ctx context.Context) error {
 		notBefore = certInfo.NotBefore
 		subject = certInfo.Subject
 		endTime = certInfo.Endtime
-		dnsNamesBytes, err := json.Marshal([]string{mailDomain, hostname})
+		dnsNamesBytes, err := json.Marshal([]string{hostname})
 		if err == nil {
 			dnsNames = string(dnsNamesBytes)
 		}

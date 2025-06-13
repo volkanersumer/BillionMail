@@ -341,7 +341,7 @@ func GetDKIMRecord(domain string, validateImmediate bool) (record v1.DNSRecord, 
    selectors [
     {
       path: "/var/lib/rspamd/dkim/%s/default.private";
-      selector: "default"
+      selector: "default";
     }
   ]
 }
@@ -350,7 +350,9 @@ func GetDKIMRecord(domain string, validateImmediate bool) (record v1.DNSRecord, 
 
 		// Write DKIM sign config to file
 		signConfPath := public.AbsPath(filepath.Join(consts.RSPAMD_LOCAL_D_PATH, "dkim_signing.conf"))
-		signContent := `domain {
+		signContent := `sign_headers = "from:sender:reply-to:subject:date:message-id:to:cc:mime-version:content-type:content-transfer-encoding:content-language:resent-to:resent-cc:resent-from:resent-sender:resent-message-id:in-reply-to:references:list-id:list-help:list-owner:list-unsubscribe:list-subscribe:list-post:list-unsubscribe-post:disposition-notification-to:disposition-notification-options:original-recipient:openpgp:autocrypt";
+
+domain {
 #BT_DOMAIN_DKIM_BEGIN
 #BT_DOMAIN_DKIM_END
 }`

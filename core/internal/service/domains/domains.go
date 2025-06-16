@@ -312,7 +312,7 @@ func GetDKIMRecord(domain string, validateImmediate bool) (record v1.DNSRecord, 
 		defer mutex.Unlock()
 
 		var res *v2.ExecResult
-		res, err = dk.ExecCommandByName(context.Background(), "billionmail-rspamd-billionmail-1", []string{"rspamadm", "dkim_keygen", "-s", "'default'", "-b", "1024", "-d", domain, "-k", fmt.Sprintf("/var/lib/rspamd/dkim/%s/default.private", domain)}, "root")
+		res, err = dk.ExecCommandByName(context.Background(), "billionmail-rspamd-billionmail-1", []string{"rspamadm", "dkim_keygen", "-s", "'default'", "-b", "2048", "-d", domain, "-k", fmt.Sprintf("/var/lib/rspamd/dkim/%s/default.private", domain)}, "root")
 
 		if err != nil {
 			err = fmt.Errorf("Failed to generate DKIM key pair: %v", err)

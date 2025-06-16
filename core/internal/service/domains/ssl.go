@@ -12,7 +12,6 @@ import (
 	"billionmail-core/internal/service/rbac"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -86,7 +85,7 @@ func ApplyLetsEncryptCertWithHttp(ctx context.Context, domain string, accountInf
 
 // FindSSLByDomain retrieves the SSL certificate information for a given domain.
 func FindSSLByDomain(domain string) (crt *entity.Letsencrypt, err error) {
-	err = g.DB().Model("letsencrypts").Where("dns::jsonb ? $1", public.FormatMX(domain)).Where("status = 1").Where("endtime > $1", time.Now().Unix()).Order("endtime desc").Limit(1).Scan(&crt)
+	err = g.DB().Model("letsencrypts").Where("dns::jsonb ? $1", public.FormatMX(domain)).Where("status = 1").Where("endtime > ?", time.Now().Unix()).Order("endtime desc").Limit(1).Scan(&crt)
 	return
 }
 
@@ -218,10 +217,11 @@ func ApplyConsoleCert(ctx context.Context) error {
 	//mailDomain := public.FormatMX(hostname)
 
 	// Check for the existence of a certificate
-	sql := fmt.Sprintf("dns::jsonb ? '%s' AND status = 1 AND endtime > %d", hostname, time.Now().Unix())
 	crt := &entity.Letsencrypt{}
 	err = g.DB().Model("letsencrypts").
-		Where(sql).
+		Where("dns::jsonb ? $1", hostname).
+		Where("status = 1").
+		Where("endtime > ?", time.Now().Unix()).
 		Order("endtime desc").
 		Limit(1).Scan(crt)
 

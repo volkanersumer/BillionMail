@@ -1,8 +1,10 @@
 <template>
 	<modal :title="title" width="520">
 		<bt-form ref="formRef" :model="form" :rules="rules" class="pt-12px">
-			<n-form-item label="API名称" path="api_name">
-				<n-input v-model:value="form.api_name" placeholder="请输入API名称"></n-input>
+			<n-form-item :label="$t('api.form.apiName')" path="api_name">
+				<n-input
+					v-model:value="form.api_name"
+					:placeholder="$t('api.form.apiNamePlaceholder')"></n-input>
 			</n-form-item>
 			<n-form-item :label="$t('market.task.edit.from')" path="addresser">
 				<from-select v-model:value="form.addresser" v-model:name="form.full_name"> </from-select>
@@ -32,8 +34,14 @@
 				<n-switch v-model:value="form.unsubscribe" :checked-value="1" :unchecked-value="0">
 				</n-switch>
 			</n-form-item>
-			<n-form-item label="状态">
+			<n-form-item :label="$t('api.form.status')">
 				<n-switch v-model:value="form.active" :checked-value="1" :unchecked-value="0"></n-switch>
+			</n-form-item>
+			<n-form-item :label="$t('api.form.ipWhitelist')">
+				<n-input
+					v-model:value="form.ip_whitelist"
+					:placeholder="$t('api.form.ipWhitelistPlaceholder')">
+				</n-input>
 			</n-form-item>
 			<preview-modal />
 		</bt-form>
@@ -50,10 +58,12 @@ import FromSelect from '@/views/market/task/components/FromSelect.vue'
 import TemplateSelect from '@/views/market/task/components/TemplateSelect.vue'
 import TemplatePreview from '@/views/market/template/components/TemplatePreview.vue'
 
+const { t } = useI18n()
+
 const isEdit = ref(false)
 
 const title = computed(() => {
-	return isEdit.value ? 'Edit API' : 'Add API'
+	return isEdit.value ? t('api.form.title.edit') : t('api.form.title.add')
 })
 
 const formRef = useTemplateRef('formRef')
@@ -68,28 +78,29 @@ const form = reactive({
 	full_name: '',
 	unsubscribe: 1,
 	active: 1,
+	ip_whitelist: '',
 })
 
 const rules: FormRules = {
 	api_name: {
 		required: true,
-		message: '请输入API名称',
+		message: t('api.form.validation.apiNameRequired'),
 	},
 	addresser: {
 		required: true,
-		message: '请选择发送者',
+		message: t('api.form.validation.addresserRequired'),
 	},
 	full_name: {
 		required: true,
-		message: '请输入发送者名称',
+		message: t('market.task.edit.displayNamePlaceholder'),
 	},
 	subject: {
 		required: true,
-		message: '请输入主题',
+		message: t('market.task.edit.subjectPlaceholder'),
 	},
 	template_id: {
 		required: true,
-		message: '请选择模板',
+		message: t('api.form.validation.templateRequired'),
 	},
 }
 
@@ -123,6 +134,7 @@ const getParams = () => {
 		full_name: form.full_name,
 		unsubscribe: form.unsubscribe,
 		active: form.active,
+		ip_whitelist: form.ip_whitelist.split(','),
 	}
 }
 
@@ -141,6 +153,7 @@ const [Modal, modalApi] = useModal({
 				form.full_name = row.full_name
 				form.unsubscribe = row.unsubscribe
 				form.active = row.active
+				form.ip_whitelist = row.ip_whitelist.join(',')
 			}
 		} else {
 			resetForm()

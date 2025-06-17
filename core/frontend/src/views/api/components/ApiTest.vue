@@ -16,8 +16,10 @@
 <script lang="ts" setup>
 import { FormRules } from 'naive-ui'
 import { useModal } from '@/hooks/modal/useModal'
-import { Api } from '../types/base'
 import { testApi } from '@/api/modules/api'
+import type { Api } from '../types/base'
+
+const { t } = useI18n()
 
 const formRef = useTemplateRef('formRef')
 
@@ -29,7 +31,7 @@ const form = reactive({
 const rules: FormRules = {
 	recipient: {
 		required: true,
-		message: '请输入测试邮箱',
+		message: t('market.task.edit.testEmailPlaceholder'),
 	},
 }
 

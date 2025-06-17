@@ -20,6 +20,7 @@ export interface Api {
 	click_rate: number
 	delivery_rate: number
 	bounce_rate: number
+	ip_whitelist: string[]
 }
 
 export interface OverviewStats {

@@ -1,4 +1,7 @@
 import { instance } from '@/api'
+import i18n from '@/i18n'
+
+const { t } = i18n.global
 
 export const getApiList = (params: {
 	page: number
@@ -23,12 +26,13 @@ type APIParams = {
 	full_name: string
 	unsubscribe: number
 	active: number
+	ip_whitelist: string[]
 }
 
 export const createApi = (params: APIParams) => {
 	return instance.post('/batch_mail/api/create', params, {
 		fetchOptions: {
-			loading: '正在创建，请稍候...',
+			loading: t('api.loading.creating'),
 			successMessage: true,
 		},
 	})
@@ -37,7 +41,7 @@ export const createApi = (params: APIParams) => {
 export const updateApi = (params: APIParams & { id: number }) => {
 	return instance.post('/batch_mail/api/update', params, {
 		fetchOptions: {
-			loading: '正在编辑，请稍候...',
+			loading: t('api.loading.updating'),
 			successMessage: true,
 		},
 	})
@@ -46,7 +50,7 @@ export const updateApi = (params: APIParams & { id: number }) => {
 export const deleteApi = (params: { id: number }) => {
 	return instance.post('/batch_mail/api/delete', params, {
 		fetchOptions: {
-			loading: '正在删除，请稍候...',
+			loading: t('api.loading.deleting'),
 			successMessage: true,
 		},
 	})
@@ -58,7 +62,7 @@ export const testApi = (key: string, params: { recipient: string }) => {
 			'x-api-key': key,
 		},
 		fetchOptions: {
-			loading: '正在测试，请稍候...',
+			loading: t('api.loading.testing'),
 			successMessage: true,
 		},
 	})

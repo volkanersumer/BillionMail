@@ -3,28 +3,28 @@
 		<n-card class="flex-1">
 			<div class="title">
 				<i class="i-fa:paper-plane"></i>
-				<span>发送总量</span>
+				<span>{{ $t('api.overview.totalSend') }}</span>
 			</div>
 			<div class="value">{{ overview.total_send }}</div>
 		</n-card>
 		<n-card class="flex-1">
 			<div class="title">
 				<i class="i-fa:envelope-open"></i>
-				<span>平均打开率</span>
+				<span>{{ $t('api.overview.avgOpenRate') }}</span>
 			</div>
 			<div class="value">{{ overview.avg_open_rate }}%</div>
 		</n-card>
 		<n-card class="flex-1">
 			<div class="title">
 				<i class="i-fa:mouse-pointer"></i>
-				<span>平均点击率</span>
+				<span>{{ $t('api.overview.avgClickRate') }}</span>
 			</div>
 			<div class="value">{{ overview.avg_click_rate }}%</div>
 		</n-card>
 		<n-card class="flex-1">
 			<div class="title">
 				<i class="i-fa:ban"></i>
-				<span>平均退信率</span>
+				<span>{{ $t('api.overview.avgBounceRate') }}</span>
 			</div>
 			<div class="value">{{ overview.avg_bounce_rate }}%</div>
 		</n-card>

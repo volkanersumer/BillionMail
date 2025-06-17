@@ -8,6 +8,13 @@ export function getTaskList(params: TaskParams) {
 	return instance.get('/batch_mail/task/list', { params })
 }
 
+/**
+ * 获取任务统计
+ */
+export function getTaskOverview(params: { task_id: number; start_time: number; end_time: number }) {
+	return instance.get('/batch_mail/task/stat_chart', { params })
+}
+
 interface TaskAddParams {
 	track_open: number
 	track_click: number

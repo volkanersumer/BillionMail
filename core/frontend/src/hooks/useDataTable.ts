@@ -1,20 +1,17 @@
-import { DataTableCreateRowKey, DataTableRowKey } from 'naive-ui'
+import { DataTableCreateRowKey, DataTableRowKey, DataTableRowData } from 'naive-ui'
 import { useDebounceFn } from '@vueuse/core'
 import { isArray, isObject, isNumber } from '@/utils'
 
-// 简化的类型定义
-interface TableParams {
-	page: number
-	page_size: number
-}
+type TableParams = DataTableRowData
 
-interface UseDataTableOptions<K> {
-	params: K
-	fetchFn: (params: K) => Promise<unknown>
+interface UseDataTableOptions {
+	params: TableParams
+	fetchFn: (params: any) => Promise<unknown>
 	rowKey?: DataTableCreateRowKey
 	immediate?: boolean
 	autoRefresh?: boolean
 	refreshInterval?: number
+	useParams?: (params: TableParams) => TableParams
 }
 
 // 核心状态管理
@@ -22,7 +19,7 @@ interface TableState {
 	loading: boolean
 }
 
-export const useDataTable = <T, K extends TableParams>(options: UseDataTableOptions<K>) => {
+export const useDataTable = <T>(options: UseDataTableOptions) => {
 	const {
 		fetchFn,
 		params,
@@ -30,6 +27,7 @@ export const useDataTable = <T, K extends TableParams>(options: UseDataTableOpti
 		immediate = true,
 		autoRefresh = false,
 		refreshInterval = 30000,
+		useParams,
 	} = options
 
 	// 核心状态
@@ -45,6 +43,11 @@ export const useDataTable = <T, K extends TableParams>(options: UseDataTableOpti
 	// 自动刷新定时器
 	let timer: number | null = null
 
+	const getParams = () => {
+		if (useParams) return useParams(tableParams.value)
+		return tableParams.value
+	}
+
 	// 防抖的数据获取
 	const debouncedFetch = useDebounceFn(async (resetPage = false) => {
 		if (resetPage) {
@@ -54,10 +57,11 @@ export const useDataTable = <T, K extends TableParams>(options: UseDataTableOpti
 		state.loading = true
 
 		try {
-			const response = await fetchFn(tableParams.value)
+			const params = getParams()
+			const response = await fetchFn(params)
 
-			if (isObject<{ list: T[]; total: number }>(response) && isArray(response.list)) {
-				data.value = response.list
+			if (isObject<{ list: T[]; total: number }>(response)) {
+				data.value = isArray(response.list) ? response.list : []
 				total.value = isNumber(response.total) ? response.total : 0
 			}
 		} finally {

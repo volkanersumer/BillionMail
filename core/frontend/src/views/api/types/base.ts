@@ -12,6 +12,7 @@ export interface Api {
 	active: number
 	create_time: number
 	update_time: number
+	expire_time: number
 	send_count: number
 	success_count: number
 	fail_count: number
@@ -19,4 +20,14 @@ export interface Api {
 	click_rate: number
 	delivery_rate: number
 	bounce_rate: number
+}
+
+export interface OverviewStats {
+	total_send: number
+	avg_delivery_rate: number
+	avg_open_rate: number
+	avg_click_rate: number
+	avg_bounce_rate: number
+	avg_unsub_rate: number
+	total_unsubscribe: number
 }

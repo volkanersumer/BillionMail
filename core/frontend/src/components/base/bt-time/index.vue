@@ -16,14 +16,25 @@
 </template>
 
 <script lang="ts" setup>
-import { getDayTimeRange } from '@/utils'
 import { addDays, startOfDay, endOfDay } from 'date-fns'
+import { getDayTimeRange } from '@/utils'
+
+const { defaultType } = defineProps({
+	defaultType: {
+		type: String,
+		default: 'today',
+	},
+})
+
+const dateRange = defineModel<[number, number]>('value')
+
+const emit = defineEmits<{
+	change: []
+}>()
 
 const { t } = useI18n()
 
-const dateRange = defineModel<[number, number]>('dateRange')
-
-const activeFilter = ref('today')
+const activeFilter = ref(defaultType)
 
 const filterOptions = [
 	{ label: t('common.time.today'), value: 'today' },
@@ -51,6 +62,7 @@ const setFilter = (filter: string) => {
 			dateRange.value = getLastSevenDaysRange()
 			break
 	}
+	emit('change')
 }
 
 const dateDisabled = (ts: number) => {
@@ -62,7 +74,10 @@ const dateDisabled = (ts: number) => {
 const onDateRangeChange = (val: [number, number]) => {
 	activeFilter.value = 'custom'
 	dateRange.value = [startOfDay(val[0]).getTime(), endOfDay(val[1]).getTime()]
+	emit('change')
 }
+
+setFilter(defaultType)
 </script>
 
 <style lang="scss" scoped>

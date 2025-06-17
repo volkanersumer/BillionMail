@@ -5,7 +5,8 @@
 				<n-breadcrumb-item>
 					<router-link to="/market/task">{{ $t('market.task.title') }}</router-link>
 				</n-breadcrumb-item>
-				<n-breadcrumb-item>Analytics</n-breadcrumb-item>
+				<n-breadcrumb-item>{{ $t('market.task.actions.analytics') }}</n-breadcrumb-item>
+				<n-breadcrumb-item>{{ subject || '--' }}</n-breadcrumb-item>
 			</n-breadcrumb>
 			<bt-time-range v-model:value="dateRange" default-type="last7days" @change="fetchOverviewData">
 			</bt-time-range>
@@ -40,7 +41,7 @@
 
 <script lang="ts" setup>
 import { getDayTimeRange, getNumber, isArray, isObject } from '@/utils'
-import { getTaskOverview } from '@/api/modules/market/task'
+import { getTaskDetails, getTaskOverview } from '@/api/modules/market/task'
 import type { MailOverview, MailProvider, RateData, RateKey } from '@/views/overview/interface'
 
 import MetricCard from '@/views/overview/components/MetricCard.vue'
@@ -121,6 +122,17 @@ async function fetchOverviewData() {
 		openRate.value = res.open_rate_chart
 	}
 }
+
+const subject = ref('')
+
+const getDetails = async () => {
+	const res = await getTaskDetails({ id: id.value })
+	if (isObject<{ subject: string }>(res)) {
+		subject.value = res.subject
+	}
+}
+
+getDetails()
 </script>
 
 <style lang="scss" scoped>

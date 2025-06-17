@@ -1,5 +1,8 @@
+import i18n from '@/i18n'
 import { instance } from '@/api'
 import type { TaskParams } from '@/views/market/task/interface'
+
+const { t } = i18n.global
 
 /**
  * 获取任务列表
@@ -13,6 +16,13 @@ export function getTaskList(params: TaskParams) {
  */
 export function getTaskOverview(params: { task_id: number; start_time: number; end_time: number }) {
 	return instance.get('/batch_mail/task/stat_chart', { params })
+}
+
+/**
+ * 获取任务详情
+ */
+export function getTaskDetails(params: { id: number }) {
+	return instance.get('/batch_mail/task/find', { params })
 }
 
 interface TaskAddParams {
@@ -36,7 +46,7 @@ interface TaskAddParams {
 export function addTask(params: TaskAddParams) {
 	return instance.post('/batch_mail/task/create', params, {
 		fetchOptions: {
-			loading: 'Creating task, please wait...',
+			loading: t('market.task.loading.creating'),
 			successMessage: true,
 		},
 	})
@@ -48,7 +58,7 @@ export function addTask(params: TaskAddParams) {
 export function deleteTask(params: { id: number }) {
 	return instance.post('/batch_mail/task/delete', params, {
 		fetchOptions: {
-			loading: 'Deleting task, please wait...',
+			loading: t('market.task.loading.deleting'),
 			successMessage: true,
 		},
 	})
@@ -60,7 +70,7 @@ export function deleteTask(params: { id: number }) {
 export function pauseTask(params: { task_id: number }) {
 	return instance.post('/batch_mail/task/pause', params, {
 		fetchOptions: {
-			loading: 'Pausing task, please wait...',
+			loading: t('market.task.loading.pausing'),
 			successMessage: true,
 		},
 	})
@@ -72,7 +82,7 @@ export function pauseTask(params: { task_id: number }) {
 export function resumeTask(params: { task_id: number }) {
 	return instance.post('/batch_mail/task/resume', params, {
 		fetchOptions: {
-			loading: 'Resuming task, please wait...',
+			loading: t('market.task.loading.resuming'),
 			successMessage: true,
 		},
 	})
@@ -89,7 +99,7 @@ export function sendTestEmail(params: {
 }) {
 	return instance.post('/batch_mail/task/send_test', params, {
 		fetchOptions: {
-			loading: 'Sending test email, please wait...',
+			loading: t('market.task.loading.sendingTest'),
 			successMessage: true,
 		},
 	})

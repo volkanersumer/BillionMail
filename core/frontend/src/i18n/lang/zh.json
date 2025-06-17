@@ -73,6 +73,7 @@
 			"market": "邮件营销",
 			"task": "任务",
 			"template": "模板",
+			"sendApi": "发件API",
 			"contacts": "联系人",
 			"subscribers": "订阅",
 			"group": "分组",
@@ -166,7 +167,8 @@
 				"detail": "查看详情",
 				"export": "导出",
 				"send": "发送",
-				"pause": "暂停"
+				"pause": "暂停",
+				"analytics": "分析"
 			},
 			"columns": {
 				"time": "时间",
@@ -262,6 +264,13 @@
 				"validation": {
 					"groupNameRequired": "请输入分组名称"
 				}
+			},
+			"loading": {
+				"creating": "正在创建任务，请稍候...",
+				"deleting": "正在删除任务，请稍候...",
+				"pausing": "正在暂停任务，请稍候...",
+				"resuming": "正在恢复任务，请稍候...",
+				"sendingTest": "正在发送测试邮件，请稍候..."
 			}
 		},
 		"template": {
@@ -306,6 +315,12 @@
 			},
 			"preview": {
 				"title": "预览模板"
+			},
+			"loading": {
+				"creating": "正在创建模板，请稍候...",
+				"updating": "正在更新模板，请稍候...",
+				"copying": "正在复制模板，请稍候...",
+				"deleting": "正在删除模板，请稍候..."
 			}
 		}
 	},

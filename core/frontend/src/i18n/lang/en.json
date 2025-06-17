@@ -73,6 +73,7 @@
 			"market": "Email Marketing",
 			"task": "Task",
 			"template": "Template",
+			"sendApi": "Send API",
 			"contacts": "Contacts",
 			"subscribers": "Subscribers",
 			"group": "Group",
@@ -164,7 +165,8 @@
 				"detail": "View",
 				"export": "Export",
 				"send": "Send",
-				"pause": "Pause"
+				"pause": "Pause",
+				"analytics": "Analytics"
 			},
 			"columns": {
 				"time": "Time",
@@ -260,6 +262,13 @@
 				"validation": {
 					"groupNameRequired": "Please enter group name"
 				}
+			},
+			"loading": {
+				"creating": "Creating task, please wait...",
+				"deleting": "Deleting task, please wait...",
+				"pausing": "Pausing task, please wait...",
+				"resuming": "Resuming task, please wait...",
+				"sendingTest": "Sending test email, please wait..."
 			}
 		},
 		"template": {
@@ -302,6 +311,12 @@
 			},
 			"preview": {
 				"title": "Template Preview"
+			},
+			"loading": {
+				"creating": "Creating template, please wait...",
+				"updating": "Updating template, please wait...",
+				"copying": "Copying template, please wait...",
+				"deleting": "Deleting template, please wait..."
 			}
 		}
 	},

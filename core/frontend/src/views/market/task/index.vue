@@ -198,7 +198,7 @@ const columns = ref<DataTableColumns<Task>>([
 					onClick={() => {
 						handleGoAnalytics(row)
 					}}>
-					Analytics
+					{t('market.task.actions.analytics')}
 				</NButton>
 				<NButton
 					type="primary"

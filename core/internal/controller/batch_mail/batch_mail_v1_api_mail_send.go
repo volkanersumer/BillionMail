@@ -9,6 +9,8 @@ import (
 	"billionmail-core/internal/service/maillog_stat"
 	"billionmail-core/internal/service/public"
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -88,6 +90,9 @@ func getApiTemplateByKey(ctx context.Context, apiKey string) (*entity.ApiTemplat
 	if err != nil || apiTemplate.Id == 0 {
 		return nil, gerror.New(public.LangCtx(ctx, "API key is invalid"))
 	}
+
+	// todo检查 是否开启ip白名单
+
 	return &apiTemplate, nil
 }
 
@@ -107,14 +112,25 @@ func ensureContactAndGroup(ctx context.Context, email string, apiId int) (entity
 	err := g.DB().Model("bm_contacts").Where("email", email).Scan(&contact)
 	now := int(time.Now().Unix())
 	if err != nil {
-		return contact, err
+		if errors.Is(err, sql.ErrNoRows) {
+			contact.Id = 0
+		} else {
+			g.Log().Warning(ctx, "Failed to query contact by email:", err)
+			return contact, err
+		}
+
 	}
+
 	if contact.Id == 0 {
 		apiGroupName := fmt.Sprintf("api_group_%d", apiId)
 		var group entity.ContactGroup
 		err = g.DB().Model("bm_contact_groups").Where("name", apiGroupName).Scan(&group)
 		if err != nil {
-			return contact, err
+			if errors.Is(err, sql.ErrNoRows) {
+				group = entity.ContactGroup{}
+			} else {
+				return contact, fmt.Errorf("failed to query group: %w", err)
+			}
 		}
 		if group.Id == 0 {
 			groupResult, err := g.DB().Model("bm_contact_groups").Insert(g.Map{

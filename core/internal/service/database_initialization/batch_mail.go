@@ -129,6 +129,14 @@ func init() {
                 send_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())
             )`,
 
+			`CREATE TABLE IF NOT EXISTS api_ip_whitelist (
+    				id SERIAL PRIMARY KEY,
+    				api_id INTEGER NOT NULL,
+    				ip VARCHAR(45) NOT NULL,
+    				create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+    				FOREIGN KEY (api_id) REFERENCES api_templates(id) ON DELETE CASCADE
+			)`,
+
 			`CREATE INDEX IF NOT EXISTS idx_unsubscribe_email ON unsubscribe_records (email)`,
 			`CREATE INDEX IF NOT EXISTS idx_unsubscribe_time ON unsubscribe_records (unsubscribe_time)`,
 			`CREATE INDEX IF NOT EXISTS idx_bm_contacts_email ON bm_contacts (email)`,

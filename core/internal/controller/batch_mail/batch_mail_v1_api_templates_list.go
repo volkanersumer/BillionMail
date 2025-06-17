@@ -114,6 +114,21 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 				Count()
 		}
 		item.UnsubscribeCount = unsubscribeCount
+		// get IP whitelist
+		var ipRows []struct{ Ip string }
+		err = g.DB().Model("api_ip_whitelist").
+			Where("api_id", item.Id).
+			Fields("ip").
+			Scan(&ipRows)
+		if err != nil {
+			g.Log().Error(ctx, "Failed to get IP whitelist:", err)
+			continue
+		}
+		ips := make([]string, 0, len(ipRows))
+		for _, row := range ipRows {
+			ips = append(ips, row.Ip)
+		}
+		item.IpWhitelist = ips
 	}
 
 	res.Data.Total = total

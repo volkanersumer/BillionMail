@@ -6,7 +6,11 @@
 					<router-link to="/market/task">{{ $t('market.task.title') }}</router-link>
 				</n-breadcrumb-item>
 				<n-breadcrumb-item>{{ $t('market.task.actions.analytics') }}</n-breadcrumb-item>
-				<n-breadcrumb-item>{{ subject || '--' }}</n-breadcrumb-item>
+				<n-breadcrumb-item>
+					<n-ellipsis style="max-width: 300px">
+						<span class="font-bold text-basic">{{ subject || '--' }}</span>
+					</n-ellipsis>
+				</n-breadcrumb-item>
 			</n-breadcrumb>
 			<bt-time-range v-model:value="dateRange" default-type="last7days" @change="fetchOverviewData">
 			</bt-time-range>

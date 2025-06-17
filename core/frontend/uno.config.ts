@@ -31,6 +31,7 @@ export default defineConfig({
 			primaryHover: 'var(--color-primary-hover-1)',
 			error: 'var(--color-error-1)',
 			warning: 'var(--color-warning-1)',
+			basic: 'var(--color-text-1)',
 			default: 'var(--color-text-2)',
 			desc: 'var(--color-text-3)',
 		},

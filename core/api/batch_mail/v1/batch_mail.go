@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"billionmail-core/internal/model/entity"
 	"billionmail-core/utility/types/api_v1"
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -68,6 +69,17 @@ type ListTasksRes struct {
 		Total int           `json:"total" dc:"total"`
 		List  []*TaskDetail `json:"list"  dc:"task list"`
 	} `json:"data"`
+}
+
+type TaskInfoReq struct {
+	g.Meta        `path:"/batch_mail/task/find" method:"get" tags:"BatchMail" summary:"get task info by id"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	Id            int    `json:"id" v:"required" dc:"task id"`
+}
+
+type TaskInfoRes struct {
+	api_v1.StandardRes
+	Data *entity.EmailTask `json:"data"`
 }
 
 type TaskSummaryStats struct {

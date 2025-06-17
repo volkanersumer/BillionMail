@@ -29,16 +29,24 @@ func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) 
 		return res, nil
 	}
 
-	var expireAt int64
-	if apiTemplate.ExpireTime > 0 {
-		expireAt = int64(apiTemplate.LastKeyUpdateTime) + int64(apiTemplate.ExpireTime)
-		if time.Now().Unix() > expireAt {
-			// expired
-			res.Code = 1002
-			res.SetError(gerror.New(public.LangCtx(ctx, "API key has expired")))
-			return res, nil
-		}
+	// check client IP
+	err = CheckClientIP(ctx, apiTemplate.Id, clientIP)
+	if err != nil {
+		res.Code = 1002
+		res.SetError(gerror.New(public.LangCtx(ctx, err.Error())))
+		return res, nil
 	}
+
+	//var expireAt int64
+	//if apiTemplate.ExpireTime > 0 {
+	//	expireAt = int64(apiTemplate.LastKeyUpdateTime) + int64(apiTemplate.ExpireTime)
+	//	if time.Now().Unix() > expireAt {
+	//		// expired
+	//		res.Code = 1002
+	//		res.SetError(gerror.New(public.LangCtx(ctx, "API key has expired")))
+	//		return res, nil
+	//	}
+	//}
 
 	// 2. check email template
 	emailTemplate, err := getEmailTemplateById(ctx, apiTemplate.TemplateId)
@@ -91,23 +99,29 @@ func getApiTemplateByKey(ctx context.Context, apiKey string, clientIP string) (*
 		return nil, gerror.New(public.LangCtx(ctx, "API key is invalid"))
 	}
 
+	return &apiTemplate, nil
+}
+
+// check API template by key and client IP
+func CheckClientIP(ctx context.Context, Id int, clientIP string) error {
+
 	ipcount, err := g.DB().Model("api_ip_whitelist").
-		Where("api_id", apiTemplate.Id).Count()
+		Where("api_id", Id).Count()
 	if err == nil && ipcount > 0 {
 
 		count, err := g.DB().Model("api_ip_whitelist").
-			Where("api_id", apiTemplate.Id).
+			Where("api_id", Id).
 			Where("ip", clientIP).
 			Count()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		if count == 0 {
-			return nil, gerror.New(public.LangCtx(ctx, "IP not allowed"))
+			return gerror.New(public.LangCtx(ctx, "IP not allowed"))
 		}
 	}
 
-	return &apiTemplate, nil
+	return nil
 }
 
 // get email template

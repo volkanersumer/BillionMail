@@ -20,12 +20,12 @@ import (
 
 func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) (res *v1.ApiMailSendRes, err error) {
 	res = &v1.ApiMailSendRes{}
-
+	clientIP := g.RequestFromCtx(ctx).GetClientIp()
 	// 1. check API Key
-	apiTemplate, err := getApiTemplateByKey(ctx, req.ApiKey)
+	apiTemplate, err := getApiTemplateByKey(ctx, req.ApiKey, clientIP)
 	if err != nil {
 		res.Code = 1001
-		res.SetError(gerror.New(public.LangCtx(ctx, "API key is invalid")))
+		res.SetError(gerror.New(public.LangCtx(ctx, err.Error())))
 		return res, nil
 	}
 
@@ -84,14 +84,28 @@ func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) 
 }
 
 // get API template
-func getApiTemplateByKey(ctx context.Context, apiKey string) (*entity.ApiTemplates, error) {
+func getApiTemplateByKey(ctx context.Context, apiKey string, clientIP string) (*entity.ApiTemplates, error) {
 	var apiTemplate entity.ApiTemplates
 	err := g.DB().Model("api_templates").Where("api_key", apiKey).Where("active", 1).Scan(&apiTemplate)
 	if err != nil || apiTemplate.Id == 0 {
 		return nil, gerror.New(public.LangCtx(ctx, "API key is invalid"))
 	}
 
-	// todo检查 是否开启ip白名单
+	ipcount, err := g.DB().Model("api_ip_whitelist").
+		Where("api_id", apiTemplate.Id).Count()
+	if err == nil && ipcount > 0 {
+
+		count, err := g.DB().Model("api_ip_whitelist").
+			Where("api_id", apiTemplate.Id).
+			Where("ip", clientIP).
+			Count()
+		if err != nil {
+			return nil, err
+		}
+		if count == 0 {
+			return nil, gerror.New(public.LangCtx(ctx, "IP not allowed"))
+		}
+	}
 
 	return &apiTemplate, nil
 }

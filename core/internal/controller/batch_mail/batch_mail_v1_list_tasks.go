@@ -31,13 +31,13 @@ func (c *ControllerV1) ListTasks(ctx context.Context, req *v1.ListTasksReq) (res
 
 			detail.SentCount = stats["sends"].(int)
 			detail.SuccessCount = stats["delivered"].(int)
-			detail.Opened = stats["opened"].(int)
-			detail.Clicked = stats["clicked"].(int)
+			//detail.Opened = stats["opened"].(int)
+			//detail.Clicked = stats["clicked"].(int)
 			detail.ErrorCount = stats["bounced"].(int)
-			detail.DeliveryRate = stats["delivery_rate"].(float64)
-			detail.BounceRate = stats["bounce_rate"].(float64)
-			detail.OpenRate = stats["open_rate"].(float64)
-			detail.ClickRate = stats["click_rate"].(float64)
+			//detail.DeliveryRate = stats["delivery_rate"].(float64)
+			//detail.BounceRate = stats["bounce_rate"].(float64)
+			//detail.OpenRate = stats["open_rate"].(float64)
+			//detail.ClickRate = stats["click_rate"].(float64)
 		}
 
 		sentCount := detail.SentCount
@@ -123,35 +123,35 @@ func GetTaskStats(ctx context.Context, taskId int64) map[string]interface{} {
 	delivered := result["delivered"].Int()
 	bounced := result["bounced"].Int()
 
-	// 通过campaign_id查打开和点击
-	campaignId := int(taskId)
-	openedCount, _ := g.DB().Model("mailstat_opened").
-		Where("campaign_id", campaignId).
-		Fields("count(distinct postfix_message_id) as opened").
-		Value()
-	clickedCount, _ := g.DB().Model("mailstat_clicked").
-		Where("campaign_id", campaignId).
-		Fields("count(distinct postfix_message_id) as clicked").
-		Value()
+	//// 通过campaign_id查打开和点击
+	//campaignId := int(taskId)
+	//openedCount, _ := g.DB().Model("mailstat_opened").
+	//	Where("campaign_id", campaignId).
+	//	Fields("count(distinct postfix_message_id) as opened").
+	//	Value()
+	//clickedCount, _ := g.DB().Model("mailstat_clicked").
+	//	Where("campaign_id", campaignId).
+	//	Fields("count(distinct postfix_message_id) as clicked").
+	//	Value()
 
 	stats := map[string]interface{}{
 		"sends":     sends,
 		"delivered": delivered,
-		"opened":    openedCount.Int(),
-		"clicked":   clickedCount.Int(),
-		"bounced":   bounced,
+		//"opened":    openedCount.Int(),
+		//"clicked":   clickedCount.Int(),
+		"bounced": bounced,
 	}
 
 	if sends > 0 {
 		stats["delivery_rate"] = public.Round(float64(delivered)/float64(sends)*100, 2)
 		stats["bounce_rate"] = public.Round(float64(bounced)/float64(sends)*100, 2)
-		stats["open_rate"] = public.Round(float64(stats["opened"].(int))/float64(sends)*100, 2)
-		stats["click_rate"] = public.Round(float64(stats["clicked"].(int))/float64(sends)*100, 2)
+		//stats["open_rate"] = public.Round(float64(stats["opened"].(int))/float64(sends)*100, 2)
+		//stats["click_rate"] = public.Round(float64(stats["clicked"].(int))/float64(sends)*100, 2)
 	} else {
 		stats["delivery_rate"] = 0.0
 		stats["bounce_rate"] = 0.0
-		stats["open_rate"] = 0.0
-		stats["click_rate"] = 0.0
+		//stats["open_rate"] = 0.0
+		//stats["click_rate"] = 0.0
 	}
 
 	return stats

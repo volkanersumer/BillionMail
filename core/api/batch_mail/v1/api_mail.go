@@ -71,14 +71,15 @@ type ApiTemplatesListReq struct {
 
 type ApiTemplatesInfo struct {
 	ApiTemplates
-	SendCount        int     `json:"send_count" dc:"send count"`
-	SuccessCount     int     `json:"success_count" dc:"success count"`
-	FailCount        int     `json:"fail_count" dc:"fail count"`
-	OpenRate         float64 `json:"open_rate" dc:"open rate"`
-	ClickRate        float64 `json:"click_rate" dc:"click rate"`
-	DeliveryRate     float64 `json:"delivery_rate" dc:"delivery rate"`
-	BounceRate       float64 `json:"bounce_rate" dc:"bounce rate"`
-	UnsubscribeCount int     `json:"unsubscribe_count" dc:"unsubscribe count"`
+	SendCount        int      `json:"send_count" dc:"send count"`
+	SuccessCount     int      `json:"success_count" dc:"success count"`
+	FailCount        int      `json:"fail_count" dc:"fail count"`
+	OpenRate         float64  `json:"open_rate" dc:"open rate"`
+	ClickRate        float64  `json:"click_rate" dc:"click rate"`
+	DeliveryRate     float64  `json:"delivery_rate" dc:"delivery rate"`
+	BounceRate       float64  `json:"bounce_rate" dc:"bounce rate"`
+	UnsubscribeCount int      `json:"unsubscribe_count" dc:"unsubscribe count"`
+	IpWhitelist      []string `json:"ip_whitelist" dc:"IP whitelist"`
 }
 
 type ApiTemplatesListRes struct {
@@ -122,6 +123,8 @@ type ApiTemplatesCreateReq struct {
 	Unsubscribe   int    `json:"unsubscribe" dc:"unsubscribe"`
 	Active        int    `json:"active" dc:"active"`
 	ExpireTime    int    `json:"expire_time" dc:"expire time"` // 0 is a permanently valid unit of seconds
+	//IpWhitelistEnabled int      `json:"ip_whitelist_enabled" dc:"ip whitelist enabled"`
+	IpWhitelist []string `json:"ip_whitelist" dc:"ip whitelist"`
 }
 
 type ApiTemplatesCreateRes struct {
@@ -143,6 +146,8 @@ type ApiTemplatesUpdateReq struct {
 	Active        int    `json:"active" dc:"active"`
 	ExpireTime    int    `json:"expire_time" dc:"Key expiration time (0 is permanent)"`
 	ResetKey      bool   `json:"reset_key" dc:"reset key"`
+	//IpWhitelistEnabled int      `json:"ip_whitelist_enabled" dc:"ip whitelist enabled"`
+	IpWhitelist []string `json:"ip_whitelist" dc:"ip whitelist"`
 }
 
 type ApiTemplatesUpdateRes struct {
@@ -160,11 +165,10 @@ type ApiTemplatesDeleteRes struct {
 }
 
 type ApiMailSendReq struct {
-	g.Meta        `path:"/batch_mail/api/send" method:"post" tags:"ApiMail" summary:"call api send mail"`
-	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	ApiKey        string `json:"x-api-key" dc:"API Key" in:"header"`
-	Addresser     string `json:"addresser" dc:"addresser"`
-	Recipient     string `json:"recipient" dc:"recipient"`
+	g.Meta    `path:"/batch_mail/api/send" method:"post" tags:"ApiMail" summary:"call api send mail"`
+	ApiKey    string `json:"x-api-key" dc:"API Key" in:"header"`
+	Addresser string `json:"addresser" dc:"addresser"`
+	Recipient string `json:"recipient" dc:"recipient"`
 }
 
 type ApiMailSendRes struct {

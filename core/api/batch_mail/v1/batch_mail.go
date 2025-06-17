@@ -45,12 +45,12 @@ type TaskDetail struct {
 	TemplateName string       `json:"template_name"  dc:"template name"`
 	SuccessCount int          `json:"success_count"  dc:"success count"`
 	ErrorCount   int          `json:"error_count"    dc:"error count"`
-	Opened       int          `json:"opened"        dc:"opened count"`
-	Clicked      int          `json:"clicked"       dc:"clicked count"`
-	DeliveryRate float64      `json:"delivery_rate" dc:"delivery rate"`
-	BounceRate   float64      `json:"bounce_rate"  dc:"bounce rate"`
-	OpenRate     float64      `json:"open_rate"    dc:"open rate"`
-	ClickRate    float64      `json:"click_rate"   dc:"click rate"`
+	//Opened       int          `json:"opened"        dc:"opened count"`
+	//Clicked      int          `json:"clicked"       dc:"clicked count"`
+	//DeliveryRate float64      `json:"delivery_rate" dc:"delivery rate"`
+	//BounceRate   float64      `json:"bounce_rate"  dc:"bounce rate"`
+	//OpenRate     float64      `json:"open_rate"    dc:"open rate"`
+	//ClickRate    float64      `json:"click_rate"   dc:"click rate"`
 }
 
 type ListTasksReq struct {
@@ -68,6 +68,30 @@ type ListTasksRes struct {
 		Total int           `json:"total" dc:"total"`
 		List  []*TaskDetail `json:"list"  dc:"task list"`
 	} `json:"data"`
+}
+
+type TaskSummaryStats struct {
+	Sends        int     `json:"sends"`
+	Delivered    int     `json:"delivered"`
+	Bounced      int     `json:"bounced"`
+	Opened       int     `json:"opened"`
+	Clicked      int     `json:"clicked"`
+	DeliveryRate float64 `json:"delivery_rate"`
+	BounceRate   float64 `json:"bounce_rate"`
+	OpenRate     float64 `json:"open_rate"`
+	ClickRate    float64 `json:"click_rate"`
+}
+
+type TaskOverviewReq struct {
+	g.Meta        `path:"/batch_mail/task/overview" method:"get" tags:"BatchMail" summary:"get task overview"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	StartTime     int    `json:"start_time" dc:"start time"`
+	EndTime       int    `json:"end_time" dc:"end time"`
+}
+
+type TaskOverviewRes struct {
+	api_v1.StandardRes
+	Data TaskSummaryStats `json:"data"`
 }
 
 type DeleteTaskReq struct {

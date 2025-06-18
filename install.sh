@@ -1436,7 +1436,8 @@ if [ ${HTTPS_PORT} = "443" ]; then
 else
     echo -e "BillionMail address: \e[1;33mhttps://${IPV4_ADDRESS}:${HTTPS_PORT}/${SafePath}\e[0m"
 fi
-echo -e "BillionMail Username: \e[1;33m${ADMIN_USERNAME}\e[0m Password: \e[1;33m${ADMIN_PASSWORD}\e[0m"
+echo -e "Username: \e[1;33m${ADMIN_USERNAME}\e[0m"
+echo -e "Password: \e[1;33m${ADMIN_PASSWORD}\e[0m"
 echo -e ""
 echo -e "Tip: Use \e[33m bm \e[0m or \e[33mbash bm.sh\e[0m to Add Domain and login info etc."
 

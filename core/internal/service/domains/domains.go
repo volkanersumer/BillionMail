@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/util/grand"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/text/gregex"
 	"os"
 	"path/filepath"
 	"strings"
@@ -406,13 +407,28 @@ domain {
 		dkimRecord = strings.TrimSpace(dkimRecord)
 		dkimRecord = fmt.Sprintf("v=DKIM1; k=rsa; p=%s", dkimRecord)
 	} else {
-		seps := strings.Split(strings.ReplaceAll(strings.ReplaceAll(dkimRecord, " ", ""), "\n", ""), "\"")
-		if len(seps) < 4 {
+		var ms [][]string
+		ms, err = gregex.MatchAllString(`"([^"\r\n]+)"`, dkimRecord)
+
+		if err != nil {
+			err = fmt.Errorf("Failed to parse DKIM record: %v", err)
+			return
+		}
+
+		if len(ms) < 2 {
 			err = fmt.Errorf("Invalid DKIM record format")
 			return
 		}
 
-		dkimRecord = seps[1] + seps[3]
+		s := ""
+		for _, v := range ms {
+			if len(v) < 2 {
+				continue
+			}
+			s += v[1]
+		}
+
+		dkimRecord = s
 	}
 
 	record = v1.DNSRecord{

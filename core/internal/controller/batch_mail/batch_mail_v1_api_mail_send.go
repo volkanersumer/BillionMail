@@ -49,7 +49,7 @@ func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) 
 	//}
 
 	// 2. check email template
-	emailTemplate, err := getEmailTemplateById(ctx, apiTemplate.TemplateId)
+	_, err = getEmailTemplateById(ctx, apiTemplate.TemplateId)
 	if err != nil {
 		res.Code = 1004
 		res.SetError(gerror.New(public.LangCtx(ctx, "Email template does not exist")))
@@ -64,7 +64,7 @@ func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) 
 	}
 
 	// 4. process contact and group
-	contact, err := ensureContactAndGroup(ctx, req.Recipient, apiTemplate.Id)
+	_, err = ensureContactAndGroup(ctx, req.Recipient, apiTemplate.Id)
 	if err != nil {
 		res.Code = 1003
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to process recipient: {}", err.Error())))
@@ -76,19 +76,57 @@ func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) 
 		req.Addresser = apiTemplate.Addresser
 	}
 
-	// 6. process mail content and subject
-	content, subject := processMailContentAndSubject(ctx, emailTemplate.Content, apiTemplate.Subject, apiTemplate, contact, req)
-
-	// 7. send email
-	err = sendApiMail(ctx, apiTemplate, subject, content, req.Recipient, req.Addresser)
+	// 6. Join the sender queue
+	err = recordApiMailLog(ctx, apiTemplate, req.Recipient, req.Addresser)
 	if err != nil {
 		res.Code = 1005
-		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to send email: {}", err.Error())))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to record email log: {}", err.Error())))
 		return res, nil
 	}
+	//content, subject := processMailContentAndSubject(ctx, emailTemplate.Content, apiTemplate.Subject, &apiTemplate, entity.Contact{Email: log.Recipient}, nil)
+	//// 6. process mail content and subject
+	//content, subject := processMailContentAndSubject(ctx, emailTemplate.Content, apiTemplate.Subject, apiTemplate, contact, req)
+	//
+	//// 7. send email
+	//err = sendApiMail(ctx, apiTemplate, subject, content, req.Recipient, req.Addresser)
+	//if err != nil {
+	//	res.Code = 1005
+	//	res.SetError(gerror.New(public.LangCtx(ctx, "Failed to send email: {}", err.Error())))
+	//	return res, nil
+	//}
 
 	res.SetSuccess(public.LangCtx(ctx, "Email sent successfully"))
 	return res, nil
+}
+
+// 记录到日志表，状态为待发送
+func recordApiMailLog(ctx context.Context, apiTemplate *entity.ApiTemplates, recipient, addresser string) error {
+	// 生成消息ID
+
+	sender, err := mail_service.NewEmailSenderWithLocal(addresser)
+	if err != nil {
+		return gerror.New(public.LangCtx(ctx, "Failed to create email sender: {}", err))
+	}
+	defer sender.Close()
+
+	messageId := sender.GenerateMessageID()
+	messageId = strings.Trim(messageId, "<>")
+
+	// 直接记录到日志表，状态为待发送
+	now := int(time.Now().Unix())
+	_, err = g.DB().Model("api_mail_logs").Insert(g.Map{
+		"api_id":        apiTemplate.Id,
+		"recipient":     recipient,
+		"message_id":    messageId, // 发送时需要加<>
+		"addresser":     addresser,
+		"status":        0, // 待发送
+		"error_message": "",
+		"send_time":     0,
+		"create_time":   now,
+	})
+
+	return err
+
 }
 
 // get API template

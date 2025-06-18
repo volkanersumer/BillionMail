@@ -29,6 +29,9 @@ func (c *ControllerV1) ApiOverviewStats(ctx context.Context, req *v1.ApiOverview
 		query = query.LeftJoin("mailstat_message_ids mi", "aml.message_id=mi.message_id")
 		query = query.LeftJoin("mailstat_send_mails sm", "mi.postfix_message_id=sm.postfix_message_id")
 		query = query.Where("aml.api_id", api.Id)
+
+		query = query.Where("aml.status", 2)
+
 		if req.StartTime > 0 {
 			query.Where("sm.log_time_millis > ?", int64(req.StartTime)*1000-1)
 		}

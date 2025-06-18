@@ -115,6 +115,11 @@ func Start(ctx context.Context) (err error) {
 		domains.AutoRenewSSL(ctx)
 	})
 
+	gtimer.Add(1*time.Minute, func() {
+		//gtimer.Add(5*time.Second, func() {
+		batch_mail.ProcessApiMailQueueWithLock(ctx)
+	})
+
 	g.Log().Debug(ctx, "All timers started successfully")
 	return nil
 }

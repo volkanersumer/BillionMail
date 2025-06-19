@@ -47,7 +47,9 @@
 							<template v-if="form.import_type === 2">
 								<n-input v-model:value="form.contacts" type="textarea" :rows="8"> </n-input>
 								<div class="mt-8px text-12px text-desc">
-									{{ $t('contacts.subscribers.import.pastePlaceholder') }}
+									<p>{{ $t('contacts.subscribers.import.pastePlaceholder.0') }}</p>
+									<!-- <p>{{ $t('contacts.subscribers.import.pastePlaceholder.1') }}</p> -->
+									<!-- <p>{{ $t('contacts.subscribers.import.pastePlaceholder.2') }}</p> -->
 								</div>
 							</template>
 						</div>

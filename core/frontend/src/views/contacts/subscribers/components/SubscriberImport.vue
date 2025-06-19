@@ -34,15 +34,7 @@
 							</n-radio-button>
 						</n-radio-group>
 						<div class="mt-8px">
-							<template v-if="form.import_type === 2">
-								<n-input
-									v-model:value="form.contacts"
-									type="textarea"
-									:rows="8"
-									:placeholder="$t('contacts.subscribers.import.pastePlaceholder')">
-								</n-input>
-							</template>
-							<template v-else-if="form.import_type === 1">
+							<template v-if="form.import_type === 1">
 								<bt-file-upload :is-upload="false" :accept="['csv']" @change="handleChangeFile">
 								</bt-file-upload>
 								<div class="mt-8px text-12px text-desc">
@@ -50,6 +42,12 @@
 									<n-button text type="primary" @click="handleDownloadTemplate">
 										{{ $t('common.actions.download') }}
 									</n-button>
+								</div>
+							</template>
+							<template v-if="form.import_type === 2">
+								<n-input v-model:value="form.contacts" type="textarea" :rows="8"> </n-input>
+								<div class="mt-8px text-12px text-desc">
+									{{ $t('contacts.subscribers.import.pastePlaceholder') }}
 								</div>
 							</template>
 						</div>

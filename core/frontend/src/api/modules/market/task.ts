@@ -34,6 +34,7 @@ interface TaskAddParams {
 	group_ids: number[]
 	template_id: number
 	is_record: number
+	warmup: number
 	unsubscribe: number
 	threads: number
 	start_time: number

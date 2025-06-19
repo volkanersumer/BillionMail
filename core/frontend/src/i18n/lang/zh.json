@@ -13,6 +13,12 @@
 		"columns": {
 			"actions": "操作"
 		},
+		"unit": {
+			"days": "天",
+			"hours": "小时",
+			"minutes": "分钟",
+			"seconds": "秒"
+		},
 		"actions": {
 			"view": "查看",
 			"edit": "编辑",
@@ -179,6 +185,7 @@
 				"failed": "失败",
 				"status": "状态",
 				"remark": "备注",
+				"estimatedTime": "预计完成时间",
 				"progress": "进度",
 				"email": "邮箱",
 				"errorMsg": "错误信息"
@@ -186,7 +193,8 @@
 			"status": {
 				"pending": "等待中",
 				"processing": "处理中",
-				"done": "已完成"
+				"done": "已完成",
+				"noIpWarmup": "未关联IP预热"
 			},
 			"search": {
 				"subjectPlaceholder": "搜索邮件主题"
@@ -227,6 +235,8 @@
 				"recipientsCount": "发送邮件 ({count} 收件人)",
 				"template": "邮件模板",
 				"saveOutbox": "保存到发件箱",
+				"ipWarmup": "关联IP预热系统",
+				"ipWarmupTip": "开启后将会限制发件速率",
 				"unsubscribeLink": "退订链接",
 				"threads": "线程数",
 				"threadsAuto": "自动",

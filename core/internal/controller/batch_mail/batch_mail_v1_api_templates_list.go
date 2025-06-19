@@ -129,6 +129,9 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 			ips = append(ips, row.Ip)
 		}
 		item.IpWhitelist = ips
+		serverIP, _ := public.GetServerIP()
+		serverPort := public.GetServerPort(ctx)
+		item.ServerAddresser = "https://" + serverIP + ":" + serverPort
 	}
 
 	res.Data.Total = total

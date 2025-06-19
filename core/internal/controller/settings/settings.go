@@ -156,6 +156,9 @@ func convertEnvToConfig(envMap map[string]string) *v1.SystemConfig {
 	config.IPv4Network = envMap["IPV4_NETWORK"]
 	config.Fail2ban = envMap["FAIL2BAN_INIT"] == "y"
 
+	// IP whitelist  IP_WHITELIST_ENABLE
+	config.IPWhitelistEnabled = envMap["IP_WHITELIST_ENABLE"] == "true"
+
 	return config
 }
 

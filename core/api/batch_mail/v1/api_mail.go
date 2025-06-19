@@ -80,6 +80,7 @@ type ApiTemplatesInfo struct {
 	BounceRate       float64  `json:"bounce_rate" dc:"bounce rate"`
 	UnsubscribeCount int      `json:"unsubscribe_count" dc:"unsubscribe count"`
 	IpWhitelist      []string `json:"ip_whitelist" dc:"IP whitelist"`
+	ServerAddresser  string   `json:"server_addresser" dc:"server addresser"`
 }
 
 type ApiTemplatesListRes struct {

@@ -112,6 +112,11 @@ func Start(ctx context.Context) (err error) {
 		domains.AutoRenewSSL(ctx)
 	})
 
+	gtimer.Add(1*time.Minute, func() {
+		//gtimer.Add(5*time.Second, func() {
+		batch_mail.ProcessApiMailQueueWithLock(ctx)
+	})
+
 	// Sender IP warmup and mail provider warmup
 	gtimer.Add(time.Hour, func() {
 		warmup.SenderIpWarmup().PeriodicTask(ctx)

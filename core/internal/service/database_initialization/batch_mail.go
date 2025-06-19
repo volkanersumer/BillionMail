@@ -126,7 +126,11 @@ func init() {
                 recipient VARCHAR(320) NOT NULL,
                 message_id TEXT NOT NULL,
                 addresser VARCHAR(320) NOT NULL,
-                send_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())
+                status SMALLINT NOT NULL DEFAULT 0, -- 0:to send, 2:send, 3:send failed
+                error_message TEXT, 
+                send_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+                create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())
+
             )`,
 
 			`CREATE TABLE IF NOT EXISTS api_ip_whitelist (

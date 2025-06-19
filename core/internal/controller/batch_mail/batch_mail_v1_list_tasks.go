@@ -31,13 +31,16 @@ func (c *ControllerV1) ListTasks(ctx context.Context, req *v1.ListTasksReq) (res
 
 			detail.SentCount = stats["sends"].(int)
 			detail.SuccessCount = stats["delivered"].(int)
-			//detail.Opened = stats["opened"].(int)
-			//detail.Clicked = stats["clicked"].(int)
-			detail.ErrorCount = stats["bounced"].(int)
+			detail.Deferred = stats["deferred"].(int)
+
+			detail.ErrorCount = stats["bounced"].(int) + stats["deferred"].(int)
+
 			//detail.DeliveryRate = stats["delivery_rate"].(float64)
 			//detail.BounceRate = stats["bounce_rate"].(float64)
 			//detail.OpenRate = stats["open_rate"].(float64)
 			//detail.ClickRate = stats["click_rate"].(float64)
+			//detail.Opened = stats["opened"].(int)
+			//detail.Clicked = stats["clicked"].(int)
 		}
 
 		sentCount := detail.SentCount
@@ -111,6 +114,7 @@ func GetTaskStats(ctx context.Context, taskId int64) map[string]interface{} {
 		"count(*) as sends",
 		"coalesce(sum(case when sm.status='sent' and sm.dsn like '2.%' then 1 else 0 end), 0) as delivered", // success count
 		"coalesce(sum(case when sm.status='bounced' then 1 else 0 end), 0) as bounced",                      // bounced count
+		"coalesce(sum(case when sm.status='deferred' then 1 else 0 end), 0) as deferred",                    // deferred
 	)
 
 	result, err := query.One()
@@ -122,6 +126,10 @@ func GetTaskStats(ctx context.Context, taskId int64) map[string]interface{} {
 	sends := result["sends"].Int()
 	delivered := result["delivered"].Int()
 	bounced := result["bounced"].Int()
+	deferred := result["deferred"].Int()
+	//if deferred != 0 {
+	//	g.Log().Warning(ctx, " task {} deferred: {}", taskId, deferred)
+	//}
 
 	//// 通过campaign_id查打开和点击
 	//campaignId := int(taskId)
@@ -137,6 +145,7 @@ func GetTaskStats(ctx context.Context, taskId int64) map[string]interface{} {
 	stats := map[string]interface{}{
 		"sends":     sends,
 		"delivered": delivered,
+		"deferred":  deferred,
 		//"opened":    openedCount.Int(),
 		//"clicked":   clickedCount.Int(),
 		"bounced": bounced,

@@ -46,6 +46,7 @@ type TaskDetail struct {
 	TemplateName string       `json:"template_name"  dc:"template name"`
 	SuccessCount int          `json:"success_count"  dc:"success count"`
 	ErrorCount   int          `json:"error_count"    dc:"error count"`
+	Deferred     int          `json:"deferred"       dc:"deferred count"`
 	//Opened       int          `json:"opened"        dc:"opened count"`
 	//Clicked      int          `json:"clicked"       dc:"clicked count"`
 	//DeliveryRate float64      `json:"delivery_rate" dc:"delivery rate"`

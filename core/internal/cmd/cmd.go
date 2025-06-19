@@ -108,6 +108,9 @@ var (
 			// Use Redis for session storage
 			// s.SetSessionStorage(gsession.NewStorageRedis(g.Redis()))
 
+			// ip whitelist middleware
+			//s.Use(middleware.IPWhitelist)
+
 			// Define excluded URIs
 			excludesURIs := map[string]struct{}{
 				"/favicon.ico":                {},
@@ -115,6 +118,7 @@ var (
 				"/unsubscribe.html":           {},
 				"/api/unsubscribe/user_group": {},
 				"/api/unsubscribe":            {},
+				"/api/batch_mail/api/send":    {},
 			}
 
 			// Bind Server Hooks

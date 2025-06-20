@@ -51,6 +51,11 @@ func getAllowedIPs() []string {
 
 	ips = append(ips, "127.0.0.1")
 	ips = append(ips, "::1")
+	// Add server IP
+	ipServer, _ := public.GetServerIP()
+	if ipServer != "" {
+		ips = append(ips, ipServer)
+	}
 
 	return ips
 }

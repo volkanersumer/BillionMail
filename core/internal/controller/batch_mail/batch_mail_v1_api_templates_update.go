@@ -74,6 +74,7 @@ func (c *ControllerV1) ApiTemplatesUpdate(ctx context.Context, req *v1.ApiTempla
 		Where("api_id", req.ID).
 		Delete()
 	if err != nil {
+		g.Log().Errorf(ctx, "[API Update] Failed to delete IP whitelist: %v", err)
 		return nil, err
 	}
 
@@ -81,10 +82,12 @@ func (c *ControllerV1) ApiTemplatesUpdate(ctx context.Context, req *v1.ApiTempla
 		for _, ip := range req.IpWhitelist {
 			ip = strings.TrimSpace(ip)
 			if ip == "" {
+				g.Log().Errorf(ctx, "[API Templates Update] Empty IP address")
 				continue
 			}
 
 			if net.ParseIP(ip) == nil {
+				g.Log().Errorf(ctx, "[API Templates Update] Invalid IP address: %s", ip)
 				continue
 			}
 			_, err = tx.Model("api_ip_whitelist").Insert(g.Map{

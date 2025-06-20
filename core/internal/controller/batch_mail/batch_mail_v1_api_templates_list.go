@@ -103,17 +103,18 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 		}
 
 		// count unsubscribe
-		recipients := []string{}
-		_, err = g.DB().Model("api_mail_logs").Where("api_id", item.Id).Fields("recipient").Array(&recipients)
-		unsubscribeCount := 0
-		if len(recipients) > 0 {
-			unsubscribeCount, _ = g.DB().Model("bm_contacts").
-				Where("email", recipients).
-				Where("active", 0).
-				WhereGTE("create_time", item.CreateTime).
-				Count()
-		}
-		item.UnsubscribeCount = unsubscribeCount
+		//recipients := []string{}
+		//_, err = g.DB().Model("api_mail_logs").Where("api_id", item.Id).Fields("recipient").Array(&recipients)
+		//unsubscribeCount := 0
+		//if len(recipients) > 0 {
+		//	unsubscribeCount, _ = g.DB().Model("bm_contacts").
+		//		Where("email", recipients).
+		//		Where("active", 0).
+		//		WhereGTE("create_time", item.CreateTime).
+		//		Count()
+		//}
+		//item.UnsubscribeCount = unsubscribeCount
+
 		// get IP whitelist
 		var ipRows []struct{ Ip string }
 		err = g.DB().Model("api_ip_whitelist").

@@ -21,7 +21,7 @@ func (c *ControllerV1) ApiOverviewStats(ctx context.Context, req *v1.ApiOverview
 		return nil, err
 	}
 
-	var totalSend, totalDelivered, totalBounced, totalOpened, totalClicked, totalUnsub int
+	var totalSend, totalDelivered, totalBounced, totalOpened, totalClicked int
 
 	for _, api := range apiList {
 
@@ -68,36 +68,36 @@ func (c *ControllerV1) ApiOverviewStats(ctx context.Context, req *v1.ApiOverview
 		totalOpened += openedCount.Int()
 		totalClicked += clickedCount.Int()
 
-		// count unsubscribe
-		recipients := []string{}
-		_, _ = g.DB().Model("api_mail_logs").Where("api_id", api.Id).Fields("recipient").Array(&recipients)
-		unsubscribeCount := 0
-		if len(recipients) > 0 {
-			unsubscribeCount, _ = g.DB().Model("bm_contacts").
-				Where("email", recipients).
-				Where("active", 0).
-				WhereGTE("create_time", api.CreateTime).
-				Count()
-		}
-		totalUnsub += unsubscribeCount
+		//// count unsubscribe
+		//recipients := []string{}
+		//_, _ = g.DB().Model("api_mail_logs").Where("api_id", api.Id).Fields("recipient,api_id").Array(&recipients)
+		//unsubscribeCount := 0
+		//if len(recipients) > 0 {
+		//	unsubscribeCount, _ = g.DB().Model("bm_contacts").
+		//		Where("email", recipients).
+		//		Where("active", 0).
+		//		WhereGTE("create_time", api.CreateTime).
+		//		Count()
+		//}
+		//totalUnsub += unsubscribeCount
 	}
 
-	var avgDeliveryRate, avgOpenRate, avgClickRate, avgBounceRate, avgUnsubRate float64
+	var avgDeliveryRate, avgOpenRate, avgClickRate, avgBounceRate float64
 	if totalSend > 0 {
 		avgDeliveryRate = public.Round(float64(totalDelivered)/float64(totalSend)*100, 2)
 		avgOpenRate = public.Round(float64(totalOpened)/float64(totalSend)*100, 2)
 		avgClickRate = public.Round(float64(totalClicked)/float64(totalSend)*100, 2)
 		avgBounceRate = public.Round(float64(totalBounced)/float64(totalSend)*100, 2)
-		avgUnsubRate = public.Round(float64(totalUnsub)/float64(totalSend)*100, 2)
+		//avgUnsubRate = public.Round(float64(totalUnsub)/float64(totalSend)*100, 2)
 	}
 	res.Data = v1.ApiSummaryStats{
-		TotalSend:        totalSend,
-		AvgDeliveryRate:  avgDeliveryRate,
-		AvgOpenRate:      avgOpenRate,
-		AvgClickRate:     avgClickRate,
-		AvgBounceRate:    avgBounceRate,
-		AvgUnsubRate:     avgUnsubRate,
-		TotalUnsubscribe: totalUnsub,
+		TotalSend:       totalSend,
+		AvgDeliveryRate: avgDeliveryRate,
+		AvgOpenRate:     avgOpenRate,
+		AvgClickRate:    avgClickRate,
+		AvgBounceRate:   avgBounceRate,
+		//AvgUnsubRate:    avgUnsubRate,
+		//TotalUnsubscribe: totalUnsub,
 	}
 	res.SetSuccess(public.LangCtx(ctx, "Statistics successful"))
 	return res, nil

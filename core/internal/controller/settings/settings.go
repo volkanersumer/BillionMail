@@ -145,8 +145,9 @@ func convertEnvToConfig(envMap map[string]string) *v1.SystemConfig {
 	if port := envMap["HTTPS_PORT"]; port != "" {
 		config.ManagePorts.HTTPS = parseInt(port, 443)
 	}
-	HostWorkDir, err := public.GetHostWorkDir()
-	if err != nil {
+
+	HostWorkDir := public.HostWorkDir
+	if HostWorkDir == "" {
 		HostWorkDir = projectPath
 	}
 	config.ManagePorts.Command1 = fmt.Sprintf("cd %s && echo \"PORT\" | bash bm.sh change-port", HostWorkDir)
@@ -236,34 +237,3 @@ func validateConfigValue(key, value string) error {
 
 	return nil
 }
-
-//func getHostWorkDir() (string, error) {
-//	public.DockerApiFromCtx()
-//	dockerapi, err := docker.NewDockerAPI()
-//	if err != nil {
-//		return "", fmt.Errorf("failed to initialize docker client: %w", err)
-//	}
-//
-//	containerName := "billionmail-core-billionmail-1"
-//	ctx := context.Background()
-//
-//	container, err := dockerapi.GetContainerByName(ctx, containerName)
-//	if err != nil {
-//		return "", fmt.Errorf("failed to get container '%s': %w", containerName, err)
-//	}
-//
-//	if container.Labels == nil {
-//		return "", fmt.Errorf("container '%s' has no labels", containerName)
-//	}
-//
-//	workingDir, exists := container.Labels["com.docker.compose.project.working_dir"]
-//	if !exists {
-//		return "", fmt.Errorf("container '%s' missing working directory label", containerName)
-//	}
-//
-//	if workingDir == "" {
-//		return "", fmt.Errorf("working directory label is empty for container '%s'", containerName)
-//	}
-//
-//	return workingDir, nil
-//}

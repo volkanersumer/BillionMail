@@ -94,6 +94,19 @@ var (
 
 			defer dk.Close()
 
+			containerName := "billionmail-core-billionmail-1"
+			container, err := dk.GetContainerByName(ctx, containerName)
+			if err == nil {
+				if container.Labels != nil {
+					workingDir, exists := container.Labels["com.docker.compose.project.working_dir"]
+					if exists {
+						if workingDir != "" {
+							public.HostWorkDir = workingDir
+						}
+					}
+				}
+			}
+
 			// Init Rspamd worker-controller
 			err = rspamd.InitWorkerController()
 

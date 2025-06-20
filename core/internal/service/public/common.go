@@ -149,6 +149,8 @@ var CodeMap = map[int]api_v1.StandardRes{
 	},
 }
 
+var HostWorkDir string //Host working directory
+
 // Convert string to integer
 func IpToLong(ip string) int64 {
 	if IsIpv4(ip) {
@@ -2640,34 +2642,4 @@ func LoadEnvFile() (map[string]string, error) {
 	}
 
 	return envMap, nil
-}
-
-func GetHostWorkDir() (string, error) {
-	dockerapi, err := docker.NewDockerAPI()
-	if err != nil {
-		return "", fmt.Errorf("failed to initialize docker client: %w", err)
-	}
-
-	containerName := "billionmail-core-billionmail-1"
-	ctx := context.Background()
-
-	container, err := dockerapi.GetContainerByName(ctx, containerName)
-	if err != nil {
-		return "", fmt.Errorf("failed to get container '%s': %w", containerName, err)
-	}
-
-	if container.Labels == nil {
-		return "", fmt.Errorf("container '%s' has no labels", containerName)
-	}
-
-	workingDir, exists := container.Labels["com.docker.compose.project.working_dir"]
-	if !exists {
-		return "", fmt.Errorf("container '%s' missing working directory label", containerName)
-	}
-
-	if workingDir == "" {
-		return "", fmt.Errorf("working directory label is empty for container '%s'", containerName)
-	}
-
-	return workingDir, nil
 }

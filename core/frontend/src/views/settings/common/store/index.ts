@@ -42,6 +42,8 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 
 	const timeCommand = ref('')
 
+	const serverIp = ref('')
+
 	const checkPasswordStrength = () => {
 		const password = securityForm.newPassword
 		let score = 0
@@ -68,6 +70,7 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 			currentUsername.value = res.admin_username
 			currentPath.value = res.safe_path
 			currentDomain.value = res.billionmail_hostname
+			serverIp.value = res.server_ip
 
 			if (res.manage_ports) {
 				currentPort.value = `${res.manage_ports.https}`
@@ -105,6 +108,7 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 		portCommand.value = ''
 		currentTime.value = ''
 		timeCommand.value = ''
+		serverIp.value = ''
 		passwordMismatch.value = false
 		passwordStrength.value = { level: 'weak', score: 0 }
 	}
@@ -123,6 +127,7 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 		portCommand,
 		currentTime,
 		timeCommand,
+		serverIp,
 
 		// 方法
 		checkPasswordStrength,

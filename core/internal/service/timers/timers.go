@@ -124,7 +124,7 @@ func Start(ctx context.Context) (err error) {
 	})
 
 	// fail2ban access logs detection
-	gtimer.Add(800*time.Millisecond, fail2ban.NewAccessLogDetection().Start)
+	gtimer.AddOnce(800*time.Millisecond, fail2ban.NewAccessLogDetection().Start)
 
 	g.Log().Debug(ctx, "All timers started successfully")
 	return nil

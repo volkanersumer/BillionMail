@@ -1413,9 +1413,9 @@ Install_Main(){
 Install_Main
 # Domain_record
 
-IPV4_ADDRESS=$(curl -sS -4 --connect-timeout 10 -m 20 https://ifconfig.me)
+IPV4_ADDRESS=$(curl -sSf -4 --connect-timeout 10 -m 20 https://ifconfig.me)
 if [ -z "${IPV4_ADDRESS}" ]; then
-    IPV4_ADDRESS=$(curl -sSk --connect-timeout 10 -m 20 https://www.aapanel.com/api/common/getClientIP)
+    IPV4_ADDRESS=$(curl -sSfk --connect-timeout 10 -m 20 https://www.aapanel.com/api/common/getClientIP)
 fi
 ipv4_regex="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
 if [[ ${IPV4_ADDRESS} =~ ${ipv4_regex} ]]; then        

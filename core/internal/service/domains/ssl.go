@@ -11,6 +11,7 @@ import (
 	"billionmail-core/internal/service/public"
 	"billionmail-core/internal/service/rbac"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -225,11 +226,11 @@ func ApplyConsoleCert(ctx context.Context) error {
 		Order("endtime desc").
 		Limit(1).Scan(crt)
 
-	if err != nil {
-		//g.Log().Warning(ctx, "letsencrypts query error:", err)
+	if err != nil && err != sql.ErrNoRows {
+		g.Log().Warning(ctx, "letsencrypts query error:", err)
 		return err
 	}
-	if crt == nil || crt.Certificate == "" {
+	if crt.CertId == 0 || crt.Certificate == "" {
 		g.Log().Debug(ctx, "No existing certificate found:", hostname)
 	} else {
 		if crt.Status == 1 && crt.EndTime > time.Now().Unix() {

@@ -3,6 +3,7 @@ package settings
 import (
 	"billionmail-core/internal/service/public"
 	"context"
+	"database/sql"
 	"github.com/gogf/gf/v2/frame/g"
 	"net"
 	"strings"
@@ -29,7 +30,7 @@ func (c *ControllerV1) SetIPWhitelist(ctx context.Context, req *v1.SetIPWhitelis
 	// 获取当前所有IP
 	var currentIPs []string
 	err = tx.Model("bm_console_ip_whitelist").Fields("ip").Scan(&currentIPs)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
 

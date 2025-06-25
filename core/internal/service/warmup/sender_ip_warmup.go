@@ -204,6 +204,7 @@ func (s *SenderIpWarmupService) EvaluateIpScore(ctx context.Context, senderIp st
 			Count()
 	}
 
+	finishedWarmup := false
 	currentScore := float64(warmupStatus.Score) // Adjust starting from the current score
 
 	if totalSent == 0 && len(relevantPmids) == 0 && len(senderIdentities) == 0 {
@@ -220,6 +221,10 @@ func (s *SenderIpWarmupService) EvaluateIpScore(ctx context.Context, senderIp st
 			currentScore -= 0.5
 		}
 	} else if totalSent >= minSendVolumeForFullScoring { // Sufficient sending volume for a more comprehensive scoring
+		if totalSent >= 70000 {
+			finishedWarmup = true
+		}
+
 		successRate := float64(successfulSends) / float64(totalSent)
 		hardBounceRate := float64(hardBounces) / float64(totalSent)
 		softBounceRate := float64(softBounces) / float64(totalSent)
@@ -254,15 +259,25 @@ func (s *SenderIpWarmupService) EvaluateIpScore(ctx context.Context, senderIp st
 
 	finalScore := int(math.Max(0, math.Min(100, currentScore)))
 
+	curTime := gtime.Now().Timestamp()
+
+	updateData := g.Map{
+		"last_evaluate_time": curTime,
+		"score":              finalScore,
+		"update_time":        curTime,
+	}
+
+	if finishedWarmup {
+		updateData["period"] = 0 // Set period to 0 to indicate warmup is complete
+		updateData["end_time"] = curTime
+		updateData["progress"] = 100 // Set progress to 100% if warmup is complete
+	}
+
 	_, err = g.DB().
 		Model("bm_sender_ip_warmup").
 		Ctx(ctx).
 		Where("id", warmupStatus.Id).
-		Data(g.Map{
-			"last_evaluate_time": gtime.Now().Timestamp(),
-			"score":              finalScore,
-			"update_time":        gtime.Now().Timestamp(),
-		}).
+		Data(updateData).
 		Update()
 
 	if err != nil {

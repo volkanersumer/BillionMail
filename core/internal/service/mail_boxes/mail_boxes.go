@@ -9,6 +9,7 @@ import (
 	"github.com/GehirnInc/crypt/md5_crypt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	"math/rand"
 	"regexp"
 	"strings"
@@ -44,14 +45,13 @@ func Add(ctx context.Context, mailbox *v1.Mailbox) (err error) {
 func Update(ctx context.Context, mailbox *v1.Mailbox) (err error) {
 	mailbox.UpdateTime = time.Now().Unix()
 	if mailbox.Password != "" {
+		mailbox.PasswordEncode = PasswdEncode(ctx, mailbox.Password)
 		mailbox.Password, err = PasswdMD5Crypt(ctx, mailbox.Password)
 
 		if err != nil {
 			err = fmt.Errorf("Generate password md5-crypt failed: %w", err)
 			return
 		}
-
-		mailbox.PasswordEncode = PasswdEncode(ctx, mailbox.Password)
 	}
 
 	mailbox.Username = strings.ToLower(mailbox.Username)
@@ -59,10 +59,13 @@ func Update(ctx context.Context, mailbox *v1.Mailbox) (err error) {
 	mailbox.Domain = strings.ToLower(mailbox.Domain)
 	mailbox.Maildir = fmt.Sprintf("%s@%s/", mailbox.LocalPart, mailbox.Domain)
 
+	m := gconv.Map(mailbox)
+	delete(m, "create_time")
+
 	_, err = g.DB().Model("mailbox").
 		Ctx(ctx).
 		Where("username", mailbox.Username).
-		Update(mailbox)
+		Update(m)
 	return err
 }
 

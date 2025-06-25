@@ -2,6 +2,8 @@ package settings
 
 import (
 	"context"
+	"github.com/gogf/gf/os/gtimer"
+	"time"
 
 	"billionmail-core/api/settings/v1"
 	"billionmail-core/internal/service/public"
@@ -20,7 +22,7 @@ func (c *ControllerV1) SetSystemConfigKey(ctx context.Context, req *v1.SetSystem
 	}
 
 	// 1. Read the current .env file content
-	envMap, err := loadEnvFile()
+	envMap, err := public.LoadEnvFile()
 	if err != nil {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to read environment variable file: {}", err)))
 		return res, nil
@@ -40,12 +42,14 @@ func (c *ControllerV1) SetSystemConfigKey(ctx context.Context, req *v1.SetSystem
 	}
 
 	// 4. Restart the container
-	g.Log().Info(ctx, public.LangCtx(ctx, "Configuration updated, preparing to restart container"))
-	err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, "billionmail-core-billionmail-1")
-	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to restart container: {}", err)))
-		return res, nil
-	}
+	gtimer.AddOnce(500*time.Millisecond, func() {
+		err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, "billionmail-core-billionmail-1")
+		if err != nil {
+			g.Log().Error(ctx, "Failed to restart container: {}", err)
+			return
+		}
+
+	})
 
 	res.SetSuccess(public.LangCtx(ctx, "Configuration updated successfully"))
 	return res, nil
@@ -76,6 +80,7 @@ func convertJsonKeyToEnvKey(jsonKey string, value string, envMap map[string]stri
 		"timezone":             "TZ",
 		"ipv4_network":         "IPV4_NETWORK",
 		"fail2ban":             "FAIL2BAN_INIT",
+		"ip_whitelist_enable":  "IP_WHITELIST_ENABLE",
 	}
 
 	// Get the environment variable key name

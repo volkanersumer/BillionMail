@@ -149,6 +149,8 @@ var CodeMap = map[int]api_v1.StandardRes{
 	},
 }
 
+var HostWorkDir string //Host working directory
+
 // Convert string to integer
 func IpToLong(ip string) int64 {
 	if IsIpv4(ip) {
@@ -2082,23 +2084,60 @@ func TimeCost() func() {
 }
 
 // GetServerIP retrieves the server's public IP address.
-func GetServerIP() (string, error) {
-	resp, err := http.Get("https://ifconfig.me/ip")
-	if err != nil {
-		// Try alternative service
-		resp, err = http.Get("https://www.aapanel.com/api/common/getClientIP")
+func GetServerIP(force ...bool) (string, error) {
+	if len(force) > 0 && force[0] {
+		// Force refresh public IP
+		_, _ = Cache.Remove(Ctx, "ServerIP")
+	}
+
+	cachedServerIP, err := Cache.Get(Ctx, "ServerIP")
+
+	if err == nil && !cachedServerIP.IsEmpty() {
+		// Return cached public IP
+		return cachedServerIP.String(), nil
+	}
+
+	serverIP := ""
+
+	for i := 0; i < 2; i++ {
+		var resp *http.Response
+		resp, err = http.Get("https://ifconfig.me/ip")
+		if err != nil || i > 0 {
+			// Try alternative service
+			resp, err = http.Get("https://www.aapanel.com/api/common/getClientIP")
+			if err != nil {
+				return "", err
+			}
+		}
+
+		var ip []byte
+		ip, err = io.ReadAll(resp.Body)
 		if err != nil {
 			return "", err
 		}
-	}
-	defer resp.Body.Close()
 
-	ip, err := io.ReadAll(resp.Body)
-	if err != nil {
+		_ = resp.Body.Close()
+
+		serverIP = strings.TrimSpace(string(ip))
+
+		// check ip format
+		if !IsIpAddr(serverIP) {
+			continue
+		}
+
+		break
+	}
+
+	if serverIP == "" || !IsIpAddr(serverIP) {
 		return "", err
 	}
 
-	return strings.TrimSpace(string(ip)), nil
+	// Cache the public IP address for 2 hours
+	if err = Cache.Set(Ctx, "ServerIP", serverIP, 2*time.Hour); err != nil {
+		g.Log().Warning(context.Background(), "Failed to cache server IP:", err)
+	}
+
+	return serverIP, nil
 }
 
 // GetLocalIP retrieves the server's local IP address.
@@ -2573,4 +2612,34 @@ func AddUnsubscribeButton(content string) string {
 // FormatMX format the email domain
 func FormatMX(domain string) string {
 	return "mail." + strings.TrimPrefix(domain, "mail.")
+}
+
+// loadEnvFile .env
+func LoadEnvFile() (map[string]string, error) {
+	envPath := AbsPath("../.env")
+	content, err := os.ReadFile(envPath)
+	if err != nil {
+		return nil, err
+	}
+
+	envMap := make(map[string]string)
+	lines := strings.Split(string(content), "\n")
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.Trim(strings.TrimSpace(parts[1]), `"'`)
+		envMap[key] = value
+	}
+
+	return envMap, nil
 }

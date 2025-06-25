@@ -10,6 +10,7 @@ import (
 	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/public"
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/gogf/gf/util/grand"
 	"github.com/gogf/gf/v2/frame/g"
@@ -27,7 +28,6 @@ var (
 
 func setCatchall(ctx context.Context, domainName, catchall string) error {
 	address := fmt.Sprintf("@%s", domainName)
-	//g.Log().Warningf(ctx, "Setting catchall 11111 domainName:%s  , address: %s,  goto: %s,", domainName, address, catchall)
 	if catchall != "" {
 		var count int
 		count, err := g.DB().Model("alias").
@@ -179,7 +179,7 @@ func Get(ctx context.Context, keyword string, page, pageSize int) ([]v1.Domain, 
 	var domains []v1.Domain
 	err = m.Page(page, pageSize).Scan(&domains)
 
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return nil, 0, err
 	}
 

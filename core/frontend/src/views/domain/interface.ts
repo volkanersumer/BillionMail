@@ -13,6 +13,7 @@ export interface MailDomain {
 	rate_limit: number
 	create_time: number
 	active: number
+	email: string
 	dns_records: DomainDnsRecords
 	cert_info: DomainCertInfo
 }

@@ -32,10 +32,8 @@
 					</n-input-number>
 				</n-form-item>
 				<n-form-item v-if="false" label="全局捕获">
-					<div class="w-320px">
-						<n-input v-model:value="form.email" placeholder="捕获不存在的邮件，转发至此邮件">
-						</n-input>
-					</div>
+					<n-input v-model:value="form.email" placeholder="捕获不存在的邮件，转发至此邮件">
+					</n-input>
 				</n-form-item>
 			</bt-form>
 			<bt-tips v-if="false">

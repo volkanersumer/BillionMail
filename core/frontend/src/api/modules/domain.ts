@@ -15,6 +15,7 @@ type DomainParams = {
 	domain: string
 	quota: number
 	mailboxes: number
+	email: string
 }
 
 export const createDomain = (params: DomainParams) => {

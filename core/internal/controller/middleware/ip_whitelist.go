@@ -5,6 +5,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/os/gfile"
 	"strings"
 )
 
@@ -60,11 +61,28 @@ func getAllowedIPs() []string {
 	return ips
 }
 
+func appendIPWhitelistEnvIfNotExists() {
+	envFile := public.AbsPath("../.env")
+	const comment = "# Console ip whitelist   Disabled:false  Enabled:true"
+	const config = "IP_WHITELIST_ENABLE=false"
+
+	content := gfile.GetContents(envFile)
+
+	if !strings.Contains(content, "IP_WHITELIST_ENABLE") {
+		appendStr := "\n" + comment + "\n" + config + "\n"
+		if err := gfile.PutContentsAppend(envFile, appendStr); err != nil {
+			g.Log().Errorf(context.Background(), "[IP Whitelist] Failed to append to .env file: %v", err)
+		}
+	}
+}
+
 // Whether to enable the IP whitelist
 func isIPWhitelistEnabled(envMap map[string]string) bool {
-	isIPWhite := envMap["IP_WHITELIST_ENABLE"]
-	if isIPWhite == "" {
 
+	isIPWhite, exists := envMap["IP_WHITELIST_ENABLE"]
+
+	if !exists {
+		appendIPWhitelistEnvIfNotExists()
 		return false
 	}
 

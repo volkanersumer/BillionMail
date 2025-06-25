@@ -25,6 +25,51 @@ var (
 	mutex sync.Mutex
 )
 
+func setCatchall(ctx context.Context, domainName, catchall string) error {
+	address := fmt.Sprintf("@%s", domainName)
+	//g.Log().Warningf(ctx, "Setting catchall 11111 domainName:%s  , address: %s,  goto: %s,", domainName, address, catchall)
+	if catchall != "" {
+		var count int
+		count, err := g.DB().Model("alias").
+			Where("address", address).
+			Where("domain", domainName).
+			Count()
+		if err != nil {
+			return fmt.Errorf("failed to check alias existence: %v", err)
+		}
+		if count > 0 {
+			_, err = g.DB().Model("alias").
+				Where("address", address).
+				Where("domain", domainName).
+				Data(g.Map{"goto": catchall, "active": 1, "update_time": time.Now().Unix()}).
+				Update()
+			if err != nil {
+				return fmt.Errorf("failed to update alias: %v", err)
+			}
+		} else {
+			_, err = g.DB().Model("alias").Data(g.Map{
+				"address":     address,
+				"goto":        catchall,
+				"domain":      domainName,
+				"active":      1,
+				"create_time": time.Now().Unix(),
+				"update_time": time.Now().Unix(),
+			}).Insert()
+			if err != nil {
+				return fmt.Errorf("failed to insert alias: %v", err)
+			}
+		}
+	} else {
+		// catchall is empty, disabled
+		_, _ = g.DB().Model("alias").
+			Where("address", address).
+			Where("domain", domainName).
+			Data(g.Map{"active": 0, "update_time": time.Now().Unix()}).
+			Update()
+	}
+	return nil
+}
+
 func Add(ctx context.Context, domain *v1.Domain) error {
 	domain.CreateTime = time.Now().Unix()
 	domain.Active = 1
@@ -72,6 +117,12 @@ func Add(ctx context.Context, domain *v1.Domain) error {
 				return fmt.Errorf("failed to restart postfix container: %v", err)
 			}
 		}
+
+		// catchall
+		if domain.Catchall != "" {
+			err = setCatchall(ctx, domain.Domain, domain.Catchall)
+		}
+		return err
 	}
 
 	return err
@@ -82,6 +133,10 @@ func Update(ctx context.Context, domain *v1.Domain) error {
 		Ctx(ctx).
 		Where("domain", domain.Domain).
 		Update(domain)
+
+	// catchall
+	err = setCatchall(ctx, domain.Domain, domain.Catchall)
+
 	return err
 }
 
@@ -97,6 +152,13 @@ func Delete(ctx context.Context, domainName string) error {
 			Ctx(ctx).
 			Where("domain", domainName).
 			Delete()
+
+		// remove associated alias
+		_, err = g.DB().Model("alias").
+			Ctx(ctx).
+			Where("domain", domainName).
+			Delete()
+
 	}
 
 	return err
@@ -143,6 +205,38 @@ func Get(ctx context.Context, keyword string, page, pageSize int) ([]v1.Domain, 
 			if err != nil {
 				err = nil
 				domains[i].CertInfo, _ = crt.GetSSLInfo(public.FormatMX(domain.Domain))
+			}
+
+		}(i, domain)
+
+		// catchall
+		wg.Add(1)
+		go func(i int, domain v1.Domain) {
+			defer wg.Done()
+			type Alias struct {
+				Address    string `json:"address"     dc:"Alias address"`
+				Goto       string `json:"goto"        dc:"Forwarding target"`
+				Domain     string `json:"domain"      dc:"Domain name"`
+				CreateTime int64  `json:"create_time" dc:"Creation time"`
+				UpdateTime int64  `json:"update_time" dc:"Update time"`
+				Active     int    `json:"active"      dc:"Status: 1-enabled, 0-disabled"`
+			}
+
+			address := fmt.Sprintf("@%s", domain.Domain)
+			var alias Alias
+			err := g.DB().Model("alias").
+				Where("address = ? AND domain = ?", address, domain.Domain).
+				Scan(&alias)
+
+			if err != nil {
+				domains[i].Catchall = ""
+
+			} else {
+				if alias.Active == 1 {
+					domains[i].Catchall = alias.Goto
+				} else {
+					domains[i].Catchall = ""
+				}
 			}
 
 		}(i, domain)

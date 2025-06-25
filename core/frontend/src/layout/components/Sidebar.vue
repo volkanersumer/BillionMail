@@ -111,6 +111,7 @@ const iconMap: Record<string, VNodeChild> = {
 	mailbox: <i class="i-custom:mailbox"></i>,
 	smtp: <i class="i-custom:smtp"></i>,
 	settings: <i class="i-mdi-settings-outline"></i>,
+	template: <i class="i-mdi-settings-outline"></i>,
 	logout: <i class="i-mdi-logout"></i>,
 }
 

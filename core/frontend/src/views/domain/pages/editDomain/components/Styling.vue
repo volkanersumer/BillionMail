@@ -36,6 +36,7 @@
                     <template #label><span class="form-label">Container Background</span></template>
                     <div class="flex justify-between gap-2.5 w-100%">
                         <n-color-picker style="width: 50px;" :modes="['hex','rgb','hsl','hsv']" :render-label="colorRenderLabel"></n-color-picker>
+                        <n-input></n-input>
                     </div>
                 </n-form-item>
             </n-form>

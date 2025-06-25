@@ -182,7 +182,7 @@ const form = reactive({
 	template_id: null as null | number,
 	is_record: 1,
 	unsubscribe: 1,
-	warmup: 1,
+	warmup: 0,
 	threads: 0,
 	start_time: null as number | null,
 	remark: '',

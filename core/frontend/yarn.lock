@@ -429,6 +429,14 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify/json@^2.2.352":
+  version "2.2.352"
+  resolved "https://registry.yarnpkg.com/@iconify/json/-/json-2.2.352.tgz#b2ead0007509080fdba9bc0a425f5eb0e9f61558"
+  integrity sha512-UtX9HPDYQDOoPtrb2m05mUOeFpVWWelfkNlamFEKyTIoB0Ma4fPJdqxfpYhylBrfvum6QVpAbq3EEcBr0TYkmg==
+  dependencies:
+    "@iconify/types" "*"
+    pathe "^1.1.2"
+
 "@iconify/types@*", "@iconify/types@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@iconify/types/-/types-2.0.0.tgz#ab0e9ea681d6c8a1214f30cd741fe3a20cc57f57"
@@ -3737,6 +3745,11 @@ path-scurry@^1.11.1:
   dependencies:
     lru-cache "^10.2.0"
     minipass "^5.0.0 || ^6.0.2 || ^7.0.0"
+
+pathe@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/pathe/-/pathe-1.1.2.tgz#6c4cb47a945692e48a1ddd6e4094d170516437ec"
+  integrity sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==
 
 pathe@^2.0.1, pathe@^2.0.2, pathe@^2.0.3:
   version "2.0.3"

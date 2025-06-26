@@ -46,6 +46,7 @@ type Domain struct {
 	DNSRecords   DNSRecords `json:"dns_records" dc:"DNS records"`
 	CertInfo     CertInfo   `json:"cert_info" dc:"Certificate information"`
 	Catchall     string     `json:"email"      dc:"Cache all DNS records, used for domain verification"`
+	Default      int        `json:"default"      dc:"Default sender domain, 1-yes, 0-no"`
 }
 
 type AddDomainReq struct {
@@ -147,4 +148,13 @@ type GetSSLReq struct {
 type GetSSLRes struct {
 	api_v1.StandardRes
 	Data CertInfo `json:"data" dc:"Certificate information"`
+}
+
+type SetDefaultDomainReq struct {
+	g.Meta        `path:"/domains/set_default_domain" tags:"Domain" method:"post" sm:"Set default sender domain" in:"body"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	Domain        string `json:"domain" v:"required|domain" dc:"Domain"`
+}
+type SetDefaultDomainRes struct {
+	api_v1.StandardRes
 }

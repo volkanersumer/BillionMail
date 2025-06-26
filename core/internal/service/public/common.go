@@ -2643,3 +2643,19 @@ func LoadEnvFile() (map[string]string, error) {
 
 	return envMap, nil
 }
+
+func GethostUrl() string {
+	hostname := MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
+	var hostUrl string
+	if hostname == "" || hostname == "mail.example.com" {
+		serverIP, _ := GetServerIP()
+		serverPort := MustGetDockerEnv("HTTPS_PORT", "443")
+		hostUrl = fmt.Sprintf("https://%s:%s/", serverIP, serverPort)
+	} else {
+		hostUrl = fmt.Sprintf("https://%s/", hostname)
+	}
+	g.Log().Warning(context.Background(), "BillionMail host URL: ", hostUrl)
+
+	//return hostUrl
+	return "https://192.168.66.124:82"
+}

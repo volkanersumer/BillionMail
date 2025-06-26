@@ -44,6 +44,9 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 
 	const serverIp = ref('')
 
+	const ipWhitelistEnable = ref(false)
+	const ipWhitelistList = ref<{ id: number; ip: string }[]>([])
+
 	const checkPasswordStrength = () => {
 		const password = securityForm.newPassword
 		let score = 0
@@ -71,6 +74,8 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 			currentPath.value = res.safe_path
 			currentDomain.value = res.billionmail_hostname
 			serverIp.value = res.server_ip
+			ipWhitelistEnable.value = res.ip_whitelist_enable
+			ipWhitelistList.value = res.ip_whitelist
 
 			if (res.manage_ports) {
 				currentPort.value = `${res.manage_ports.https}`
@@ -128,6 +133,8 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 		currentTime,
 		timeCommand,
 		serverIp,
+		ipWhitelistEnable,
+		ipWhitelistList,
 
 		// 方法
 		checkPasswordStrength,

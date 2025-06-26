@@ -1,5 +1,5 @@
 <template>
-	<modal :title="title" :width="520">
+	<modal :title="title" :width="540">
 		<div class="pt-16px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="t('domain.form.domain')" path="domain">
@@ -31,14 +31,14 @@
 						:show-button="false">
 					</n-input-number>
 				</n-form-item>
-				<n-form-item v-if="false" :label="t('domain.form.globalCatch')">
+				<n-form-item :label="t('domain.form.globalCatch')">
 					<n-input
 						v-model:value="form.email"
 						:placeholder="t('domain.form.globalCatchPlaceholder')">
 					</n-input>
 				</n-form-item>
 			</bt-form>
-			<bt-tips v-if="false">
+			<bt-tips>
 				<li class="text-error">{{ t('domain.form.tips.aRecordFailed') }}</li>
 				<li>{{ t('domain.form.tips.dnsSetup') }}</li>
 				<li>{{ t('domain.form.tips.cloudflare') }}</li>

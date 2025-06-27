@@ -14,44 +14,13 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 )
 
 var (
-	//envPath    = "../.env"
 	envPath     = public.AbsPath("../.env")
 	projectPath = public.AbsPath("../")
 )
-
-// loadEnvFile .env
-func loadEnvFile() (map[string]string, error) {
-	content, err := os.ReadFile(envPath)
-	if err != nil {
-		return nil, err
-	}
-
-	envMap := make(map[string]string)
-	lines := strings.Split(string(content), "\n")
-
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-
-		key := strings.TrimSpace(parts[0])
-		value := strings.Trim(strings.TrimSpace(parts[1]), `"'`)
-		envMap[key] = value
-	}
-
-	return envMap, nil
-}
 
 // loadSSLInfo
 func loadSSLInfo() (*v1.SSLConfig, error) {
@@ -176,16 +145,24 @@ func convertEnvToConfig(envMap map[string]string) *v1.SystemConfig {
 	if port := envMap["HTTPS_PORT"]; port != "" {
 		config.ManagePorts.HTTPS = parseInt(port, 443)
 	}
-	config.ManagePorts.Command1 = fmt.Sprintf("cd %s && echo \"PORT\" | bash bm.sh change-port", projectPath)
-	config.ManagePorts.Command2 = fmt.Sprintf("cd %s && echo \"PORT\" | bash bm.sh change-apply-ssl-port", projectPath)
+
+	HostWorkDir := public.HostWorkDir
+	if HostWorkDir == "" {
+		HostWorkDir = projectPath
+	}
+	config.ManagePorts.Command1 = fmt.Sprintf("cd %s && echo \"PORT\" | bash bm.sh change-port", HostWorkDir)
+	config.ManagePorts.Command2 = fmt.Sprintf("cd %s && echo \"PORT\" | bash bm.sh change-apply-ssl-port", HostWorkDir)
 
 	// Time zone configuration
 	config.ManageTimeZone.TimeZone = envMap["TZ"]
-	config.ManageTimeZone.Command = fmt.Sprintf("cd %s && echo \"TIME ZONE\" | bash bm.sh change-tz", projectPath)
+	config.ManageTimeZone.Command = fmt.Sprintf("cd %s && echo \"TIME ZONE\" | bash bm.sh change-tz", HostWorkDir)
 
 	// Network configuration
 	config.IPv4Network = envMap["IPV4_NETWORK"]
 	config.Fail2ban = envMap["FAIL2BAN_INIT"] == "y"
+
+	// IP whitelist  IP_WHITELIST_ENABLE
+	config.IPWhitelistEnabled = envMap["IP_WHITELIST_ENABLE"] == "true"
 
 	return config
 }

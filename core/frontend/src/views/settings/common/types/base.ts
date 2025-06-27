@@ -27,6 +27,7 @@ export interface SystemInfo {
 	redis_port: string
 	ipv4_network: string
 	fail2ban: boolean
+	server_ip: string
 	manage_ports: {
 		http: number
 		https: number

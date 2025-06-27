@@ -770,15 +770,17 @@ func GetLanguageList() []map[string]interface{} {
 		return default_languages
 	}
 
-	// Convert language pack to map
-	lang_map := make([]map[string]interface{}, 0)
-	err = json.Unmarshal([]byte(lang_data), &lang_map)
-	if err != nil {
+	type langSettings struct {
+		Languages []map[string]interface{} `json:"languages"`
+	}
+	var settings langSettings
+	err = json.Unmarshal([]byte(lang_data), &settings)
+	if err != nil || len(settings.Languages) == 0 {
 		return default_languages
 	}
 
-	SetCache(filename, lang_map, 60)
-	return lang_map
+	SetCache(filename, settings.Languages, 60)
+	return settings.Languages
 }
 
 // Get language from context

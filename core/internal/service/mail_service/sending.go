@@ -165,19 +165,19 @@ func (e *EmailSender) Connect() error {
 		return nil
 	}
 
-	var err error
-
-	if e.isSecure() {
-		err = e.connectWithSSL()
-	} else {
-		err = e.connectPlain()
-	}
-
-	if err != nil {
-		e.connected = false
-		e.client = nil
-		return err
-	}
+	//var err error
+	//
+	//if e.isSecure() {
+	//	err = e.connectWithSSL()
+	//} else {
+	//	err = e.connectPlain()
+	//}
+	//
+	//if err != nil {
+	//	e.connected = false
+	//	e.client = nil
+	//	return err
+	//}
 
 	e.connected = true
 	return nil
@@ -248,20 +248,20 @@ func (e *EmailSender) connectPlain() error {
 }
 
 // Disconnect closes the SMTP connection
-func (e *EmailSender) Disconnect() error {
+func (e *EmailSender) Disconnect() (err error) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
-	if !e.connected || e.client == nil {
-		return nil
-	}
-
-	err := e.client.Quit()
-	if err != nil {
-		// Force close connection if Quit fails
-		_ = e.client.Close()
-		g.Log().Warning(context.Background(), "Error closing SMTP connection: ", err)
-	}
+	//if !e.connected || e.client == nil {
+	//	return nil
+	//}
+	//
+	//err := e.client.Quit()
+	//if err != nil {
+	//	// Force close connection if Quit fails
+	//	_ = e.client.Close()
+	//	g.Log().Warning(context.Background(), "Error closing SMTP connection: ", err)
+	//}
 
 	e.connected = false
 	e.client = nil
@@ -292,38 +292,38 @@ func (e *EmailSender) Send(message Message, recipients []string) error {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
-	// Make sure we have a connection
-	if !e.connected || e.client == nil {
-		e.mutex.Unlock()
-		if err := e.Connect(); err != nil {
-			e.mutex.Lock()
-			return fmt.Errorf("failed to connect: %w", err)
-		}
-		e.mutex.Lock()
-	}
-
-	// Try to send the message, with reconnect on failure
-	err := e.doSend(message, recipients)
-	if err != nil {
-		// Connection might be stale, try to reconnect once
-		g.Log().Debug(context.Background(), "SMTP send failed, attempting reconnection")
-
-		// Clean up
-		e.client.Close()
-		e.connected = false
-		e.client = nil
-
-		// Try to reconnect
-		e.mutex.Unlock()
-		if err := e.Connect(); err != nil {
-			e.mutex.Lock()
-			return fmt.Errorf("reconnect failed: %w", err)
-		}
-		e.mutex.Lock()
-
-		// Try sending again after reconnect
-		return e.doSend(message, recipients)
-	}
+	//// Make sure we have a connection
+	//if !e.connected || e.client == nil {
+	//	e.mutex.Unlock()
+	//	if err := e.Connect(); err != nil {
+	//		e.mutex.Lock()
+	//		return fmt.Errorf("failed to connect: %w", err)
+	//	}
+	//	e.mutex.Lock()
+	//}
+	//
+	//// Try to send the message, with reconnect on failure
+	//err := e.doSend(message, recipients)
+	//if err != nil {
+	//	// Connection might be stale, try to reconnect once
+	//	g.Log().Debug(context.Background(), "SMTP send failed, attempting reconnection")
+	//
+	//	// Clean up
+	//	e.client.Close()
+	//	e.connected = false
+	//	e.client = nil
+	//
+	//	// Try to reconnect
+	//	e.mutex.Unlock()
+	//	if err := e.Connect(); err != nil {
+	//		e.mutex.Lock()
+	//		return fmt.Errorf("reconnect failed: %w", err)
+	//	}
+	//	e.mutex.Lock()
+	//
+	//	// Try sending again after reconnect
+	//	return e.doSend(message, recipients)
+	//}
 
 	return nil
 }

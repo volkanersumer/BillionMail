@@ -149,7 +149,7 @@ var CodeMap = map[int]api_v1.StandardRes{
 	},
 }
 
-var HostWorkDir string //Host working directory
+var HostWorkDir = "/opt/BillionMail" //Host working directory
 
 // Convert string to integer
 func IpToLong(ip string) int64 {
@@ -770,15 +770,20 @@ func GetLanguageList() []map[string]interface{} {
 		return default_languages
 	}
 
+	type langSettings struct {
+		Languages []map[string]interface{} `json:"languages"`
+	}
+
+	var settings langSettings
+
 	// Convert language pack to map
-	lang_map := make([]map[string]interface{}, 0)
-	err = json.Unmarshal([]byte(lang_data), &lang_map)
+	err = json.Unmarshal([]byte(lang_data), &settings)
 	if err != nil {
 		return default_languages
 	}
 
-	SetCache(filename, lang_map, 60)
-	return lang_map
+	SetCache(filename, settings.Languages, 60)
+	return settings.Languages
 }
 
 // Get language from context

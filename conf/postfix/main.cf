@@ -71,3 +71,7 @@ message_size_limit = 102400000
 ## Do not delete the following identification configuration
 # Overrides-configuration #
 
+
+
+# User Overrides-configuration
+myhostname = mail.example.com

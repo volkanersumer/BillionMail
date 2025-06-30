@@ -6,8 +6,8 @@ type TableParams = DataTableRowData
 
 interface UseDataTableOptions {
 	params: TableParams
-	fetchFn: (params: any) => Promise<unknown>
 	rowKey?: DataTableCreateRowKey
+	fetchFn: (params: any) => Promise<unknown>
 	immediate?: boolean
 	autoRefresh?: boolean
 	refreshInterval?: number

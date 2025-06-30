@@ -89,7 +89,8 @@
       "common": "Common Settings",
       "bcc": "BCC",
       "forward": "Mail Forward",
-      "logout": "Logout"
+      "logout": "Logout",
+      "service": "Service"
     }
   },
   "login": {
@@ -793,12 +794,40 @@
         "commandCopied": "Command copied to clipboard",
         "timezone": "Timezone Settings",
         "currentTime": "Current System Timezone"
+      },
+      "ipWhitelist": {
+        "title": "IP Whitelist",
+        "enable": "Enable",
+        "disable": "Disable",
+        "add": "Add",
+        "clear": "Clear",
+        "description": "Only allow IPs in the list to access, terminal command to disable: bm.sh cancel-ip-limit",
+        "placeholder": "Please enter IP address",
+        "validation": {
+          "ipRequired": "Please enter IP address"
+        },
+        "confirm": {
+          "deleteTitle": "Delete IP Whitelist",
+          "deleteContent": "Confirm to delete IP whitelist: {ip}",
+          "enableTitle": "Enable IP Whitelist",
+          "disableTitle": "Disable IP Whitelist",
+          "enableContent": "Confirm to enable IP whitelist, only whitelisted IP addresses can access after enabling",
+          "disableContent": "Confirm to disable IP whitelist, all IP addresses can access after disabling",
+          "clearTitle": "Clear IP Whitelist",
+          "clearContent": "Confirm to clear IP whitelist, all IP addresses can access after clearing"
+        }
       }
     },
     "api": {
       "loading": {
         "restarting": "Restarting service, please wait...",
-        "saving": "Saving configuration, please wait..."
+        "saving": "Saving configuration, please wait...",
+        "setting": "Setting, please wait...",
+        "settingSSL": "Setting SSL, please wait...",
+        "applyingCert": "Applying certificate, please wait...",
+        "adding": "Adding, please wait...",
+        "deleting": "Deleting, please wait...",
+        "clearing": "Clearing, please wait..."
       }
     }
   },

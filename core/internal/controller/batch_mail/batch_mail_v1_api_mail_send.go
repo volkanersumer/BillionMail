@@ -77,7 +77,7 @@ func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) 
 	}
 
 	// 6. Join the sender queue
-	err = recordApiMailLog(ctx, apiTemplate, req.Recipient, req.Addresser)
+	err = recordApiMailLog(ctx, apiTemplate, req.Recipient, req.Addresser, req.Attribs)
 	if err != nil {
 		res.Code = 1005
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to record email log: {}", err.Error())))
@@ -89,7 +89,7 @@ func (c *ControllerV1) ApiMailSend(ctx context.Context, req *v1.ApiMailSendReq) 
 }
 
 // 记录到日志表，状态为待发送
-func recordApiMailLog(ctx context.Context, apiTemplate *entity.ApiTemplates, recipient, addresser string) error {
+func recordApiMailLog(ctx context.Context, apiTemplate *entity.ApiTemplates, recipient, addresser string, attribs map[string]string) error {
 	// 生成消息ID
 
 	sender, err := mail_service.NewEmailSenderWithLocal(addresser)
@@ -112,6 +112,7 @@ func recordApiMailLog(ctx context.Context, apiTemplate *entity.ApiTemplates, rec
 		"error_message": "",
 		"send_time":     0,
 		"create_time":   now,
+		"attribs":       attribs,
 	})
 
 	return err
@@ -188,17 +189,36 @@ func ensureContactAndGroup(ctx context.Context, email string, apiId int) (entity
 		}
 		groupId, _ := groupResult.LastInsertId()
 		group.Id = int(groupId)
+	} else {
+
+		count, err := g.DB().Model("bm_contacts").
+			Where("email", email).
+			Where("group_id", group.Id).
+			Where("active", 0).
+			Count()
+		if err != nil {
+			return contact, fmt.Errorf("failed to check unsubscribe: %w", err)
+		}
+		if count > 0 {
+			return contact, fmt.Errorf("the recipient has unsubscribed from the current group and cannot send")
+		}
 	}
-	contactResult, err := g.DB().Model("bm_contacts").Insert(g.Map{
+
+	contactData := g.Map{
 		"email":       email,
 		"group_id":    group.Id,
 		"active":      1,
 		"status":      1,
 		"create_time": now,
-	})
+	}
+	contactResult, err := g.DB().Model("bm_contacts").
+		Data(contactData).
+		OnConflict("email,group_id").
+		Save()
 	if err != nil {
 		return contact, err
 	}
+
 	contactId, _ := contactResult.LastInsertId()
 	contact.Id = int(contactId)
 	contact.Email = email

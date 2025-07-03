@@ -104,8 +104,8 @@ func readTemplateFiles(baseFilename string) (htmlContent string, txtContent stri
 	hostwork := public.HostWorkDir
 
 	// Construct two file paths (automatically handle OS-specific separators)
-	htmlPath := filepath.Join(hostwork, "core", "data", baseFilename+".html")
-	txtPath := filepath.Join(hostwork, "core", "data", baseFilename+".txt")
+	htmlPath := filepath.Join(hostwork, "core", "template", baseFilename+".html")
+	txtPath := filepath.Join(hostwork, "core", "template", baseFilename+".txt")
 
 	// Security check (prevent directory traversal)
 	cleanDir := filepath.Clean(filepath.Join(hostwork, "core", "data"))

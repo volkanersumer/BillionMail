@@ -1,6 +1,6 @@
 <template>
 	<n-spin class="mb-16px" :show="loading">
-		<div class="text-center fw-bold text-16px text-default">Subscription Trends</div>
+		<div class="text-center fw-bold text-16px text-default">{{ t('contacts.subscribers.trends.title') }}</div>
 		<div class="w-96% h-160px mx-auto">
 			<bt-charts :options="chartOptions" />
 		</div>
@@ -22,6 +22,8 @@ const { groupId } = defineProps({
 const loading = ref(false)
 
 const subscribe = ref<SubscriberTrend[]>([])
+
+const { t } = useI18n()
 
 const chartOptions = computed<ECOptionLine>(() => {
 	return {
@@ -59,7 +61,7 @@ const chartOptions = computed<ECOptionLine>(() => {
 		},
 		series: [
 			{
-				name: 'Subscriber',
+				name: t('contacts.subscribers.trends.subscriber'),
 				type: 'line',
 				data: subscribe.value.map(item => item.count),
 				itemStyle: {

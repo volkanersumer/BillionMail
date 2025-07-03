@@ -110,9 +110,12 @@ const columns = ref<DataTableColumns<Group>>([
 	},
 	{
 		key: 'double_optin',
-		title: 'Type',
+		title: t('contacts.group.columns.type'),
 		minWidth: 100,
-		render: row => (row.double_optin === 1 ? 'Double Opt-In' : 'Single Opt-In'),
+		render: row =>
+			row.double_optin === 1
+				? t('contacts.group.type.doubleOptin')
+				: t('contacts.group.type.singleOptin'),
 	},
 	{
 		key: 'create_time',
@@ -201,8 +204,8 @@ const handleDelete = (row: Group) => {
 
 const handleExport = () => {
 	confirm({
-		title: 'Export group',
-		content: `Export ${checkedKeys.value.length} group(s)?`,
+		title: t('contacts.group.export.title'),
+		content: t('contacts.group.export.confirm', { count: checkedKeys.value.length }),
 		onConfirm: async () => {
 			const res = await exportGroup({
 				format: 'csv',

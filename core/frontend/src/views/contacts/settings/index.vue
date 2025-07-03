@@ -5,13 +5,13 @@
 		</div>
 		<n-breadcrumb class="mb-4px">
 			<n-breadcrumb-item>{{ groupInfo?.name || '--' }}</n-breadcrumb-item>
-			<n-breadcrumb-item>Settings</n-breadcrumb-item>
+			<n-breadcrumb-item>{{ $t('contacts.settings.title') }}</n-breadcrumb-item>
 		</n-breadcrumb>
 		<n-tabs v-model:value="activeTab" type="line">
-			<n-tab-pane name="form" tab="Subscribe Form">
+			<n-tab-pane name="form" :tab="$t('contacts.settings.tabs.subscribeForm')">
 				<subscribe-form />
 			</n-tab-pane>
-			<n-tab-pane name="subscribe" tab="Subscribe settings">
+			<n-tab-pane name="subscribe" :tab="$t('contacts.settings.tabs.subscribeSettings')">
 				<subscribe-settings />
 			</n-tab-pane>
 		</n-tabs>

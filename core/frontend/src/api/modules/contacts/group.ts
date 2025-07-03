@@ -62,7 +62,7 @@ export const exportGroup = (data: {
 }) => {
 	return instance.post('/contact/group/export', data, {
 		fetchOptions: {
-			loading: 'Exporting, please wait...',
+			loading: t('contacts.group.loading.exportGroup'),
 			successMessage: true,
 		},
 	})
@@ -85,7 +85,7 @@ export const saveSubscribeSetting = (data: {
 }) => {
 	return instance.post('/contact/group/update', data, {
 		fetchOptions: {
-			loading: 'Saving, please wait...',
+			loading: t('contacts.group.loading.saveSettings'),
 			successMessage: true,
 		},
 	})

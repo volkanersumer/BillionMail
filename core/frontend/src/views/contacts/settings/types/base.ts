@@ -16,6 +16,7 @@ export interface GroupInfo {
 	success_url: string
 	confirm_url: string
 	already_url: string
+	sender: string
 	subscribe_form: string
 	total_count: number
 	active_count: number

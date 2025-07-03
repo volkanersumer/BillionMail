@@ -1,58 +1,105 @@
 <template>
 	<bt-form class="subscribe-settings">
-		<n-form-item label="列表类型">
+		<n-form-item :label="$t('contacts.settings.subscribeSettings.listType.label')">
 			<div class="w-200px">
 				<n-select
 					v-model:value="form.double_optin"
 					:options="listTypeOptions"
-					placeholder="请选择列表类型">
+					:placeholder="$t('contacts.settings.subscribeSettings.listType.placeholder')">
 				</n-select>
 			</div>
 		</n-form-item>
-		<n-form-item label="感谢邮件订阅主题">
+		<n-form-item
+			v-if="form.double_optin === 1"
+			:label="$t('contacts.settings.subscribeSettings.confirmEmail.subject')">
+			<div class="w-420px">
+				<n-input v-model:value="form.confirm_subject"></n-input>
+			</div>
+		</n-form-item>
+		<n-form-item
+			v-if="form.double_optin === 1"
+			:label="$t('contacts.settings.subscribeSettings.confirmEmail.redirectLink')">
+			<div class="flex-1">
+				<div class="setting-description mb-8px">
+					{{ $t('contacts.settings.subscribeSettings.confirmEmail.redirectDescription') }}
+				</div>
+				<div class="w-420px">
+					<n-input v-model:value="form.confirm_url"></n-input>
+				</div>
+			</div>
+		</n-form-item>
+		<n-form-item
+			v-if="form.double_optin === 1"
+			:label="$t('contacts.settings.subscribeSettings.confirmEmail.emailContent')">
+			<div class="flex-1">
+				<div class="setting-description mb-8px">
+					<p>
+						<span>
+							{{ $t('contacts.settings.subscribeSettings.confirmEmail.emailTip1') }}
+						</span>
+						<n-tag size="small"> {{ `\{\{ ConfirmURL . \}\}` }} </n-tag>
+						<span>{{ $t('contacts.settings.subscribeSettings.confirmEmail.emailTip2') }}</span>
+					</p>
+				</div>
+				<editor v-model:value="form.confirm_mail_html"></editor>
+			</div>
+		</n-form-item>
+		<n-form-item :label="$t('contacts.settings.subscribeSettings.welcomeEmail.subject')">
 			<div class="w-420px">
 				<n-input v-model:value="form.welcome_subject"></n-input>
 			</div>
 		</n-form-item>
+		<n-form-item :label="$t('contacts.settings.subscribeSettings.welcomeEmail.redirectLink')">
+			<div class="flex-1">
+				<div class="setting-description mb-8px">
+					{{ $t('contacts.settings.subscribeSettings.welcomeEmail.redirectDescription') }}
+				</div>
+				<div class="w-420px">
+					<n-input v-model:value="form.success_url"></n-input>
+				</div>
+			</div>
+		</n-form-item>
 		<n-form-item>
 			<template #label>
-				<span class="mr-16px">感谢邮件订阅邮件</span>
+				<span class="mr-16px">
+					{{ $t('contacts.settings.subscribeSettings.welcomeEmail.emailContent') }}
+				</span>
 				<n-switch v-model:value="form.send_welcome_email" :checked-value="1" :unchecked-value="0">
 				</n-switch>
 			</template>
 			<div class="flex-1">
 				<div class="setting-description mb-8px">
-					When enabled, a thank you email will be sent to the user when they subscribe via the
-					subscription form or API. This will not be triggered for manually added users.
+					<p>
+						{{ $t('contacts.settings.subscribeSettings.welcomeEmail.sendThroughTip') }}
+						<n-tag size="small">{{ sender }}</n-tag>
+						{{ $t('contacts.settings.subscribeSettings.welcomeEmail.mailboxTip') }}
+					</p>
+					<p>
+						{{ $t('contacts.settings.subscribeSettings.welcomeEmail.enabledDescription') }}
+					</p>
+					<p>
+						<span>
+							{{ $t('contacts.settings.subscribeSettings.welcomeEmail.templateVariablesTip') }}
+						</span>
+						<n-tag size="small">{{ `\{\{ .Subscriber.Email \}\}` }}</n-tag>
+						<span>, </span>
+						<n-tag size="small">{{ `\{\{ .Subscriber.name \}\}` }}</n-tag>
+						<span> ...</span>
+					</p>
 				</div>
 				<editor v-model:value="form.welcome_mail_html"></editor>
 			</div>
 		</n-form-item>
-		<n-form-item label="发送感谢订阅的跳转页面链接">
-			<div class="w-420px">
-				<n-input v-model:value="form.success_url"></n-input>
-			</div>
-		</n-form-item>
-		<n-form-item label="二次确认邮件主题">
-			<div class="w-420px">
-				<n-input v-model:value="form.confirm_subject"></n-input>
-			</div>
-		</n-form-item>
-		<n-form-item label="二次确认邮件">
-			<editor v-model:value="form.confirm_mail_html"></editor>
-		</n-form-item>
-		<n-form-item label="二次确认的跳转页面链接">
-			<div class="w-420px">
-				<n-input v-model:value="form.confirm_url"></n-input>
-			</div>
-		</n-form-item>
-		<n-form-item label="订阅已存在的跳转页面链接">
-			<div class="w-420px">
-				<n-input v-model:value="form.already_url"></n-input>
+		<n-form-item :label="$t('contacts.settings.subscribeSettings.alreadySubscribed.redirectLink')">
+			<div class="flex-1">
+				<div class="setting-description mb-8px"></div>
+				<div class="w-420px">
+					<n-input v-model:value="form.already_url"></n-input>
+				</div>
 			</div>
 		</n-form-item>
 		<n-form-item :show-label="false">
-			<n-button type="primary" @click="handleSave">
+			<n-button size="large" type="primary" @click="handleSave">
 				{{ $t('common.actions.save') }}
 			</n-button>
 		</n-form-item>
@@ -61,10 +108,14 @@
 
 <script setup lang="ts">
 import { SelectOption } from 'naive-ui'
+import { saveSubscribeSetting } from '@/api/modules/contacts/group'
 import { useContext } from '../hooks/useContext'
 
 import Editor from './Editor.vue'
-import { saveSubscribeSetting } from '@/api/modules/contacts/group'
+
+const { t } = useI18n()
+
+const sender = ref('--')
 
 const form = reactive({
 	group_id: 0,
@@ -84,8 +135,8 @@ const form = reactive({
 
 // 选项数据
 const listTypeOptions: SelectOption[] = [
-	{ label: '两次确认', value: 1 },
-	{ label: '单次确认', value: 0 },
+	{ label: t('contacts.settings.subscribeSettings.listType.options.doubleOptin'), value: 1 },
+	{ label: t('contacts.settings.subscribeSettings.listType.options.singleOptin'), value: 0 },
 ]
 
 const { groupInfo } = useContext()
@@ -108,6 +159,7 @@ watchEffect(() => {
 		form.confirm_mail_drag = groupInfo.value.confirm_mail_drag
 		form.confirm_url = groupInfo.value.confirm_url
 		form.already_url = groupInfo.value.already_url
+		sender.value = groupInfo.value.sender
 	}
 })
 </script>
@@ -119,7 +171,7 @@ watchEffect(() => {
 }
 
 .setting-description {
-	line-height: 1.4;
+	line-height: 20px;
 	color: #666;
 }
 

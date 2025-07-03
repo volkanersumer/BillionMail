@@ -2,18 +2,18 @@
 	<div class="subscribe-form-container">
 		<!-- 分离订阅页面部分 -->
 		<div class="section">
-			<h3 class="section-title">Separate subscription page</h3>
+			<h3 class="section-title">{{ $t('contacts.settings.subscribeForm.separateSubscriptionPage.title') }}</h3>
 			<p class="section-description">
-				Simply copy and share this URL with users – the subscription form is ready to use.
+				{{ $t('contacts.settings.subscribeForm.separateSubscriptionPage.description') }}
 			</p>
 			<form-code :value="subscriptionUrl"></form-code>
 		</div>
 
 		<!-- 可嵌入表单部分 -->
 		<div class="section">
-			<h3 class="section-title">Embeddable Form</h3>
+			<h3 class="section-title">{{ $t('contacts.settings.subscribeForm.embeddableForm.title') }}</h3>
 			<p class="section-description">
-				Easily embed this subscription form into your website pages.
+				{{ $t('contacts.settings.subscribeForm.embeddableForm.description') }}
 			</p>
 			<form-code :value="embedCode"></form-code>
 		</div>

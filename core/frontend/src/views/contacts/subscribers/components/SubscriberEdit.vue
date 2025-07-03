@@ -6,14 +6,14 @@
 					<n-form-item-gi :span="8" :label="$t('contacts.subscribers.edit.email')">
 						<n-input v-model:value="form.email" :disabled="true"></n-input>
 					</n-form-item-gi>
-					<n-form-item-gi :span="4" label="Status">
+					<n-form-item-gi :span="4" :label="$t('contacts.subscribers.edit.status')">
 						<n-select v-model:value="form.active" :options="activeOptions"></n-select>
 					</n-form-item-gi>
 				</n-grid>
 				<n-form-item :label="$t('contacts.subscribers.edit.group')" path="group_ids">
 					<group-select v-model:value="form.group_ids"></group-select>
 				</n-form-item>
-				<n-form-item label="Attributes" path="group_ids">
+				<n-form-item :label="$t('contacts.subscribers.edit.attributes')" path="group_ids">
 					<n-input v-model:value="form.attribs" type="textarea" :rows="6"></n-input>
 				</n-form-item>
 			</bt-form>
@@ -53,10 +53,10 @@ const rules: FormRules = {
 	},
 }
 
-const activeOptions = [
-	{ label: 'Subscribe', value: 1 },
-	{ label: 'Unsubscribe', value: 0 },
-]
+const activeOptions = computed(() => [
+	{ label: t('contacts.subscribers.edit.statusOptions.subscribe'), value: 1 },
+	{ label: t('contacts.subscribers.edit.statusOptions.unsubscribe'), value: 0 },
+])
 
 const [Modal, modalApi] = useModal({
 	onChangeState: isOpen => {

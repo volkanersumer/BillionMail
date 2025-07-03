@@ -7,7 +7,7 @@
 				<n-button type="primary" @click="handleAdd">
 					{{ t('common.actions.import') }}
 				</n-button>
-				<n-button @click="handleSettings">
+				<n-button v-if="tableParams.group_id" @click="handleSettings">
 					{{ t('common.actions.settings') }}
 				</n-button>
 			</template>
@@ -104,7 +104,7 @@ const columns = ref<DataTableColumns<Subscriber>>([
 	},
 	{
 		key: 'groups',
-		title: 'Join Group',
+		title: t('contacts.subscribers.joinGroup'),
 		minWidth: 100,
 		render: row => {
 			return row.groups.map(group => group.name).join(', ')
@@ -166,7 +166,7 @@ const handleAdd = () => {
 
 const handleSettings = () => {
 	if (!tableParams.value.group_id) {
-		Message.warning('请在右侧选择一个分组')
+		Message.warning(t('contacts.subscribers.selectGroupHint'))
 		return
 	}
 	router.push(`/contacts/settings/${tableParams.value.group_id}`)

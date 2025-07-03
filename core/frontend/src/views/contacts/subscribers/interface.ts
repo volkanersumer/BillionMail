@@ -15,7 +15,7 @@ export interface Subscriber {
 export interface SubscriberParams {
 	page: number
 	page_size: number
-	group_id: string
+	group_id: number
 	keyword: string
 	status: number
 }

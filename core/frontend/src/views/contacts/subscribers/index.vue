@@ -1,6 +1,7 @@
 <template>
 	<div>
-		<subscriber-trends :status="tableParams.status"></subscriber-trends>
+		<subscriber-trends ref="trendRef" :group-id="tableParams.group_id" :status="tableParams.status">
+		</subscriber-trends>
 		<bt-table-layout>
 			<template #toolsLeft>
 				<n-button type="primary" @click="handleAdd">
@@ -20,9 +21,7 @@
 					</n-radio-button>
 				</n-radio-group>
 				<div class="w-200px">
-					<group-select
-						v-model:value="tableParams.group_id"
-						@update:value="() => getTableData(true)">
+					<group-select v-model:value="tableParams.group_id" @update:value="handleUpdateGroup">
 					</group-select>
 				</div>
 				<bt-search
@@ -74,6 +73,8 @@ const { t } = useI18n()
 const location = useBrowserLocation()
 
 const router = useRouter()
+
+const trendRef = useTemplateRef('trendRef')
 
 const { tableParams, tableList, loading, tableTotal, getTableData } = useTableData<
 	Subscriber,
@@ -142,6 +143,13 @@ const columns = ref<DataTableColumns<Subscriber>>([
 		),
 	},
 ])
+
+const handleUpdateGroup = () => {
+	getTableData(true)
+	nextTick(() => {
+		trendRef.value?.getData()
+	})
+}
 
 const [ImportModal, importModalApi] = useModal({
 	component: SubscriberImport,

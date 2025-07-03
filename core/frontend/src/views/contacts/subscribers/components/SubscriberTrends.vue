@@ -13,6 +13,12 @@ import { getSubscriberTrend } from '@/api/modules/contacts/subscribers'
 import type { ECOptionLine } from '@/types/chart'
 import type { SubscriberTrend } from '../interface'
 
+const { groupId } = defineProps({
+	groupId: {
+		type: Number,
+	},
+})
+
 const loading = ref(false)
 
 const subscribe = ref<SubscriberTrend[]>([])
@@ -84,7 +90,7 @@ const chartOptions = computed<ECOptionLine>(() => {
 const getData = async () => {
 	try {
 		loading.value = true
-		const res = await getSubscriberTrend()
+		const res = await getSubscriberTrend({ group_id: groupId })
 		if (isObject<{ subscribe: SubscriberTrend[]; unsubscribe: SubscriberTrend[] }>(res)) {
 			subscribe.value = isArray(res.subscribe) ? res.subscribe : []
 		}
@@ -94,4 +100,8 @@ const getData = async () => {
 }
 
 getData()
+
+defineExpose({
+	getData,
+})
 </script>

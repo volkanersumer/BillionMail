@@ -33,6 +33,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/util/gconv"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -354,19 +355,19 @@ var (
 			// Enable HTTPS
 			s.EnableHTTPS(public.AbsPath(filepath.Join(consts.SSL_PATH, "cert.pem")), public.AbsPath(filepath.Join(consts.SSL_PATH, "key.pem")))
 
-			//// attempt add http port
-			//if httpPort, err := public.DockerEnv("HTTP_PORT"); err == nil && httpPort != "" {
-			//	s.SetPort(gconv.Int(httpPort))
-			//}
-			//
-			//// Set HTTPS ports
-			//s.SetHTTPSPort(g.Cfg().MustGet(ctx, "server.httpsPort", 443).Int())
-			//if httpsPort, err := public.DockerEnv("HTTPS_PORT"); err == nil && httpsPort != "" {
-			//	s.SetHTTPSPort(gconv.Int(httpsPort))
-			//}
+			// attempt add http port
+			if httpPort, err := public.DockerEnv("HTTP_PORT"); err == nil && httpPort != "" {
+				s.SetPort(gconv.Int(httpPort))
+			}
 
-			s.SetHTTPSPort(82)
-			s.SetPort(81)
+			// Set HTTPS ports
+			s.SetHTTPSPort(g.Cfg().MustGet(ctx, "server.httpsPort", 443).Int())
+			if httpsPort, err := public.DockerEnv("HTTPS_PORT"); err == nil && httpsPort != "" {
+				s.SetHTTPSPort(gconv.Int(httpsPort))
+			}
+
+			//s.SetHTTPSPort(82)
+			//s.SetPort(81)
 
 			s.SetSwaggerUITemplate(`<!doctype html>
 <html lang="en">

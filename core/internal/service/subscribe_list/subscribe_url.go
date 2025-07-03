@@ -10,13 +10,11 @@ import (
 )
 
 func ReplaceSubmitUrl(ctx context.Context) {
-	g.Log().Errorf(ctx, "@@@@@@@@@@更新 {{ SubmitURL . }}")
 	hostwork := public.HostWorkDir
 	filePath := filepath.Join(hostwork, "/core/public/html/subscribe_form.html")
 	content := gfile.GetContents(filePath)
 
 	if !strings.Contains(content, "{{ SubmitURL . }}") {
-		g.Log().Errorf(ctx, "@@@@@@@@@@ 跳过 {{ SubmitURL . }}")
 		return
 	}
 

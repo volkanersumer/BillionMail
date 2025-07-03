@@ -1,9 +1,14 @@
 <template>
 	<div>
+		<subscriber-trends ref="trendRef" :group-id="tableParams.group_id" :status="tableParams.status">
+		</subscriber-trends>
 		<bt-table-layout>
 			<template #toolsLeft>
 				<n-button type="primary" @click="handleAdd">
 					{{ t('common.actions.import') }}
+				</n-button>
+				<n-button v-if="tableParams.group_id" @click="handleSettings">
+					{{ t('common.actions.settings') }}
 				</n-button>
 			</template>
 			<template #toolsRight>
@@ -16,9 +21,7 @@
 					</n-radio-button>
 				</n-radio-group>
 				<div class="w-200px">
-					<group-select
-						v-model:value="tableParams.group_id"
-						@update:value="() => getTableData(true)">
+					<group-select v-model:value="tableParams.group_id" @update:value="handleUpdateGroup">
 					</group-select>
 				</div>
 				<bt-search
@@ -54,19 +57,24 @@
 <script lang="tsx" setup>
 import { useBrowserLocation } from '@vueuse/core'
 import { DataTableColumns, NButton, NFlex } from 'naive-ui'
+import { confirm, formatTime, Message } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
 import { useTableData } from '@/hooks/useTableData'
-import { confirm, formatTime } from '@/utils'
 import { deleteSubscriber, getSubscriberList } from '@/api/modules/contacts/subscribers'
 import type { Subscriber, SubscriberParams } from './interface'
 
 import GroupSelect from './components/GroupSelect.vue'
+import SubscriberTrends from './components/SubscriberTrends.vue'
 import SubscriberImport from './components/SubscriberImport.vue'
 import SubscriberEdit from './components/SubscriberEdit.vue'
 
 const { t } = useI18n()
 
 const location = useBrowserLocation()
+
+const router = useRouter()
+
+const trendRef = useTemplateRef('trendRef')
 
 const { tableParams, tableList, loading, tableTotal, getTableData } = useTableData<
 	Subscriber,
@@ -96,7 +104,7 @@ const columns = ref<DataTableColumns<Subscriber>>([
 	},
 	{
 		key: 'groups',
-		title: t('contacts.subscribers.columns.name'),
+		title: t('contacts.subscribers.joinGroup'),
 		minWidth: 100,
 		render: row => {
 			return row.groups.map(group => group.name).join(', ')
@@ -136,6 +144,13 @@ const columns = ref<DataTableColumns<Subscriber>>([
 	},
 ])
 
+const handleUpdateGroup = () => {
+	getTableData(true)
+	nextTick(() => {
+		trendRef.value?.getData()
+	})
+}
+
 const [ImportModal, importModalApi] = useModal({
 	component: SubscriberImport,
 	state: {
@@ -147,6 +162,14 @@ const [ImportModal, importModalApi] = useModal({
 const handleAdd = () => {
 	importModalApi.setState({ group_id: tableParams.value.group_id })
 	importModalApi.open()
+}
+
+const handleSettings = () => {
+	if (!tableParams.value.group_id) {
+		Message.warning(t('contacts.subscribers.selectGroupHint'))
+		return
+	}
+	router.push(`/contacts/settings/${tableParams.value.group_id}`)
 }
 
 const [EditModal, editModalApi] = useModal({

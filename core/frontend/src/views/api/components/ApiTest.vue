@@ -53,7 +53,7 @@ const [Modal, modalApi] = useModal({
 			const { row } = state
 			if (row) {
 				command.value = `curl -k -X POST '${row.server_addresser}'   -H 'X-API-Key: ${row.api_key}'   -H 'Content-Type: application/json'   -d '{
-    "recipient": "$email",
+    "recipient": "$email"
   }'`
 			}
 		} else {

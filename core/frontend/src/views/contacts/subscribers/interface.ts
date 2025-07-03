@@ -19,3 +19,8 @@ export interface SubscriberParams {
 	keyword: string
 	status: number
 }
+
+export interface SubscriberTrend {
+	count: number
+	month: string
+}

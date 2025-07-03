@@ -23,6 +23,14 @@ export interface Api {
 	ip_whitelist: string[]
 }
 
+export interface ApiParams {
+	page: number
+	page_size: number
+	keyword: string
+	active: number
+	time_range: [number, number]
+}
+
 export interface OverviewStats {
 	total_send: number
 	avg_delivery_rate: number

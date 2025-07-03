@@ -33,6 +33,12 @@ const route: RouteRecordRaw = {
 				},
 			],
 		},
+		{
+			path: 'settings/:id',
+			name: 'ContactsSettings',
+			meta: { title: 'Settings', titleKey: '' },
+			component: () => import('@/views/contacts/settings/index.vue'),
+		},
 	],
 }
 

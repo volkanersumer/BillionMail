@@ -1,9 +1,13 @@
 <template>
 	<div>
+		<subscriber-trends :status="tableParams.status"></subscriber-trends>
 		<bt-table-layout>
 			<template #toolsLeft>
 				<n-button type="primary" @click="handleAdd">
 					{{ t('common.actions.import') }}
+				</n-button>
+				<n-button @click="handleSettings">
+					{{ t('common.actions.settings') }}
 				</n-button>
 			</template>
 			<template #toolsRight>
@@ -54,19 +58,22 @@
 <script lang="tsx" setup>
 import { useBrowserLocation } from '@vueuse/core'
 import { DataTableColumns, NButton, NFlex } from 'naive-ui'
+import { confirm, formatTime, Message } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
 import { useTableData } from '@/hooks/useTableData'
-import { confirm, formatTime } from '@/utils'
 import { deleteSubscriber, getSubscriberList } from '@/api/modules/contacts/subscribers'
 import type { Subscriber, SubscriberParams } from './interface'
 
 import GroupSelect from './components/GroupSelect.vue'
+import SubscriberTrends from './components/SubscriberTrends.vue'
 import SubscriberImport from './components/SubscriberImport.vue'
 import SubscriberEdit from './components/SubscriberEdit.vue'
 
 const { t } = useI18n()
 
 const location = useBrowserLocation()
+
+const router = useRouter()
 
 const { tableParams, tableList, loading, tableTotal, getTableData } = useTableData<
 	Subscriber,
@@ -96,7 +103,7 @@ const columns = ref<DataTableColumns<Subscriber>>([
 	},
 	{
 		key: 'groups',
-		title: t('contacts.subscribers.columns.name'),
+		title: 'Join Group',
 		minWidth: 100,
 		render: row => {
 			return row.groups.map(group => group.name).join(', ')
@@ -147,6 +154,14 @@ const [ImportModal, importModalApi] = useModal({
 const handleAdd = () => {
 	importModalApi.setState({ group_id: tableParams.value.group_id })
 	importModalApi.open()
+}
+
+const handleSettings = () => {
+	if (!tableParams.value.group_id) {
+		Message.warning('请在右侧选择一个分组')
+		return
+	}
+	router.push(`/contacts/settings/${tableParams.value.group_id}`)
 }
 
 const [EditModal, editModalApi] = useModal({

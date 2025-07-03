@@ -46,7 +46,8 @@
       "preview": "预览",
       "modify": "修改",
       "config": "配置",
-      "help": "Help"
+      "help": "Help",
+      "settings": "设置"
     },
     "useCopy": {
       "noText": "没有要复制的文本",

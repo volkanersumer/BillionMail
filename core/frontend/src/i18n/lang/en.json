@@ -46,7 +46,8 @@
       "preview": "Preview",
       "modify": "Modify",
       "config": "Config",
-      "help": "Help"
+      "help": "Help",
+      "settings": "Settings"
     },
     "useCopy": {
       "noText": "No text to copy",

@@ -8,6 +8,10 @@ export const getSubscriberList = (params: SubscriberParams) => {
 	return instance.get('/contact/list', { params })
 }
 
+export const getSubscriberTrend = (params: { group_id?: number }) => {
+	return instance.get('/contact/trend', { params })
+}
+
 export const importSubscribers = (data: {
 	group_ids: number[]
 	file_data: string

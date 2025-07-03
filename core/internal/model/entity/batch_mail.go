@@ -7,6 +7,21 @@ type ContactGroup struct {
 	Description string `json:"description" dc:"Description"`
 	CreateTime  int    `json:"create_time" dc:"Create Time"`
 	UpdateTime  int    `json:"update_time" dc:"Update Time"`
+	Token       string `json:"token"      dc:"Subscription Token"`
+	DoubleOptin int    `json:"double_optin" dc:"Double Opt-in Status(0: Single Opt-in 1: Double Opt-in)"`
+	WelcomeHtml string `json:"welcome_mail_html" dc:"Welcome Email Html"`
+	WelcomeDrag string `json:"welcome_mail_drag" dc:"Welcome Email Drag"`
+
+	WelcomeSubject   string `json:"welcome_subject" dc:"Welcome Email Subject"`
+	SendWelcomeEmail int    `json:"send_welcome_email" dc:"Whether to send a welcome email"`
+	ConfirmSubject   string `json:"confirm_subject" dc:"Confirmation Email Subject"`
+
+	ConfirmHtml   string `json:"confirm_mail_html" dc:"Confirmation Email Html"`
+	ConfirmDrag   string `json:"confirm_mail_drag" dc:"Confirmation Email Drag"`
+	SuccessUrl    string `json:"success_url" dc:"Success URL"`
+	ConfirmUrl    string `json:"confirm_url" dc:"Confirmation URL"`
+	AlreadyUrl    string `json:"already_url" dc:"Already Subscribed URL"`
+	SubscribeForm string `json:"subscribe_form" dc:"Subscription Form HTML"`
 }
 
 // Contact Entity

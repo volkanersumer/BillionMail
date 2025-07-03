@@ -49,7 +49,7 @@ func (c *ControllerV1) ListRelayConfigs(ctx context.Context, req *v1.ListRelayCo
 	resultList := make([]*v1.BmRelayWithSPF, 0, len(list))
 	for _, item := range list {
 		// Generate SPF record suggestion
-		spfRecord := GenerateSPFRecord(item.Ip, item.Host, item.SenderDomain)
+		spfRecord := relay_service.GenerateSPFRecord(item.Ip, item.Host, item.SenderDomain)
 
 		bmRelay := toPostfixRelayResponse(ctx, item)
 
@@ -79,7 +79,7 @@ func (c *ControllerV1) ListRelayConfigs(ctx context.Context, req *v1.ListRelayCo
 
 // toPostfixRelayResponse Converts database entity to API response structure
 func toPostfixRelayResponse(ctx context.Context, relay *entity.BmRelay) *v1.BmRelay {
-	password, _ := DecryptPassword(ctx, relay.AuthPassword)
+	password, _ := relay_service.DecryptPassword(ctx, relay.AuthPassword)
 	if password == "" {
 		password = "********"
 	}

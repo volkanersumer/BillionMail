@@ -34,6 +34,7 @@ type ApiMailLog struct {
 	Recipient string
 	Addresser string
 	MessageId string
+	Attribs   map[string]string `json:"attribs"`
 }
 
 // Cache data structure
@@ -152,7 +153,7 @@ func ProcessApiMailQueueWithLock(ctx context.Context) {
 		return
 	}
 	if !locked {
-		g.Log().Info(ctx, "Another instance is processing the mail queue")
+		g.Log().Warning(ctx, "Another instance is processing the mail queue")
 		return
 	}
 
@@ -337,6 +338,14 @@ func updateLogStatus(ctx context.Context, id int64, status int, errorMsg string)
 // process mail content and subject
 func processMailContentAndSubject(ctx context.Context, content, subject string, apiTemplate *entity.ApiTemplates, contact entity.Contact, log ApiMailLog) (string, string) {
 	// unsubscribe link processing
+
+	apiAttribs := make(map[string]interface{})
+	if log.Attribs != nil {
+		for k, v := range log.Attribs {
+			apiAttribs[k] = v
+		}
+	}
+
 	if apiTemplate.Unsubscribe == 1 {
 		if !strings.Contains(content, "__UNSUBSCRIBE_URL__") && !strings.Contains(content, "{{ UnsubscribeURL . }}") {
 			content = public.AddUnsubscribeButton(content)
@@ -349,11 +358,11 @@ func processMailContentAndSubject(ctx context.Context, content, subject string, 
 
 		if contact.Id > 0 {
 			engine := GetTemplateEngine()
-			renderedContent, err := engine.RenderEmailTemplate(ctx, content, &contact, nil, unsubscribeJumpURL)
+			renderedContent, err := engine.RenderEmailTemplateWithAPI(ctx, content, &contact, nil, unsubscribeJumpURL, apiAttribs)
 			if err == nil {
 				content = renderedContent
 			}
-			renderedSubject, err := engine.RenderEmailTemplate(ctx, subject, &contact, nil, unsubscribeJumpURL)
+			renderedSubject, err := engine.RenderEmailTemplateWithAPI(ctx, subject, &contact, nil, unsubscribeJumpURL, apiAttribs)
 			if err == nil {
 				subject = renderedSubject
 			}
@@ -362,11 +371,11 @@ func processMailContentAndSubject(ctx context.Context, content, subject string, 
 		}
 	} else if contact.Id > 0 {
 		engine := GetTemplateEngine()
-		renderedContent, err := engine.RenderEmailTemplate(ctx, content, &contact, nil, "")
+		renderedContent, err := engine.RenderEmailTemplateWithAPI(ctx, content, &contact, nil, "", apiAttribs)
 		if err == nil {
 			content = renderedContent
 		}
-		renderedSubject, err := engine.RenderEmailTemplate(ctx, subject, &contact, nil, "")
+		renderedSubject, err := engine.RenderEmailTemplateWithAPI(ctx, subject, &contact, nil, "", apiAttribs)
 		if err == nil {
 			subject = renderedSubject
 		}

@@ -77,8 +77,8 @@ type SystemConfig struct {
 	SSL SSLConfig `json:"ssl" dc:"ssl certificate configuration"`
 
 	// IP whitelist configuration
-	IPWhitelist        []string `json:"ip_whitelist" dc:"ip whitelist"`
-	IPWhitelistEnabled bool     `json:"ip_whitelist_enable" dc:"ip whitelist enabled"`
+	IPWhitelist        []g.Map `json:"ip_whitelist" dc:"ip whitelist"`
+	IPWhitelistEnabled bool    `json:"ip_whitelist_enable" dc:"ip whitelist enabled"`
 }
 
 type GetVersionReq struct {
@@ -153,5 +153,23 @@ type SetIPWhitelistReq struct {
 }
 
 type SetIPWhitelistRes struct {
+	api_v1.StandardRes
+}
+
+type DeleteIPWhitelistReq struct {
+	g.Meta `path:"/settings/delete_ip_whitelist" tags:"Settings" method:"post" summary:"Delete IP whitelist"`
+	ID     int `json:"id" dc:"ID"`
+}
+
+type DeleteIPWhitelistRes struct {
+	api_v1.StandardRes
+}
+
+type AddIPWhitelistReq struct {
+	g.Meta `path:"/settings/add_ip_whitelist" tags:"Settings" method:"post" summary:"Add IP whitelist"`
+	IP     string `json:"ip" dc:"IP"`
+}
+
+type AddIPWhitelistRes struct {
 	api_v1.StandardRes
 }

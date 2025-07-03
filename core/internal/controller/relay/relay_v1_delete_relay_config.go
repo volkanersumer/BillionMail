@@ -3,6 +3,7 @@ package relay
 import (
 	"billionmail-core/api/relay/v1"
 	"billionmail-core/internal/service/public"
+	"billionmail-core/internal/service/relay"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -27,7 +28,7 @@ func (c *ControllerV1) DeleteRelayConfig(ctx context.Context, req *v1.DeleteRela
 		return res, nil
 	}
 	// Sync configuration to Postfix
-	if err := SyncRelayConfigsToPostfix(ctx); err != nil {
+	if err := relay.SyncRelayConfigsToPostfix(ctx); err != nil {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Deleted successfully but failed to sync configuration: {}", err.Error())))
 		return res, nil
 	}

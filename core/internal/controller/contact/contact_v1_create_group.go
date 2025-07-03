@@ -28,7 +28,7 @@ func (c *ControllerV1) CreateGroup(ctx context.Context, req *v1.CreateGroupReq) 
 		}
 
 		// create new group
-		groupId, err = contact.CreateGroup(ctx, req.Name, req.Description)
+		groupId, err = contact.CreateGroup(ctx, req.Name, req.Description, req.DoubleOptin)
 		if err != nil {
 			res.Code = 500
 			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to create group {}", err.Error())))
@@ -77,7 +77,7 @@ func (c *ControllerV1) CreateGroup(ctx context.Context, req *v1.CreateGroupReq) 
 		// set group id
 		for _, contactInfo := range contacts {
 			contactInfo.GroupId = groupId
-			contactInfo.Status = req.Status
+			contactInfo.Status = 1
 		}
 
 		err = contact.BatchCreateContacts(ctx, contacts)

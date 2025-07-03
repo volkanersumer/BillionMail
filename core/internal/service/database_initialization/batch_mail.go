@@ -6,6 +6,7 @@ import (
 )
 
 func init() {
+
 	registerHandler(func() {
 		batchMailSQLList := []string{
 
@@ -15,6 +16,20 @@ func init() {
                 description TEXT,
                 create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
                 update_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+    			token VARCHAR(30) NOT NULL DEFAULT '', 
+    			double_optin SMALLINT NOT NULL DEFAULT 0, -- 0: Single Opt-in, 1: Double Opt-in
+    			welcome_mail_html TEXT DEFAULT '', -- HTML content for welcome email
+    			welcome_mail_drag TEXT DEFAULT '', -- Drag-and-drop content for welcome email
+    			confirm_mail_html TEXT DEFAULT '', -- HTML content for confirmation email
+    			confirm_mail_drag TEXT DEFAULT '', -- Drag-and-drop content for confirmation email
+    			success_url TEXT DEFAULT '', -- URL to redirect after successful subscription
+    			confirm_url TEXT DEFAULT '', -- URL to redirect after confirmation
+    			already_url TEXT DEFAULT '', -- URL to redirect if already subscribed
+    			subscribe_form TEXT DEFAULT '', -- HTML form for subscription
+    			confirm_subject TEXT DEFAULT '', -- Confirmation Email Subject
+    			welcome_subject TEXT DEFAULT '', -- Welcome Email Subject
+    			send_welcome_email SMALLINT NOT NULL DEFAULT 0,--  0: No need to send email, 1: send email
+
                 UNIQUE(name)
             )`,
 
@@ -128,6 +143,7 @@ func init() {
                 addresser VARCHAR(320) NOT NULL,
                 status SMALLINT NOT NULL DEFAULT 0, -- 0:to send, 2:send, 3:send failed
                 error_message TEXT, 
+				attribs JSONB DEFAULT '{}'::jsonb,
                 send_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
                 create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())
 
@@ -159,16 +175,30 @@ func init() {
 				return
 			}
 		}
-		// bm_contacts  attribs
+		// bm_contacts
 		_ = AddColumnIfNotExists("bm_contacts", "attribs", "JSONB", "'{}'::jsonb", false)
-		//  bm_contacts status
 		_ = AddColumnIfNotExists("bm_contacts", "status", "INTEGER", "0", false)
-		//  api_mail_logs status
+
+		//  api_mail_logs
 		_ = AddColumnIfNotExists("api_mail_logs", "status", "SMALLINT", "0", true)
-		//  api_mail_logs   error_message
 		_ = AddColumnIfNotExists("api_mail_logs", "error_message", "TEXT", "''", false)
-		//  api_mail_logs  create_time
 		_ = AddColumnIfNotExists("api_mail_logs", "create_time", "INTEGER", "EXTRACT(EPOCH FROM NOW())", true)
+		_ = AddColumnIfNotExists("api_mail_logs", "attribs", "JSONB", "'{}'::jsonb", false)
+
+		//bm_contact_groups
+		_ = AddColumnIfNotExists("bm_contact_groups", "token", "VARCHAR(30)", "''", true)
+		_ = AddColumnIfNotExists("bm_contact_groups", "double_optin", "SMALLINT", "0", true)
+		_ = AddColumnIfNotExists("bm_contact_groups", "success_url", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "confirm_url", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "already_url", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "subscribe_form", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "welcome_mail_html", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "welcome_mail_drag", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "confirm_mail_html", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "confirm_mail_drag", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "confirm_subject", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "welcome_subject", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "send_welcome_email", "SMALLINT", "0", true)
 
 		g.Log().Info(context.Background(), "Batch mail tables initialized successfully")
 	})

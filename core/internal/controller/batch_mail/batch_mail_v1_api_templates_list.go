@@ -121,7 +121,6 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 			Where("api_id", item.Id).
 			Fields("ip").
 			Scan(&ipRows)
-		g.Log().Warningf(ctx, "[API List] IP whitelist for API ID %d: %+v", item.Id, ipRows)
 
 		if err != nil {
 			g.Log().Error(ctx, "Failed to get IP whitelist:", err)
@@ -132,9 +131,7 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 			ips = append(ips, row.Ip)
 		}
 		item.IpWhitelist = ips
-		serverIP, _ := public.GetServerIP()
-		serverPort := public.GetServerPort(ctx)
-		item.ServerAddresser = "https://" + serverIP + ":" + serverPort
+		item.ServerAddresser = public.GethostUrl() + "/api/batch_mail/api/send"
 	}
 
 	res.Data.Total = total

@@ -164,7 +164,6 @@ const columns = ref<DataTableColumns<Api>>([
 		render: row => (
 			<NFlex inline={true}>
 				<NButton
-					v-show={false}
 					type="primary"
 					text={true}
 					onClick={() => {

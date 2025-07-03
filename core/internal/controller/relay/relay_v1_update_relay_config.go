@@ -1,6 +1,7 @@
 package relay
 
 import (
+	"billionmail-core/internal/service/relay"
 	"context"
 
 	"billionmail-core/api/relay/v1"
@@ -42,7 +43,7 @@ func (c *ControllerV1) UpdateRelayConfig(ctx context.Context, req *v1.UpdateRela
 	}
 
 	if req.AuthPassword != "" {
-		encryptedPass, err := EncryptPassword(ctx, req.AuthPassword)
+		encryptedPass, err := relay.EncryptPassword(ctx, req.AuthPassword)
 		if err != nil {
 			res.SetError(err)
 			return res, nil
@@ -126,10 +127,10 @@ func (c *ControllerV1) UpdateRelayConfig(ctx context.Context, req *v1.UpdateRela
 
 	spfRecord := ""
 	if updatedRelay != nil {
-		spfRecord = GenerateSPFRecord(updatedRelay.Ip, updatedRelay.Host, updatedRelay.SenderDomain)
+		spfRecord = relay.GenerateSPFRecord(updatedRelay.Ip, updatedRelay.Host, updatedRelay.SenderDomain)
 	}
 
-	if err := SyncRelayConfigsToPostfix(ctx); err != nil {
+	if err := relay.SyncRelayConfigsToPostfix(ctx); err != nil {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Updated successfully but failed to sync configuration: {}", err.Error())))
 		return res, nil
 	}

@@ -150,3 +150,15 @@ type ApiMailSendReq struct {
 type ApiMailSendRes struct {
 	api_v1.StandardRes
 }
+
+type ApiMailBatchSendReq struct {
+	g.Meta     `path:"/batch_mail/api/batch_send" method:"post" tags:"ApiMail" summary:"call api batch send mail"`
+	ApiKey     string            `json:"x-api-key" dc:"API Key" in:"header"`
+	Addresser  string            `json:"addresser" dc:"addresser"`
+	Recipients []string          `json:"recipients" dc:"recipients"`
+	Attribs    map[string]string `json:"attribs" dc:"Custom properties"`
+}
+
+type ApiMailBatchSendRes struct {
+	api_v1.StandardRes
+}

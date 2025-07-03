@@ -16,7 +16,7 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 	res = &v1.ApiMailBatchSendRes{}
 	clientIP := g.RequestFromCtx(ctx).GetClientIp()
 
-	// 1. 校验API Key
+	// 1. check API Key
 	apiTemplate, err := getApiTemplateByKey(ctx, req.ApiKey, clientIP)
 	if err != nil {
 		res.Code = 1001
@@ -24,7 +24,7 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 		return res, nil
 	}
 
-	// 2. 校验IP
+	// 2. check client IP
 	err = CheckClientIP(ctx, apiTemplate.Id, clientIP)
 	if err != nil {
 		res.Code = 1002
@@ -32,7 +32,7 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 		return res, nil
 	}
 
-	// 3. 校验邮件模板
+	// 3. check email template
 	_, err = getEmailTemplateById(ctx, apiTemplate.TemplateId)
 	if err != nil {
 		res.Code = 1004
@@ -40,7 +40,7 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 		return res, nil
 	}
 
-	// 4. 校验收件人
+	// 4. check recipient
 	if len(req.Recipients) == 0 {
 		res.Code = 1003
 		res.SetError(gerror.New(public.LangCtx(ctx, "Recipients cannot be empty")))
@@ -49,6 +49,8 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 
 	validRecipients := make([]string, 0, len(req.Recipients))
 	for _, recipient := range req.Recipients {
+		// remove extra spaces
+		recipient = strings.TrimSpace(recipient)
 		if recipient != "" && strings.Contains(recipient, "@") {
 			validRecipients = append(validRecipients, recipient)
 		}
@@ -59,20 +61,19 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 		return res, nil
 	}
 
-	// 5. 处理发件人
+	// 5. process addresser
 	addresser := req.Addresser
 	if addresser == "" {
 		addresser = apiTemplate.Addresser
 	}
 
-	// 6. 批量处理联系人和日志数据
 	batchData := make([]g.Map, 0, len(validRecipients))
 	now := int(time.Now().Unix())
 	for _, recipient := range validRecipients {
-		// 处理联系人和分组
+
 		_, err = ensureContactAndGroup(ctx, recipient, apiTemplate.Id)
 		if err != nil {
-			// 某个收件人失败，跳过
+
 			continue
 		}
 		// 生成messageId
@@ -88,7 +89,7 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 			"recipient":     recipient,
 			"message_id":    messageId,
 			"addresser":     addresser,
-			"status":        0, // 待发送
+			"status":        0,
 			"error_message": "",
 			"send_time":     0,
 			"create_time":   now,
@@ -102,7 +103,6 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 		return res, nil
 	}
 
-	// 7. 批量插入日志表，分批处理
 	batchSize := 1000
 	for i := 0; i < len(batchData); i += batchSize {
 		end := i + batchSize

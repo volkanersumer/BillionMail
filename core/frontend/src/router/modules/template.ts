@@ -8,7 +8,7 @@ export default {
 		title: 'template',
 		key: 'template',
 		titleKey: 'layout.menu.template',
-		hidden: isDev,
+		hidden: !isDev,
 	},
 	component: () => import('@/views/template/index.vue'),
 } as RouteRecordRaw

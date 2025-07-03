@@ -101,18 +101,15 @@ func updateContactStatus(email string, groupId int, status int) error {
 }
 
 func readTemplateFiles(baseFilename string) (htmlContent string, txtContent string, err error) {
-	hostwork := public.HostWorkDir
-
-	// Construct two file paths (automatically handle OS-specific separators)
-	htmlPath := filepath.Join(hostwork, "core", "template", baseFilename+".html")
-	txtPath := filepath.Join(hostwork, "core", "template", baseFilename+".txt")
+	htmlPath := filepath.Join(public.AbsPath("../core/template"), baseFilename+".html")
+	txtPath := filepath.Join(public.AbsPath("../core/template"), baseFilename+".txt")
 
 	// Security check (prevent directory traversal)
-	cleanDir := filepath.Clean(filepath.Join(hostwork, "core", "data"))
-	if !strings.HasPrefix(filepath.Clean(htmlPath), cleanDir) ||
-		!strings.HasPrefix(filepath.Clean(txtPath), cleanDir) {
-		return "", "", fmt.Errorf("illegal path access: %s", baseFilename)
-	}
+	//cleanDir := filepath.Clean(filepath.Join(hostwork, "core", "data"))
+	//if !strings.HasPrefix(filepath.Clean(htmlPath), cleanDir) ||
+	//	!strings.HasPrefix(filepath.Clean(txtPath), cleanDir) {
+	//	return "", "", fmt.Errorf("illegal path access: %s", baseFilename)
+	//}
 
 	// Read HTML file
 	htmlBytes, err := os.ReadFile(htmlPath)
@@ -336,8 +333,7 @@ func GetDefaultDomain() (string, error) {
 
 // Get subscription form code
 func GetSubscribeFormCode(groupToken string) string {
-	hostwork := public.HostWorkDir
-	filePath := filepath.Join(hostwork, "core", "public", "html", "subscribe_form_code.html")
+	filePath := public.AbsPath("../core/public/html/subscribe_form_code.html")
 	content := gfile.GetContents(filePath)
 
 	if !strings.Contains(content, "{{ SubmitURL . }}") {

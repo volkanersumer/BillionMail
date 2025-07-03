@@ -1,5 +1,5 @@
 <template>
-	<modal :title="title" :width="540">
+	<modal :title="title" :width="600">
 		<div class="pt-16px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="t('domain.form.domain')" path="domain">

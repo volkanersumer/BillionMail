@@ -44,7 +44,10 @@ const getInfo = async () => {
 	}
 }
 
-createContext({ groupInfo })
+createContext({
+	groupInfo,
+	getInfo,
+})
 
 getInfo()
 </script>

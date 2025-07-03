@@ -2,6 +2,7 @@ import { GroupInfo } from '../types/base'
 
 type Instance = {
 	groupInfo: Ref<GroupInfo | null>
+	getInfo: () => Promise<void>
 }
 
 const key = Symbol('group-settings')

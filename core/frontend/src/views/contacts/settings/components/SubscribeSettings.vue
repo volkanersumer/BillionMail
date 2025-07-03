@@ -139,10 +139,11 @@ const listTypeOptions: SelectOption[] = [
 	{ label: t('contacts.settings.subscribeSettings.listType.options.singleOptin'), value: 0 },
 ]
 
-const { groupInfo } = useContext()
+const { groupInfo, getInfo } = useContext()
 
 const handleSave = async () => {
 	await saveSubscribeSetting(toRaw(form))
+	getInfo()
 }
 
 watchEffect(() => {

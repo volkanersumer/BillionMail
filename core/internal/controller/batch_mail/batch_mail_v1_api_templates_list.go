@@ -131,7 +131,7 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 			ips = append(ips, row.Ip)
 		}
 		item.IpWhitelist = ips
-		item.ServerAddresser = public.GethostUrl() + "api/batch_mail/api/send"
+		item.ServerAddresser = public.GethostUrl() + "/api/batch_mail/api/send"
 	}
 
 	res.Data.Total = total

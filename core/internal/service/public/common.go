@@ -2652,9 +2652,9 @@ func GethostUrl() string {
 	if hostname == "" || hostname == "mail.example.com" {
 		serverIP, _ := GetServerIP()
 		serverPort := MustGetDockerEnv("HTTPS_PORT", "443")
-		hostUrl = fmt.Sprintf("https://%s:%s/", serverIP, serverPort)
+		hostUrl = fmt.Sprintf("https://%s:%s", serverIP, serverPort)
 	} else {
-		hostUrl = fmt.Sprintf("https://%s/", hostname)
+		hostUrl = fmt.Sprintf("https://%s", hostname)
 	}
 
 	return hostUrl

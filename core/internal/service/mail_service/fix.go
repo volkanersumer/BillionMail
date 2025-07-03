@@ -5,6 +5,7 @@ import (
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/public"
 	"context"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"path/filepath"
 	"strings"
@@ -62,6 +63,7 @@ endif
 
 	lines := make([]string, 0)
 	skipNextEmptyLine := false
+	containsHostname := false
 
 	// Read the main configuration file each rows
 	err = public.ReadEach(consts.POSTFIX_MAIN_CONF, func(row string, cnt int) bool {
@@ -87,6 +89,15 @@ endif
 			return true
 		}
 
+		if !containsHostname && strings.HasPrefix(strings.TrimSpace(row), "myhostname") {
+			// Cleanup this line when contains mail.example.com
+			if strings.Contains(row, "mail.example.com") {
+				skipNextEmptyLine = true
+				return true
+			}
+			containsHostname = true
+		}
+
 		lines = append(lines, row)
 
 		return true
@@ -95,6 +106,19 @@ endif
 	if err != nil {
 		g.Log().Warning(ctx, "Failed to read Postfix main configuration file: %v", err)
 		return
+	}
+
+	// If myhostname is not found, add it at the end
+	if !containsHostname {
+		// get first added domain
+		var val gdb.Value
+		val, err = g.DB().Model("domain").Where("active = 1").OrderAsc("create_time").Limit(1).Value("domain")
+
+		if err == nil {
+			lines = append(lines, "\nmyhostname = "+val.String()+"\n")
+		} else {
+			g.Log().Warning(ctx, "Failed to get first added domain: %v", err)
+		}
 	}
 
 	// Write the updated lines back to the main configuration file
@@ -115,7 +139,7 @@ endif
 	defer dk.Close()
 
 	// Restart the Postfix container to apply the changes
-	err = dk.RestartContainer(ctx, "billionmail-postfix-billionmail-1")
+	_, err = dk.ExecCommandByName(ctx, "billionmail-postfix-billionmail-1", []string{"postfix", "reload"}, "root")
 
 	if err != nil {
 		g.Log().Warning(ctx, "Failed to restart Postfix container: %v", err)

@@ -83,10 +83,26 @@ func Start(ctx context.Context) (err error) {
 	})
 
 	// Fix Postfix main configuration and Rspamd DKIM signing config
-	gtimer.AddOnce(5*time.Second, func() {
+	gtimer.AddOnce(800*time.Millisecond, func() {
+		g.Log().Debug(ctx, "Fixing Postfix main configuration and Rspamd DKIM signing config")
+
+		defer func() {
+			g.Log().Debug(ctx, "Fixing Postfix main configuration and Rspamd DKIM signing config done")
+		}()
+
 		mail_service.FixPostfixMainConfig(ctx)
 		mail_service.FixRspamdDKIMSigningConfig(ctx)
 		mail_service.FixDovecotSSLConfig(ctx)
+		err := relay.SyncRelayConfigsToPostfix(ctx)
+		if err != nil {
+			g.Log().Warning(ctx, "SyncRelayConfigsToPostfix failed: ", err)
+			err = nil
+		}
+		err = mail_service.SyncBccToPostfix(ctx)
+		if err != nil {
+			g.Log().Warning(ctx, "SyncBccToPostfix failed: ", err)
+			err = nil
+		}
 	})
 
 	// ========== Mail task processing: one executor per task ==========

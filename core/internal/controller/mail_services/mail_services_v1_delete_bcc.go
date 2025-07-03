@@ -1,6 +1,7 @@
 package mail_services
 
 import (
+	"billionmail-core/internal/service/mail_service"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 
@@ -29,7 +30,7 @@ func (c *ControllerV1) DeleteBcc(ctx context.Context, req *v1.DeleteBccReq) (res
 		return res, nil
 	}
 
-	if err := SyncBccToPostfix(ctx); err != nil {
+	if err := mail_service.SyncBccToPostfix(ctx); err != nil {
 		g.Log().Error(ctx, "sync bcc config failed: {}", err)
 		res.SetError(gerror.New(public.LangCtx(ctx, "delete success but sync config failed: {}", err.Error())))
 		return res, nil

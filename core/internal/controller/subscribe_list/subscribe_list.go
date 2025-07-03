@@ -25,29 +25,6 @@ import (
 	"strings"
 )
 
-//// 联系人结构体
-//type Contact struct {
-//	Id     int
-//	Email  string
-//	Status int
-//	// ...其他字段
-//}
-
-// 订阅组结构体
-type Group struct {
-	Id            int
-	Name          string
-	Token         string
-	DoubleOptin   int
-	WelcomeMailId int
-	ConfirmMailId int
-	SuccessUrl    string
-	ConfirmUrl    string
-	AlreadyUrl    string
-	// ...其他字段
-}
-
-// 查找组
 func getGroupByToken(token string) (*entity.ContactGroup, error) {
 	var group entity.ContactGroup
 	err := g.DB().Model("bm_contact_groups").Where("token", token).Scan(&group)
@@ -57,9 +34,7 @@ func getGroupByToken(token string) (*entity.ContactGroup, error) {
 	return &group, err
 }
 
-// 查找联系人
 func getContactByEmailAndGroup(email string, groupId int) (*entity.Contact, error) {
-	// 查询数据库 bm_contacts where email=? and group_id=?
 	var contact entity.Contact
 	err := g.DB().Model("bm_contacts").
 		Where("group_id", groupId).
@@ -72,20 +47,11 @@ func getContactByEmailAndGroup(email string, groupId int) (*entity.Contact, erro
 	return &contact, err
 }
 
-// 添加/更新联系人
 func addOrUpdateContact(email string, groupId int, attribs map[string]string, status int) error {
 
-	// 处理旧数据 已经在联系人表 但不在当前组的 也不用确认
-	count, err := g.DB().Model("bm_contacts").
-		Where("email", email).
-		Count()
-	if err == nil && count > 0 {
-		status = 1 // 已经存在联系人，直接设置为已确认状态
-	}
-
-	// 如果已存在则更新，否则插入
+	// If exists, update; otherwise, insert
 	var contact entity.Contact
-	err = g.DB().Model("bm_contacts").
+	err := g.DB().Model("bm_contacts").
 		Where("email", email).
 		Where("group_id", groupId).
 		Scan(&contact)
@@ -99,7 +65,7 @@ func addOrUpdateContact(email string, groupId int, attribs map[string]string, st
 	}
 
 	if g.IsEmpty(contact) {
-		// 插入新联系人
+		// Insert new contact
 		contact = entity.Contact{
 			Email:   email,
 			GroupId: groupId,
@@ -112,7 +78,7 @@ func addOrUpdateContact(email string, groupId int, attribs map[string]string, st
 		}
 	}
 
-	// 更新现有联系人
+	// Update existing contact
 	contact.Status = status
 	contact.Attribs = attribs
 	_, err = g.DB().Model("bm_contacts").Data(contact).Where("id", contact.Id).Update()
@@ -123,10 +89,8 @@ func addOrUpdateContact(email string, groupId int, attribs map[string]string, st
 	return nil
 }
 
-// 更新联系人状态 确认(0,1)  订阅1
+// Update contact status: confirm (0,1), subscribe = 1
 func updateContactStatus(email string, groupId int, status int) error {
-	// update bm_contacts set status=? where email=? and group_id=?
-
 	_, err := g.DB().Model("bm_contacts").
 		Data(g.Map{"status": status, "active": 1}).
 		Where("email", email).
@@ -139,31 +103,31 @@ func updateContactStatus(email string, groupId int, status int) error {
 func readTemplateFiles(baseFilename string) (htmlContent string, txtContent string, err error) {
 	hostwork := public.HostWorkDir
 
-	// 构造两个文件路径（自动处理不同操作系统分隔符）
+	// Construct two file paths (automatically handle OS-specific separators)
 	htmlPath := filepath.Join(hostwork, "core", "data", baseFilename+".html")
 	txtPath := filepath.Join(hostwork, "core", "data", baseFilename+".txt")
 
-	// 安全检查（防止目录遍历）
+	// Security check (prevent directory traversal)
 	cleanDir := filepath.Clean(filepath.Join(hostwork, "core", "data"))
 	if !strings.HasPrefix(filepath.Clean(htmlPath), cleanDir) ||
 		!strings.HasPrefix(filepath.Clean(txtPath), cleanDir) {
-		return "", "", fmt.Errorf("非法路径访问: %s", baseFilename)
+		return "", "", fmt.Errorf("illegal path access: %s", baseFilename)
 	}
 
-	// 读取HTML文件
+	// Read HTML file
 	htmlBytes, err := os.ReadFile(htmlPath)
 	if err != nil {
-		return "", "", fmt.Errorf("读取HTML模板失败: %w", err)
+		return "", "", fmt.Errorf("failed to read HTML template: %w", err)
 	}
 
-	// 读取TXT文件（允许不存在）
+	// Read TXT file (allowed to not exist)
 	txtBytes, err := os.ReadFile(txtPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			g.Log().Warningf(context.Background(),
-				"读取TXT模板失败: %v, 路径: %s", err, txtPath)
+				"failed to read TXT template: %v, path: %s", err, txtPath)
 		}
-		txtBytes = []byte("") // 不存在时返回空内容
+		txtBytes = []byte("") // Return empty content if file does not exist
 	}
 
 	return string(htmlBytes), string(txtBytes), nil
@@ -177,11 +141,11 @@ func GetDefaultTemplate(emailType int) (html string, txt string) {
 	)
 
 	switch emailType {
-	case 1: // 欢迎邮件
+	case 1: // Welcome email
 		basePath = "default_welcome_email/welcome_email"
 		defaultHtml = "<p>Welcome to subscribe!</p>"
 		defaultTxt = ""
-	case 2: // 确认邮件
+	case 2: // Confirmation email
 		basePath = "default_confirm_email/confirm_email"
 		defaultHtml = "<p>Please confirm your subscription.</p>"
 		defaultTxt = ""
@@ -192,7 +156,7 @@ func GetDefaultTemplate(emailType int) (html string, txt string) {
 	htmlContent, txtContent, err := readTemplateFiles(basePath)
 	if err != nil {
 		g.Log().Errorf(context.Background(),
-			"获取模板失败，使用默认内容。错误: %v, 路径: %s",
+			"failed to load template, using default. Error: %v, Path: %s",
 			err, basePath)
 		return defaultHtml, defaultTxt
 	}
@@ -200,32 +164,32 @@ func GetDefaultTemplate(emailType int) (html string, txt string) {
 	return htmlContent, txtContent
 }
 
-// 发送邮件
+// Send email
 func sendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string) error {
-	// 1. 获取模板
+	// 1. Load template
 	if emailHtml == "" {
 		return gerror.New(public.LangCtx(ctx, "邮件模板ID不能为空"))
 	}
 
-	// 如果存在{{ ConfirmURL . }}变量，则替换为确认链接
+	// If {{ ConfirmURL . }} variable exists, replace it with confirmation link
 	if strings.Contains(emailHtml, "{{ ConfirmURL . }}") {
 		if confirmUrl == "" {
-			return gerror.New(public.LangCtx(ctx, "确认邮件需要提供确认链接"))
+			return gerror.New(public.LangCtx(ctx, "The confirmation email requires a confirmation link"))
 		}
 		emailHtml = strings.ReplaceAll(emailHtml, "{{ ConfirmURL . }}", confirmUrl)
 	}
 
-	// 2. 获取联系人（用于变量替换）
+	// 2. Retrieve contact for variable replacement
 	var contact entity.Contact
 	_ = g.DB().Model("bm_contacts").Where("email", email).Scan(&contact)
 
-	// 3. 退订链接处理
+	// 3. Handle unsubscribe link
 	content := emailHtml
 	//if !strings.Contains(content, "{{ UnsubscribeURL . }}") {
 	//	content = public.AddUnsubscribeButton(content)
 	//}
 
-	//// 4. 生成退订jwt和链接
+	//// 4. Generate unsubscribe JWT and link
 	//jwtToken, _ := batch_mail.GenerateUnsubscribeJWT(email, templateId, 0)
 	//domain := domains.GetBaseURL()
 	//unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
@@ -233,33 +197,32 @@ func sendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string)
 	//unsubscribeJumpURL := fmt.Sprintf("%s/unsubscribe.html?jwt=%s&email=%s&url_type=%s&url_unsubscribe=%s",
 	//	domain, jwtToken, email, groupURL, unsubscribeURL)
 
-	// 5. 渲染内容和主题
+	// 5. Render content and subject
 	engine := batch_mail.GetTemplateEngine()
 
 	personalizedContent, err := engine.RenderEmailTemplate(ctx, content, &contact, nil, "")
 	if err != nil {
-		return gerror.New(public.LangCtx(ctx, "渲染邮件内容失败"))
+		return gerror.New(public.LangCtx(ctx, "Failed to render email content"))
 	}
-	g.Log().Errorf(context.Background(), "主题:22 %v", subject)
+
 	personalizedSubject, err := engine.RenderEmailTemplate(ctx, subject, &contact, nil, "")
 	if err != nil {
-		return gerror.New(public.LangCtx(ctx, "渲染邮件主题失败"))
+		return gerror.New(public.LangCtx(ctx, "Failed to render email subject"))
 	}
-	g.Log().Errorf(context.Background(), "主题: 33%v", personalizedSubject)
-	//address := "noreply@lotkfc.cn"
-	DefaultDomain, err := getDefaultDomain()
+
+	DefaultDomain, err := GetDefaultDomain()
 	if err != nil {
-		return gerror.New(public.LangCtx(ctx, "获取默认发件域名失败: {}", err))
+		return gerror.New(public.LangCtx(ctx, "Failed to get default sending domain: {}", err))
 	}
 	address, err := createNoreplyEmail(DefaultDomain)
 	if err != nil {
-		return gerror.New(public.LangCtx(ctx, "查找noreply邮箱失败: {}", err))
+		return gerror.New(public.LangCtx(ctx, "Failed to find noreply email: {}", err))
 	}
 
-	// 6. 创建发件人
+	// 6. Create sender
 	sender, err := mail_service.NewEmailSenderWithLocal(address)
 	if err != nil {
-		return gerror.New(public.LangCtx(ctx, "创建发件人失败"))
+		return gerror.New(public.LangCtx(ctx, "Failed to create a sender"))
 	}
 	defer sender.Close()
 	messageId := sender.GenerateMessageID()
@@ -271,51 +234,52 @@ func sendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string)
 	mail_tracker.AppendTrackingPixel()
 	renderedContent := mail_tracker.GetHTML()
 
-	// 7. 创建消息
+	// 7. Create message
 	message := mail_service.NewMessage(personalizedSubject, renderedContent)
+	//message := mail_service.NewMessage(personalizedSubject, personalizedContent)
 	message.SetMessageID(messageId)
 	message.SetRealName("noreply")
 
-	// 8. 发送邮件
+	// 8. Send email
 	err = sender.Send(message, []string{email})
 	if err != nil {
-		return gerror.New(public.LangCtx(ctx, "发送邮件失败: {}", err))
+		return gerror.New(public.LangCtx(ctx, "Failed to send email: {}", err))
 	}
 
 	return nil
 }
 
-// 生成token
+// Generate token
 func generateConfirmToken(email, groupToken string) string {
 	token, err := batch_mail.GenerateSubscribeConfirmJWT(email, groupToken)
 	if err != nil {
-		g.Log().Errorf(context.Background(), "生成订阅确认token失败: %v", err)
+		g.Log().Errorf(context.Background(), "Failed to generate subscription confirmation token: %v", err)
 		return ""
 	}
 	return token
 }
 
-// 取token中的email  groupToken
+// Extract email and groupToken from token
 func getEmailFromToken(token string) (string, string, error) {
 	claims, err := batch_mail.ParseSubscribeConfirmJWT(token)
 	if err != nil {
-		return "", "", gerror.New("解析订阅确认token失败: " + err.Error())
+		return "", "", gerror.New("Failed to parse subscription confirmation token: " + err.Error())
 	}
 	return claims.Email, claims.GroupToken, nil
 }
 
-// 构建确认链接
+// Build confirmation URL
 func buildConfirmUrl(token string) string {
 	hostUrl := public.GethostUrl()
 	return fmt.Sprintf("%s/api/subscribe/confirm?token=%s", hostUrl, token)
 }
 
-// 查询发件邮箱是否存	创建
+// Query whether the sender email exists, create if not
 func createNoreplyEmail(domain string) (string, error) {
 	noreplyEmail := "noreply@" + domain
 	count, err := g.DB().Model("mailbox").Where("username", noreplyEmail).Count()
 	if err != nil {
-		return "", gerror.New("查询邮箱失败")
+		return "", gerror.New("Failed to query email")
 	}
 	if count == 0 {
 		ctx := context.Background()
@@ -333,9 +297,8 @@ func createNoreplyEmail(domain string) (string, error) {
 	return noreplyEmail, nil
 }
 
-// 获取默认发件域名
-func getDefaultDomain() (string, error) {
-	ctx := context.Background()
+// Get default sending domain
+func GetDefaultDomain() (string, error) {
 
 	configuredDomain, err := g.DB().Model("bm_options").
 		Where("name", "default_sender_domain").
@@ -345,19 +308,17 @@ func getDefaultDomain() (string, error) {
 		return configuredDomain.String(), nil
 	}
 
-	// 2. 获取最早创建的活跃域名
-
+	// 2. Get the oldest created active domain
 	oldestDomain, err := g.DB().Model("domain").
 		Order("create_time", "asc").
 		Where("active", 1).
 		Limit(1).
 		Value("domain")
 	if err != nil || oldestDomain == nil {
-
-		return "", gerror.New("没有可用的活跃域名，请先添加域名")
+		return "", gerror.New("No available active domains, please add one first")
 	}
 
-	// 3. 保存到配置表
+	// 3. Save to config table
 	_, err = g.DB().Model("bm_options").
 		Data(g.Map{
 			"name":  "default_sender_domain",
@@ -367,16 +328,14 @@ func getDefaultDomain() (string, error) {
 		Save()
 
 	if err != nil {
-		g.Log().Errorf(ctx, "保存默认域名失败: %v", err)
-		return "", gerror.Wrap(err, "保存默认发件域名配置失败")
+		return "", gerror.Wrap(err, "Failed to save default sender domain configuration")
 	}
 
 	return oldestDomain.String(), nil
 }
 
-// 获取订阅表单代码
+// Get subscription form code
 func GetSubscribeFormCode(groupToken string) string {
-	// D:\Billion-Mail\core\public\html
 	hostwork := public.HostWorkDir
 	filePath := filepath.Join(hostwork, "core", "public", "html", "subscribe_form_code.html")
 	content := gfile.GetContents(filePath)
@@ -384,7 +343,8 @@ func GetSubscribeFormCode(groupToken string) string {
 	if !strings.Contains(content, "{{ SubmitURL . }}") {
 		return ""
 	}
-	// 链接对应页面
+
+	// Link to corresponding page
 	var submitUrl string
 	hostUrl := public.GethostUrl()
 	submitUrl = hostUrl + "/api/subscribe/submit?token=" + groupToken

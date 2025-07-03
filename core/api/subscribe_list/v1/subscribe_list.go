@@ -39,7 +39,6 @@ type Contact struct {
 	Attribs    map[string]string `json:"attribs"`
 }
 
-// 订阅表单提交
 type SubscribeSubmitReq struct {
 	g.Meta  `path:"/subscribe/submit" tags:"Subscribe" method:"post" summary:"Subscribe to the service"`
 	Email   string            `json:"email" dc:"Email address for subscription"`
@@ -51,7 +50,6 @@ type SubscribeSubmitRes struct {
 	api_v1.StandardRes
 }
 
-// 确认链接  /subscribe/confirm
 type SubscribeConfirmReq struct {
 	g.Meta `path:"/subscribe/confirm" tags:"Subscribe" method:"get" summary:"Confirm subscription"`
 	Token  string `json:"token" dc:"Subscription token"`

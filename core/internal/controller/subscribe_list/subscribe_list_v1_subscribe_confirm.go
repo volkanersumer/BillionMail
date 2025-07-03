@@ -17,54 +17,51 @@ func (c *ControllerV1) SubscribeConfirm(ctx context.Context, req *v1.SubscribeCo
 
 	email, groupToken, err := getEmailFromToken(req.Token)
 	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "确认链接无效")))
+		g.RequestFromCtx(ctx).Response.RedirectTo("/invalid.html", 302)
 		return
 	}
 	if email == "" || groupToken == "" {
-		res.SetError(gerror.New(public.LangCtx(ctx, "确认链接无效")))
+		g.RequestFromCtx(ctx).Response.RedirectTo("/invalid.html", 302)
 		return
 	}
 
-	// 1. 查找订阅组
+	// 1. Find subscription group
 	group, err := getGroupByToken(groupToken)
 	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "订阅组不存在")))
+		g.RequestFromCtx(ctx).Response.RedirectTo("/invalid.html", 302)
 		return
 	}
 
-	// 2. 查找联系人
+	// 2. Find contact by email and group
 	contact, err := getContactByEmailAndGroup(req.Email, group.Id)
 	if err != nil || contact == nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "联系人不存在")))
+		g.RequestFromCtx(ctx).Response.RedirectTo("/invalid.html", 302)
 		return
 	}
 	hostUrl := public.GethostUrl()
 	if contact.Status == 1 {
-		// 已确认
 		if group.AlreadyUrl != "" {
-			res.Data = group.AlreadyUrl
+			g.RequestFromCtx(ctx).Response.RedirectTo(group.AlreadyUrl, 302)
 		} else {
-			res.Data = fmt.Sprintf("%s/already_subscribed.html", hostUrl)
+			g.RequestFromCtx(ctx).Response.RedirectTo(fmt.Sprintf("%s/already_subscribed.html", hostUrl), 302)
 		}
-		res.SetSuccess(public.LangCtx(ctx, "已订阅"))
 		return
 	}
 
-	// 4. 更新联系人状态为已确认
+	// 4. Update contact status to confirmed
 	err = updateContactStatus(req.Email, group.Id, 1)
 	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "更新联系人状态失败")))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to update contact status")))
 		return
 	}
 
-	// 5. 发送欢迎邮件
+	// 5. Send welcome email
 	if group.SendWelcomeEmail == 1 {
 		if group.WelcomeHtml == "" {
-			// 取默认欢迎邮件模版
 			group.WelcomeHtml, _ = GetDefaultTemplate(1)
 		}
 		if group.WelcomeSubject == "" {
-			group.WelcomeSubject = "默认主题"
+			group.WelcomeSubject = "Welcome Aboard!"
 		}
 		gtimer.AddOnce(500*time.Millisecond, func() {
 
@@ -77,13 +74,11 @@ func (c *ControllerV1) SubscribeConfirm(ctx context.Context, req *v1.SubscribeCo
 		})
 	}
 
-
-	// 6. 跳转到订阅成功页面
+	// 6. Redirect to subscription success page
 	if group.SuccessUrl != "" {
-		res.Data = group.SuccessUrl
+		g.RequestFromCtx(ctx).Response.RedirectTo(group.SuccessUrl, 302)
 	} else {
-		res.Data = fmt.Sprintf("%s/subscribe_success.html", hostUrl)
+		g.RequestFromCtx(ctx).Response.RedirectTo(fmt.Sprintf("%s/subscribe_success.html", hostUrl), 302)
 	}
-	res.SetSuccess(public.LangCtx(ctx, "订阅成功"))
 	return
 }

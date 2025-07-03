@@ -2656,8 +2656,7 @@ func GethostUrl() string {
 	} else {
 		hostUrl = fmt.Sprintf("https://%s/", hostname)
 	}
-	g.Log().Warning(context.Background(), "BillionMail host URL: ", hostUrl)
 
-	//return hostUrl
-	return "https://192.168.66.124:82"
+	return hostUrl
+
 }

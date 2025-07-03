@@ -58,36 +58,39 @@ func (c *ControllerV1) GetGroupInfo(ctx context.Context, req *v1.GetGroupInfoReq
 		group.SubscribeForm = subscribe_list.GetSubscribeFormCode(group.Token)
 	}
 	if group.WelcomeSubject == "" {
-		group.WelcomeSubject = "默认主题"
+		group.WelcomeSubject = "Welcome Aboard!"
 	}
 	if group.ConfirmSubject == "" {
-		group.ConfirmSubject = "默认主题"
+		group.ConfirmSubject = "Confirm Your Subscription"
 	}
 
+	DefaultDomain, err := subscribe_list.GetDefaultDomain()
+	noreplyEmail := "noreply@" + DefaultDomain
 	contactGroup := v1.ContactGroup{
-		Id:            group.Id,
-		Name:          group.Name,
-		Description:   group.Description,
-		CreateTime:    group.CreateTime,
-		UpdateTime:    group.UpdateTime,
-		Token:         group.Token,
-		DoubleOptin:   group.DoubleOptin,
-		WelcomeHtml:   group.WelcomeHtml,
-		WelcomeDrag:   group.WelcomeDrag,
-		ConfirmHtml:   group.ConfirmHtml,
-		ConfirmDrag:   group.ConfirmDrag,
-		SuccessUrl:    group.SuccessUrl,
-		ConfirmUrl:    group.ConfirmUrl,
-		AlreadyUrl:    group.AlreadyUrl,
-		SubscribeForm: group.SubscribeForm,
-		ConfirmSubject: group.ConfirmSubject,
-		WelcomeSubject: group.WelcomeSubject,
+		Id:               group.Id,
+		Name:             group.Name,
+		Description:      group.Description,
+		CreateTime:       group.CreateTime,
+		UpdateTime:       group.UpdateTime,
+		Token:            group.Token,
+		DoubleOptin:      group.DoubleOptin,
+		WelcomeHtml:      group.WelcomeHtml,
+		WelcomeDrag:      group.WelcomeDrag,
+		ConfirmHtml:      group.ConfirmHtml,
+		ConfirmDrag:      group.ConfirmDrag,
+		SuccessUrl:       group.SuccessUrl,
+		ConfirmUrl:       group.ConfirmUrl,
+		AlreadyUrl:       group.AlreadyUrl,
+		SubscribeForm:    group.SubscribeForm,
+		ConfirmSubject:   group.ConfirmSubject,
+		WelcomeSubject:   group.WelcomeSubject,
 		SendWelcomeEmail: group.SendWelcomeEmail,
 	}
 
 	groupInfo := &v1.ContactGroupInfo{
 		ContactGroup:  contactGroup,
 		SubscribeLink: hostUrl + "/subscribe_form.html?token=" + group.Token,
+		Sender:        noreplyEmail,
 	}
 
 	res.Data = groupInfo

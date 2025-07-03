@@ -9,6 +9,7 @@ import (
 	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/maillog_stat"
 	"billionmail-core/internal/service/relay"
+	"billionmail-core/internal/service/subscribe_list"
 	"billionmail-core/internal/service/warmup"
 	"context"
 	"github.com/gogf/gf/os/gtimer"
@@ -125,6 +126,11 @@ func Start(ctx context.Context) (err error) {
 
 	// fail2ban access logs detection
 	gtimer.AddOnce(800*time.Millisecond, fail2ban.NewAccessLogDetection().Start)
+
+	// {{ SubmitURL . }}
+	gtimer.AddOnce(500*time.Millisecond, func() {
+		subscribe_list.ReplaceSubmitUrl(ctx)
+	})
 
 	g.Log().Debug(ctx, "All timers started successfully")
 	return nil

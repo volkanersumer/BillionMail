@@ -6,6 +6,7 @@ import (
 )
 
 func init() {
+
 	registerHandler(func() {
 		batchMailSQLList := []string{
 
@@ -25,6 +26,10 @@ func init() {
     			confirm_url TEXT DEFAULT '', -- URL to redirect after confirmation
     			already_url TEXT DEFAULT '', -- URL to redirect if already subscribed
     			subscribe_form TEXT DEFAULT '', -- HTML form for subscription
+    			confirm_subject TEXT DEFAULT '', -- Confirmation Email Subject
+    			welcome_subject TEXT DEFAULT '', -- Welcome Email Subject
+    			send_welcome_email SMALLINT NOT NULL DEFAULT 0,--  0: No need to send email, 1: send email
+
                 UNIQUE(name)
             )`,
 
@@ -191,6 +196,9 @@ func init() {
 		_ = AddColumnIfNotExists("bm_contact_groups", "welcome_mail_drag", "TEXT", "''", false)
 		_ = AddColumnIfNotExists("bm_contact_groups", "confirm_mail_html", "TEXT", "''", false)
 		_ = AddColumnIfNotExists("bm_contact_groups", "confirm_mail_drag", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "confirm_subject", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "welcome_subject", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "send_welcome_email", "SMALLINT", "0", true)
 
 		g.Log().Info(context.Background(), "Batch mail tables initialized successfully")
 	})

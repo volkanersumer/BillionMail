@@ -1,12 +1,14 @@
 package settings
 
 import (
+	v1 "billionmail-core/api/domains/v1"
 	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/public"
 	"os"
+	"strings"
 )
 
-// 检查BILLIONMAIL_HOSTNAME的A记录是否与本机公网IP一致，写入或删除标记文件
+// Check whether the A record of BILLIONMAIL_HOSTNAME is consistent with the local public network IP and write or delete the tag file
 func CheckHostname() {
 	hostname := public.MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
 	flagFile := public.AbsPath("../core/data/billionmail_hostname.txt")
@@ -16,18 +18,26 @@ func CheckHostname() {
 		return
 	}
 
-	record, err := domains.GetARecord(hostname, true)
-	if err != nil || !record.Valid {
-		_ = os.Remove(flagFile)
+	serverIP, err := public.GetServerIP()
+
+	if err != nil {
 		return
 	}
 
-	serverIP := record.Value
-	if serverIP == "" {
-		_ = os.Remove(flagFile)
-		return
+	recordType := "A"
+	if strings.Contains(serverIP, ":") {
+		recordType = "AAAA"
 	}
 
-	// 只要A记录有效且IP不为空就写入
-	_ = os.WriteFile(flagFile, []byte(hostname), 0644)
+	record := v1.DNSRecord{
+		Type:  recordType,
+		Host:  hostname,
+		Value: serverIP,
+	}
+
+	Valid := domains.ValidateARecord(record)
+	if Valid {
+		_ = os.WriteFile(flagFile, []byte(hostname), 0644)
+	}
+
 }

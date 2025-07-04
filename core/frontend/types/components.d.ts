@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BtCharts: typeof import('./../src/components/base/bt-charts/index.vue')['default']
     BtCloseBtn: typeof import('./../src/components/base/bt-close-btn/index.vue')['default']
+    BtCode: typeof import('./../src/components/base/bt-code/index.vue')['default']
     BtConfigProvider: typeof import('./../src/components/ui/bt-config-provider/index.vue')['default']
     BtEditor: typeof import('./../src/components/base/bt-editor/index.vue')['default']
     BtFileUpload: typeof import('./../src/components/base/bt-file-upload/index.vue')['default']

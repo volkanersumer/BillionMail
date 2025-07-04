@@ -328,8 +328,11 @@ func GetDefaultDomain() (string, error) {
 func GetSubscribeFormCode(groupToken string) string {
 	filePath := public.AbsPath("../core/public/html/subscribe_form_code.html")
 	content := gfile.GetContents(filePath)
+	ctx := context.Background()
+	g.Log().Warning(ctx, "subscribe_form_code.html path----->", filePath)
 
 	if !strings.Contains(content, "{{ SubmitURL . }}") {
+		g.Log().Warning(ctx, "subscribe_form_code.html not contains {{ SubmitURL . }}")
 		return ""
 	}
 

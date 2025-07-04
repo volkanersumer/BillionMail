@@ -134,6 +134,8 @@ var (
 				"/api/unsubscribe":               {},
 				"/api/batch_mail/api/send":       {},
 				"/api/batch_mail/api/batch_send": {},
+				"/api/subscribe/confirm":         {},
+				"/api/subscribe/submit":          {},
 				"/already_subscribed.html":       {},
 				"/subscribe_confirm.html":        {},
 				"/subscribe_form.html":           {},

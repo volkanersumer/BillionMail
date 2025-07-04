@@ -206,13 +206,15 @@
         window.onload = function () {
             var url = new URL(window.location.href);
             var token = url.searchParams.get('token');
+            var hostUrl = url.origin;
+            var form = document.getElementById('subscribeForm');
+            form.action = hostUrl + "/api/subscribe/submit";
             if (token) {
-                // Set hidden field
                 var input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = 'token';
                 input.value = token;
-                document.getElementById('subscribeForm').appendChild(input);
+                form.appendChild(input);
             }
         };
     </script>
@@ -220,7 +222,7 @@
 <body>
 <div class="container">
     <div class="title">🔔 Join our subscribe</div>
-    <form id="subscribeForm" method="post" action="{{ SubmitURL . }}">
+    <form id="subscribeForm" method="post">
         <div class="form-group">
             <div class="input-group">
                 <label for="email">Email Address</label>

@@ -64,8 +64,7 @@ func (c *ControllerV1) SubscribeConfirm(ctx context.Context, req *v1.SubscribeCo
 			group.WelcomeSubject = "Welcome Aboard!"
 		}
 		gtimer.AddOnce(500*time.Millisecond, func() {
-
-			err = sendMail(ctx, group.WelcomeHtml, req.Email, group.WelcomeSubject, "")
+			err = sendMail(ctx, group.WelcomeHtml, email, group.WelcomeSubject, "")
 			if err != nil {
 				g.Log().Error(ctx, "Failed to send welcome email: {}", err)
 				return

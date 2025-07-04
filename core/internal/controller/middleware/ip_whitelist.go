@@ -46,10 +46,11 @@ func isExcludedPath(path string) bool {
 // Allowed IP whitelist
 func getAllowedIPs() []string {
 	var ips []string
+	ipServer, _ := public.GetServerIP()
 	result, err := g.DB().Model("bm_console_ip_whitelist").Fields("ip").All()
 	if err != nil {
 		g.Log().Error(context.Background(), "[IP Whitelist] Failed to get IP whitelist:", err)
-		return []string{"127.0.0.1", "::1"}
+		return []string{"127.0.0.1", "::1", ipServer}
 	}
 
 	for _, ip := range result {
@@ -59,7 +60,6 @@ func getAllowedIPs() []string {
 	ips = append(ips, "127.0.0.1")
 	ips = append(ips, "::1")
 	// Add server IP
-	ipServer, _ := public.GetServerIP()
 	if ipServer != "" {
 		ips = append(ips, ipServer)
 	}

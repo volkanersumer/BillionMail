@@ -9,7 +9,6 @@ import (
 	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/maillog_stat"
 	"billionmail-core/internal/service/relay"
-	"billionmail-core/internal/service/settings"
 	"billionmail-core/internal/service/warmup"
 	"context"
 	"github.com/gogf/gf/os/gtimer"
@@ -142,11 +141,6 @@ func Start(ctx context.Context) (err error) {
 
 	// fail2ban access logs detection
 	gtimer.AddOnce(800*time.Millisecond, fail2ban.NewAccessLogDetection().Start)
-
-	// 定期获取当前访问地址是否有域名  如果BILLIONMAIL_HOSTNAME不为空或不为mail.example.com  检查值域名是否有a记录映射 切映射值与 public.GetServerIP()一致  如果一致  新建标记文件 public.AbsPath("../core/data/billionmail_hostname.json") 并在文件内写入当前hostname的值  如果不满足要求 则不写入 如果存在这个标记文件 删除标记文件
-	gtimer.Add(24*time.Hour, func() {
-		settings.CheckHostname()
-	})
 
 	g.Log().Debug(ctx, "All timers started successfully")
 	return nil

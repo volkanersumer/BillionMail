@@ -1,6 +1,7 @@
 package settings
 
 import (
+	"billionmail-core/internal/consts"
 	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/os/gfile"
@@ -58,7 +59,7 @@ func (c *ControllerV1) SetSystemConfig(ctx context.Context, req *v1.SetSystemCon
 			return res, nil
 		}
 
-		err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, "billionmail-core-billionmail-1")
+		err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, consts.SERVICES.Core)
 
 		if err != nil {
 			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to restart container: {}", err)))

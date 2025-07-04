@@ -2,6 +2,7 @@ package relay
 
 import (
 	domainsV1 "billionmail-core/api/domains/v1"
+	"billionmail-core/internal/consts"
 	"billionmail-core/internal/model/entity"
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/domains"
@@ -27,7 +28,7 @@ var (
 	senderTransportFile = "/conf/sender_transport_relay"
 	mainCfFile          = "main.cf"
 	//mainCfFileExtra      = "/conf/extra.cf"
-	postfixContainerName = "billionmail-postfix-billionmail-1"
+	postfixContainerName = consts.SERVICES.Postfix
 )
 
 func GetRelayEncryptionKey() (string, error) {

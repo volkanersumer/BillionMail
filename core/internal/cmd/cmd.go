@@ -95,7 +95,7 @@ var (
 
 			defer dk.Close()
 
-			containerName := "billionmail-core-billionmail-1"
+			containerName := consts.SERVICES.Core
 			container, err := dk.GetContainerByName(ctx, containerName)
 			if err == nil {
 				if container.Labels != nil {

@@ -53,6 +53,7 @@ export default [
 			...vuePlugin.configs['recommended'].rules,
 			'vue/multi-word-component-names': 'off', // Allow multi-word component names
 			'vue/no-required-prop-with-default': 'off', // Allow required props with default values
+			'vue/no-v-html': 'off',
 		},
 	},
 	// TypeScript configuration

@@ -143,7 +143,7 @@ func ApplyCertToService(domain, crtPem, keyPem string) (err error) {
 
 			defer dk.Close()
 
-			err = dk.RestartContainerByName(context.Background(), "billionmail-core-billionmail-1")
+			err = dk.RestartContainerByName(context.Background(), consts.SERVICES.Core)
 		}()
 	}
 
@@ -178,7 +178,7 @@ func ApplyCertToConsole(crtPem, keyPem string) (err error) {
 
 		defer dk.Close()
 
-		err = dk.RestartContainerByName(context.Background(), "billionmail-core-billionmail-1")
+		err = dk.RestartContainerByName(context.Background(), consts.SERVICES.Core)
 	}()
 
 	return

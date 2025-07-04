@@ -2,7 +2,9 @@
 	<div class="subscribe-form-container">
 		<!-- 分离订阅页面部分 -->
 		<div class="section">
-			<h3 class="section-title">{{ $t('contacts.settings.subscribeForm.separateSubscriptionPage.title') }}</h3>
+			<h3 class="section-title">
+				{{ $t('contacts.settings.subscribeForm.separateSubscriptionPage.title') }}
+			</h3>
 			<p class="section-description">
 				{{ $t('contacts.settings.subscribeForm.separateSubscriptionPage.description') }}
 			</p>
@@ -11,7 +13,9 @@
 
 		<!-- 可嵌入表单部分 -->
 		<div class="section">
-			<h3 class="section-title">{{ $t('contacts.settings.subscribeForm.embeddableForm.title') }}</h3>
+			<h3 class="section-title">
+				{{ $t('contacts.settings.subscribeForm.embeddableForm.title') }}
+			</h3>
 			<p class="section-description">
 				{{ $t('contacts.settings.subscribeForm.embeddableForm.description') }}
 			</p>

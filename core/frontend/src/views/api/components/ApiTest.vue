@@ -10,7 +10,7 @@
 				</div>
 			</n-form-item>
 			<n-form-item label="Command">
-				<command-code :value="commandRef"></command-code>
+				<bt-code :code="commandRef" language="bash"></bt-code>
 			</n-form-item>
 		</bt-form>
 	</modal>
@@ -21,14 +21,12 @@ import { FormRules } from 'naive-ui'
 import { useModal } from '@/hooks/modal/useModal'
 import type { Api } from '../types/base'
 
-import CommandCode from '@/views/contacts/settings/components/Code.vue'
-
 const { t } = useI18n()
 
 const command = ref(``)
 
 const commandRef = computed(() => {
-	return command.value.replace('$email', form.recipient)
+	return command.value.replaceAll('$email', form.recipient)
 })
 
 const form = reactive({
@@ -52,9 +50,12 @@ const [Modal, modalApi] = useModal({
 			const state = modalApi.getState<{ row: Api }>()
 			const { row } = state
 			if (row) {
-				command.value = `curl -k -X POST '${row.server_addresser}'   -H 'X-API-Key: ${row.api_key}'   -H 'Content-Type: application/json'   -d '{
-    "recipient": "$email"
-  }'`
+				command.value = `curl -k -X POST '${row.server_addresser}' \\
+-H 'X-API-Key: ${row.api_key}' \\
+-H 'Content-Type: application/json' \\
+-d '{
+	"recipient": "$email"
+}'`
 			}
 		} else {
 			resetForm()

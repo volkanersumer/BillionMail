@@ -5,7 +5,7 @@ import i18n from '@/i18n'
 export const useCopy = () => {
 	const { t } = i18n.global
 
-	const { copy, isSupported } = useClipboard({
+	const { copy, isSupported, copied } = useClipboard({
 		legacy: true,
 	})
 
@@ -24,6 +24,7 @@ export const useCopy = () => {
 	}
 
 	return {
+		copied,
 		copyText,
 	}
 }

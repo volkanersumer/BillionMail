@@ -22,6 +22,19 @@ func (c *ControllerV1) SetSystemConfigKey(ctx context.Context, req *v1.SetSystem
 		return res, nil
 	}
 
+	// ip_whitelist_enable The whitelist cannot be empty when the switch is on
+	if strings.ToLower(req.Key) == "ip_whitelist_enable" && req.Value == "true" {
+		whitelist, err := GetIPWhitelist()
+		if err != nil {
+			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to get IP whitelist: {}", err)))
+			return res, nil
+		}
+		if len(whitelist) == 0 {
+			res.SetError(gerror.New(public.LangCtx(ctx, "IP whitelist list is empty. Whitelist function cannot be enabled")))
+			return res, nil
+		}
+	}
+
 	// 1. Read the current .env file content
 	envMap, err := public.LoadEnvFile()
 	if err != nil {

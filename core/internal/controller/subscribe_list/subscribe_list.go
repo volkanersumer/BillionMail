@@ -8,10 +8,8 @@ import (
 	mail_v1 "billionmail-core/api/mail_boxes/v1"
 	"billionmail-core/internal/model/entity"
 	"billionmail-core/internal/service/batch_mail"
-	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/mail_boxes"
 	"billionmail-core/internal/service/mail_service"
-	"billionmail-core/internal/service/maillog_stat"
 	"billionmail-core/internal/service/public"
 	"context"
 	"database/sql"
@@ -217,16 +215,8 @@ func sendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string)
 	defer sender.Close()
 	messageId := sender.GenerateMessageID()
 
-	//Tracking emails
-	baseURL := domains.GetBaseURLBySender(address)
-	mail_tracker := maillog_stat.NewMailTracker(personalizedContent, -1, messageId, email, baseURL)
-	mail_tracker.TrackLinks()
-	mail_tracker.AppendTrackingPixel()
-	renderedContent := mail_tracker.GetHTML()
-
 	// 7. Create message
-	message := mail_service.NewMessage(personalizedSubject, renderedContent)
-	//message := mail_service.NewMessage(personalizedSubject, personalizedContent)
+	message := mail_service.NewMessage(personalizedSubject, personalizedContent)
 	message.SetMessageID(messageId)
 	message.SetRealName("noreply")
 

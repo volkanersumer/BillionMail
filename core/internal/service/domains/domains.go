@@ -104,14 +104,14 @@ func Add(ctx context.Context, domain *v1.Domain) error {
 			}
 
 			// update postfix environment parameter
-			_, err = public.DockerApiFromCtx(ctx).ExecCommandByName(ctx, "billionmail-postfix-billionmail-1", []string{"bash", "-c", fmt.Sprintf("sed -i '/^BILLIONMAIL_HOSTNAME=/d' /postfix.sh && sed -i '/^#!\\/bin\\/bash/a BILLIONMAIL_HOSTNAME=%s' /postfix.sh", public.FormatMX(domain.Domain))}, "root")
+			_, err = public.DockerApiFromCtx(ctx).ExecCommandByName(ctx, consts.SERVICES.Postfix, []string{"bash", "-c", fmt.Sprintf("sed -i '/^BILLIONMAIL_HOSTNAME=/d' /postfix.sh && sed -i '/^#!\\/bin\\/bash/a BILLIONMAIL_HOSTNAME=%s' /postfix.sh", public.FormatMX(domain.Domain))}, "root")
 
 			if err != nil {
 				return fmt.Errorf("failed to update BILLIONMAIL_HOSTNAME in postfix container: %v", err)
 			}
 
 			// restart postfix service
-			err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, "billionmail-postfix-billionmail-1")
+			err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, consts.SERVICES.Postfix)
 
 			if err != nil {
 				return fmt.Errorf("failed to restart postfix container: %v", err)
@@ -419,7 +419,7 @@ func GetDKIMRecord(domain string, validateImmediate bool) (record v1.DNSRecord, 
 		defer mutex.Unlock()
 
 		var res *v2.ExecResult
-		res, err = dk.ExecCommandByName(context.Background(), "billionmail-rspamd-billionmail-1", []string{"rspamadm", "dkim_keygen", "-s", "'default'", "-b", "2048", "-d", domain, "-k", fmt.Sprintf("/var/lib/rspamd/dkim/%s/default.private", domain)}, "root")
+		res, err = dk.ExecCommandByName(context.Background(), consts.SERVICES.Rspamd, []string{"rspamadm", "dkim_keygen", "-s", "'default'", "-b", "2048", "-d", domain, "-k", fmt.Sprintf("/var/lib/rspamd/dkim/%s/default.private", domain)}, "root")
 
 		if err != nil {
 			err = fmt.Errorf("Failed to generate DKIM key pair: %v", err)
@@ -483,7 +483,7 @@ domain {
 		}
 
 		// Restart rspamd service
-		err = dk.RestartContainerByName(context.Background(), "billionmail-rspamd-billionmail-1")
+		err = dk.RestartContainerByName(context.Background(), consts.SERVICES.Rspamd)
 
 		if err != nil {
 			err = fmt.Errorf("Failed to restart rspamd container: %v", err)
@@ -800,7 +800,7 @@ func RepairDKIMSigningConfig(ctx context.Context) error {
 
 	defer dk.Close()
 
-	err = dk.RestartContainerByName(ctx, "billionmail-rspamd-billionmail-1")
+	err = dk.RestartContainerByName(ctx, consts.SERVICES.Rspamd)
 	if err != nil {
 		return fmt.Errorf("Failed to restart rspamd container: %v", err)
 	}

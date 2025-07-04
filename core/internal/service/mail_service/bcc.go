@@ -96,7 +96,7 @@ func SyncBccToPostfix(ctx context.Context) error {
 		return err
 	}
 
-	postfixContainer := "billionmail-postfix-billionmail-1"
+	postfixContainer := consts.SERVICES.Postfix
 
 	dk, dockerErr := docker.NewDockerAPI()
 	if dockerErr != nil {

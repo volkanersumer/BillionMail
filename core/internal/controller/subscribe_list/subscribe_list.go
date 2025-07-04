@@ -104,13 +104,6 @@ func readTemplateFiles(baseFilename string) (htmlContent string, txtContent stri
 	htmlPath := filepath.Join(public.AbsPath("../core/template"), baseFilename+".html")
 	txtPath := filepath.Join(public.AbsPath("../core/template"), baseFilename+".txt")
 
-	// Security check (prevent directory traversal)
-	//cleanDir := filepath.Clean(filepath.Join(hostwork, "core", "data"))
-	//if !strings.HasPrefix(filepath.Clean(htmlPath), cleanDir) ||
-	//	!strings.HasPrefix(filepath.Clean(txtPath), cleanDir) {
-	//	return "", "", fmt.Errorf("illegal path access: %s", baseFilename)
-	//}
-
 	// Read HTML file
 	htmlBytes, err := os.ReadFile(htmlPath)
 	if err != nil {

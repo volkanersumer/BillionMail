@@ -5,13 +5,15 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
-	"path/filepath"
 	"strings"
 )
 
 func ReplaceSubmitUrl(ctx context.Context) {
-	hostwork := public.HostWorkDir
-	filePath := filepath.Join(hostwork, "/core/public/html/subscribe_form.html")
+	//hostwork := public.HostWorkDir
+	//filePath := filepath.Join(hostwork, "/core/public/html/subscribe_form.html")
+	//content := gfile.GetContents(filePath)
+
+	filePath := public.AbsPath("../core/public/html/subscribe_form_code.html")
 	content := gfile.GetContents(filePath)
 
 	if !strings.Contains(content, "{{ SubmitURL . }}") {

@@ -127,12 +127,17 @@ var (
 
 			// Define excluded URIs
 			excludesURIs := map[string]struct{}{
-				"/favicon.ico":                {},
-				"/robots.txt":                 {},
-				"/unsubscribe.html":           {},
-				"/api/unsubscribe/user_group": {},
-				"/api/unsubscribe":            {},
-				"/api/batch_mail/api/send":    {},
+				"/favicon.ico":                   {},
+				"/robots.txt":                    {},
+				"/unsubscribe.html":              {},
+				"/api/unsubscribe/user_group":    {},
+				"/api/unsubscribe":               {},
+				"/api/batch_mail/api/send":       {},
+				"/api/batch_mail/api/batch_send": {},
+				"/already_subscribed.html":       {},
+				"/subscribe_confirm.html":        {},
+				"/subscribe_form.html":           {},
+				"/subscribe_success.html":        {},
 			}
 
 			// Bind Server Hooks

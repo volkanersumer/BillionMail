@@ -91,10 +91,20 @@ endif
 
 		if !containsHostname && strings.HasPrefix(strings.TrimSpace(row), "myhostname") {
 			// Cleanup this line when contains mail.example.com
-			if strings.Contains(row, "mail.example.com") {
+			seps := strings.SplitN(row, "=", 2)
+
+			if len(seps) < 2 {
 				skipNextEmptyLine = true
 				return true
 			}
+
+			v := strings.TrimSpace(seps[1])
+
+			if v == "" || v == "mail.example.com" || v == "localhost.localdomain" || v == "localhost" {
+				skipNextEmptyLine = true
+				return true
+			}
+
 			containsHostname = true
 		}
 
@@ -112,13 +122,21 @@ endif
 	if !containsHostname {
 		// get first added domain
 		var val gdb.Value
-		val, err = g.DB().Model("domain").Where("active = 1").OrderAsc("create_time").Limit(1).Value("domain")
+		val, err = g.DB().Model("domain").Where("active = 1").OrderAsc("create_time").Value("domain")
 
-		if err == nil {
-			lines = append(lines, "\nmyhostname = "+val.String()+"\n")
-		} else {
-			g.Log().Warning(ctx, "Failed to get first added domain: %v", err)
+		d := "localhost"
+
+		if err == nil && !val.IsNil() {
+			d = val.String()
 		}
+
+		lineLength := len(lines)
+
+		if lineLength == 0 || !strings.HasSuffix(lines[lineLength-1], "\n") {
+			lines = append(lines, "\n")
+		}
+
+		lines = append(lines, "myhostname = "+d+"\n")
 	}
 
 	// Write the updated lines back to the main configuration file

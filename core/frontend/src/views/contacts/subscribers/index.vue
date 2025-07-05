@@ -114,13 +114,17 @@ const columns = ref<DataTableColumns<Subscriber>>([
 		render: row => {
 			if (row.active === 0) {
 				return (
-					<NTag size="small" type="warning" bordered={false}>
+					<NTag size="small" type="error" bordered={false}>
 						{t('contacts.subscribers.status.unsubscribed')}
 					</NTag>
 				)
 			}
 			if (row.active === 1 && row.status === 0) {
-				return 'Unconfirmed'
+				return (
+					<NTag size="small" type="default" bordered={false}>
+						Unconfirmed
+					</NTag>
+				)
 			}
 			return (
 				<NTag size="small" type="success" bordered={false}>

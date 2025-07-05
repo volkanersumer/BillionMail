@@ -30,7 +30,7 @@
 import { FormRules } from 'naive-ui'
 import { Message } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
-import { editContact } from '@/api/modules/contacts/subscribers'
+import { editContactNdp } from '@/api/modules/contacts/subscribers'
 import type { Subscriber } from '../interface'
 
 import GroupSelect from './GroupMultipleSelect.vue'
@@ -40,6 +40,7 @@ const { t } = useI18n()
 const formRef = useTemplateRef('formRef')
 
 const form = reactive({
+	id: 0,
 	email: '',
 	active: 1,
 	status: 1,
@@ -75,6 +76,7 @@ const [Modal, modalApi] = useModal({
 			const state = modalApi.getState<{ row: Subscriber | null }>()
 			const { row } = state
 			if (row) {
+				form.id = row.id
 				form.email = row.email
 				form.active = row.active
 				form.status = row.status
@@ -82,8 +84,10 @@ const [Modal, modalApi] = useModal({
 				form.attribs = row.attribs ? JSON.stringify(row.attribs, null, 2) : ''
 			}
 		} else {
+			form.id = 0
 			form.email = ''
 			form.active = 1
+			form.status = 1
 			form.group_ids = []
 			form.attribs = ''
 		}
@@ -98,9 +102,8 @@ const [Modal, modalApi] = useModal({
 			Message.error(`${error}`, { close: true })
 			return false
 		}
-		await editContact({
-			emails: form.email,
-			group_ids: form.group_ids,
+		await editContactNdp({
+			id: form.id,
 			active: form.active,
 			status: form.status,
 			attribs: JSON.stringify(attribs),

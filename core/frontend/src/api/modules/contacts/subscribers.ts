@@ -63,6 +63,20 @@ export const editContact = (data: {
 	})
 }
 
+export const editContactNdp = (data: {
+	id: number
+	active: number
+	status: number
+	attribs: string
+}) => {
+	return instance.post('/contact/edit_ndp', data, {
+		fetchOptions: {
+			loading: t('contacts.subscribers.loading.updateSubscriberGroup'),
+			successMessage: true,
+		},
+	})
+}
+
 export const deleteSubscriber = (data: { emails: string[]; status: number }) => {
 	return instance.post('/contact/delete', data, {
 		fetchOptions: {

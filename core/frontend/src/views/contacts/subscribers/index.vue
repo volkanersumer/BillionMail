@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<subscriber-trends ref="trendRef" :group-id="tableParams.group_id" :status="tableParams.status">
+		<subscriber-trends ref="trendRef" :group-id="tableParams.group_id" :status="tableParams.active">
 		</subscriber-trends>
 		<bt-table-layout>
 			<template #toolsLeft>
@@ -12,7 +12,10 @@
 				</n-button>
 			</template>
 			<template #toolsRight>
-				<n-radio-group v-model:value="tableParams.status" @update:value="resetTable">
+				<n-radio-group v-model:value="tableParams.active" @update:value="resetTable">
+					<n-radio-button :value="-1">
+						{{ t('common.all.text') }}
+					</n-radio-button>
 					<n-radio-button :value="1">
 						{{ t('contacts.subscribers.status.subscribed') }}
 					</n-radio-button>
@@ -85,7 +88,7 @@ const { tableKeys, tableParams, tableProps, pageProps, fetchTable, resetTable } 
 		page_size: 10,
 		group_id: location.value.state.group_id || 0,
 		keyword: '',
-		status: 1,
+		active: -1,
 	},
 	fetchFn: getSubscriberListNdp,
 })

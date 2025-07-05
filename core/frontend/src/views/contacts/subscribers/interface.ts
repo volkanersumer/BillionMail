@@ -19,7 +19,7 @@ export interface SubscriberParams {
 	page_size: number
 	group_id: number
 	keyword: string
-	status: number
+	active: number
 }
 
 export interface SubscriberTrend {

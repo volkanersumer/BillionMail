@@ -6,14 +6,19 @@
 					<n-form-item-gi :span="8" :label="$t('contacts.subscribers.edit.email')">
 						<n-input v-model:value="form.email" :disabled="true"></n-input>
 					</n-form-item-gi>
-					<n-form-item-gi :span="4" :label="$t('contacts.subscribers.edit.status')">
+					<n-form-item-gi :span="4" :label="$t('contacts.subscribers.import.subscriptionStatus')">
 						<n-select v-model:value="form.active" :options="activeOptions"></n-select>
 					</n-form-item-gi>
 				</n-grid>
-				<n-form-item :label="$t('contacts.subscribers.edit.group')" path="group_ids">
-					<group-select v-model:value="form.group_ids"></group-select>
-				</n-form-item>
-				<n-form-item :label="$t('contacts.subscribers.edit.attributes')" path="group_ids">
+				<n-grid :cols="12" :x-gap="24">
+					<n-form-item-gi :span="8" :label="$t('contacts.subscribers.edit.group')" path="group_ids">
+						<group-select v-model:value="form.group_ids" :disabled="true"></group-select>
+					</n-form-item-gi>
+					<n-form-item-gi :span="4" :label="$t('contacts.subscribers.import.status')">
+						<n-select v-model:value="form.status" :options="statusOptions"></n-select>
+					</n-form-item-gi>
+				</n-grid>
+				<n-form-item :label="$t('contacts.subscribers.edit.attributes')">
 					<n-input v-model:value="form.attribs" type="textarea" :rows="6"></n-input>
 				</n-form-item>
 			</bt-form>
@@ -37,6 +42,7 @@ const formRef = useTemplateRef('formRef')
 const form = reactive({
 	email: '',
 	active: 1,
+	status: 1,
 	attribs: '',
 	group_ids: [] as number[],
 })
@@ -58,6 +64,11 @@ const activeOptions = computed(() => [
 	{ label: t('contacts.subscribers.edit.statusOptions.unsubscribe'), value: 0 },
 ])
 
+const statusOptions = computed(() => [
+	{ label: t('contacts.subscribers.import.statusOptions.confirmed'), value: 1 },
+	{ label: t('contacts.subscribers.import.statusOptions.unconfirmed'), value: 0 },
+])
+
 const [Modal, modalApi] = useModal({
 	onChangeState: isOpen => {
 		if (isOpen) {
@@ -66,7 +77,8 @@ const [Modal, modalApi] = useModal({
 			if (row) {
 				form.email = row.email
 				form.active = row.active
-				form.group_ids = row.groups.map(item => item.id)
+				form.status = row.status
+				form.group_ids = [row.group_id]
 				form.attribs = row.attribs ? JSON.stringify(row.attribs, null, 2) : ''
 			}
 		} else {
@@ -90,6 +102,7 @@ const [Modal, modalApi] = useModal({
 			emails: form.email,
 			group_ids: form.group_ids,
 			active: form.active,
+			status: form.status,
 			attribs: JSON.stringify(attribs),
 		})
 		const state = modalApi.getState<{ refresh: () => void }>()

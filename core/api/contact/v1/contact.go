@@ -53,6 +53,7 @@ type Contact struct {
 	CreateTime int               `json:"create_time" dc:"Create Time"`
 	Groups     []GroupInfo       `json:"groups"      dc:"Contact Groups"`
 	Status     int               `json:"status"      dc:"Status( 1:Confirmed   0:Unconfirmed)"`
+	GroupName  string            `json:"group_name"      dc:"Contact Group Name"`
 	Attribs    map[string]string `json:"attribs"`
 }
 
@@ -295,5 +296,49 @@ type EditContactsReq struct {
 }
 
 type EditContactsRes struct {
+	api_v1.StandardRes
+}
+
+// 新获取联系人列表  contact/list_ndp  邮箱不去重  Active 默认-1
+type ListContactsNDPReq struct {
+	g.Meta        `path:"/contact/list_ndp" method:"get" tags:"Contact" summary:"List all contacts"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	Page          int    `json:"page" v:"required|min:1" dc:"Page Number"`
+	PageSize      int    `json:"page_size" v:"required|min:1" dc:"Page Size"`
+	GroupId       int    `json:"group_id" dc:"Group ID(Optional)"`
+	Keyword       string `json:"keyword" dc:"Search Email"`
+	Active        int    `json:"active" v:"required|in:0,1,-1" dc:"Active(1:Subscribed 0:Unsubscribed -1:all)" default:"-1"` //  原来的status  (避免和联系人确认状态混淆)
+}
+
+type ListContactsNDPRes struct {
+	api_v1.StandardRes
+	Data struct {
+		Total int        `json:"total" dc:"Total Count"`
+		List  []*Contact `json:"list" dc:"Contact List"`
+	} `json:"data"`
+}
+
+// 新编辑联系人  contact/edit_ndp
+type EditContactsNDPReq struct {
+	g.Meta        `path:"/contact/edit_ndp" method:"post" tags:"Contact" summary:"Edit contact"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	Id            int    `json:"id"   v:"required"`
+	Active        int    `json:"active"`
+	Status        int    `json:"status"`
+	Attribs       string `json:"attribs"`
+}
+
+type EditContactsNDPRes struct {
+	api_v1.StandardRes
+}
+
+// 新删除联系人   contact/delete_ndp
+type DeleteContactsNDPReq struct {
+	g.Meta        `path:"/contact/delete_ndp" method:"post" tags:"Contact" summary:"Delete contacts"`
+	Authorization string   `json:"authorization" dc:"Authorization" in:"header"`
+	Ids           []string `json:"ids" v:"required" dc:"contacts id"`
+}
+
+type DeleteContactsNDPRes struct {
 	api_v1.StandardRes
 }

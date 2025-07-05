@@ -1,33 +1,75 @@
 <template>
     <div class="content-wrapper">
-        <n-card>
+        <n-card class="mb-5">
             <div class="page-tit">
-                <div class="back-tool">
-                    <i class="i-ri:apps-fill text-6"></i>
-                </div>
-                <span class="tit-content">
-                    Sitemap
-                </span>
-            </div>
-
-            <n-form>
-                <n-form-item>
-                    <div class="inline-form-items">
-                        <n-input class="name"></n-input>
-                        <n-input class="url"></n-input>
-                        <n-select class="type"></n-select>
-                        <div class="operation">
-                            <i class="i-material-symbols:close-rounded text-5"></i>
-                        </div>
+                <div class="left-tit">
+                    <div class="back-tool">
+                        <i class="i-ri:apps-fill text-6"></i>
                     </div>
-                </n-form-item>
-            </n-form>
+                    <span class="tit-content">
+                        Sitemap
+                    </span>
+                </div>
+                
+            </div>
+        </n-card>
+
+        <n-card>
+            <div v-for="(item, index) in sitemap" :key="index" class="mb-2.5">
+                <div class="inline-form-items">
+                    <n-input v-model:value="item.title" class="name"></n-input>
+                    <n-input v-model:value="item.uri_path" class="url"></n-input>
+                    <div class="operation close" v-if="item.isSaved" @click="handleRemove(item, index)">
+                        <i class="i-material-symbols:close-rounded text-5"></i>
+                    </div>
+                    <div v-else
+                        :class="['operation', { save: item.title && item.uri_path }, { disabled: !item.title || !item.uri_path }]"
+                        @click="handleSave(item,index)">
+                        <i class="i-mingcute:save-2-line text-5"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5">
+                <n-button type="primary" @click="handleAdd">Add link</n-button>
+            </div>
         </n-card>
     </div>
 </template>
 
 <script setup lang="ts">
+    import { getSitemapInfo, addSitemapInfo, removeSiteMapInfo } from "../controller/sitemap.controller"
+    import { getEditDomainStoreData } from "../store"
+    import { SiteInfo } from "../dto"
+    const { sitemap } = getEditDomainStoreData()
+    const route = useRoute()
+    const domain = route.params.domain as string
+    getSitemapInfo(domain)
 
+    /**
+     * @description Add site url
+     */
+    async function handleSave(siteInfo: SiteInfo,index:number) {
+        await addSitemapInfo(domain, siteInfo.title, siteInfo.uri_path)
+        sitemap.value[index].isSaved = true
+    }
+
+    /**
+     * @description remove site url
+     */
+    async function handleRemove(siteInfo: SiteInfo, index: number) {
+        await removeSiteMapInfo(domain, siteInfo.uri_path)
+        sitemap.value.splice(index, 1)
+    }
+
+    /**
+     * @description Add link form
+     */
+    function handleAdd() {
+        sitemap.value.push({
+            title: "",
+            uri_path: ""
+        })
+    }
 </script>
 
 <style scoped lang="scss">
@@ -59,7 +101,7 @@
                 flex: 3.5;
             }
 
-            .type{
+            .type {
                 flex: 2;
             }
 
@@ -71,10 +113,32 @@
                 border: 1px solid var(--color-border-1);
                 border-radius: 5px;
                 color: var(--color-text-2);
+                transition: .2s all ease-in-out;
                 cursor: pointer;
 
-                &:hover {
-                    background: var(--color-bg-4);
+                &.close {
+                    border-color: var(--color-error-1);
+                    color: var(--color-error-1);
+                }
+
+                &.close:hover {
+                    color: #fff;
+                    background: var(--color-error-1);
+                }
+
+                &.save {
+                    color: var(--color-primary-1);
+                    border-color: var(--color-primary-1);
+                }
+
+                &.save:hover {
+                    color: #fff;
+                    background: var(--color-primary-hover-1);
+                }
+
+                &.disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
                 }
             }
         }

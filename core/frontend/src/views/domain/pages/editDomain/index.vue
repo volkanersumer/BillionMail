@@ -9,56 +9,48 @@
 			<span class="tit-content"> Domain / Edit domain </span>
 		</div>
 
-		<!-- Content tabs -->
-		<div class="content-tabs">
-			<div
-				v-for="(item, index) in menuList"
-				:key="index"
-				:class="['tab-item', { active: activeTab == item }]"
-				@click="activeTab = item">
-				<span>{{ item }}</span>
-			</div>
-		</div>
-		<div class="dynamic-content">
-			<component :is="contentMap.get(activeTab)" />
-		</div>
-	</div>
+        <!-- Content tabs -->
+        <div class="content-tabs">
+            <div v-for="(item, index) in menuList" :key="index" :class="['tab-item', { active: activeTab == item }]" @click="activeTab = item">
+                <span>{{ item }}</span>
+            </div>
+        </div>
+        <div class="dynamic-content">
+            <component :is="contentMap.get(activeTab)" />
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-const DomainConfiguration = defineAsyncComponent(
-	() => import('./components/DomainConfiguration.vue')
-)
-const ProjectDetails = defineAsyncComponent(() => import('./components/ProjectDetails.vue'))
-const CompanyProile = defineAsyncComponent(() => import('./components/CompanyProfile.vue'))
-const Styling = defineAsyncComponent(() => import('./components/Styling.vue'))
-const Typography = defineAsyncComponent(() => import('./components/Typography.vue'))
-const Sitemap = defineAsyncComponent(() => import('./components/Sitemap.vue'))
-const FooterSettings = defineAsyncComponent(() => import('./components/FooterSettings.vue'))
-const AISettings = defineAsyncComponent(() => import('./components/AISettings.vue'))
-const menuList = ref([
-	'Domain Configuration',
-	'Project Details',
-	'Company Profile',
-	'Styling',
-	'Typography',
-	'Sitemap',
-	'Footer Settings',
-	'AI Settings',
-])
-const activeTab = ref('AI Settings')
-const contentMap = ref(
-	new Map([
-		['Domain Configuration', DomainConfiguration],
-		['Project Details', ProjectDetails],
-		['Company Profile', CompanyProile],
-		['Styling', Styling],
-		['Typography', Typography],
-		['Sitemap', Sitemap],
-		['Footer Settings', FooterSettings],
-		['AI Settings', AISettings],
-	])
-)
+    const DomainConfiguration = defineAsyncComponent(() => import("./components/DomainConfiguration.vue"))
+    const ProjectDetails = defineAsyncComponent(() => import("./components/ProjectDetails.vue"))
+    const CompanyProile = defineAsyncComponent(() => import("./components/CompanyProfile.vue"))
+    const Styling = defineAsyncComponent(() => import("./components/Styling.vue"))
+    const Typography = defineAsyncComponent(() => import("./components/Typography.vue"))
+    const Sitemap = defineAsyncComponent(() => import("./components/Sitemap.vue"))
+    const FooterSettings = defineAsyncComponent(() => import("./components/FooterSettings.vue"))
+    const AISettings = defineAsyncComponent(() => import("./components/AISettings.vue"))
+    const menuList = ref([
+        "Domain Configuration",
+        "Project Details",
+        "Company Profile",
+        "Styling",
+        "Typography",
+        "Sitemap",
+        "Footer Settings",
+        "AI Settings"
+    ])
+    const activeTab = ref("Footer Settings")
+    const contentMap = ref(new Map([
+        ["Domain Configuration", DomainConfiguration],
+        ["Project Details", ProjectDetails],
+        ["Company Profile", CompanyProile],
+        ["Styling", Styling],
+        ["Typography", Typography],
+        ["Sitemap", Sitemap],
+        ["Footer Settings", FooterSettings],
+        ["AI Settings", AISettings],
+    ]))
 </script>
 
 <style scoped lang="scss">

@@ -2,12 +2,22 @@
     <div class="content-wrapper">
         <n-card class="mb-5">
             <div class="page-tit" style="margin: 0;">
-                <div class="back-tool">
-                    <i class="i-ri:apps-fill text-6"></i>
+                <div class="left-tit">
+                    <div class="back-tool">
+                        <i class="i-ri:apps-fill text-6"></i>
+                    </div>
+                    <span class="tit-content">
+                        Typography
+                    </span>
                 </div>
-                <span class="tit-content">
-                    Typography
-                </span>
+                <div class="right-tit">
+                    <n-button type="primary" @click="updateTypography(domain)">
+                        <template #icon>
+                            <i class="i-mingcute:save-2-line text-5"></i>
+                        </template>
+                        Save
+                    </n-button>
+                </div>
             </div>
         </n-card>
 
@@ -15,13 +25,15 @@
             <n-form>
                 <n-form-item>
                     <template #label><span class="form-label">Heading Font</span></template>
-                    <n-input></n-input>
+                    <n-input v-model:value="heading_font"></n-input>
                 </n-form-item>
 
                 <n-card class="form-desc">
                     <div class="container">
                         <div class="form-label">Preview:</div>
-                        <div class="desc">The quick brown fox jumps over the lazy dog</div>
+                        <div class="desc" :style="{ fontFamily: heading_font }">The quick brown fox jumps over the lazy
+                            dog
+                        </div>
                     </div>
                 </n-card>
             </n-form>
@@ -31,13 +43,14 @@
             <n-form>
                 <n-form-item>
                     <template #label><span class="form-label">Body Font</span></template>
-                    <n-input></n-input>
+                    <n-input v-model:value="body_font"></n-input>
                 </n-form-item>
 
                 <n-card class="form-desc">
                     <div class="container">
                         <div class="form-label">Preview:</div>
-                        <div class="desc">The quick brown fox jumps over the lazy dog</div>
+                        <div class="desc" :style="{ fontFamily: body_font }">The quick brown fox jumps over the lazy dog
+                        </div>
                     </div>
                 </n-card>
             </n-form>
@@ -54,7 +67,15 @@
 </template>
 
 <script setup lang="ts">
+    import { updateTypography } from "../controller/typography.controller"
+    import { getEditDomainStoreData } from '../store';
 
+    const {
+        heading_font,
+        body_font,
+    } = getEditDomainStoreData()
+    const route = useRoute()
+    const domain = route.params.domain as string
 </script>
 
 <style scoped lang="scss">
@@ -84,7 +105,6 @@
                 .desc {
                     color: var(--color-text-1);
                     font-size: 14px;
-                    font-weight: bold;
                 }
             }
         }
@@ -93,11 +113,13 @@
             .attention-tit {
                 margin-bottom: 10px;
             }
+
             .attention-item {
                 padding-left: 10px;
                 position: relative;
-                &::before{
-                    content:"";
+
+                &::before {
+                    content: "";
                     display: block;
                     width: 4px;
                     height: 4px;

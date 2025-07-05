@@ -2,30 +2,42 @@
     <div class="content-wrapper">
         <n-card class="mb-5">
             <div class="page-tit" style="margin: 0;">
-                <div class="back-tool">
-                    <i class="i-ri:apps-fill text-6"></i>
+                <div class="left-tit">
+                    <div class="back-tool">
+                        <i class="i-ri:apps-fill text-6"></i>
+                    </div>
+                    <span class="tit-content">
+                        Footer Settings
+                    </span>
                 </div>
-                <span class="tit-content">
-                    Footer Settings
-                </span>
+                <div class="right-tit">
+                    <n-button type="primary" @click="updateFootersettingsInfo(domain)">
+                        <template #icon>
+                            <i class="i-mingcute:save-2-line text-5"></i>
+                        </template>
+                        Save
+                    </n-button>
+                </div>
             </div>
         </n-card>
 
         <n-card>
-            <div class="page-tit">
-                <span class="tit-content">
-                    Additional Content
-                </span>
+            <div class="page-tit mb-5">
+                <div class="left-tit">
+                    <span class="tit-content">
+                        Additional Content
+                    </span>
+                </div>
             </div>
 
             <n-form>
                 <n-form-item>
                     <template #label><span class="form-label">Copyright Text</span></template>
-                    <n-input></n-input>
+                    <n-input v-model:value="copyright_text"></n-input>
                 </n-form-item>
                 <n-form-item>
                     <template #label><span class="form-label">Disclaimer</span></template>
-                    <n-input type="textarea" :rows="8"></n-input>
+                    <n-input type="textarea" :rows="8" v-model:value="disclaimer"></n-input>
                 </n-form-item>
             </n-form>
         </n-card>
@@ -33,7 +45,13 @@
 </template>
 
 <script setup lang="ts">
+    import { updateFootersettingsInfo, getFootersettingsInfo } from "../controller/footerSettings.controller"
+    import { getEditDomainStoreData } from '../store';
 
+    const { copyright_text, disclaimer } = getEditDomainStoreData()
+    const route = useRoute()
+    const domain = route.params.domain as string
+    getFootersettingsInfo(domain)
 </script>
 
 <style scoped lang="scss">

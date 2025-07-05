@@ -2,35 +2,54 @@
     <div class="content-wrapper">
         <n-card class="mb-5">
             <div class="page-tit" style="margin: 0;">
-                <div class="back-tool">
-                    <i class="i-ri:apps-fill text-6"></i>
+                <div class="left-tit">
+                    <div class="back-tool">
+                        <i class="i-ri:apps-fill text-6"></i>
+                    </div>
+                    <span class="tit-content">
+                        AI Settings
+                    </span>
                 </div>
-                <span class="tit-content">
-                    AI Settings
-                </span>
+                <div class="right-tit">
+                    <n-button type="primary" @click="updateAisettingsInfo(domain)">
+                        <template #icon>
+                            <i class="i-mingcute:save-2-line text-5"></i>
+                        </template>
+                        Save
+                    </n-button>
+                </div>
             </div>
         </n-card>
 
         <n-card>
-            <div class="page-tit">
-                <span class="tit-content">
-                    Default AI Instructions
-                </span>
+            <div class="page-tit mb-5">
+                <div class="left-tit">
+                    <span class="tit-content">
+                        Default AI Instructions
+                    </span>
+                </div>
             </div>
 
             <n-form>
                 <n-form-item>
                     <template #label><span class="form-label">Instructions for Email Generation</span></template>
-                    <n-input type="textarea" :rows="13"></n-input>
+                    <n-input type="textarea" :rows="13" v-model:value="prompt"></n-input>
                 </n-form-item>
             </n-form>
-            <div>These instructions will be used as default guidelines when generating new emails. You can override these instructions for individual emails as needed.</div>
+            <div>These instructions will be used as default guidelines when generating new emails. You can override
+                these
+                instructions for individual emails as needed.</div>
         </n-card>
     </div>
 </template>
 
 <script setup lang="ts">
-
+    import { getAisettingsInfo,updateAisettingsInfo } from "../controller/aiSettings.controller"
+    import { getEditDomainStoreData } from '../store';
+    const { prompt } = getEditDomainStoreData()
+    const route = useRoute()
+    const domain = route.params.domain as string
+    getAisettingsInfo(domain)
 </script>
 
 <style scoped lang="scss">

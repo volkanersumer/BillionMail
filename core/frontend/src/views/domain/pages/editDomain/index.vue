@@ -13,8 +13,7 @@
 
         <!-- Content tabs -->
         <div class="content-tabs">
-            <div :class="['tab-item', { active: activeTab == item }]" @click="activeTab = item"
-                v-for="(item, index) in menuList" :key="index">
+            <div v-for="(item, index) in menuList" :key="index" :class="['tab-item', { active: activeTab == item }]" @click="activeTab = item">
                 <span>{{ item }}</span>
             </div>
         </div>
@@ -43,7 +42,7 @@
         "Footer Settings",
         "AI Settings"
     ])
-    const activeTab = ref("AI Settings")
+    const activeTab = ref("Footer Settings")
     const contentMap = ref(new Map([
         ["Domain Configuration", DomainConfiguration],
         ["Project Details", ProjectDetails],

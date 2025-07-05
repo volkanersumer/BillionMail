@@ -1,12 +1,24 @@
 import type { RouteRecordRaw } from "vue-router";
-
+import { Layout } from '@/router/constant'
 export default {
     path: "/template",
+    component: Layout,
     meta: {
         sort: 3,
-        title:"template",
+        title: "template",
         key: 'template',
         titleKey: 'layout.menu.template',
     },
-    component: () => import("@/views/template/index.vue")
+    children: [
+        {
+            path: "/template",
+            name: "template",
+            component: () => import("@/views/template/index.vue")
+        },
+        {
+            path: "ai-template",
+            name: "ai-template",
+            component: () => import("@/views/template/pages/AITemplate/index.vue")
+        }
+    ]
 } as RouteRecordRaw

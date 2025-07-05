@@ -83,7 +83,7 @@ const { tableKeys, tableParams, tableProps, pageProps, fetchTable, resetTable } 
 	params: {
 		page: 1,
 		page_size: 10,
-		group_id: location.value.state.group_id || '',
+		group_id: location.value.state.group_id || 0,
 		keyword: '',
 		status: 1,
 	},

@@ -75,3 +75,12 @@ export const applyCert = (params: { domain: string }) => {
 		},
 	})
 }
+
+export const setDefaultDomain = (params: { domain: string }) => {
+	return instance.post('/domains/set_default_domain', params, {
+		fetchOptions: {
+			loading: 'Setting Default Domain, please wait...',
+			successMessage: true,
+		},
+	})
+}

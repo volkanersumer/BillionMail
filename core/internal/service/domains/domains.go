@@ -183,6 +183,12 @@ func Get(ctx context.Context, keyword string, page, pageSize int) ([]v1.Domain, 
 		return nil, 0, err
 	}
 
+	var defaultDomain string
+	val, err := g.DB().Model("bm_options").Where("name", "default_sender_domain").Value("value")
+	if err == nil && val != nil {
+		defaultDomain = val.String()
+	}
+
 	crt := mail_service.NewCertificate()
 
 	defer crt.Close()
@@ -190,6 +196,12 @@ func Get(ctx context.Context, keyword string, page, pageSize int) ([]v1.Domain, 
 	wg := sync.WaitGroup{}
 
 	for i, domain := range domains {
+		if domain.Domain == defaultDomain {
+			domains[i].Default = 1
+		} else {
+			domains[i].Default = 0
+		}
+
 		wg.Add(1)
 		go func(i int, domain v1.Domain) {
 			defer wg.Done()

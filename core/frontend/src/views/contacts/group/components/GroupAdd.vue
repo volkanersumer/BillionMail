@@ -1,5 +1,5 @@
 <template>
-	<modal :title="t('contacts.group.add.title')" width="500">
+	<modal :title="t('contacts.group.add.title')" width="540">
 		<div class="pt-12px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item :label="t('contacts.group.form.name')" path="name">

@@ -273,6 +273,7 @@ func GetActiveContacts(ctx context.Context, groupId int) ([]*entity.Contact, err
 	err := g.DB().Model("bm_contacts").
 		Where("group_id", groupId).
 		Where("active", 1).
+		Where("status", 1). // Confirmed email address
 		Scan(&contacts)
 	return contacts, err
 }

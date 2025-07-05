@@ -42,7 +42,6 @@
 				</div>
 			</n-form-item>
 		</bt-form>
-		<template #footer-left> </template>
 	</modal>
 </template>
 

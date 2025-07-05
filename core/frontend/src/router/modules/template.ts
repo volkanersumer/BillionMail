@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from "vue-router";
 import { Layout } from '@/router/constant'
+import { isDev } from "@/utils";
 export default {
     path: "/template",
     component: Layout,
@@ -8,6 +9,7 @@ export default {
         title: "template",
         key: 'template',
         titleKey: 'layout.menu.template',
+        hidden: !isDev
     },
     children: [
         {

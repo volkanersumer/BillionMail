@@ -2,6 +2,7 @@ package mail_services
 
 import (
 	"billionmail-core/api/mail_services/v1"
+	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
@@ -28,7 +29,7 @@ func (c *ControllerV1) AddBcc(ctx context.Context, req *v1.AddBccReq) (res *v1.A
 	}
 
 	if req.Domain == "" {
-		req.Domain = extractDomain(req.Address)
+		req.Domain = mail_service.ExtractDomain(req.Address)
 	}
 
 	now := time.Now().Unix()
@@ -48,7 +49,7 @@ func (c *ControllerV1) AddBcc(ctx context.Context, req *v1.AddBccReq) (res *v1.A
 	}
 
 	// sync config immediately to take effect
-	if err := SyncBccToPostfix(ctx); err != nil {
+	if err := mail_service.SyncBccToPostfix(ctx); err != nil {
 		g.Log().Error(ctx, "sync bcc config failed: {}", err)
 		res.SetError(gerror.New(public.LangCtx(ctx, "add success but sync config failed: {}", err.Error())))
 		return res, nil

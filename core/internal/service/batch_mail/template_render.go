@@ -50,8 +50,12 @@ func (e *TemplateEngine) RenderTemplate(ctx context.Context, content string, dat
 	return e.view.ParseContent(ctx, content, data)
 }
 
-// RenderEmailTemplate Render email template
 func (e *TemplateEngine) RenderEmailTemplate(ctx context.Context, content string, contact *entity.Contact, task *entity.EmailTask, unsubscribeURL string) (string, error) {
+	return e.RenderEmailTemplateWithAPI(ctx, content, contact, task, unsubscribeURL, nil)
+}
+
+// RenderEmailTemplate Render email template
+func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content string, contact *entity.Contact, task *entity.EmailTask, unsubscribeURL string, apiAttribs map[string]interface{}) (string, error) {
 	// handle escape characters
 	content = strings.NewReplacer(
 		"\\r\\n", "\n",
@@ -72,6 +76,18 @@ func (e *TemplateEngine) RenderEmailTemplate(ctx context.Context, content string
 		subscriberData["Email"] = contact.Email
 		subscriberData["Active"] = contact.Active
 		subscriberData["Status"] = contact.Status
+
+	}
+
+	// prepare api data
+	apiData := make(map[string]interface{})
+	if contact != nil {
+		// Custom properties are added directly to subscriberData
+		if apiAttribs != nil {
+			for k, v := range apiAttribs {
+				apiData[k] = v
+			}
+		}
 
 	}
 
@@ -126,6 +142,7 @@ func (e *TemplateEngine) RenderEmailTemplate(ctx context.Context, content string
 		"Subscriber":     subscriberData,
 		"Task":           taskData,
 		"UnsubscribeURL": unsubscribeURL,
+		"API":            apiAttribs,
 	}
 
 	// use template engine to render
@@ -143,20 +160,4 @@ var defaultEngine = NewTemplateEngine()
 // GetTemplateEngine Get default template engine instance
 func GetTemplateEngine() *TemplateEngine {
 	return defaultEngine
-}
-
-// RenderGoTemplate For compatibility, package-level function
-func RenderGoTemplate(tpl string, ctx interface{}, funcMap map[string]interface{}) (string, error) {
-	engine := NewTemplateEngine()
-	if funcMap != nil {
-		engine.view.BindFuncMap(funcMap)
-	}
-
-	data := g.Map{
-		"Subscriber":     ctx.(entity.MailTemplateContext).Subscriber,
-		"Task":           ctx.(entity.MailTemplateContext).Task,
-		"UnsubscribeURL": ctx.(entity.MailTemplateContext).UnsubscribeURL,
-	}
-
-	return engine.RenderTemplate(context.Background(), tpl, data)
 }

@@ -151,7 +151,17 @@ func (s *JWTService) IsTokenBlacklisted(token *JWTCustomClaims) bool {
 // JWTAuthMiddleware provides JWT authentication middleware
 func (s *JWTService) JWTAuthMiddleware(r *ghttp.Request) {
 	// Skip authentication for login and refresh token endpoints
-	if r.URL.Path == "/api/login" || r.URL.Path == "/api/refresh-token" || r.URL.Path == "/api/unsubscribe/user_group" || r.URL.Path == "/api/get_validate_code" || r.URL.Path == "/api/unsubscribe" || r.URL.Path == "/api/languages/set" || r.URL.Path == "/api/languages/get" || r.URL.Path == "/api/batch_mail/api/send" {
+	if r.URL.Path == "/api/login" ||
+		r.URL.Path == "/api/refresh-token" ||
+		r.URL.Path == "/api/unsubscribe/user_group" ||
+		r.URL.Path == "/api/get_validate_code" ||
+		r.URL.Path == "/api/unsubscribe" ||
+		r.URL.Path == "/api/languages/set" ||
+		r.URL.Path == "/api/languages/get" ||
+		r.URL.Path == "/api/batch_mail/api/send" ||
+		r.URL.Path == "/api/batch_mail/api/batch_send" ||
+		r.URL.Path == "/api/subscribe/submit" ||
+		r.URL.Path == "/api/subscribe/confirm" {
 		r.Middleware.Next()
 		return
 	}

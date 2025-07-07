@@ -38,11 +38,13 @@ func GetRelayEncryptionKey() (string, error) {
 		Value("value")
 
 	if val != nil && val.String() != "" {
-		return val.String(), nil
+		if _, err := hex.DecodeString(val.String()); err == nil {
+			return val.String(), nil
+		}
 	}
 
 	// 2. Generate key
-	newSecret := grand.S(16)
+	newSecret := hex.EncodeToString(grand.B(16))
 
 	// 3. Save the new key to the database
 	_, err = g.DB().Model("bm_options").

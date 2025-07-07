@@ -2,6 +2,13 @@ import { defineStore, storeToRefs } from "pinia";
 import { KnowledgeBase, SiteInfo } from "../dto";
 
 const editDomainStore = defineStore("editDomainStoroe", () => {
+    // domain configuration
+    const domainTit = ref("")
+    const quota = ref("0")
+    const unit = ref("B")
+    const mailboxes = ref(0)
+    const catch_email = ref("")
+
     // Project detail
     const hasGotProjectDetail = ref(false)
     const domain = ref("")
@@ -62,6 +69,12 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
     const prompt = ref("")
 
     return {
+        domainTit,
+        quota,
+        unit,
+        mailboxes,
+        catch_email,
+        
         hasGotProjectDetail,
         domain,
         description,

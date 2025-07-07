@@ -1,0 +1,73 @@
+import { instance } from "@/api"
+import { instanceOptions } from "./companyProfile.controller"
+import { getEditDomainStoreData } from "../store"
+import { getByteUnit } from '@/utils'
+/**
+ * @description Get domain detail
+ */
+export async function getDomainDetail(domain: string) {
+    const {
+        domainTit,
+        quota,
+        unit,
+        mailboxes,
+        catch_email
+    } = getEditDomainStoreData()
+    try {
+        const { list } = await instance.get("/domains/list", { params: { keyword: domain, page: 1, page_size: 1 }, ...instanceOptions }) as { total: number, list: Record<string, any>[] }
+        const quotaAndUnit = getByteUnit(list[0].quota, true, 2).split(" ")
+        domainTit.value = list[0].domain
+        quota.value = quotaAndUnit[0]
+        unit.value = quotaAndUnit[1]
+        mailboxes.value = list[0].mailboxes
+        catch_email.value = list[0].email
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+/**
+ * @description Update aomain 
+ */
+export async function updateDomain() {
+    const {
+        domainTit,
+        quota,
+        unit,
+        mailboxes,
+        catch_email
+    } = getEditDomainStoreData()
+    const quotaParam = calcBaseUnits(Number(quota.value), unit.value)
+    try {
+        await instance.post("/domains/update", {
+            domain: domainTit.value,
+            mailboxes: mailboxes.value,
+            mailboxQuota: quotaParam,
+            quota: quotaParam,
+            rateLimit: 1,
+            active: 1,
+            email: catch_email.value
+        }, instanceOptions)
+    } catch (error) {
+        console.warn(error)
+    }
+
+}
+
+/**
+ * @description Calculate based on units
+ */
+function calcBaseUnits(quota: number, unit: string) {
+    switch (unit) {
+        case "KB":
+            return quota * 1024
+        case "MB":
+            return quota * 1024 * 1024
+        case "GB":
+            return quota * 1024 * 1024 * 1024
+        case "TB":
+            return quota * 1024 * 1024 * 1024 * 1024
+        default:
+            return quota
+    }
+}

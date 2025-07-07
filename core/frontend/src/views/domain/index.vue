@@ -264,13 +264,13 @@
 
 	// Handle edit
 	const handleEdit = (row: MailDomain) => {
-		/**
-		 * formModalApi.setState({
+		
+		/* formModalApi.setState({
 			row,
 			isEdit: true,
 		})
-		formModalApi.open()
-		 */
+		formModalApi.open() */
+		
 
 		router.push({
 			name: "EditDomain",
@@ -278,8 +278,6 @@
 				domain: row.domain
 			}
 		})
-
-
 	}
 
 	// Handle delete

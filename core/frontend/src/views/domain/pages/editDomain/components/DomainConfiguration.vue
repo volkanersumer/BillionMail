@@ -11,6 +11,14 @@
                         Mail Domain Configuration
                     </span>
                 </div>
+                <div class="right-tit">
+                    <n-button type="primary" @click="updateDomain">
+                        <template #icon>
+                            <i class="i-mingcute:save-2-line text-5"></i>
+                        </template>
+                        Save
+                    </n-button>
+                </div>
             </div>
         </n-card>
         <n-card>
@@ -18,23 +26,27 @@
             <n-form>
                 <n-form-item>
                     <template #label><span class="form-label">Domain</span></template>
-                    <n-input></n-input>
+                    <n-input v-model:value="domainTit"></n-input>
                 </n-form-item>
                 <n-form-item label="">
                     <template #label><span class="form-label">Domain Quota</span></template>
                     <div class="flex justify-between gap-5 items-center w-100%">
-                        <n-input></n-input>
-                        <n-select :options="uinitOptions" class="w-20"></n-select>
+                        <n-input v-model:value="quota as unknown as string"></n-input>
+                        <n-select :options="uinitOptions" class="w-20" v-model:value="unit"></n-select>
                     </div>
                 </n-form-item>
                 <n-form-item>
                     <template #label><span class="form-label">MailBox Count</span></template>
-                    <n-input></n-input>
+                    <n-input v-model:value="mailboxes as unknown as string"></n-input>
+                </n-form-item>
+                <n-form-item>
+                    <template #label><span class="form-label">Catch all</span></template>
+                    <n-input v-model:value="catch_email"></n-input>
                 </n-form-item>
             </n-form>
         </n-card>
 
-        <n-card class="my-5">
+        <!-- <n-card class="my-5">
             <div class="switch-settings">
                 <div class="switch-item">
                     <div class="label">Track Email Opens</div>
@@ -45,10 +57,9 @@
                     <n-switch></n-switch>
                 </div>
             </div>
-        </n-card>
+        </n-card> -->
 
-        <n-card>
-            <!-- title -->
+        <!-- <n-card>
             <div class="page-tit mb-5">
                 <div class="left-tit">
                     <div class="back-tool">
@@ -70,12 +81,32 @@
                     <n-switch></n-switch>
                 </div>
             </div>
-        </n-card>
+        </n-card> -->
     </div>
 </template>
 
 <script setup lang="ts">
+    
+    import { getDomainDetail,updateDomain } from "../controller/domainConfiguration.controller"
+    import { getEditDomainStoreData } from "../store"
+    const {
+        domainTit,
+        quota,
+        unit,
+        mailboxes,
+        catch_email
+    } = getEditDomainStoreData()
+    const route = useRoute()
+    const domain = route.params.domain as string
     const uinitOptions = ref([
+        {
+            label: "B",
+            value: "B"
+        },
+        {
+            label: "KB",
+            value: "KB"
+        },
         {
             label: "MB",
             value: "MB"
@@ -89,6 +120,9 @@
             value: "TB"
         },
     ])
+
+    getDomainDetail(domain)
+
 </script>
 
 <style scoped lang="scss">

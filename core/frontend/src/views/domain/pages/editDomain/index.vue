@@ -40,7 +40,7 @@
         "Footer Settings",
         "AI Settings"
     ])
-    const activeTab = ref("Footer Settings")
+    const activeTab = ref("Domain Configuration")
     const contentMap = ref(new Map([
         ["Domain Configuration", DomainConfiguration],
         ["Project Details", ProjectDetails],

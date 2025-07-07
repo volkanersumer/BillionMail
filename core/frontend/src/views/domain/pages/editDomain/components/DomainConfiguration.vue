@@ -1,16 +1,19 @@
 <template>
     <div class="content-wrapper">
-        <n-card>
+        <n-card class="mb-5">
             <!-- title -->
             <div class="page-tit">
-                <div class="back-tool">
-                    <i class="i-cuida:mail-outline text-7"></i>
+                <div class="left-tit">
+                    <div class="back-tool">
+                        <i class="i-cuida:mail-outline text-7"></i>
+                    </div>
+                    <span class="tit-content">
+                        Mail Domain Configuration
+                    </span>
                 </div>
-                <span class="tit-content">
-                    Mail Domain Configuration
-                </span>
             </div>
-
+        </n-card>
+        <n-card>
             <!-- form data -->
             <n-form>
                 <n-form-item>
@@ -46,13 +49,15 @@
 
         <n-card>
             <!-- title -->
-            <div class="page-tit">
-                <div class="back-tool">
-                    <i class="i-ri:rss-fill text-6"></i>
+            <div class="page-tit mb-5">
+                <div class="left-tit">
+                    <div class="back-tool">
+                        <i class="i-ri:rss-fill text-6"></i>
+                    </div>
+                    <span class="tit-content">
+                        Subscription Management
+                    </span>
                 </div>
-                <span class="tit-content">
-                    Subscription Management
-                </span>
             </div>
 
             <div class="switch-settings">
@@ -92,6 +97,7 @@
 
     .content-wrapper {
         @include mixin.content-wrapper;
+
         // title
         .page-tit {
             @include mixin.page-tit;

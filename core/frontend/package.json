@@ -6,6 +6,7 @@
 	"scripts": {
 		"build": "rsbuild build && node deploy.js",
 		"dev": "rsbuild dev --open",
+		"operation": "rsbuild dev RSBUILD_MODE=operation --open --mode=development",
 		"preview": "rsbuild preview",
 		"format": "prettier --write .",
 		"lint": "eslint . --ext .vue,.ts,.tsx",

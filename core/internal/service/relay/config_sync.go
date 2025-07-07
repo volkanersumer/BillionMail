@@ -48,11 +48,13 @@ func GetRelayEncryptionKey() (string, error) {
 
 	// 3. Save the new key to the database
 	_, err = g.DB().Model("bm_options").
+		OnConflict("name").
+		OnDuplicate("value").
 		Data(g.Map{
 			"name":  "relay_encryption_key",
 			"value": newSecret,
 		}).
-		Insert()
+		Save()
 	if err != nil {
 		// If insert fails, attempt to retrieve the key again
 		val, err = g.DB().Model("bm_options").

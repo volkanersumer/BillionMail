@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-    import { getAisettingsInfo,updateAisettingsInfo } from "../controller/aiSettings.controller"
+    import { getAisettingsInfo, updateAisettingsInfo } from "../controller/aiSettings.controller"
     import { getEditDomainStoreData } from '../store';
     const { prompt } = getEditDomainStoreData()
     const route = useRoute()

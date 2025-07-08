@@ -8,6 +8,8 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
     const unit = ref("B")
     const mailboxes = ref(0)
     const catch_email = ref("")
+    const initAi = ref(false)
+    const urls = ref([""])
 
     // Project detail
     const hasGotProjectDetail = ref(false)
@@ -74,6 +76,8 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
         unit,
         mailboxes,
         catch_email,
+        initAi,
+        urls,
         
         hasGotProjectDetail,
         domain,

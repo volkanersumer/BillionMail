@@ -41,7 +41,7 @@
 
             <n-card class="mt-5">
                 <n-form-item label="Automatically create brand information">
-                    <n-switch></n-switch>
+                    <n-switch v-model:value="initAi"></n-switch>
                 </n-form-item>
                 <n-alert style="margin: 0 0 15px 0;" type="warning" :show-icon="false">
                     <div class="w-100% flex justify-between items-center">
@@ -61,8 +61,9 @@
                 </bt-tips>
                 <n-form-item label="Specify a domain name">
                     <div class="w-100% flex flex-col gap-2.5">
-                        <n-input placeholder=""></n-input>
-                        <n-button type="primary" ghost>
+                        <n-input placeholder="" v-for="(_, index) in urls" :key="index"
+                            v-model:value="urls[index]"></n-input>
+                        <n-button type="primary" ghost @click="addUrl">
                             <template #icon>
                                 <i class="i-material-symbols:add-circle-outline"></i>
                             </template>
@@ -73,7 +74,7 @@
             </n-card>
         </div>
 
-        
+
         <!-- <n-card class="my-5">
             <div class="switch-settings">
                 <div class="switch-item">
@@ -122,7 +123,9 @@
         quota,
         unit,
         mailboxes,
-        catch_email
+        catch_email,
+        initAi,
+        urls
     } = getEditDomainStoreData()
     const route = useRoute()
     const domain = route.params.domain as string
@@ -150,6 +153,13 @@
     ])
 
     getDomainDetail(domain)
+
+    /**
+     * @description Add url to urls
+     */
+    function addUrl() {
+        urls.value.push("")
+    }
 
 </script>
 

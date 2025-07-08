@@ -17,7 +17,9 @@
 			</div>
 		</div>
 		<div class="dynamic-content">
-			<component :is="contentMap.get(activeTab)" />
+			<n-scrollbar style="height: 100%;">
+				<component :is="contentMap.get(activeTab)" />
+			</n-scrollbar>
 		</div>
 
 
@@ -186,7 +188,7 @@
 
 	// Dynamic content
 	.dynamic-content {
-		height: 100%;
+		height: calc(100vh - 240px);
 		box-sizing: border-box;
 		padding: 20px;
 	}

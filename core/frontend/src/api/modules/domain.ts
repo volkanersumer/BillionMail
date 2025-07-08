@@ -84,3 +84,13 @@ export const setDefaultDomain = (params: { domain: string }) => {
 		},
 	})
 }
+
+
+export const initAiConfiguration = (params: { domain: string, urls: string[] }) => {
+	return instance.post("/askai/project/create", params, {
+		fetchOptions: {
+			loading: 'Setting Default Domain, please wait...',
+			successMessage: true,
+		}
+	})
+}

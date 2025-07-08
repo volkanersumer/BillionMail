@@ -44,7 +44,7 @@
 
 
 				<n-form-item label="Automatically create brand information">
-					<n-switch></n-switch>
+					<n-switch v-model:value="initAi"></n-switch>
 				</n-form-item>
 				<n-alert style="margin: 0 0 15px 0;" type="warning" :show-icon="false">
 					<div class="w-100% flex justify-between items-center">
@@ -64,8 +64,10 @@
 				</bt-tips>
 				<n-form-item label="Specify a domain name">
 					<div class="w-100% flex flex-col gap-2.5">
-						<n-input placeholder=""></n-input>
-						<n-button type="primary" ghost>
+						<n-input placeholder="" v-model:value="urls[index]" v-for="(item, index) in urls"
+							:key="index"></n-input>
+
+						<n-button type="primary" ghost @click="addUrl">
 							<template #icon>
 								<i class="i-material-symbols:add-circle-outline"></i>
 							</template>
@@ -74,7 +76,6 @@
 					</div>
 				</n-form-item>
 			</bt-form>
-
 		</div>
 	</modal>
 </template>
@@ -83,7 +84,7 @@
 	import { FormRules } from 'naive-ui'
 	import { getByteUnit, getNumber } from '@/utils'
 	import { useModal } from '@/hooks/modal/useModal'
-	import { createDomain, updateDomain } from '@/api/modules/domain'
+	import { createDomain, initAiConfiguration, updateDomain } from '@/api/modules/domain'
 	import type { MailDomain } from '../interface'
 
 	const { t } = useI18n()
@@ -95,7 +96,8 @@
 	})
 
 	const formRef = useTemplateRef('formRef')
-
+	const initAi = ref(false)
+	const urls = ref([""])
 	const form = reactive({
 		domain: '',
 		a_record: '',
@@ -178,9 +180,23 @@
 					mailboxes: form.mailboxes,
 					email: form.email,
 				})
+				// Init Ai configuration (via. src\api\modules\domain.ts)
+				if (initAi.value) {
+					await initAiConfiguration({
+						domain: form.domain,
+						urls: urls.value
+					})
+				}
 			}
 			const state = modalApi.getState<{ refresh: Function }>()
 			state.refresh()
 		},
 	})
+
+	/**
+	 * @description Add url to urls
+	 */
+	function addUrl() {
+		urls.value.push("")
+	}
 </script>

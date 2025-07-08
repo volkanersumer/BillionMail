@@ -20,9 +20,9 @@ func CheckHostname() {
 	ctx := context.Background()
 	if gfile.Exists(flagFile) {
 		content := gfile.GetContents(flagFile)
-		g.Log().Error(ctx, "flagFile content 111111111: ", content)
+		g.Log().Info(ctx, "flagFile content 111111111: ", content)
 	} else {
-		g.Log().Error(ctx, "flagFile not exists 111111111")
+		g.Log().Info(ctx, "flagFile not exists 111111111")
 	}
 	// ----------------------------------------------------------------------
 

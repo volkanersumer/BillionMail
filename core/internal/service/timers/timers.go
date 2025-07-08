@@ -143,7 +143,8 @@ func Start(ctx context.Context) (err error) {
 	// fail2ban access logs detection
 	gtimer.AddOnce(800*time.Millisecond, fail2ban.NewAccessLogDetection().Start)
 
-	gtimer.AddOnce(500*time.Millisecond, func() {
+	//gtimer.AddOnce(500*time.Millisecond, func() {
+	gtimer.Add(1*time.Minute, func() {
 		settings.CheckHostname()
 	})
 	gtimer.Add(24*time.Hour, func() {

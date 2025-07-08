@@ -2149,11 +2149,37 @@ func GetLocalIP() (string, error) {
 		return "", err
 	}
 
+	localIp := ""
+
 	for _, addr := range addrs {
 		if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
-			return ipNet.IP.String(), nil
+			localIp = ipNet.IP.String()
+			break
 		}
 	}
+
+	if strings.HasPrefix(localIp, "172.") {
+		dk, err := docker.NewDockerAPI()
+
+		if err == nil {
+			defer dk.Close()
+			// If the local IP starts with 172., it may be a Docker container, so we try to get the host's IP
+			res, err := dk.ExecHostShellCommand(context.Background(), "ip addr | grep -E -o '[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}' | grep -E -v \"^127\\.|^255\\.|^0\\.\" | head -n 1")
+
+			if err == nil && res != nil {
+				res.Output = SanitizeIPChars(res.Output)
+
+				if IsIpAddr(res.Output) {
+					localIp = res.Output
+				}
+			}
+		}
+	}
+
+	if localIp != "" {
+		return localIp, nil
+	}
+
 	return "", errors.New("local IP not found")
 }
 
@@ -2581,6 +2607,19 @@ func SanitizeUTF8(s string) string {
 			continue
 		}
 		result = append(result, r)
+	}
+
+	return string(result)
+}
+
+// SanitizeIPChars clean up invalid IPv4 characters in a string
+func SanitizeIPChars(s string) string {
+	// substitute invalid UTF-8 characters with a replacement character
+	result := make([]rune, 0, len(s))
+	for _, r := range s {
+		if (r >= '0' && r <= '9') || (r >= 'a' && r <= 'z') || r == '.' || r == ':' {
+			result = append(result, r)
+		}
 	}
 
 	return string(result)

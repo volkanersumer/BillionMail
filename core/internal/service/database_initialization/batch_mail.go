@@ -100,10 +100,7 @@ func init() {
                 group_id INTEGER,
                 template_id INTEGER,
                 task_id INTEGER,
-                unsubscribe_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
-                FOREIGN KEY (group_id) REFERENCES bm_contact_groups(id) ON DELETE SET NULL,
-                FOREIGN KEY (template_id) REFERENCES email_templates(id) ON DELETE SET NULL,
-                FOREIGN KEY (task_id) REFERENCES email_tasks(id) ON DELETE SET NULL
+                unsubscribe_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())
             )`,
 
 			`CREATE TABLE IF NOT EXISTS abnormal_recipient (
@@ -199,6 +196,11 @@ func init() {
 		_ = AddColumnIfNotExists("bm_contact_groups", "confirm_subject", "TEXT", "''", false)
 		_ = AddColumnIfNotExists("bm_contact_groups", "welcome_subject", "TEXT", "''", false)
 		_ = AddColumnIfNotExists("bm_contact_groups", "send_welcome_email", "SMALLINT", "0", true)
+
+		// unsubscribe_records
+		_ = DropForeignKeyIfExists("unsubscribe_records", "group_id")
+		_ = DropForeignKeyIfExists("unsubscribe_records", "template_id")
+		_ = DropForeignKeyIfExists("unsubscribe_records", "task_id")
 
 		g.Log().Info(context.Background(), "Batch mail tables initialized successfully")
 	})

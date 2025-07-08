@@ -4,6 +4,9 @@ import (
 	v1 "billionmail-core/api/domains/v1"
 	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/public"
+	"context"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
 	"os"
 	"strings"
 )
@@ -12,6 +15,16 @@ import (
 func CheckHostname() {
 	hostname := public.MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
 	flagFile := public.AbsPath("../core/data/billionmail_hostname.txt")
+
+	// ----------------------------------------------------------------------
+	ctx := context.Background()
+	if gfile.Exists(flagFile) {
+		content := gfile.GetContents(flagFile)
+		g.Log().Error(ctx, "flagFile content 111111111: ", content)
+	} else {
+		g.Log().Error(ctx, "flagFile not exists 111111111")
+	}
+	// ----------------------------------------------------------------------
 
 	if hostname == "" || hostname == "mail.example.com" {
 		_ = os.Remove(flagFile)

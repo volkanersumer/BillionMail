@@ -534,6 +534,16 @@ Default_info() {
     echo -e "\033[32mBillionMail default info!\033[0m"
     echo -e "=================================================================="
     pool=https
+
+    if [ -f "core-data/billionmail_hostname.txt" ];then
+        BILLIONMAIL_Domain=$(cat core-data/billionmail_hostname.txt)
+        if [ "${HTTPS_PORT}" = "443" ];then
+            echo  "BillionMail Domain Address:        ${pool}://${BILLIONMAIL_Domain}/${SafePath}"
+        else
+            echo  "BillionMail Domain Address:        ${pool}://${BILLIONMAIL_Domain}:${HTTPS_PORT}/${SafePath}"
+        fi
+    fi
+    
     if [ "${ipv6_address}" ];then
         if [ "${HTTPS_PORT}" = "443" ];then
             echo  "BillionMail Internet IPv6 Address: ${pool}://${ipv6_address}/${SafePath}"
@@ -550,9 +560,9 @@ Default_info() {
     fi
     if [ "${address}" ];then
         if [ "${HTTPS_PORT}" = "443" ];then
-            echo  "BillionMail Internet Address: ${pool}://${address}/${SafePath}"
+            echo  "BillionMail Internet Address:      ${pool}://${address}/${SafePath}"
         else
-            echo  "BillionMail Internet Address: ${pool}://${address}:${HTTPS_PORT}/${SafePath}"
+            echo  "BillionMail Internet Address:      ${pool}://${address}:${HTTPS_PORT}/${SafePath}"
         fi
 
     fi

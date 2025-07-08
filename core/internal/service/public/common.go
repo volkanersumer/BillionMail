@@ -1,6 +1,7 @@
 package public
 
 import (
+	v1 "billionmail-core/api/domains/v1"
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/utility/types/api_v1"
 	"bufio"
@@ -2686,16 +2687,81 @@ func LoadEnvFile() (map[string]string, error) {
 }
 
 func GethostUrl() string {
-	hostname := MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
-	var hostUrl string
-	if hostname == "" || hostname == "mail.example.com" {
-		serverIP, _ := GetServerIP()
-		serverPort := MustGetDockerEnv("HTTPS_PORT", "443")
-		hostUrl = fmt.Sprintf("https://%s:%s", serverIP, serverPort)
-	} else {
-		hostUrl = fmt.Sprintf("https://%s", hostname)
+	scheme := "https"
+	serverPort := 443
+	if p := g.Server(consts.DEFAULT_SERVER_NAME).GetListenedHTTPSPort(); p != -1 {
+		serverPort = p
+	} else if p := g.Server(consts.DEFAULT_SERVER_NAME).GetListenedPort(); p != -1 {
+		scheme = "http"
+		serverPort = p
 	}
 
-	return hostUrl
+	withPort := true
+	if serverPort == 80 || serverPort == 443 {
+		withPort = false
+	}
 
+	serverIP, localIP, err := GetServerIPAndLocalIP()
+	if err != nil {
+		return ""
+	}
+
+	if appEnv, err := DockerEnv("APP_ENV"); err == nil && appEnv != "" {
+		switch appEnv {
+		case "development":
+			hostUrl := scheme + "://" + localIP
+			if withPort {
+				hostUrl += ":" + fmt.Sprintf("%d", serverPort)
+			}
+			return hostUrl
+		}
+	}
+
+	hostname := MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
+	if hostname == "" {
+		hostname, _ = DockerEnv("BILLIONMAIL_HOSTNAME")
+	}
+
+	if hostname != "" && hostname != "mail.example.com" {
+		record := v1.DNSRecord{
+			Type:  "A",
+			Host:  hostname,
+			Value: serverIP,
+			Valid: true,
+		}
+
+		if ValidateARecord(record) {
+			hostUrl := scheme + "://" + hostname
+			if withPort {
+				hostUrl += ":" + fmt.Sprintf("%d", serverPort)
+			}
+			return hostUrl
+		}
+	}
+	hostUrl := scheme + "://" + serverIP
+	if withPort {
+		hostUrl += ":" + fmt.Sprintf("%d", serverPort)
+	}
+	return hostUrl
+}
+
+func ValidateARecord(record v1.DNSRecord) bool {
+	if strings.ToUpper(record.Type) != "A" && strings.ToUpper(record.Type) != "AAAA" {
+		return false
+	}
+
+	// Query A records
+	ips, err := net.LookupIP(record.Host)
+	if err != nil {
+		return false
+	}
+
+	// Check if any IP matches the expected server IP
+	for _, ip := range ips {
+		if ip.String() == record.Value {
+			return true
+		}
+	}
+
+	return false
 }

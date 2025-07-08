@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"strings"
 	"sync"
 )
 
@@ -31,7 +32,7 @@ func GetBaseURLBySender(sender string) string {
 	}
 
 	baseurlMapMu.RLock()
-	s, ok := baseurlMap[sender]
+	s, ok := baseurlMap[strings.SplitN(sender, "@", 2)[1]]
 	baseurlMapMu.RUnlock()
 	if ok {
 		return s

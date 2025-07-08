@@ -26,4 +26,7 @@ type IContactV1 interface {
 	GetGroupContactCount(ctx context.Context, req *v1.GetGroupContactCountReq) (res *v1.GetGroupContactCountRes, err error)
 	GetGroupInfo(ctx context.Context, req *v1.GetGroupInfoReq) (res *v1.GetGroupInfoRes, err error)
 	EditContacts(ctx context.Context, req *v1.EditContactsReq) (res *v1.EditContactsRes, err error)
+	ListContactsNDP(ctx context.Context, req *v1.ListContactsNDPReq) (res *v1.ListContactsNDPRes, err error)
+	EditContactsNDP(ctx context.Context, req *v1.EditContactsNDPReq) (res *v1.EditContactsNDPRes, err error)
+	DeleteContactsNDP(ctx context.Context, req *v1.DeleteContactsNDPReq) (res *v1.DeleteContactsNDPRes, err error)
 }

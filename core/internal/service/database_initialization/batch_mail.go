@@ -177,7 +177,7 @@ func init() {
 		}
 		// bm_contacts
 		_ = AddColumnIfNotExists("bm_contacts", "attribs", "JSONB", "'{}'::jsonb", false)
-		_ = AddColumnIfNotExists("bm_contacts", "status", "INTEGER", "0", false)
+		_ = AddColumnIfNotExists("bm_contacts", "status", "INTEGER", "1", true)
 
 		//  api_mail_logs
 		_ = AddColumnIfNotExists("api_mail_logs", "status", "SMALLINT", "0", true)

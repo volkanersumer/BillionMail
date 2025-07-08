@@ -13,11 +13,12 @@ import (
 
 // Check whether the A record of BILLIONMAIL_HOSTNAME is consistent with the local public network IP and write or delete the tag file
 func CheckHostname() {
+	ctx := context.Background()
+	g.Log().Info(ctx, "billionmail_hostname  start 111111111")
 	hostname := public.MustGetDockerEnv("BILLIONMAIL_HOSTNAME", "")
 	flagFile := public.AbsPath("../core/data/billionmail_hostname.txt")
 
 	// ----------------------------------------------------------------------
-	ctx := context.Background()
 	if gfile.Exists(flagFile) {
 		content := gfile.GetContents(flagFile)
 		g.Log().Info(ctx, "flagFile content 111111111: ", content)
@@ -28,12 +29,14 @@ func CheckHostname() {
 
 	if hostname == "" || hostname == "mail.example.com" {
 		_ = os.Remove(flagFile)
+		g.Log().Info(ctx, "No hostname 111111111")
 		return
 	}
 
 	serverIP, err := public.GetServerIP()
 
 	if err != nil {
+		g.Log().Info(ctx, "No serverIP 111111111")
 		return
 	}
 
@@ -49,6 +52,7 @@ func CheckHostname() {
 	}
 
 	Valid := domains.ValidateARecord(record)
+	g.Log().Info(ctx, "Valid   111111111", Valid)
 	if Valid {
 		_ = os.WriteFile(flagFile, []byte(hostname), 0644)
 	}

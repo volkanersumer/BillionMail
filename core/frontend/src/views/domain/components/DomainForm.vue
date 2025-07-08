@@ -2,7 +2,22 @@
 	<modal :title="title" :width="600">
 		<div class="pt-16px">
 			<bt-form ref="formRef" :model="form" :rules="rules">
-				<n-form-item :label="t('domain.form.domain')" path="domain">
+				<n-form-item path="domain">
+					<template #label>
+						<div class="flex items-center justify-start gap-1.25">
+							<span>{{ t('domain.form.domain') }}</span>
+							<n-popover trigger="hover">
+								<template #trigger>
+									<i class="i-custom:help text-primary cursor-pointer"></i>
+								</template>
+								<bt-tips>
+									<li class="text-error">{{ t('domain.form.tips.aRecordFailed') }}</li>
+									<li>{{ t('domain.form.tips.dnsSetup') }}</li>
+									<li>{{ t('domain.form.tips.cloudflare') }}</li>
+								</bt-tips>
+							</n-popover>
+						</div>
+					</template>
 					<n-input v-model:value="form.domain" :disabled="isEdit"
 						:placeholder="t('domain.form.domainPlaceholder')">
 					</n-input>
@@ -26,12 +41,12 @@
 					<n-input v-model:value="form.email" :placeholder="t('domain.form.globalCatchPlaceholder')">
 					</n-input>
 				</n-form-item>
-				<bt-tips>
-					<li class="text-error">{{ t('domain.form.tips.aRecordFailed') }}</li>
-					<li>{{ t('domain.form.tips.dnsSetup') }}</li>
-					<li>{{ t('domain.form.tips.cloudflare') }}</li>
-				</bt-tips>
-				<n-alert style="margin: 15px 0;" type="warning" :show-icon="false">
+
+
+				<n-form-item label="Automatically create brand information">
+					<n-switch></n-switch>
+				</n-form-item>
+				<n-alert style="margin: 0 0 15px 0;" type="warning" :show-icon="false">
 					<div class="w-100% flex justify-between items-center">
 						<span class="mr-5">To use this feature, you need to integrate an AI model first.</span>
 						<n-button type="primary">Integrate immediately</n-button>
@@ -47,9 +62,6 @@
 					<li>Import images and content</li>
 					<li>Use a custom logo (optional)</li>
 				</bt-tips>
-				<n-form-item label="Automatically create brand information">
-					<n-switch></n-switch>
-				</n-form-item>
 				<n-form-item label="Specify a domain name">
 					<div class="w-100% flex flex-col gap-2.5">
 						<n-input placeholder=""></n-input>

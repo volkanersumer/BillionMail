@@ -10,14 +10,6 @@
                         Footer Settings
                     </span>
                 </div>
-                <div class="right-tit">
-                    <n-button type="primary" @click="updateFootersettingsInfo(domain)">
-                        <template #icon>
-                            <i class="i-mingcute:save-2-line text-5"></i>
-                        </template>
-                        Save
-                    </n-button>
-                </div>
             </div>
         </n-card>
 

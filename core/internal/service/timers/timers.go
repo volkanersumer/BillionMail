@@ -145,6 +145,7 @@ func Start(ctx context.Context) (err error) {
 
 	//gtimer.AddOnce(500*time.Millisecond, func() {
 	gtimer.Add(1*time.Minute, func() {
+		g.Log().Warning(ctx, "billionmail_hostname  start 0000000")
 		settings.CheckHostname()
 	})
 	gtimer.Add(24*time.Hour, func() {

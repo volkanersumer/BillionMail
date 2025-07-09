@@ -2,7 +2,6 @@ import { getEditDomainStoreData } from "../store";
 import { instance } from "@/api";
 import { instanceOptions } from "./companyProfile.controller"
 import { KnowledgeBase } from "../dto";
-import { confirm } from "@/utils";
 /**
  * @description Get project detail
  */

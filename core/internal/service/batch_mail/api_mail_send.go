@@ -46,18 +46,21 @@ type CacheData struct {
 
 // Worker pool structure
 type WorkerPool struct {
-	workers int
-	jobs    chan ApiMailLog
-	wg      sync.WaitGroup
-	cache   *CacheData
+	workers     int
+	jobs        chan ApiMailLog
+	wg          sync.WaitGroup
+	cache       *CacheData
+	rateLimiter <-chan time.Time
 }
 
 // Create a new worker pool
-func NewWorkerPool(workers int, cache *CacheData) *WorkerPool {
+func NewWorkerPool(workers int, cache *CacheData, ratePerMinute int) *WorkerPool {
+	interval := time.Minute / time.Duration(ratePerMinute)
 	return &WorkerPool{
-		workers: workers,
-		jobs:    make(chan ApiMailLog, BatchSize),
-		cache:   cache,
+		workers:     workers,
+		jobs:        make(chan ApiMailLog, BatchSize),
+		cache:       cache,
+		rateLimiter: time.Tick(interval), // The interval between each email
 	}
 }
 
@@ -172,7 +175,7 @@ func ProcessApiMailQueueWithLock(ctx context.Context) {
 func ProcessApiMailQueue(ctx context.Context) {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeout*time.Second)
 	defer cancel()
-	rateController := NewSimpleRateController(200)
+
 	// Process all pending emails in batche
 	offset := 0
 	for {
@@ -197,15 +200,12 @@ func ProcessApiMailQueue(ctx context.Context) {
 			break
 		}
 
-		pool := NewWorkerPool(WorkerCount, cache)
+		pool := NewWorkerPool(WorkerCount, cache, 200)
 		pool.Start(ctx)
 
 		// Add emails to the worker pool
 		for _, log := range mailLogs {
-			// <-pool.rateLimiter
-			if err := rateController.Wait(ctx); err != nil {
-				return
-			}
+			<-pool.rateLimiter
 			select {
 			case <-ctx.Done():
 				return

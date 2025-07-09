@@ -13,6 +13,7 @@ import (
 	"billionmail-core/internal/controller/languages"
 	"billionmail-core/internal/controller/mail_boxes"
 	"billionmail-core/internal/controller/mail_services"
+	"billionmail-core/internal/controller/middleware"
 	"billionmail-core/internal/controller/overview"
 	"billionmail-core/internal/controller/rbac"
 	"billionmail-core/internal/controller/relay"
@@ -123,7 +124,7 @@ var (
 			// s.SetSessionStorage(gsession.NewStorageRedis(g.Redis()))
 
 			// ip whitelist middleware
-			//s.Use(middleware.IPWhitelist)
+			s.Use(middleware.IPWhitelist)
 
 			// Define excluded URIs
 			excludesURIs := map[string]struct{}{

@@ -1,6 +1,7 @@
 package batch_mail
 
 import (
+	"billionmail-core/internal/consts"
 	"billionmail-core/internal/model/entity"
 	"billionmail-core/internal/service/batch_mail"
 	"billionmail-core/internal/service/domains"
@@ -85,6 +86,11 @@ func (c *ControllerV1) SendTestEmail(ctx context.Context, req *v1.SendTestEmailR
 		res.SetError(gerror.New(public.LangCtx(ctx, "send email to {} failed: {}", req.Recipient, err)))
 		return
 	}
+
+	_ = public.WriteLog(ctx, public.LogParams{
+		Type: consts.LOGTYPE.Task,
+		Log:  "Send test email :" + subject + "to" + req.Recipient + " successfully",
+	})
 
 	res.SetSuccess(public.LangCtx(ctx, "send email successfully"))
 	return

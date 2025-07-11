@@ -151,6 +151,7 @@ var CodeMap = map[int]api_v1.StandardRes{
 }
 
 var HostWorkDir string //Host working directory
+var LogTypeMap map[string]string
 
 // Convert string to integer
 func IpToLong(ip string) int64 {

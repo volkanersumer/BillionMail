@@ -14,6 +14,7 @@ import (
 	"billionmail-core/internal/controller/mail_boxes"
 	"billionmail-core/internal/controller/mail_services"
 	"billionmail-core/internal/controller/middleware"
+	"billionmail-core/internal/controller/operation_log"
 	"billionmail-core/internal/controller/overview"
 	"billionmail-core/internal/controller/rbac"
 	"billionmail-core/internal/controller/relay"
@@ -108,6 +109,9 @@ var (
 					}
 				}
 			}
+
+			// Operation log type
+			public.LogTypeMap = consts.GetLogTypeMap()
 
 			// Init Rspamd worker-controller
 			err = rspamd.InitWorkerController()
@@ -243,6 +247,7 @@ var (
 					relay.NewV1(),
 					settings.NewV1(),
 					subscribe_list.NewV1(),
+					operation_log.NewV1(),
 				)
 			})
 

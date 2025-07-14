@@ -9,7 +9,6 @@ export default {
         title: "template",
         key: 'template',
         titleKey: 'layout.menu.template',
-        hidden: !isDev
     },
     children: [
         {

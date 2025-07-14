@@ -65,4 +65,8 @@ export type TemplateStore = {
     previewCode: Ref<string>
     generateShow: Ref<boolean>
     chatRecord: Ref<Map<string, string[]>>
+    isChat:Ref<boolean>
+    chatScrollRef:Ref<any>
+    scrollWrapperRef:Ref<any>
+    scrollable:Ref<boolean>
 }

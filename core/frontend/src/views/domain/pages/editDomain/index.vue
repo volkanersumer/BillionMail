@@ -56,22 +56,20 @@
 		"Project Details",
 		"Company Profile",
 		"Styling",
-		"Typography",
 		"Sitemap",
 		"Footer Settings",
 		"AI Settings"
 	])
 	const activeTab = ref("Domain Configuration")
-	const contentMap = ref(new Map([
+	const contentMap = new Map([
 		["Domain Configuration", DomainConfiguration],
 		["Project Details", ProjectDetails],
 		["Company Profile", CompanyProile],
 		["Styling", Styling],
-		["Typography", Typography],
 		["Sitemap", Sitemap],
 		["Footer Settings", FooterSettings],
 		["AI Settings", AISettings],
-	]))
+	])
 	const route = useRoute()
 	const domain = route.params.domain as string
 

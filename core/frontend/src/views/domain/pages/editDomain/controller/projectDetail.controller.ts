@@ -125,3 +125,32 @@ export async function deleteKnowledgeBase(domain: string, knowledge: KnowledgeBa
         console.warn(error)
     }
 }
+
+/**
+ * @description Preview knowledge base content
+ */
+export function previewKnowledgeBaseContent(knowledge_base: KnowledgeBase) {
+    const { knowledge_base_content, knowledgeBasePreview, knowledgeBasePreviewTit } = getEditDomainStoreData()
+    knowledgeBasePreview.value = true
+    knowledge_base_content.value = knowledge_base.content
+    knowledgeBasePreviewTit.value = knowledge_base.title
+}
+
+/**
+ * @description Upload image
+ */
+export async function uploadImage(domain: string, image: string, filename: string, alt_text: string, image_tag: string) {
+    try {
+        const res = await instance.post("/askai/project/upload_image", {
+            domain,
+            image,
+            filename,
+            alt_text,
+            image_tag
+        }, instanceOptions)
+        console.log(res)
+    } catch (error) {
+        console.warn((error))
+        return ""
+    }
+}

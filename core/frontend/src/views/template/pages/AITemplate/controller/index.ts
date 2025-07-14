@@ -112,9 +112,10 @@ export async function getChatInfo(store: TemplateStore) {
  * @description Stop chat
  */
 export async function stopChat(store: TemplateStore) {
-    const { chatId } = store
+    const { chatId, isChat } = store
     try {
         await instance.post("/askai/chat/stop", { chatId: chatId.value }, instanceOptions)
+        isChat.value = false
     } catch (error) {
         console.warn(error)
     }
@@ -126,10 +127,23 @@ export async function stopChat(store: TemplateStore) {
  * Send chat and generate markdown
  */
 export async function sendChat(store: TemplateStore) {
-    const { answerContent, generateShow, chatId, currentModel, questionContent, chatRecord, currentChatRecordKey } = store
+    const {
+        scrollable,
+        generateShow,
+        chatId,
+        currentModel,
+        questionContent,
+        chatRecord,
+        currentChatRecordKey,
+        scrollWrapperRef,
+        chatScrollRef,
+        isChat
+    } = store
     const chatRecordKey = `${questionContent.value}_+_${chatRecord.value.size}`
     chatRecord.value.set(chatRecordKey, [])
     currentChatRecordKey.value = chatRecordKey
+    const chatContent = questionContent.value
+    questionContent.value = ""
     // Split string array
     let resultArray: string[] = [];
     // Answer text
@@ -147,14 +161,17 @@ export async function sendChat(store: TemplateStore) {
         }
     }
     try {
+        scrollable.value = true
         generateShow.value = true
+        isChat.value = true
+        nextTick(() => chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight }))
         await instance.post(
             '/askai/chat/chat', // 接口地址
             {
                 chatId: chatId.value,
                 supplierName: currentModel.value.supplierName,
                 modelId: currentModel.value.modelId,
-                content: questionContent.value,
+                content: chatContent,
                 is_text: "false"
             },
             {
@@ -174,12 +191,18 @@ export async function sendChat(store: TemplateStore) {
                         resultArray = parseSSEToObjects(newContent) as string[];
                         answerTextDeal(resultArray)
                         chatRecord.value.set(chatRecordKey, sliceContentToArray(answerText))
+                        if (scrollable.value) {
+                            setTimeout(() => chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight }), 200)
+                        }
                     } catch (error) {
                         console.warn(error);
                     }
                 }
             }
         )
+        scrollable.value = true
+        chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight })
+        isChat.value = false
     } catch (error) {
         console.warn(error)
     } finally {
@@ -278,6 +301,6 @@ export async function saveCodeChange(store: TemplateStore) {
 /**
  * @description Duplicate template
  */
-export async function duplicateTemplate(){
-    
+export async function duplicateTemplate() {
+
 }

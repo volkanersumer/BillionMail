@@ -43,7 +43,7 @@
                 <n-form-item label="Automatically create brand information">
                     <n-switch v-model:value="initAi"></n-switch>
                 </n-form-item>
-                <n-alert style="margin: 0 0 15px 0;" type="warning" :show-icon="false">
+                <n-alert style="margin: 0 0 15px 0;" type="warning" :show-icon="false" v-if="!configurationStatus"> 
                     <div class="w-100% flex justify-between items-center">
                         <span class="mr-5">To use this feature, you need to integrate an AI model first.</span>
                         <n-button type="primary">Integrate immediately</n-button>
@@ -125,7 +125,8 @@
         mailboxes,
         catch_email,
         initAi,
-        urls
+        urls,
+        configurationStatus
     } = getEditDomainStoreData()
     const route = useRoute()
     const domain = route.params.domain as any

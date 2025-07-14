@@ -2,6 +2,8 @@ import { instance } from "@/api"
 import { instanceOptions } from "./companyProfile.controller"
 import { getEditDomainStoreData } from "../store"
 import { getByteUnit } from '@/utils'
+
+
 /**
  * @description Get domain detail
  */
@@ -21,6 +23,20 @@ export async function getDomainDetail(domain: string) {
         unit.value = quotaAndUnit[1]
         mailboxes.value = list[0].mailboxes
         catch_email.value = list[0].email
+        await configurationStatus()
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+/**
+ * @description Configuration status
+ */
+export async function configurationStatus() {
+    const { configurationStatus } = getEditDomainStoreData()
+    try {
+        const res = await instance.post("/askai/supplier/status") as Record<string, boolean>
+        configurationStatus.value = res.is_configured
     } catch (error) {
         console.warn(error)
     }

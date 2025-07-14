@@ -22,7 +22,7 @@
                     </n-card>
                 </div>
 
-                <div ref="answerRef" class="answer">
+                <div ref="answerRef" class="answer" @wheel="handleScroll">
                     <n-card class="h-100%">
                         <n-scrollbar style="height: calc(100vh - 522px);" ref="chatScrollRef">
                             <div ref="scrollWrapperRef">
@@ -68,12 +68,14 @@
                 </div>
                 <div class="question">
                     <n-card style="height: 100%;">
-                        <n-input type="textarea" class="question-input" v-model:value="questionContent"></n-input>
+                        <n-input type="textarea" class="question-input" v-model:value="questionContent" @keydown.enter="sendChat(store)"></n-input>
                         <div class="send-btn">
-                            <i
-                                class="i-icon-park-twotone:new-picture text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"></i>
+                            <!-- <i
+                                class="i-icon-park-twotone:new-picture text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"></i> -->
                             <i class="i-icon-park-twotone:arrow-circle-up text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"
-                                @click="sendChat(store)"></i>
+                                @click="sendChat(store)" v-if="!isChat"></i>
+                            <i class="i-svg-spinners:pulse-2 text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"
+                                @click="stopChat(store)" v-else></i>
                         </div>
                     </n-card>
                 </div>
@@ -113,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-    import { initialTemplateInfo, sendChat, removeHtmlCodeBlockMarkers, getHtmlTemplateContent, saveCodeChange } from "./controller";
+    import { initialTemplateInfo, sendChat, removeHtmlCodeBlockMarkers, getHtmlTemplateContent, saveCodeChange,stopChat } from "./controller";
     import MarkdownRender from "./components/MarkdownRender.vue";
     import { useTemplateStore } from "./store";
     import { TemplateStore } from "./dto";
@@ -128,11 +130,14 @@
         questionContent,
         chatRecord,
         currentChatRecordKey,
-        currentModel
+        currentModel,
+        isChat,
+        chatScrollRef,
+        scrollWrapperRef,
+        scrollable
     } = store
     const route = useRoute()
-    const chatScrollRef = ref()
-    const scrollWrapperRef = ref()
+
     const previewStatus = ref("view")
 
     chatId.value = route.params.chatId as string
@@ -198,6 +203,12 @@
         }
     }
 
+    function handleScroll(event: WheelEvent) {
+        if (event.deltaY < 0) {
+            scrollable.value = false
+        }
+    }
+
     onMounted(() => {
         scrollwrapperHeightChange()
     })
@@ -221,7 +232,7 @@
 
         .ai-container {
             display: grid;
-            grid-template-columns: 500px 1fr;
+            grid-template-columns: 900px 1fr;
             gap: 15px;
 
             .chat-area {
@@ -230,7 +241,7 @@
                 gap: 15px;
 
                 .answer {
-                    width: 500px;
+                    width: 100%;
                     height: calc(100vh - 472px);
 
                     .answer-container {

@@ -29,7 +29,6 @@ export async function getStylingInfo(domain: string) {
         link_footer_color.value = res.link_footer_color
         heading_font.value = res.heading_font
         body_font.value = res.body_font
-
         hasGotStyleing.value = true
     } catch (error) {
         console.warn(error)
@@ -45,6 +44,10 @@ export async function updateStyleingInfo(domain: string) {
         text_color,
         page_background,
         container_background,
+        link_social_color,
+        link_footer_color,
+        heading_font,
+        body_font,
     } = getEditDomainStoreData()
     try {
         await instance.post("/askai/project/modify_style_config", {
@@ -53,6 +56,10 @@ export async function updateStyleingInfo(domain: string) {
             text_color: text_color.value,
             page_background: page_background.value,
             container_background: container_background.value,
+            link_social_color:link_social_color.value,
+            link_footer_color:link_footer_color.value,
+            heading_font:heading_font.value,
+            body_font:body_font.value
         }, instanceOptions) as Record<string, any>
     } catch (error) {
         console.warn(error)

@@ -10,6 +10,8 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
     const catch_email = ref("")
     const initAi = ref(false)
     const urls = ref([""])
+    const configurationStatus = ref(false)
+    
 
     // Project detail
     const hasGotProjectDetail = ref(false)
@@ -31,6 +33,9 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
     const knowledgeContent = ref("")
     const knowledgeModalShow = ref(false)
     const isEditKnowledge = ref(false)
+    const knowledge_base_content = ref("")
+    const knowledgeBasePreview = ref(false)
+    const knowledgeBasePreviewTit = ref("")
 
     // Company profile
     const hasGotCompanyProfile = ref(false)
@@ -78,6 +83,7 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
         catch_email,
         initAi,
         urls,
+        configurationStatus,
         
         hasGotProjectDetail,
         domain,
@@ -93,6 +99,9 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
         knowledgeContent,
         knowledgeModalShow,
         isEditKnowledge,
+        knowledge_base_content,
+        knowledgeBasePreview,
+        knowledgeBasePreviewTit,
 
         hasGotCompanyProfile,
         legal_company_name,

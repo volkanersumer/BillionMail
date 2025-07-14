@@ -22,10 +22,6 @@
                     <template #label><span class="form-label">Description</span></template>
                     <n-input type="textarea" :rows="7" v-model:value="description"></n-input>
                 </n-form-item>
-                <n-form-item>
-                    <template #label><span class="form-label">Industry</span></template>
-                    <n-select :options="industryOptions" v-model:value="industry"></n-select>
-                </n-form-item>
             </n-form>
         </n-card>
 
@@ -50,12 +46,13 @@
                 <div class="operation-item">
                     <div class="operation-tit">Primary Logo</div>
                     <div class="operation-sub-tit">Horizontal version for headers</div>
-                    <div class="logo-area">
+                    <div class="logo-area" @click="choosePrimary">
                         <div class="upload-logo-placeholder" v-if="!primary_logo">
                             <i class="i-carbon:cloud-upload text-8"></i>
                             <span>Primary Logo</span>
                         </div>
-                        <n-image :src="primary_logo" class="w-100% h-100%" v-else>
+                        <n-image :src="primary_logo" height="100" width="150" object-fit="contain" v-else
+                            preview-disabled>
                             <template #error>
                                 <div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
                                     <i class="i-mingcute:pic-line text-15"></i>
@@ -63,17 +60,20 @@
                                 </div>
                             </template>
                         </n-image>
+                        <input type="file" v-show="false" ref="primaryUpload"
+                            @change="(event) => faviconChange(event, 'primary')">
                     </div>
                 </div>
                 <div class="operation-item">
                     <div class="operation-tit">Secondary Logo</div>
                     <div class="operation-sub-tit">Vertical/stacked version</div>
-                    <div class="logo-area">
+                    <div class="logo-area" @click="chooseSecondary">
                         <div class="upload-logo-placeholder" v-if="!secondary_logo">
                             <i class="i-carbon:cloud-upload text-8"></i>
                             <span>Primary Logo</span>
                         </div>
-                        <n-image :src="secondary_logo" class="w-100% h-100%" v-else>
+                        <n-image :src="secondary_logo" height="100" width="150" object-fit="contain" v-else
+                            preview-disabled>
                             <template #error>
                                 <div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
                                     <i class="i-mingcute:pic-line text-15"></i>
@@ -81,17 +81,19 @@
                                 </div>
                             </template>
                         </n-image>
+                        <input type="file" v-show="false" ref="secondaryUpload"
+                            @change="(event) => faviconChange(event, 'secondary')">
                     </div>
                 </div>
                 <div class="operation-item">
                     <div class="operation-tit">Favicon</div>
                     <div class="operation-sub-tit">Icon for browser tabs</div>
-                    <div class="logo-area">
+                    <div class="logo-area" @click="chooseFavicon">
                         <div class="upload-logo-placeholder" v-if="!favicon">
                             <i class="i-carbon:cloud-upload text-8"></i>
                             <span>Primary Logo</span>
                         </div>
-                        <n-image :src="favicon" class="w-100% h-100%" v-else>
+                        <n-image :src="favicon" height="40" width="60" object-fit="contain" v-else preview-disabled>
                             <template #error>
                                 <div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
                                     <i class="i-mingcute:pic-line text-15"></i>
@@ -99,6 +101,8 @@
                                 </div>
                             </template>
                         </n-image>
+                        <input type="file" v-show="false" ref="faviconUpload"
+                            @change="(event) => faviconChange(event, 'favicon')">
                     </div>
                     <div class="operation-tools">
                         <div class="tool-item">
@@ -148,7 +152,7 @@
                     </div>
                     <div class="operation">
                         <n-button type="primary" ghost @click="openEditKnowledge(item)">Edit</n-button>
-                        <n-button type="primary" ghost>Preiview</n-button>
+                        <n-button type="primary" ghost @click="previewKnowledgeBaseContent(item)">Preiview</n-button>
                     </div>
                 </div>
             </n-card>
@@ -176,13 +180,39 @@
         </template>
     </n-modal>
 
+    <!-- Pview knowledge base -->
+    <n-modal preset="card" draggable :close-on-esc="false" :mask-closable="false" :title="knowledgeBasePreviewTit"
+        class="w-180" v-model:show="knowledgeBasePreview">
+        <div class="preview-wrapper">
+            <n-scrollbar style="max-height: 700px;">
+                <div v-html="mdRes"></div>
+            </n-scrollbar>
+        </div>
+        <template #footer>
+            <div class="flex justify-end">
+                <n-button>Close</n-button>
+            </div>
+        </template>
+    </n-modal>
+
 </template>
 
 <script setup lang="ts">
     import { confirm } from '@/utils';
-    import { getProjectDetail, updateProjectDetail, createKnowledgeBase, closeKnowledgeModal, openEditKnowledge, updateKnowledgeBase, deleteKnowledgeBase } from '../controller/projectDetail.controller';
+    import {
+        getProjectDetail,
+        updateProjectDetail,
+        createKnowledgeBase,
+        closeKnowledgeModal,
+        openEditKnowledge,
+        updateKnowledgeBase,
+        deleteKnowledgeBase,
+        previewKnowledgeBaseContent,
+        uploadImage
+    } from '../controller/projectDetail.controller';
     import { getEditDomainStoreData } from '../store';
     import { KnowledgeBase } from '../dto';
+    import mk from "markdown-it"
     const {
         project_name,
         description,
@@ -194,7 +224,10 @@
         knowledgeModalShow,
         isEditKnowledge,
         knowledgeTitle,
-        knowledgeContent
+        knowledgeContent,
+        knowledge_base_content,
+        knowledgeBasePreview,
+        knowledgeBasePreviewTit
     } = getEditDomainStoreData()
     const route = useRoute()
     const industryOptions = ref([
@@ -204,7 +237,15 @@
         }
     ])
     const domain = route.params.domain as string
+    const md = mk()
+    const mdRes = ref("")
+    const faviconUpload = ref()
+    const secondaryUpload = ref()
+    const primaryUpload = ref()
 
+    watch(knowledge_base_content, (val) => {
+        mdRes.value = md.render(val)
+    })
 
     getProjectDetail(domain)
     /**
@@ -229,6 +270,51 @@
                 deleteKnowledgeBase(domain, knowledge)
             }
         })
+    }
+
+    /**
+     * @description Choose favicon file
+     */
+    function chooseFavicon() {
+        faviconUpload.value.click()
+    }
+
+    /**
+     * @description Choose secondary file
+     */
+    function chooseSecondary(){
+        secondaryUpload.value.click()
+    }
+
+    /**
+     * @description Choose primary file
+     */
+    function choosePrimary(){
+        primaryUpload.value.click()
+    }
+
+    /**
+     * @description Favicon file change
+     */
+    function faviconChange(event: Event, type: string) {
+        const file = (event.target as HTMLInputElement).files![0]
+        if (!file) return
+        const reader = new FileReader();
+        reader.onload = async function (event: ProgressEvent<FileReader>) {
+            const base64String = event.target?.result as string;
+            if (type == "favicon") {
+                uploadImage(domain, base64String, file.name, "favicon", "favicon")
+            }
+
+            if (type == "secondary") {
+                uploadImage(domain, base64String, file.name, "secondary logo", "secondary logo")
+            }
+
+            if (type == "primary") {
+                uploadImage(domain, base64String, file.name, "primary logo", "primary logo")
+            }
+        }
+        reader.readAsDataURL(file)
     }
 </script>
 
@@ -278,6 +364,9 @@
                     border: 1px solid var(--color-border-1);
                     border-radius: 16px;
                     margin-bottom: 10px;
+                    @include base.row-flex;
+                    justify-content: center;
+                    align-items: center;
 
                     .upload-logo-placeholder {
                         @include base.col-flex-center;
@@ -352,6 +441,19 @@
                 @include base.row-flex-start;
                 gap: 15px;
             }
+        }
+    }
+
+
+
+</style>
+
+<style>
+    .preview-wrapper {
+        max-height: 700px;
+
+        img {
+            max-width: 100% !important;
         }
     }
 </style>

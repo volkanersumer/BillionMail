@@ -30,6 +30,10 @@ export function useTemplateStore(): TemplateStore {
     const previewCode = ref<string>("")
     const generateShow = ref<boolean>(false)
     const chatRecord = ref<Map<string, string[]>>(new Map())
+    const isChat = ref(false)
+    const chatScrollRef = ref()
+    const scrollWrapperRef = ref()
+    const scrollable = ref(true)
 
     return {
         sourceDomain,
@@ -43,6 +47,10 @@ export function useTemplateStore(): TemplateStore {
         answerContent,
         previewCode,
         generateShow,
-        chatRecord
+        chatRecord,
+        isChat,
+        chatScrollRef,
+        scrollWrapperRef,
+        scrollable
     }
 }

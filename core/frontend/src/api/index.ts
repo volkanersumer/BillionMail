@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { InternalAxiosRequestConfig } from 'axios'
 import router from '@/router'
 import { useUserStore } from '@/store'
 import { apiUrlPrefix, isObject, Message } from '@/utils'
@@ -7,6 +7,7 @@ interface FetchOptions {
 	prefix: string
 	loading: string
 	loadFn: () => void
+	cancelResInterceptor: boolean
 }
 
 const instance = axios.create({
@@ -57,6 +58,10 @@ instance.interceptors.response.use(
 	response => {
 		const { fetchOptions } = response.config
 		const { code, data, msg, success } = response.data || {}
+
+		if (fetchOptions?.cancelResInterceptor) {
+			return Promise.resolve(data)
+		}
 
 		if (fetchOptions?.loadFn) {
 			fetchOptions.loadFn()

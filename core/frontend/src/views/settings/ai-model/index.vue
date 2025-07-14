@@ -10,47 +10,16 @@
                         AI Model
                     </span>
                 </div>
-                <div class="right-tit">
-                    <n-button type="primary" @click="openModelManager">
-                        <template #icon>
-                            <i class="i-ic:baseline-add-circle"></i>
-                        </template>
-                        Add model
-                    </n-button>
-                </div>
             </div>
         </n-card>
 
         <n-card>
-            <div class="model-item">
-                <div class="item-header">
-                    <div class="header-left">
-                        <i class="i-ai:deep-seek w-10 h-10"></i>
-                        <span class="model-tit">DeepSeek</span>
-                    </div>
-                    <div class="header-right">
-                        <div class="remove-model">
-                            <i class="i-material-symbols:close-rounded text-5"></i>
-                        </div>
-                    </div>
-                </div>
-                <n-divider style="margin: 10px 0;"></n-divider>
-                <div class="item-desc">
-                    <div class="desc">
-                        <span class="label">调用次数：</span>
-                        <span>20次</span>
-                    </div>
-                    <div class="desc">
-                        <span class="label">Token使用量：</span>
-                        <span>2018</span>
-                    </div>
-                </div>
-            </div>
+            <!-- Model maneger modal -->
+            <ModelManager  />
         </n-card>
     </div>
 
-    <!-- Model maneger modal -->
-    <ModelManager ref="modelManagerRef" />
+
 </template>
 
 <script setup lang="tsx">
@@ -59,14 +28,7 @@
     import { useModelManagerStore } from './store/index,';
     const modelManagerStore = useModelManagerStore()
     provide<ModelStore>("modelStore", modelManagerStore)
-    const modelManagerRef = ref()
 
-    /**
-     * @description Open model manager modal
-     */
-    function openModelManager() {
-        modelManagerRef.value.open()
-    }
 </script>
 
 <style scoped lang="scss">

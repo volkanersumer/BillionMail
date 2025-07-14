@@ -18,7 +18,7 @@ export default {
             component: () => import("@/views/template/index.vue")
         },
         {
-            path: "ai-template",
+            path: "ai-template/:chatId",
             name: "ai-template",
             component: () => import("@/views/template/pages/AITemplate/index.vue")
         }

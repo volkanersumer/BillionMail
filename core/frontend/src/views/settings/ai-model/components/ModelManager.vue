@@ -1,130 +1,123 @@
 <template>
-    <n-modal preset="card" draggable :close-on-esc="false" :mask-closable="false" title="Model manager"
-        class="w-180 customer-modal" segmented v-model:show="show">
-        <div class="manager-wrapper">
-            <!-- Provider list -->
-            <div class="left-provider">
-                <div class="provider-list">
-                    <div :class="['provider-item', { active: item.supplierName == currentProvider?.supplierName }]"
-                        v-for="item in providerList" :key="item.supplierName"
-                        @click="getModelListBySupplier(item)">
-                        <i class="i-ai:deep-seek w-8 h-8"></i>
-                        <span class="tit">{{ item.supplierTitle }}</span>
+    <!-- <n-modal preset="card" draggable :close-on-esc="false" :mask-closable="false" title="Model manager"
+        class="w-180 customer-modal" segmented v-model:show="show"> -->
+    <div class="manager-wrapper">
+        <!-- Provider list -->
+        <div class="left-provider">
+            <div class="provider-list">
+                <div :class="['provider-item', { active: item.supplierName == currentProvider?.supplierName }]"
+                    v-for="item in providerList" :key="item.supplierName" @click="getModelListBySupplier(item)">
+                    <div class="item-icon">
+                        <n-image :src="item.icon" v-if="item.icon" height="24" width="24"></n-image>
+                        <i class="i-ai:big-model w-6.5 h-6.5" v-else></i>
                     </div>
-                </div>
-                <div class="add-privider">
-                    <n-button @click="handleAddProvider">
-                        <template #icon>
-                            <i class="i-ic:baseline-add-circle"></i>
-                        </template>
-                        Add model service provider
-                    </n-button>
+                    <span class="tit">{{ item.supplierTitle }}</span>
                 </div>
             </div>
-
-            <!-- Configuration -->
-            <n-spin :show="configurationLoading">
-                <div class="right-configuration">
-                    <div class="top-switch">
-                        <div class="switch-info">
-                            <i class="i-ic:baseline-error text-5"></i>
-                            <span class="tit">DeepSeek</span>
-                        </div>
-                        <n-switch></n-switch>
-                    </div>
-                    <div class="center-api">
-                        <n-form class="mt-15px">
-                            <n-form-item label="API密钥">
-                                <div class="w-100%">
-                                    <n-input-group>
-                                        <n-input v-model:value="currentProvider.apiKey"></n-input>
-                                        <n-button>检查</n-button>
-                                    </n-input-group>
-                                    <n-button text type="info" class="mt-5px">点击获取密钥</n-button>
-                                </div>
-                            </n-form-item>
-                            <n-form-item label="API地址">
-                                <div class="w-100%">
-                                    <n-input v-model:value="currentProvider.baseUrl"></n-input>
-                                    <span class="text-[var(--color-text-3)] mt-5">示例: https://api.deepseek.com/v1</span>
-                                </div>
-                            </n-form-item>
-                        </n-form>
-                        <n-button type="primary">保存API</n-button>
-                    </div>
-                    <div class="bottom-model-list">
-                        <div class="header-tit">
-                            <div>
-                                <span class="tit">模型</span>
-                                <span class="sub-tit">默认从/models获取所有模型</span>
-                            </div>
-                            <div class="add-model">
-                                <i class="i-ic:baseline-control-point text-4"></i>
-                                <span class="tit">新建模型</span>
-                            </div>
-                        </div>
-                        <!--  <n-scrollbar style="height: 100px;">
-                        <div class="model-list">
-                            <div class="model-item">
-                                <i class="i-ic:round-check-circle-outline text-5"></i>
-                                <span class="model-name">DeepSeek/deepseek-reasoner</span>
-                            </div>
-                        </div>
-                    </n-scrollbar> -->
-                        <n-select :options="modelList" label-field="title" value-field="title"
-                            v-model:value="modelName"></n-select>
-                    </div>
-                </div>
-            </n-spin>
+            <div class="add-privider">
+                <n-button @click="handleAddProvider">
+                    <template #icon>
+                        <i class="i-ic:baseline-add-circle"></i>
+                    </template>
+                    Add model service provider
+                </n-button>
+            </div>
         </div>
-        <template #footer>
-            <div class="flex justify-end gap-5">
-                <n-button>Cancel</n-button>
-                <n-button type="primary">Create</n-button>
+
+        <!-- Configuration -->
+        <n-spin :show="configurationLoading">
+            <div class="right-configuration">
+                <div class="top-switch">
+                    <div class="switch-info">
+                        <i class="i-ic:baseline-error text-5"></i>
+                        <span class="tit">DeepSeek</span>
+                        <n-switch v-model:value="currentProvider.status"
+                            @update:value="status => changeProviderStatus(status, modelStore)"></n-switch>
+                    </div>
+                    <i class="i-ri:delete-bin-3-line text-5.5 hover:text-red-5 cursor-pointer"
+                        @click="removeProvider(modelStore)"></i>
+                </div>
+                <div class="center-api">
+                    <n-form class="mt-15px">
+                        <n-form-item label="API密钥">
+                            <div class="w-100%">
+                                <n-input-group>
+                                    <n-input v-model:value="currentProvider.apiKey"></n-input>
+                                    <n-button @click="checkProviderApiConfiguration(modelStore)">检查</n-button>
+                                </n-input-group>
+                                <n-button text type="info" class="mt-5px"
+                                    @click="getProviderConfiguration(modelStore)">点击获取密钥</n-button>
+                            </div>
+                        </n-form-item>
+                        <n-form-item label="API地址">
+                            <div class="w-100%">
+                                <n-input v-model:value="currentProvider.baseUrl"></n-input>
+                                <span class="text-[var(--color-text-3)] mt-5">示例: https://api.deepseek.com/v1</span>
+                            </div>
+                        </n-form-item>
+                    </n-form>
+                    <n-button type="primary" @click="setProviderConfiguration(modelStore)">保存API</n-button>
+                </div>
+                <div class="bottom-model-list">
+                    <div class="header-tit">
+                        <div>
+                            <span class="tit">模型</span>
+                            <span class="sub-tit">默认从/models获取所有模型</span>
+                        </div>
+                        <!-- <div class="add-model" @click="handleAddModel">
+                            <i class="i-ic:baseline-control-point text-4"></i>
+                            <span class="tit">新建模型</span>
+                        </div> -->
+                    </div>
+                    <div class="model-list" v-for="item in modelList" :key="item.title">
+                        <div class="model-item">
+                            <!-- <i class="i-ic:round-check-circle-outline text-5"></i> -->
+                            <span class="model-name">{{ item.title }}</span>
+                            <div class="operation">
+                                <n-switch v-model:value="item.status"
+                                    @update:value="status => setModelStatus(item.modelId, status, modelStore)"></n-switch>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </template>
-    </n-modal>
+        </n-spin>
+    </div>
+
 
     <!-- Add Provider -->
     <AddProvider ref="addProviderRef" />
+
+    <!-- Add Model -->
+    <AddModel ref="addModelRef" />
 
 </template>
 
 <script setup lang="ts">
     import AddProvider from './AddProvider.vue';
+    import AddModel from './AddModel.vue';
     import { ModelStore, Provider } from '../dto';
-    import { getModelList, getProviderList } from "../controller"
+    import {
+        getModelList,
+        getProviderList,
+        getProviderConfiguration,
+        changeProviderStatus,
+        checkProviderApiConfiguration,
+        setProviderConfiguration,
+        setModelStatus,
+        removeProvider
+    } from "../controller"
     const modelStore = inject<ModelStore>("modelStore")!
     const {
         providerList,
         modelList,
-        modelName,
         currentProvider,
         configurationLoading,
-        addProviderRef
+        addProviderRef,
+        addModelRef
     } = modelStore
-    const show = ref(false)
-    /**
-     * @description open modal
-     */
-    function open() {
-        /**
-         * @description Get provider list
-         */
-        getProviderList(modelStore)
-        show.value = true
-    }
+    getProviderList(modelStore)
 
-    /**
-     * @description close modal
-     */
-    function close() {
-        show.value = false
-    }
-    defineExpose({
-        open,
-        close
-    })
 
     /**
      * @description Get model list
@@ -141,17 +134,24 @@
         addProviderRef.value.open()
     }
 
+    /**
+     * @description Handle add  model
+     */
+    function handleAddModel() {
+        addModelRef.value.open()
+    }
+
 </script>
 
 <style scoped lang="scss">
     @use "@/styles/index.scss" as base;
 
     .manager-wrapper {
-        height: 480px;
+        // height: 480px;
         display: grid;
         grid-template-columns: 230px 1fr;
-        border-top: 1px solid var(--color-border-2);
-        border-bottom: 1px solid var(--color-border-2);
+        /* border-top: 1px solid var(--color-border-2);
+        border-bottom: 1px solid var(--color-border-2); */
 
         .left-provider {
             height: 100%;
@@ -186,6 +186,11 @@
 
                     &.active {
                         background: #eef9ee;
+                    }
+
+                    .item-icon {
+                        width: 32px;
+                        @include base.row-flex-center;
                     }
                 }
 
@@ -260,10 +265,10 @@
 
 
                     .model-item {
-                        @include base.row-flex-start;
+                        @include base.row-flex;
+                        justify-content: space-between;
                         width: 100%;
                         align-items: center;
-                        gap: 5px;
                         padding: 10px 5px;
                         transition: .15s all ease-in-out;
                         cursor: pointer;
@@ -279,6 +284,11 @@
 
                         &:hover {
                             background: #eef9ee;
+                        }
+
+                        .operation {
+                            @include base.row-flex-start;
+                            gap: 10px;
                         }
 
                     }

@@ -1,18 +1,16 @@
 <template>
-    <n-modal v-model:show="show" preset="card" draggable :close-on-esc="false" :mask-closable="false" segmented class="w-110"
-        title="">
+    <n-modal v-model:show="show" preset="card" draggable :close-on-esc="false" :mask-closable="false" segmented
+        class="w-110" title="">
         <div class="wrapper">
             <div class="creation-methods">
                 <div v-for="(item, index) in methodsList" :key="index"
                     :class="['choose-item', { active: choosedMethod == item }]" @click="choosedMethod = item">
-                    <!-- <i
-                        :class="[choosedMethod == item ? 'i-material-symbols:check-circle' : 'i-material-symbols:check-circle-outline', 'text-6']"></i> -->
                     <span class="item-label">{{ item }}</span>
                 </div>
             </div>
             <div :class="['url-source', { hidden: choosedMethod !== 'AI' }]">
                 <span class="label">Source Url</span>
-                <n-input style="flex: 1;"></n-input>
+                <n-input style="flex: 1;" v-model:value="sourceDomain"></n-input>
             </div>
             <div class="desc">
                 Use AI tools to help you automatically generate email content and improve your work efficiency.
@@ -21,16 +19,18 @@
 
         <template #footer>
             <div class="flex justify-end">
-                <n-button type="primary" @click="jumpAndCreat">Create</n-button>
+                <n-button type="primary" @click="createTemplate">Create</n-button>
             </div>
         </template>
     </n-modal>
 </template>
 
 <script setup lang="ts">
+    import { createAiTemplate } from '../pages/AITemplate/controller'
     const router = useRouter()
     const methodsList = ref(["Drag", "AI", "HTML"])
-    const choosedMethod = ref("")
+    const choosedMethod = ref("AI")
+    const sourceDomain = ref("")
     const show = ref(false)
     /**
      * @description open modal
@@ -49,8 +49,13 @@
     /**
      * @description jump
      */
-    function jumpAndCreat() {
-        router.push({ name: "ai-template" })
+    async function createTemplate() {
+        if (choosedMethod.value == "AI") {
+            const chatId = await createAiTemplate(sourceDomain.value)
+            if (chatId) {
+                router.push({ name: "ai-template", params: { chatId } })
+            }
+        }
     }
     defineExpose({
         open,

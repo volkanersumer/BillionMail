@@ -1,0 +1,276 @@
+import { instance } from "@/api";
+import { ChatInfo, TemplateStore } from "../dto";
+
+
+export const instanceOptions = {
+    fetchOptions: {
+        loading: 'Loading... Please wait.',
+        successMessage: true,
+    }
+}
+
+/**
+ * @description Create new template
+ */
+export async function createNewTemplate(chatId: string, temp_name: string) {
+    try {
+        await instance.post("/email_template/create", {
+            temp_name,
+            add_type: 2,
+            chatId,
+            html_content: "",
+        })
+    } catch (error) {
+        console.warn(error)
+        throw error
+    }
+}
+
+/**
+ * @description Initial template info
+ */
+export async function initialTemplateInfo(store: TemplateStore) {
+    await getModelList(store)
+    await getChatInfo(store)
+}
+
+/**
+ * @description Create ai template
+ */
+export async function createAiTemplate(sourceDomain: string) {
+    try {
+        const temp_name = `temp_${new Date().getTime()}`
+        const res = await instance.post("/askai/chat/create_chat", {
+            domain: sourceDomain,
+            add_type: 99,
+            temp_name
+        }, instanceOptions) as Record<string, any>
+        await createNewTemplate(res.chatId, temp_name)
+        return res.chatId
+    } catch (error) {
+        console.warn(error)
+        return null
+    }
+}
+
+/**
+ * @description Get model list
+ */
+export async function getModelList(store: TemplateStore) {
+    const { modelList, currentModel, currentModelTitle } = store
+    try {
+        modelList.value = await instance.post("/askai/supplier/models")
+        if (modelList.value.length) {
+            currentModel.value = modelList.value[0]
+            currentModelTitle.value = modelList.value[0].title
+        }
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+/**
+ * @description Get chat list
+ */
+export async function getChatList(store: TemplateStore) {
+    // const { } = store
+    try {
+        await instance.post("/askai/chat/get_chat_list")
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+/**
+ * @description Get chat info
+ */
+export async function getChatInfo(store: TemplateStore) {
+    const { chatId, chatInfo, currentModel, modelList, currentModelTitle, chatRecord } = store;
+    try {
+        chatInfo.value = await instance.post("/askai/chat/info", { chatId: chatId.value }) as ChatInfo
+        // Check chatInfo and assign currentModel and currentModelTitle
+        if (chatInfo.value.modelId && modelList.value.length) {
+            const findModel = modelList.value.find(item => item.modelId == chatInfo.value.modelId)
+            if (findModel) {
+                currentModel.value = findModel
+                currentModelTitle.value = findModel.title
+            }
+        }
+        // Init chatRecord
+        for (let i = 0; i < chatInfo.value.messages.length; i++) {
+            if (chatInfo.value.messages[i].role == "user") {
+                chatRecord.value.set(`${chatInfo.value.messages[i].content}_+_${chatRecord.value.size}`, sliceContentToArray(chatInfo.value.messages[i + 1].content))
+            }
+        }
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+
+/**
+ * @description Stop chat
+ */
+export async function stopChat(store: TemplateStore) {
+    const { chatId } = store
+    try {
+        await instance.post("/askai/chat/stop", { chatId: chatId.value }, instanceOptions)
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+
+
+/**
+ * Send chat and generate markdown
+ */
+export async function sendChat(store: TemplateStore) {
+    const { answerContent, generateShow, chatId, currentModel, questionContent, chatRecord, currentChatRecordKey } = store
+    const chatRecordKey = `${questionContent.value}_+_${chatRecord.value.size}`
+    chatRecord.value.set(chatRecordKey, [])
+    currentChatRecordKey.value = chatRecordKey
+    // Split string array
+    let resultArray: string[] = [];
+    // Answer text
+    let answerText = '';
+    // Character pointer position
+    let strPos = 0
+    /**
+     * @description spliced content
+     */
+    function answerTextDeal(sseArr: Array<string>) {
+        for (let index = 0; index < sseArr.length; index++) {
+            if (sseArr[index]) {
+                answerText += JSON.parse(sseArr[index]).content
+            }
+        }
+    }
+    try {
+        generateShow.value = true
+        await instance.post(
+            '/askai/chat/chat', // 接口地址
+            {
+                chatId: chatId.value,
+                supplierName: currentModel.value.supplierName,
+                modelId: currentModel.value.modelId,
+                content: questionContent.value,
+                is_text: "false"
+            },
+            {
+                fetchOptions: {
+                    cancelResInterceptor: true,
+                },
+                responseType: 'text',
+                onDownloadProgress: (progressEvent) => {
+                    generateShow.value = false
+                    try {
+                        // Get the native XMLHttpRequest instance and extract the latest response content.
+                        const xhr = (progressEvent.event as ProgressEvent).target as XMLHttpRequest;
+                        const resText = xhr.responseText;
+                        // Get the incremental characters and record the latest character pointer position.
+                        const newContent = resText.slice(strPos)
+                        strPos = resText.length
+                        resultArray = parseSSEToObjects(newContent) as string[];
+                        answerTextDeal(resultArray)
+                        chatRecord.value.set(chatRecordKey, sliceContentToArray(answerText))
+                    } catch (error) {
+                        console.warn(error);
+                    }
+                }
+            }
+        )
+    } catch (error) {
+        console.warn(error)
+    } finally {
+        generateShow.value = false
+        resultArray = []
+        answerText = ""
+        strPos = 0
+    }
+}
+
+
+
+/**
+ * 
+ * @param sseContent @
+ */
+function parseSSEToObjects(sseContent: string): Array<string> {
+    // 1. 按行分割
+    const events = sseContent.split('\n')
+    let jsonList = []
+    for (const line of events) {
+        // 匹配以"data:"开头的行（忽略前后空格）
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('data:')) {
+            // 去除"data:"前缀，得到JSON字符串
+            const jsonStr = trimmedLine.slice('data:'.length).trim();
+            if (jsonStr) { // 排除空值（如最后一行的空data）
+                jsonList.push(jsonStr);
+            }
+        }
+    }
+    return jsonList
+}
+
+/**
+ * @description 对字符内容进行分割处理
+ */
+function sliceContentToArray(content: string) {
+    // 匹配所有代码块（闭合或未闭合）
+    // 正则逻辑：```开头，匹配到内容结尾或下一个```（取较长的匹配）
+    const codeBlockRegex = /```[\s\S]*?(?:```|$)/g;
+    const codeBlocks = content.match(codeBlockRegex) || [];
+
+    // 分割非代码部分
+    const textParts = content.split(codeBlockRegex);
+
+    // 合并文本与代码块
+    const result = [];
+    const maxLength = Math.max(textParts.length, codeBlocks.length);
+
+    for (let i = 0; i < maxLength; i++) {
+        if (i < textParts.length && textParts[i].trim() !== '') {
+            result.push(textParts[i]);
+        }
+        if (i < codeBlocks.length) {
+            result.push(codeBlocks[i]);
+        }
+    }
+
+    return result;
+}
+
+/**
+ * @description Remove markdown code mark
+ */
+export function removeHtmlCodeBlockMarkers(content: string) {
+    return content.replace(/```html/g, '').replace(/```$/gm, '');
+}
+
+
+/**
+ * @description Get html template code content
+ */
+export async function getHtmlTemplateContent(store: TemplateStore) {
+    const { chatId, previewCode } = store
+    try {
+        const codeContent = await instance.post("/askai/chat/get_html", { chatId: chatId.value }) as string
+        previewCode.value = codeContent
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+/**
+ * @description Save code change
+ */
+export async function saveCodeChange(store: TemplateStore) {
+    const { previewCode, chatId } = store
+    try {
+        await instance.post("/askai/chat/modify_html", { chatId: chatId.value, content: previewCode.value }, instanceOptions)
+    } catch (error) {
+        console.warn(error)
+    }
+}

@@ -1,10 +1,9 @@
 import { FormInst } from "naive-ui";
-import { AddProviderFormData, Model, ModelStore, Provider } from "../dto";
+import { AddModelFormData, AddProviderFormData, Model, ModelStore, Provider } from "../dto";
 
 export function useModelManagerStore(): ModelStore {
     const providerList = ref<Provider[]>([])
     const modelList = ref<Model[]>([])
-    const modelName = ref("")
     const addProviderRef = ref<any>()
     const currentProvider = ref<Provider>({
         supplierTitle: "",
@@ -16,6 +15,8 @@ export function useModelManagerStore(): ModelStore {
         home: "",
         help: "",
         status: false,
+        icon: "",
+        sort: 0
     })
     const configurationLoading = ref(false)
     const addProviderFormData = ref<AddProviderFormData>({
@@ -25,16 +26,25 @@ export function useModelManagerStore(): ModelStore {
         apiKey: ""
     })
     const addProviderFormDataRef = ref<FormInst | null | undefined>()
-
+    const addModelFormData = ref<AddModelFormData>({
+        title: "",
+        modelId: "",
+        max_tokens: 0,
+        capability: []
+    })
+    const addModelFormRef = ref<FormInst | null | undefined>()
+    const addModelRef = ref<any>()
 
     return {
         providerList,
         modelList,
-        modelName,
         addProviderRef,
         currentProvider,
         configurationLoading,
         addProviderFormData,
-        addProviderFormDataRef
+        addProviderFormDataRef,
+        addModelFormData,
+        addModelFormRef,
+        addModelRef
     }
 }

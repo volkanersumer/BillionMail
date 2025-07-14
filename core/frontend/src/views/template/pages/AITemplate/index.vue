@@ -12,133 +12,189 @@
 
         <div class="ai-container">
             <div class="chat-area">
+                <div class="model-select">
+                    <n-card>
+                        <div class="flex justify-start items-center gap-15px">
+                            <!-- <span>Choose Model</span> -->
+                            <n-select class="flex-1" :options="modelList" label-field="title" value-field="title"
+                                v-model:value="currentModelTitle" @update:value="changeModel"></n-select>
+                        </div>
+                    </n-card>
+                </div>
+
                 <div ref="answerRef" class="answer">
-                    <n-card style="height: 100%;">
-                        <n-scrollbar :style="{ height: `${answerHeight! - 40}px` }">
-                            <div class="answer-container">
-                                <div class="ask-content">
-                                    <div class="pic">
-                                        <i
-                                            class="i-material-symbols:account-circle text-6 text-[var(--color-primary-hover-1)]"></i>
-                                    </div>
-                                    <div class="text">
-                                        我有几个问题，帮我实现以下效果：<br />
-                                        1. 定制一个618宝塔面板的优惠活动<br />
-                                        2. 主题色为绿色<br />
-                                        3. 价格区间可以参考官网设计的价格，但需要注意的是，如果企业版本和活动版本的优惠冲突，那就以企业版本的优先<br />
-                                    </div>
-                                </div>
-                                <div class="answer-content">
-                                    <div class="pic">
-                                        <span class="text-4 text-[var(--color-primary-hover-1)]">BillionMail</span>
-                                    </div>
-                                    <div class="text">
-                                        <div class="mb-2.5">好的，根据您的要求，我为您生成了以下代码结构，您可以直接复制运行: </div>
-                                        <div class="code-area">
-                                            <div class="code-tool">
-                                                <span>{{ languageTit }}</span>
-                                                <div class="tools">
-                                                    <div class="tool-item">
-                                                        <i class="i-material-symbols:chrome-restore-rounded text-5"></i>
-                                                        <span>Copy</span>
-                                                    </div>
-                                                    <div class="tool-item">
-                                                        <i class="i-mingcute:eye-2-fill text-5"></i>
-                                                        <span>View</span>
-                                                    </div>
+                    <n-card class="h-100%">
+                        <n-scrollbar style="height: calc(100vh - 522px);" ref="chatScrollRef">
+                            <div ref="scrollWrapperRef">
+                                <template v-for="item in chatRecord" :key="item[0]">
+                                    <div class="answer-container">
+                                        <div class="ask-content">
+                                            <div class="pic">
+                                                <i
+                                                    class="i-material-symbols:account-circle text-6 text-[var(--color-primary-hover-1)]"></i>
+                                            </div>
+                                            <div class="text">
+                                                {{ item[0].split("_+_")[0] }}
+                                            </div>
+                                        </div>
+                                        <!-- <n-spin description="Loading please wait..." :show="generateShow"> -->
+                                        <div class="answer-content">
+                                            <div class="pic">
+                                                <span
+                                                    class="text-4 text-[var(--color-primary-hover-1)]">BillionMail</span>
+                                            </div>
+                                            <div class="text">
+                                                <MarkdownRender @code-render="handleCodeRender"
+                                                    v-for="(_item, _index) in item[1]" :content="_item" :key="_index"
+                                                    :chat-record-key="item[0]" class="mb-4" />
+                                            </div>
+                                            <div class="answer-tool" @click="handleRegenerate(item[0].toString())">
+                                                <div class="tool-item">
+                                                    <i class="i-ri:refresh-line text-5"></i>
+                                                    <span>Regenerate</span>
+                                                </div>
+                                                <div class="tool-item">
+                                                    <i class="i-ri:information-2-fill text-5"></i>
+                                                    <span>Info</span>
                                                 </div>
                                             </div>
-                                            <div v-html="codeHtml"></div>
                                         </div>
+                                        <!-- </n-spin> -->
                                     </div>
-                                    <div class="answer-tool">
-                                        <div class="tool-item">
-                                            <i class="i-ri:refresh-line text-5"></i>
-                                            <span>Regenerate</span>
-                                        </div>
-                                        <div class="tool-item">
-                                            <i class="i-material-symbols:chrome-restore-rounded text-5"></i>
-                                            <span>Copy</span>
-                                        </div>
-                                        <div class="tool-item">
-                                            <i class="i-ri:information-2-fill text-5"></i>
-                                            <span>Info</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                </template>
                             </div>
                         </n-scrollbar>
                     </n-card>
                 </div>
                 <div class="question">
                     <n-card style="height: 100%;">
-                        <n-input type="textarea" class="question-input"></n-input>
+                        <n-input type="textarea" class="question-input" v-model:value="questionContent"></n-input>
                         <div class="send-btn">
                             <i
                                 class="i-icon-park-twotone:new-picture text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"></i>
-                            <i
-                                class="i-icon-park-twotone:arrow-circle-up text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"></i>
+                            <i class="i-icon-park-twotone:arrow-circle-up text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"
+                                @click="sendChat(store)"></i>
                         </div>
                     </n-card>
                 </div>
             </div>
             <div class="view-area">
-                <n-card style="height: 100%;"></n-card>
+                <n-card style="height: 100%;">
+                    <div style="height: calc(100vh - 177px)">
+                        <div class="h-10 flex justify-start items-center gap-2.5">
+                            <n-button-group size="small">
+                                <n-button :type="previewStatus=='view'?'primary':'default'" @click="previewStatus = 'view'">
+                                    <template #icon>
+                                        <i class="i-mingcute:eye-2-fill text-5"></i>
+                                    </template>
+                                    View
+                                </n-button>
+                                <n-button :type="previewStatus=='edit'?'primary':'default'" @click="previewStatus = 'edit'">
+                                    <template #icon>
+                                        <i class="i-tdesign:code text-5"></i>
+                                    </template>
+                                    Edit
+                                </n-button>
+                            </n-button-group>
+                            <span v-if="previewStatus == 'edit'">[Ctrl + s] to save your change</span>
+                        </div>
+                        <n-scrollbar style="height: calc(100% - 40px)">
+                            <div v-html="previewCode" v-if="previewStatus == 'view'"></div>
+                            <BtEditor :value="previewCode" style="height: calc(100vh - 217px)" @save="saveCodeChange(store)" v-else/>
+                        </n-scrollbar>
+                    </div>
+                </n-card>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-    import markdownit from "markdown-it"
-    import hljs from 'highlight.js';
-    import { useTemplateRef } from 'vue';
-    import "./highlight.theme.css"
-    const answerRef = useTemplateRef("answerRef")
-    const answerHeight = computed(() => {
-        return answerRef.value?.offsetHeight
-    })
-    const languageTit  = ref("")
-    const md = markdownit({
-        html: true,
-        linkify: true,
-        typographer: true,
-        langPrefix: 'language-',
-        highlight: function (str, lang): any {
-            languageTit.value = lang
-            if (lang && hljs.getLanguage(lang)) {
-                try {
-                    return hljs.highlight(lang, str).value;
-                } catch (__) { console.warn(__) }
-            }
+    import { initialTemplateInfo, sendChat, removeHtmlCodeBlockMarkers, getHtmlTemplateContent,saveCodeChange } from "./controller";
+    import MarkdownRender from "./components/MarkdownRender.vue";
+    import { useTemplateStore } from "./store";
+    import { TemplateStore } from "./dto";
+    import BtEditor from "@/components/base/bt-editor/index.vue"
+    const store = useTemplateStore()
+    provide<TemplateStore>("modelStore", store)
+    const {
+        chatId,
+        modelList,
+        currentModelTitle,
+        previewCode,
+        questionContent,
+        chatRecord,
+        currentChatRecordKey,
+        currentModel
+    } = store
+    const route = useRoute()
+    const chatScrollRef = ref()
+    const scrollWrapperRef = ref()
+    const previewStatus = ref("view")
 
-            return md.utils.escapeHtml(str);// 使用额外的默认转义
+    chatId.value = route.params.chatId as string
+
+    /**
+     * @description Handle model select
+     */
+    function changeModel(_: string, options: any) {
+        currentModel.value = options
+    }
+
+    /**
+     * @description Get html template code content
+     */
+    getHtmlTemplateContent(store)
+
+    /**
+     * @description Initial chatInfo and modelList
+     */
+    initialTemplateInfo(store)
+
+    /**
+     * @description Render page code
+     */
+    function handleCodeRender(data: { code: string, key: string }) {
+        if (data.key == currentChatRecordKey.value) {
+            console.log(data.key, currentChatRecordKey.value)
+            previewCode.value = removeHtmlCodeBlockMarkers(data.code)
         }
+    }
+
+    /**
+     * @description Regenerate
+     */
+    function handleRegenerate(key: string) {
+        questionContent.value = key.split("_+_")[0]
+        sendChat(store)
+    }
+
+    /**
+     * @description Listen scroll wrapper for height-change
+     */
+    function scrollwrapperHeightChange(timer?: any, index = 0) {
+        let timeoutTimer = timer || null
+        let startIndexx = index
+        if (timeoutTimer) {
+            clearTimeout(timer)
+            timeoutTimer = null
+        }
+        if (scrollWrapperRef.value.offsetHeight) {
+            chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight })
+            startIndexx++
+            return
+        } else {
+            startIndexx++
+            timeoutTimer = setTimeout(() => {
+                scrollwrapperHeightChange(timeoutTimer, startIndexx)
+            }, 100)
+
+        }
+    }
+
+    onMounted(() => {
+        scrollwrapperHeightChange()
     })
-
-
-const codeStr = `
-\`\`\`vue
-let a = 20;
-function calc(){
-    for(let i=0;i<a;i++){
-        console.log(\`这是用于测试的代码-\${i}\`)
-    }
-}
-
-class TestClass {
-    private name:string;
-    public age:nuumber
-
-    constructor(name:string,age:number){
-        this.name = name;
-        this.age = age
-    }
-}
-\`\`\`
-`;
-    const codeHtml = ref("")
-    codeHtml.value = md.render(codeStr)
 </script>
 
 <style scoped lang="scss">
@@ -164,10 +220,13 @@ class TestClass {
 
             .chat-area {
                 display: grid;
-                grid-template-rows: 1fr 230px;
+                grid-template-rows: 76px 1fr 230px;
                 gap: 15px;
 
                 .answer {
+                    width: 500px;
+                    height: calc(100vh - 472px);
+
                     .answer-container {
                         padding: 30px 10px;
 
@@ -193,14 +252,14 @@ class TestClass {
                                 align-items: center;
                                 font-size: 12px;
                                 border-radius: 3px;
-                                transition:.1s all ease-in-out;
+                                transition: .1s all ease-in-out;
 
                                 &:hover {
                                     background: var(--color-primary-1);
                                     color: #fff;
                                 }
 
-                                &:active{
+                                &:active {
                                     background: var(--color-primary-3);
                                 }
                             }
@@ -208,35 +267,7 @@ class TestClass {
                             .text {
                                 font-size: 14px;
 
-                                .code-area {
-                                    .code-tool {
-                                        @include base.row-flex;
-                                        justify-content: space-between;
-                                        align-items: center;
-                                        height: 34px;
-                                        background: var(--color-card-text-1);
-                                        color: var(--color-bg-1);
-                                        padding: 0 0 0 10px;
 
-                                        .tools {
-                                            @include base.row-flex-start;
-                                            gap: 10px;
-
-                                            .tool-item {
-                                                height: 34px;
-                                                @include item-tool();
-                                                border-radius: 0;
-                                            }
-                                        }
-                                    }
-
-                                    :deep(pre) {
-                                        background: var(--color-menu-1);
-                                        margin: 0;
-                                        padding: 10px;
-                                        font-size: 14px;
-                                    }
-                                }
                             }
 
                             .answer-tool {

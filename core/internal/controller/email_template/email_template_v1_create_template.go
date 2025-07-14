@@ -27,16 +27,17 @@ func (c *ControllerV1) CreateTemplate(ctx context.Context, req *v1.CreateTemplat
 	}
 
 	var content, render string
-	if req.AddType == 0 || req.AddType == 2 { // upload
+	if req.AddType == 0 { // upload
 		if req.Content == "" {
 			res.Code = 400
 			res.SetError(gerror.New(public.LangCtx(ctx, "File data is required for upload type")))
 			return
 		}
-
 		content = req.Content
-
-	} else { // Drag to generate
+	} else if req.AddType == 2 { // AI
+		content = req.Content
+		render = ""
+	} else { // Drag
 		if req.Content == "" || req.Render == "" {
 			res.Code = 400
 			res.SetError(gerror.New(public.LangCtx(ctx, "Content and render data are required for drag type")))

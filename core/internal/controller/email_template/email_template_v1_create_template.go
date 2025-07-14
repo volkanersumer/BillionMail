@@ -27,7 +27,7 @@ func (c *ControllerV1) CreateTemplate(ctx context.Context, req *v1.CreateTemplat
 	}
 
 	var content, render string
-	if req.AddType == 0 { // upload
+	if req.AddType == 0 || req.AddType == 2 { // upload
 		if req.Content == "" {
 			res.Code = 400
 			res.SetError(gerror.New(public.LangCtx(ctx, "File data is required for upload type")))
@@ -47,7 +47,7 @@ func (c *ControllerV1) CreateTemplate(ctx context.Context, req *v1.CreateTemplat
 	}
 
 	// Create template
-	id, err := email_template.CreateTemplate(ctx, req.TempName, req.AddType, content, render)
+	id, err := email_template.CreateTemplate(ctx, req.TempName, req.AddType, content, render, req.Chat_id)
 	if err != nil {
 		res.Code = 500
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to create template")))

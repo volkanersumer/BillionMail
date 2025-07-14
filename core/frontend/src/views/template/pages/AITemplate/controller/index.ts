@@ -9,6 +9,8 @@ export const instanceOptions = {
     }
 }
 
+
+
 /**
  * @description Create new template
  */

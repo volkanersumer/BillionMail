@@ -53,6 +53,7 @@ export type SSEContent = {
 
 
 export type TemplateStore = {
+    domainList:Ref<string[]>
     sourceDomain: Ref<string>
     chatId: Ref<string>
     questionContent: Ref<string>

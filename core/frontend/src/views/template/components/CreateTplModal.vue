@@ -10,7 +10,7 @@
             </div>
             <div :class="['url-source', { hidden: choosedMethod !== 'AI' }]">
                 <span class="label">Source Url</span>
-                <n-input style="flex: 1;" v-model:value="sourceDomain"></n-input>
+                <n-select class="flex-1" :options="domainList" label-field="domain" value-field="domain" v-model:value="sourceDomain"></n-select>
             </div>
             <div class="desc">
                 Use AI tools to help you automatically generate email content and improve your work efficiency.
@@ -19,20 +19,24 @@
 
         <template #footer>
             <div class="flex justify-end">
-                <n-button type="primary" @click="createTemplate">Create</n-button>
+                <n-button type="primary" @click="createTemplate" :disabled="!sourceDomain">Create</n-button>
             </div>
         </template>
     </n-modal>
 </template>
 
 <script setup lang="ts">
+    import { instance } from '@/api'
     import { createAiTemplate } from '../pages/AITemplate/controller'
+    import { TemplateStore } from '../pages/AITemplate/dto'
+    const store = inject<TemplateStore>("modelStore")!
     const router = useRouter()
     const methodsList = ref(["Drag", "AI", "HTML"])
     const choosedMethod = ref("AI")
     const sourceDomain = ref("")
     const show = ref(false)
     const emits = defineEmits(["confirmType"])
+    const domainList = ref([])
 
     /**
      * @description open modal
@@ -57,14 +61,32 @@
             if (chatId) {
                 router.push({ name: "ai-template", params: { chatId } })
             }
-        }else{
-            emits("confirmType",choosedMethod.value)
+        } else {
+            emits("confirmType", choosedMethod.value)
         }
     }
     defineExpose({
         open,
         close
     })
+
+    /**
+    * @description Get domain list
+    */
+    async function getDomainList() {
+        try {
+            const res = await instance.get("/domains/list", {
+                params: {
+                    pagge: 1,
+                    page_size: 100
+                }
+            }) as Record<string, any>
+            domainList.value = res.list
+        } catch (error) {
+            console.warn(error)
+        }
+    }
+    getDomainList()
 </script>
 
 <style scoped lang="scss">

@@ -1,6 +1,7 @@
 import { ChatInfo, Model, TemplateStore } from "../dto"
 
 export function useTemplateStore(): TemplateStore {
+    const domainList = ref<string[]>([])
     const sourceDomain = ref("")
     const chatId = ref("")
     const questionContent = ref("")
@@ -36,6 +37,7 @@ export function useTemplateStore(): TemplateStore {
     const scrollable = ref(true)
 
     return {
+        domainList,
         sourceDomain,
         chatId,
         questionContent,

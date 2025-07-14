@@ -32,6 +32,8 @@
     const choosedMethod = ref("AI")
     const sourceDomain = ref("")
     const show = ref(false)
+    const emits = defineEmits(["confirmType"])
+
     /**
      * @description open modal
      */
@@ -55,6 +57,8 @@
             if (chatId) {
                 router.push({ name: "ai-template", params: { chatId } })
             }
+        }else{
+            emits("confirmType",choosedMethod.value)
         }
     }
     defineExpose({

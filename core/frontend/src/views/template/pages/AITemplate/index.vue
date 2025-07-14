@@ -83,13 +83,15 @@
                     <div style="height: calc(100vh - 177px)">
                         <div class="h-10 flex justify-start items-center gap-2.5">
                             <n-button-group size="small">
-                                <n-button :type="previewStatus=='view'?'primary':'default'" @click="previewStatus = 'view'">
+                                <n-button :type="previewStatus == 'view' ? 'primary' : 'default'"
+                                    @click="previewStatus = 'view'">
                                     <template #icon>
                                         <i class="i-mingcute:eye-2-fill text-5"></i>
                                     </template>
                                     View
                                 </n-button>
-                                <n-button :type="previewStatus=='edit'?'primary':'default'" @click="previewStatus = 'edit'">
+                                <n-button :type="previewStatus == 'edit' ? 'primary' : 'default'"
+                                    @click="previewStatus = 'edit'">
                                     <template #icon>
                                         <i class="i-tdesign:code text-5"></i>
                                     </template>
@@ -100,7 +102,8 @@
                         </div>
                         <n-scrollbar style="height: calc(100% - 40px)">
                             <div v-html="previewCode" v-if="previewStatus == 'view'"></div>
-                            <BtEditor :value="previewCode" style="height: calc(100vh - 217px)" @save="saveCodeChange(store)" v-else/>
+                            <BtEditor :value="previewCode" style="height: calc(100vh - 217px)"
+                                @save="saveCodeChange(store)" v-else />
                         </n-scrollbar>
                     </div>
                 </n-card>
@@ -110,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-    import { initialTemplateInfo, sendChat, removeHtmlCodeBlockMarkers, getHtmlTemplateContent,saveCodeChange } from "./controller";
+    import { initialTemplateInfo, sendChat, removeHtmlCodeBlockMarkers, getHtmlTemplateContent, saveCodeChange } from "./controller";
     import MarkdownRender from "./components/MarkdownRender.vue";
     import { useTemplateStore } from "./store";
     import { TemplateStore } from "./dto";
@@ -174,19 +177,22 @@
      */
     function scrollwrapperHeightChange(timer?: any, index = 0) {
         let timeoutTimer = timer || null
-        let startIndexx = index
+        let startIndex = index
+        if (startIndex >= 6) {
+            return
+        }
         if (timeoutTimer) {
             clearTimeout(timer)
             timeoutTimer = null
         }
         if (scrollWrapperRef.value.offsetHeight) {
             chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight })
-            startIndexx++
+            startIndex++
             return
         } else {
-            startIndexx++
+            startIndex++
             timeoutTimer = setTimeout(() => {
-                scrollwrapperHeightChange(timeoutTimer, startIndexx)
+                scrollwrapperHeightChange(timeoutTimer, startIndex)
             }, 100)
 
         }

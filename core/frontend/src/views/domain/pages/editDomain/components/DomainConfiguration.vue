@@ -24,13 +24,13 @@
                     <n-form-item label="">
                         <template #label><span class="form-label">Domain Quota</span></template>
                         <div class="flex justify-between gap-5 items-center w-100%">
-                            <n-input v-model:value="quota as unknown as string"></n-input>
+                            <n-input v-model:value="quota"></n-input>
                             <n-select :options="uinitOptions" class="w-20" v-model:value="unit"></n-select>
                         </div>
                     </n-form-item>
                     <n-form-item>
                         <template #label><span class="form-label">MailBox Count</span></template>
-                        <n-input v-model:value="mailboxes as unknown as string"></n-input>
+                        <n-input-number v-model:value="mailboxes" :show-button="false"></n-input-number>
                     </n-form-item>
                     <n-form-item>
                         <template #label><span class="form-label">Catch all</span></template>
@@ -128,7 +128,7 @@
         urls
     } = getEditDomainStoreData()
     const route = useRoute()
-    const domain = route.params.domain as string
+    const domain = route.params.domain as any
     const uinitOptions = ref([
         {
             label: "B",

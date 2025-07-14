@@ -17,7 +17,7 @@ export async function createNewTemplate(chatId: string, temp_name: string) {
         await instance.post("/email_template/create", {
             temp_name,
             add_type: 2,
-            chatId,
+            chat_id: chatId,
             html_content: "",
         })
     } catch (error) {
@@ -39,7 +39,7 @@ export async function initialTemplateInfo(store: TemplateStore) {
  */
 export async function createAiTemplate(sourceDomain: string) {
     try {
-        const temp_name = `temp_${new Date().getTime()}`
+        const temp_name = `AI_temp_${new Date().getTime()}`
         const res = await instance.post("/askai/chat/create_chat", {
             domain: sourceDomain,
             add_type: 99,
@@ -273,4 +273,11 @@ export async function saveCodeChange(store: TemplateStore) {
     } catch (error) {
         console.warn(error)
     }
+}
+
+/**
+ * @description Duplicate template
+ */
+export async function duplicateTemplate(){
+    
 }

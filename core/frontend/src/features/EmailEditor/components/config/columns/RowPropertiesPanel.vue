@@ -34,6 +34,16 @@ const containerStyle = computed({
 	},
 })
 
+watch(
+	() => [columnsStyle.value, containerStyle.value],
+	() => {
+		autoSaveFn()
+	},
+	{
+		deep: true,
+	}
+)
+
 const [StyleForm] = useNormalForm([
 	{
 		attrKey: 'backgroundColor',

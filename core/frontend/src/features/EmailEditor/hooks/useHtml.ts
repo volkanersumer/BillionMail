@@ -30,6 +30,7 @@ export const useHtml = () => {
 		const columnTrMap = columnToTr()
 		const table = document.createElement('table')
 		table.style.backgroundColor = pageConfig.value.style.backgroundColor || '#fff'
+		table.style.fontFamily = pageConfig.value.style.fontFamily || 'PingFang SC, Microsoft YaHei'
 		table.style.width = '100%'
 		columnsSource.value.forEach(columnKey => {
 			if (columnTrMap[columnKey]) {

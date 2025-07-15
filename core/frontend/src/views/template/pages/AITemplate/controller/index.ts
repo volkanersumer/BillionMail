@@ -75,7 +75,7 @@ export async function getModelList(store: TemplateStore) {
 /**
  * @description Get chat list
  */
-export async function getChatList(store: TemplateStore) {
+export async function getChatList() {
 	// const { } = store
 	try {
 		await instance.post('/askai/chat/get_chat_list')

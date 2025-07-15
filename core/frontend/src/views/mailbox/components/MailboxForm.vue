@@ -1,9 +1,12 @@
 <template>
 	<modal :title="title" width="520">
 		<bt-form ref="formRef" class="pt-20px" :model="form" :rules="rules">
-			<n-form-item :label="t('mailbox.form.emailAddress')" path="full_name">
+			<n-form-item label="Name" path="full_name">
+				<n-input v-model:value="form.full_name"> </n-input>
+			</n-form-item>
+			<n-form-item :label="t('mailbox.form.emailAddress')" path="domain">
 				<n-input-group>
-					<n-input v-model:value="form.full_name" class="flex-1" :disabled="isEdit"> </n-input>
+					<n-input v-model:value="form.local_part" class="flex-1" :disabled="isEdit"> </n-input>
 					<domain-select
 						v-model:value="form.domain"
 						class="flex-1"
@@ -57,6 +60,7 @@ const form = reactive({
 	unit: 'GB',
 	isAdmin: 0,
 	full_name: '',
+	local_part: '',
 	domain: null as string | null,
 	password: getRandomPassword(),
 	active: 1,
@@ -74,9 +78,20 @@ const userTypeOptions = [
 
 const rules: FormRules = {
 	full_name: {
+		required: true,
 		trigger: 'blur',
 		validator: () => {
-			if (form.full_name.trim() === '' || !form.domain) {
+			if (form.full_name.trim() === '') {
+				return new Error('Please enter name')
+			}
+			return true
+		},
+	},
+	domain: {
+		trigger: 'blur',
+		required: true,
+		validator: () => {
+			if (form.local_part.trim() === '' || !form.domain) {
 				return new Error(t('mailbox.validation.emailRequired'))
 			}
 			return true
@@ -84,6 +99,7 @@ const rules: FormRules = {
 	},
 	password: {
 		trigger: 'blur',
+		required: true,
 		validator: () => {
 			if (!isEdit.value) {
 				if (form.password.trim().length < 8) {
@@ -125,6 +141,7 @@ const getQuotaByte = (quota: number, quota_unit: string) => {
 const getParams = () => {
 	return {
 		full_name: form.full_name,
+		local_part: form.local_part,
 		domain: form.domain || '',
 		password: form.password,
 		quota: getQuotaByte(form.quota, form.unit),
@@ -173,6 +190,7 @@ const [Modal, modalApi] = useModal({
 			isEdit.value = state.isEdit
 			if (row) {
 				form.full_name = row.full_name
+				form.local_part = row.local_part
 				form.domain = row.domain
 				form.isAdmin = row.is_admin
 				form.active = row.active
@@ -185,6 +203,7 @@ const [Modal, modalApi] = useModal({
 			}
 		} else {
 			form.full_name = ''
+			form.local_part = ''
 			form.domain = null
 			form.password = getRandomPassword() // Generate a random password by default
 			form.quota = 5

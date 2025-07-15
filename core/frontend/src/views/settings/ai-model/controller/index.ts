@@ -1,163 +1,192 @@
-import { instance } from "@/api"
-import { Model, ModelStore, Provider } from "../dto"
+import { instance } from '@/api'
+import { Model, ModelStore, Provider } from '../dto'
 export const instanceOptions = {
-    fetchOptions: {
-        loading: 'Loading... Please wait.',
-        successMessage: true,
-    }
+	fetchOptions: {
+		loading: 'Loading... Please wait.',
+		successMessage: true,
+	},
 }
-
 
 /**
  * @description Get provider list
  */
 export async function getProviderList(modelStore: ModelStore) {
-    const { providerList, currentProvider } = modelStore
-    try {
-        const res = await instance.post("/askai/supplier/list") as Provider[];
-        providerList.value = res
-        if (res.length) {
-            currentProvider.value = res[0]
-            await getModelList(currentProvider.value.supplierName, modelStore)
-        }
-    } catch (error) {
-        console.warn(error)
-    }
+	const { providerList, currentProvider } = modelStore
+	try {
+		const res = (await instance.post('/askai/supplier/list')) as Provider[]
+		providerList.value = res
+		if (res.length) {
+			currentProvider.value = res[0]
+			await getModelList(currentProvider.value.supplierName, modelStore)
+		}
+	} catch (error) {
+		console.warn(error)
+	}
 }
 
 /**
  * @description Get model list
  */
 export async function getModelList(supplierName: string, modelStore: ModelStore) {
-    const { modelList, configurationLoading } = modelStore
-    try {
-        configurationLoading.value = true
-        const res = await instance.post("/askai/supplier/models", { supplierName }) as Model[]
-        modelList.value = res
-    } catch (error) {
-        console.warn(error)
-    } finally {
-        configurationLoading.value = false
-    }
+	const { modelList, configurationLoading } = modelStore
+	try {
+		configurationLoading.value = true
+		const res = (await instance.post('/askai/supplier/models', { supplierName })) as Model[]
+		modelList.value = res
+	} catch (error) {
+		console.warn(error)
+	} finally {
+		configurationLoading.value = false
+	}
 }
 
 /***
  * @description Confirm add provider
  */
 export async function confirmAddProvider(modelStore: ModelStore) {
-    const { addProviderFormData, addProviderFormDataRef, addProviderRef } = modelStore
-    try {
-        await addProviderFormDataRef.value?.validate()
-        await instance.post("/askai/supplier/add_supplier", addProviderFormData.value, instanceOptions)
-        addProviderRef.value.close()
-        await getProviderList(modelStore)
-    } catch (error) {
-        console.warn(error)
-    }
+	const { addProviderFormData, addProviderFormDataRef, addProviderRef } = modelStore
+	try {
+		await addProviderFormDataRef.value?.validate()
+		await instance.post('/askai/supplier/add_supplier', addProviderFormData.value, instanceOptions)
+		addProviderRef.value.close()
+		await getProviderList(modelStore)
+	} catch (error) {
+		console.warn(error)
+	}
 }
 
 /**
  * @description Confirm add model
  */
 export async function confirmAddModel(modelStore: ModelStore) {
-    const { currentProvider, addModelFormData, addModelFormRef, addModelRef } = modelStore;
-    try {
-        console.log(addModelFormData)
-        await addModelFormRef.value?.validate()
-        await instance.post("/askai/supplier/add_model", { ...addModelFormData.value, supplierName: currentProvider.value.supplierName }, instanceOptions)
-        await getModelList(currentProvider.value.supplierName, modelStore)
-        addModelRef.value.close()
-    } catch (error) {
-        console.warn(error)
-    }
+	const { currentProvider, addModelFormData, addModelFormRef, addModelRef } = modelStore
+	try {
+		// console.log(addModelFormData)
+		await addModelFormRef.value?.validate()
+		await instance.post(
+			'/askai/supplier/add_model',
+			{ ...addModelFormData.value, supplierName: currentProvider.value.supplierName },
+			instanceOptions
+		)
+		await getModelList(currentProvider.value.supplierName, modelStore)
+		addModelRef.value.close()
+	} catch (error) {
+		console.warn(error)
+	}
 }
 
 /**
  * @description Get provider configuration
  */
 export async function getProviderConfiguration(modelStore: ModelStore) {
-    const { currentProvider, providerList } = modelStore
-    try {
-        const res = await instance.post("/askai/supplier/get_supplier_config", { supplierName: currentProvider.value.supplierName }, instanceOptions) as Provider
-        const findProvider = providerList.value.find(item => item.supplierName == currentProvider.value.supplierName)
-        if (findProvider) {
-            findProvider.apiKey = res.apiKey
-            findProvider.baseUrl = res.baseUrl
-        }
-    } catch (error) {
-        console.warn(error)
-    }
+	const { currentProvider, providerList } = modelStore
+	try {
+		const res = (await instance.post(
+			'/askai/supplier/get_supplier_config',
+			{ supplierName: currentProvider.value.supplierName },
+			instanceOptions
+		)) as Provider
+		const findProvider = providerList.value.find(
+			item => item.supplierName == currentProvider.value.supplierName
+		)
+		if (findProvider) {
+			findProvider.apiKey = res.apiKey
+			findProvider.baseUrl = res.baseUrl
+		}
+	} catch (error) {
+		console.warn(error)
+	}
 }
 
 /**
  * @description Change provider status
  */
 export async function changeProviderStatus(status: boolean, modelStore: ModelStore) {
-    const { currentProvider } = modelStore;
-    try {
-        await instance.post("/askai/supplier/set_supplier_status", { supplierName: currentProvider.value.supplierName, status }, instanceOptions)
-    } catch (error) {
-        console.warn(error)
-    }
+	const { currentProvider } = modelStore
+	try {
+		await instance.post(
+			'/askai/supplier/set_supplier_status',
+			{ supplierName: currentProvider.value.supplierName, status },
+			instanceOptions
+		)
+	} catch (error) {
+		console.warn(error)
+	}
 }
 
 /**
  * @description Check provider api configuration
  */
 export async function checkProviderApiConfiguration(modelStore: ModelStore) {
-    const { currentProvider } = modelStore;
-    try {
-        await instance.post("/askai/supplier/testing", {
-            supplierName: currentProvider.value.supplierName,
-            baseUrl: currentProvider.value.baseUrl,
-            apiKey: currentProvider.value.apiKey
-        }, instanceOptions)
-    } catch (error) {
-        console.warn(error)
-    }
+	const { currentProvider } = modelStore
+	try {
+		await instance.post(
+			'/askai/supplier/testing',
+			{
+				supplierName: currentProvider.value.supplierName,
+				baseUrl: currentProvider.value.baseUrl,
+				apiKey: currentProvider.value.apiKey,
+			},
+			instanceOptions
+		)
+	} catch (error) {
+		console.warn(error)
+	}
 }
 
 /**
  * @description Set provider configuration
  */
 export async function setProviderConfiguration(modelStore: ModelStore) {
-    const { currentProvider } = modelStore
-    try {
-        await instance.post("/askai/supplier/set_supplier_config", {
-            supplierName: currentProvider.value.supplierName,
-            baseUrl: currentProvider.value.baseUrl,
-            apiKey: currentProvider.value.apiKey
-        }, instanceOptions)
-    } catch (error) {
-        console.warn(error)
-    }
+	const { currentProvider } = modelStore
+	try {
+		await instance.post(
+			'/askai/supplier/set_supplier_config',
+			{
+				supplierName: currentProvider.value.supplierName,
+				baseUrl: currentProvider.value.baseUrl,
+				apiKey: currentProvider.value.apiKey,
+			},
+			instanceOptions
+		)
+	} catch (error) {
+		console.warn(error)
+	}
 }
 
 /**
  * @description Set model status
  */
 export async function setModelStatus(modelId: string, status: boolean, modelStore: ModelStore) {
-    const { currentProvider } = modelStore;
-    try {
-        await instance.post("/askai/supplier/set_model_status", {
-            supplierName: currentProvider.value.supplierName,
-            modelId,
-            status
-        }, instanceOptions)
-    } catch (error) {
-        console.warn(error)
-    }
+	const { currentProvider } = modelStore
+	try {
+		await instance.post(
+			'/askai/supplier/set_model_status',
+			{
+				supplierName: currentProvider.value.supplierName,
+				modelId,
+				status,
+			},
+			instanceOptions
+		)
+	} catch (error) {
+		console.warn(error)
+	}
 }
 
 /**
  * @description Remove provider
  */
 export async function removeProvider(modelStore: ModelStore) {
-    const { currentProvider } = modelStore
-    try {
-        await instance.post("/askai/supplier/remove_supplier", { supplierName: currentProvider.value.supplierName }, instanceOptions)
-        await getProviderList(modelStore)
-    } catch (error) {
-        console.warn(error)
-    }
+	const { currentProvider } = modelStore
+	try {
+		await instance.post(
+			'/askai/supplier/remove_supplier',
+			{ supplierName: currentProvider.value.supplierName },
+			instanceOptions
+		)
+		await getProviderList(modelStore)
+	} catch (error) {
+		console.warn(error)
+	}
 }

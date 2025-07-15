@@ -77,6 +77,9 @@ func UpdateBaseURL(ctx context.Context, domain ...string) {
 		go func(domain string) {
 			defer wg.Done()
 			url := buildBaseURL(domain)
+			if url == "" {
+				url = GetBaseURL()
+			}
 			baseurlMapMu.Lock()
 			baseurlMap[domain] = url
 			baseurlMapMu.Unlock()
@@ -123,7 +126,8 @@ func buildBaseURL(hostname string) (s string) {
 	if hostname == "" {
 		hostname, err = public.DockerEnv("BILLIONMAIL_HOSTNAME")
 	} else {
-		hostname = public.FormatMX(hostname)
+		//hostname = public.FormatMX(hostname)
+		return ""
 	}
 
 	if err == nil {
@@ -142,6 +146,12 @@ func buildBaseURL(hostname string) (s string) {
 			return
 		}
 	}
+	//hostname, err = public.DockerEnv("BILLIONMAIL_HOSTNAME")
+	//if hostname != "" && hostname != "mail.example.com" {
+	//	s = scheme + "://" + hostname
+	//} else {
+	//	s = scheme + "://" + serverIP
+	//}
 
 	s = scheme + "://" + serverIP
 	if withPort {

@@ -25,6 +25,12 @@ const route: RouteRecordRaw = {
 					meta: { title: 'Task', titleKey: 'layout.menu.task' },
 					component: () => import('@/views/market/task/index.vue'),
 				},
+				{
+					path: 'template',
+					name: 'MarketTemplate',
+					meta: { title: 'Template', titleKey: 'layout.menu.template' },
+					component: () => import('@/views/market/template/index.vue'),
+				},
 			],
 		},
 		{

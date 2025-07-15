@@ -29,7 +29,7 @@ import { FormRules, UploadFileInfo } from 'naive-ui'
 import { isEmpty } from 'lodash-es'
 import { formatTime, Message } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
-import { addTemplate } from '@/api/modules/market/template'
+// import { addTemplate } from '@/api/modules/market/template'
 
 const { t } = useI18n()
 
@@ -81,7 +81,7 @@ const [Modal, modalApi] = useModal({
 	},
 	onConfirm: async () => {
 		await validateForm()
-		await addTemplate(toRaw(form))
+		// await addTemplate(toRaw(form))
 		const state = modalApi.getState<{ refresh: () => void }>()
 		state?.refresh()
 	},

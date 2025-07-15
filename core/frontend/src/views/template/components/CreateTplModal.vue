@@ -36,7 +36,7 @@
 
 		<template #footer>
 			<div class="flex justify-end">
-				<n-button type="primary" :disabled="!sourceDomain" @click="createTemplate">Create</n-button>
+				<n-button type="primary" @click="createTemplate">Create</n-button>
 			</div>
 		</template>
 	</n-modal>
@@ -100,6 +100,7 @@ async function getDomainList() {
 	})) as Record<string, any>
 	domainList.value = res.list
 }
+
 getDomainList()
 </script>
 

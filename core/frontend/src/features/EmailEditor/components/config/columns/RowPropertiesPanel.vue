@@ -20,7 +20,6 @@ const columnsStyle = computed({
 	},
 	set(newVal) {
 		columnsConfigMap.value[selectedBlockKey.value].style = newVal
-		autoSaveFn()
 	},
 })
 
@@ -30,7 +29,6 @@ const containerStyle = computed({
 	},
 	set(newVal) {
 		columnsConfigMap.value[selectedBlockKey.value].containerStyle = newVal
-		autoSaveFn()
 	},
 })
 

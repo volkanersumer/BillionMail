@@ -130,7 +130,6 @@ func Start(ctx context.Context) (err error) {
 	})
 
 	gtimer.Add(1*time.Minute, func() {
-		//gtimer.Add(5*time.Second, func() {
 		batch_mail.ProcessApiMailQueueWithLock(ctx)
 	})
 

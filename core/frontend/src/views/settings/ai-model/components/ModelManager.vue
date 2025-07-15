@@ -1,311 +1,314 @@
 <template>
-    <!-- <n-modal preset="card" draggable :close-on-esc="false" :mask-closable="false" title="Model manager"
+	<!-- <n-modal preset="card" draggable :close-on-esc="false" :mask-closable="false" title="Model manager"
         class="w-180 customer-modal" segmented v-model:show="show"> -->
-    <div class="manager-wrapper">
-        <!-- Provider list -->
-        <div class="left-provider">
-            <div class="provider-list">
-                <div :class="['provider-item', { active: item.supplierName == currentProvider?.supplierName }]"
-                    v-for="item in providerList" :key="item.supplierName" @click="getModelListBySupplier(item)">
-                    <div class="item-icon">
-                        <n-image :src="item.icon" v-if="item.icon" height="24" width="24"></n-image>
-                        <i class="i-ai:big-model w-6.5 h-6.5" v-else></i>
-                    </div>
-                    <span class="tit">{{ item.supplierTitle }}</span>
-                </div>
-            </div>
-            <div class="add-privider">
-                <n-button @click="handleAddProvider">
-                    <template #icon>
-                        <i class="i-ic:baseline-add-circle"></i>
-                    </template>
-                    Add model service provider
-                </n-button>
-            </div>
-        </div>
+	<div class="manager-wrapper">
+		<!-- Provider list -->
+		<div class="left-provider">
+			<div class="provider-list">
+				<div
+					v-for="item in providerList"
+					:key="item.supplierName"
+					:class="['provider-item', { active: item.supplierName == currentProvider?.supplierName }]"
+					@click="getModelListBySupplier(item)">
+					<div class="item-icon">
+						<n-image v-if="item.icon" :src="item.icon" height="24" width="24"></n-image>
+						<i v-else class="i-ai:big-model w-6.5 h-6.5"></i>
+					</div>
+					<span class="tit">{{ item.supplierTitle }}</span>
+				</div>
+			</div>
+			<div class="add-privider">
+				<n-button @click="handleAddProvider">
+					<template #icon>
+						<i class="i-ic:baseline-add-circle"></i>
+					</template>
+					Add model service provider
+				</n-button>
+			</div>
+		</div>
 
-        <!-- Configuration -->
-        <n-spin :show="configurationLoading">
-            <div class="right-configuration">
-                <div class="top-switch">
-                    <div class="switch-info">
-                        <i class="i-ic:baseline-error text-5"></i>
-                        <span class="tit">DeepSeek</span>
-                        <n-switch v-model:value="currentProvider.status"
-                            @update:value="status => changeProviderStatus(status, modelStore)"></n-switch>
-                    </div>
-                    <i class="i-ri:delete-bin-3-line text-5.5 hover:text-red-5 cursor-pointer"
-                        @click="removeProvider(modelStore)"></i>
-                </div>
-                <div class="center-api">
-                    <n-form class="mt-15px">
-                        <n-form-item label="API密钥">
-                            <div class="w-100%">
-                                <n-input-group>
-                                    <n-input v-model:value="currentProvider.apiKey"></n-input>
-                                    <n-button @click="checkProviderApiConfiguration(modelStore)">检查</n-button>
-                                </n-input-group>
-                                <n-button text type="info" class="mt-5px"
-                                    @click="getProviderConfiguration(modelStore)">点击获取密钥</n-button>
-                            </div>
-                        </n-form-item>
-                        <n-form-item label="API地址">
-                            <div class="w-100%">
-                                <n-input v-model:value="currentProvider.baseUrl"></n-input>
-                                <span class="text-[var(--color-text-3)] mt-5">示例: https://api.deepseek.com/v1</span>
-                            </div>
-                        </n-form-item>
-                    </n-form>
-                    <n-button type="primary" @click="setProviderConfiguration(modelStore)">保存API</n-button>
-                </div>
-                <div class="bottom-model-list">
-                    <div class="header-tit">
-                        <div>
-                            <span class="tit">模型</span>
-                            <span class="sub-tit">默认从/models获取所有模型</span>
-                        </div>
-                        <!-- <div class="add-model" @click="handleAddModel">
+		<!-- Configuration -->
+		<n-spin :show="configurationLoading">
+			<div class="right-configuration">
+				<div class="top-switch">
+					<div class="switch-info">
+						<i class="i-ic:baseline-error text-5"></i>
+						<span class="tit">DeepSeek</span>
+						<n-switch
+							v-model:value="currentProvider.status"
+							@update:value="status => changeProviderStatus(status, modelStore)"></n-switch>
+					</div>
+					<i
+						class="i-ri:delete-bin-3-line text-5.5 hover:text-red-5 cursor-pointer"
+						@click="removeProvider(modelStore)"></i>
+				</div>
+				<div class="center-api">
+					<n-form class="mt-15px">
+						<n-form-item label="API密钥">
+							<div class="w-100%">
+								<n-input-group>
+									<n-input v-model:value="currentProvider.apiKey"></n-input>
+									<n-button @click="checkProviderApiConfiguration(modelStore)">检查</n-button>
+								</n-input-group>
+								<n-button
+									text
+									type="info"
+									class="mt-5px"
+									@click="getProviderConfiguration(modelStore)"
+									>点击获取密钥</n-button
+								>
+							</div>
+						</n-form-item>
+						<n-form-item label="API地址">
+							<div class="w-100%">
+								<n-input v-model:value="currentProvider.baseUrl"></n-input>
+								<span class="text-[var(--color-text-3)] mt-5"
+									>示例: https://api.deepseek.com/v1</span
+								>
+							</div>
+						</n-form-item>
+					</n-form>
+					<n-button type="primary" @click="setProviderConfiguration(modelStore)">保存API</n-button>
+				</div>
+				<div class="bottom-model-list">
+					<div class="header-tit">
+						<div>
+							<span class="tit">模型</span>
+							<span class="sub-tit">默认从/models获取所有模型</span>
+						</div>
+						<!-- <div class="add-model" @click="handleAddModel">
                             <i class="i-ic:baseline-control-point text-4"></i>
                             <span class="tit">新建模型</span>
                         </div> -->
-                    </div>
-                    <div class="model-list" v-for="item in modelList" :key="item.title">
-                        <div class="model-item">
-                            <!-- <i class="i-ic:round-check-circle-outline text-5"></i> -->
-                            <span class="model-name">{{ item.title }}</span>
-                            <div class="operation">
-                                <n-switch v-model:value="item.status"
-                                    @update:value="status => setModelStatus(item.modelId, status, modelStore)"></n-switch>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </n-spin>
-    </div>
+					</div>
+					<div v-for="item in modelList" :key="item.title" class="model-list">
+						<div class="model-item">
+							<!-- <i class="i-ic:round-check-circle-outline text-5"></i> -->
+							<span class="model-name">{{ item.title }}</span>
+							<div class="operation">
+								<n-switch
+									v-model:value="item.status"
+									@update:value="
+										status => setModelStatus(item.modelId, status, modelStore)
+									"></n-switch>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</n-spin>
+	</div>
 
+	<!-- Add Provider -->
+	<AddProvider ref="addProviderRef" />
 
-    <!-- Add Provider -->
-    <AddProvider ref="addProviderRef" />
-
-    <!-- Add Model -->
-    <AddModel ref="addModelRef" />
-
+	<!-- Add Model -->
+	<AddModel ref="addModelRef" />
 </template>
 
 <script setup lang="ts">
-    import AddProvider from './AddProvider.vue';
-    import AddModel from './AddModel.vue';
-    import { ModelStore, Provider } from '../dto';
-    import {
-        getModelList,
-        getProviderList,
-        getProviderConfiguration,
-        changeProviderStatus,
-        checkProviderApiConfiguration,
-        setProviderConfiguration,
-        setModelStatus,
-        removeProvider
-    } from "../controller"
-    const modelStore = inject<ModelStore>("modelStore")!
-    const {
-        providerList,
-        modelList,
-        currentProvider,
-        configurationLoading,
-        addProviderRef,
-        addModelRef
-    } = modelStore
-    getProviderList(modelStore)
+import AddProvider from './AddProvider.vue'
+import AddModel from './AddModel.vue'
+import { ModelStore, Provider } from '../dto'
+import {
+	getModelList,
+	getProviderList,
+	getProviderConfiguration,
+	changeProviderStatus,
+	checkProviderApiConfiguration,
+	setProviderConfiguration,
+	setModelStatus,
+	removeProvider,
+} from '../controller'
+const modelStore = inject<ModelStore>('modelStore')!
+const {
+	providerList,
+	modelList,
+	currentProvider,
+	configurationLoading,
+	addProviderRef,
+	addModelRef,
+} = modelStore
+getProviderList(modelStore)
 
+/**
+ * @description Get model list
+ */
+function getModelListBySupplier(provider: Provider) {
+	currentProvider.value = provider
+	getModelList(provider.supplierName, modelStore)
+}
 
-    /**
-     * @description Get model list
-     */
-    function getModelListBySupplier(provider: Provider) {
-        currentProvider.value = provider
-        getModelList(provider.supplierName, modelStore)
-    }
+/**
+ * @description Handle add provider
+ */
+function handleAddProvider() {
+	addProviderRef.value.open()
+}
 
-    /**
-     * @description Handle add provider
-     */
-    function handleAddProvider() {
-        addProviderRef.value.open()
-    }
-
-    /**
-     * @description Handle add  model
-     */
-    function handleAddModel() {
-        addModelRef.value.open()
-    }
-
+/**
+ * @description Handle add  model
+ */
+// function handleAddModel() {
+// 	addModelRef.value.open()
+// }
 </script>
 
 <style scoped lang="scss">
-    @use "@/styles/index.scss" as base;
+@use '@/styles/index.scss' as base;
 
-    .manager-wrapper {
-        // height: 480px;
-        display: grid;
-        grid-template-columns: 230px 1fr;
-        /* border-top: 1px solid var(--color-border-2);
+.manager-wrapper {
+	// height: 480px;
+	display: grid;
+	grid-template-columns: 230px 1fr;
+	/* border-top: 1px solid var(--color-border-2);
         border-bottom: 1px solid var(--color-border-2); */
 
-        .left-provider {
-            height: 100%;
-            display: grid;
-            grid-template-rows: 1fr 60px;
-            border-right: 1px solid var(--color-border-2);
+	.left-provider {
+		height: 100%;
+		display: grid;
+		grid-template-rows: 1fr 60px;
+		border-right: 1px solid var(--color-border-2);
 
-            .provider-list {
-                @include base.col-flex;
-                gap: 0;
+		.provider-list {
+			@include base.col-flex;
+			gap: 0;
 
-                .provider-item {
-                    height: 50px;
-                    width: 100%;
-                    box-sizing: border-box;
-                    padding-left: 10px;
-                    border-bottom: 1px solid var(--color-border-1);
-                    @include base.row-flex-start;
-                    gap: 5px;
-                    align-items: center;
-                    transition: .15s all ease-in-out;
-                    cursor: pointer;
+			.provider-item {
+				height: 50px;
+				width: 100%;
+				box-sizing: border-box;
+				padding-left: 10px;
+				border-bottom: 1px solid var(--color-border-1);
+				@include base.row-flex-start;
+				gap: 5px;
+				align-items: center;
+				transition: 0.15s all ease-in-out;
+				cursor: pointer;
 
-                    .tit {
-                        font-size: 14px;
-                        font-weight: bold;
-                    }
+				.tit {
+					font-size: 14px;
+					font-weight: bold;
+				}
 
-                    &:hover {
-                        background: #eef9ee;
-                    }
+				&:hover {
+					background: #eef9ee;
+				}
 
-                    &.active {
-                        background: #eef9ee;
-                    }
+				&.active {
+					background: #eef9ee;
+				}
 
-                    .item-icon {
-                        width: 32px;
-                        @include base.row-flex-center;
-                    }
-                }
+				.item-icon {
+					width: 32px;
+					@include base.row-flex-center;
+				}
+			}
+		}
 
-            }
+		.add-privider {
+			@include base.row-flex-center;
+		}
+	}
 
-            .add-privider {
-                @include base.row-flex-center;
+	.right-configuration {
+		padding: 0 15px 15px;
 
-            }
-        }
+		.top-switch {
+			height: 50px;
+			@include base.row-flex;
+			align-items: center;
+			justify-content: space-between;
+			border-bottom: 1px solid var(--color-border-2);
 
-        .right-configuration {
-            padding: 0 15px 15px;
+			.switch-info {
+				@include base.row-flex-start;
+				align-items: center;
+				gap: 5px;
 
-            .top-switch {
-                height: 50px;
-                @include base.row-flex;
-                align-items: center;
-                justify-content: space-between;
-                border-bottom: 1px solid var(--color-border-2);
+				.tit {
+					font-size: 14px;
+					font-weight: bold;
+				}
+			}
+		}
 
-                .switch-info {
-                    @include base.row-flex-start;
-                    align-items: center;
-                    gap: 5px;
+		.center-api {
+			padding-bottom: 15px;
+			border-bottom: 1px solid var(--color-border-2);
+		}
 
-                    .tit {
-                        font-size: 14px;
-                        font-weight: bold;
-                    }
-                }
-            }
+		.bottom-model-list {
+			margin-top: 15px;
 
-            .center-api {
-                padding-bottom: 15px;
-                border-bottom: 1px solid var(--color-border-2);
-            }
+			.header-tit {
+				@include base.row-flex;
+				justify-content: space-between;
+				margin-bottom: 15px;
 
-            .bottom-model-list {
-                margin-top: 15px;
+				.tit {
+					font-weight: bold;
+					font-size: 14px;
+					margin-right: 5px;
+				}
 
-                .header-tit {
-                    @include base.row-flex;
-                    justify-content: space-between;
-                    margin-bottom: 15px;
+				.sub-tit {
+					color: var(--color-text-3);
+				}
 
-                    .tit {
-                        font-weight: bold;
-                        font-size: 14px;
-                        margin-right: 5px;
-                    }
+				.add-model {
+					@include base.row-flex-start;
+					gap: 5px;
+					align-items: center;
+					cursor: pointer;
 
-                    .sub-tit {
-                        color: var(--color-text-3);
-                    }
+					.tit {
+						font-size: 14px;
+					}
+				}
+			}
 
-                    .add-model {
-                        @include base.row-flex-start;
-                        gap: 5px;
-                        align-items: center;
-                        cursor: pointer;
+			.model-list {
+				@include base.col-flex;
+				justify-content: flex-start;
 
-                        .tit {
-                            font-size: 14px;
-                        }
-                    }
-                }
+				.model-item {
+					@include base.row-flex;
+					justify-content: space-between;
+					width: 100%;
+					align-items: center;
+					padding: 10px 5px;
+					transition: 0.15s all ease-in-out;
+					cursor: pointer;
 
-                .model-list {
-                    @include base.col-flex;
-                    justify-content: flex-start;
+					i.active {
+						color: var(--color-primary-1);
+					}
 
+					.model-name {
+						font-weight: bold;
+						font-size: 14px;
+					}
 
-                    .model-item {
-                        @include base.row-flex;
-                        justify-content: space-between;
-                        width: 100%;
-                        align-items: center;
-                        padding: 10px 5px;
-                        transition: .15s all ease-in-out;
-                        cursor: pointer;
+					&:hover {
+						background: #eef9ee;
+					}
 
-                        i.active {
-                            color: var(--color-primary-1);
-                        }
-
-                        .model-name {
-                            font-weight: bold;
-                            font-size: 14px;
-                        }
-
-                        &:hover {
-                            background: #eef9ee;
-                        }
-
-                        .operation {
-                            @include base.row-flex-start;
-                            gap: 10px;
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-
-
-
-
+					.operation {
+						@include base.row-flex-start;
+						gap: 10px;
+					}
+				}
+			}
+		}
+	}
+}
 </style>
 
 <style>
-    .customer-modal {
-        .n-card__content {
-            padding: 0 !important;
-        }
-    }
+.customer-modal {
+	.n-card__content {
+		padding: 0 !important;
+	}
+}
 </style>

@@ -1,201 +1,213 @@
 <template>
-    <div class="content-wrapper">
-        <n-card class="mb-5">
-            <div class="page-tit mb-5">
-                <div class="left-tit">
-                    <div class="back-tool">
-                        <i class="i-ri:apps-fill text-6"></i>
-                    </div>
-                    <span class="tit-content">
-                        Color Palette
-                    </span>
-                </div>
-            </div>
-            <n-form>
-                <n-form-item>
-                    <template #label><span class="form-label">Accent Color</span></template>
-                    <div class="flex justify-between gap-2.5 w-100%">
-                        <n-color-picker style="width: 50px;" :modes="['hex', 'rgb', 'hsl', 'hsv']"
-                            :render-label="colorRenderLabel" v-model:value="accent_color"></n-color-picker>
-                        <n-input v-model:value="accent_color"></n-input>
-                    </div>
-                </n-form-item>
-                <n-form-item>
-                    <template #label><span class="form-label">Text Color</span></template>
-                    <div class="flex justify-between gap-2.5 w-100%">
-                        <n-color-picker style="width: 50px;" :modes="['hex', 'rgb', 'hsl', 'hsv']"
-                            :render-label="colorRenderLabel" v-model:value="text_color"></n-color-picker>
-                        <n-input v-model:value="text_color"></n-input>
-                    </div>
-                </n-form-item>
-                <n-form-item>
-                    <template #label><span class="form-label">Page Background</span></template>
-                    <div class="flex justify-between gap-2.5 w-100%">
-                        <n-color-picker style="width: 50px;" :modes="['hex', 'rgb', 'hsl', 'hsv']"
-                            :render-label="colorRenderLabel" v-model:value="page_background"></n-color-picker>
-                        <n-input v-model:value="page_background"></n-input>
-                    </div>
-                </n-form-item>
-                <n-form-item>
-                    <template #label><span class="form-label">Container Background</span></template>
-                    <div class="flex justify-between gap-2.5 w-100%">
-                        <n-color-picker style="width: 50px;" :modes="['hex', 'rgb', 'hsl', 'hsv']"
-                            :render-label="colorRenderLabel" v-model:value="container_background"></n-color-picker>
-                        <n-input v-model:value="container_background"></n-input>
-                    </div>
-                </n-form-item>
-                <n-form-item>
-                    <template #label><span class="form-label">Link footer color</span></template>
-                    <div class="flex justify-between gap-2.5 w-100%">
-                        <n-color-picker style="width: 50px;" :modes="['hex', 'rgb', 'hsl', 'hsv']"
-                            :render-label="colorRenderLabel" v-model:value="link_footer_color"></n-color-picker>
-                        <n-input v-model:value="link_footer_color"></n-input>
-                    </div>
-                </n-form-item>
-                <n-form-item>
-                    <template #label><span class="form-label">Link social color</span></template>
-                    <div class="flex justify-between gap-2.5 w-100%">
-                        <n-color-picker style="width: 50px;" :modes="['hex', 'rgb', 'hsl', 'hsv']"
-                            :render-label="colorRenderLabel" v-model:value="link_social_color"></n-color-picker>
-                        <n-input v-model:value="link_social_color"></n-input>
-                    </div>
-                </n-form-item>
-            </n-form>
-        </n-card>
+	<div class="content-wrapper">
+		<n-card class="mb-5">
+			<div class="page-tit mb-5">
+				<div class="left-tit">
+					<div class="back-tool">
+						<i class="i-ri:apps-fill text-6"></i>
+					</div>
+					<span class="tit-content"> Color Palette </span>
+				</div>
+			</div>
+			<n-form>
+				<n-form-item>
+					<template #label><span class="form-label">Accent Color</span></template>
+					<div class="flex justify-between gap-2.5 w-100%">
+						<n-color-picker
+							v-model:value="accent_color"
+							style="width: 50px"
+							:modes="['hex', 'rgb', 'hsl', 'hsv']"
+							:render-label="colorRenderLabel"></n-color-picker>
+						<n-input v-model:value="accent_color"></n-input>
+					</div>
+				</n-form-item>
+				<n-form-item>
+					<template #label><span class="form-label">Text Color</span></template>
+					<div class="flex justify-between gap-2.5 w-100%">
+						<n-color-picker
+							v-model:value="text_color"
+							style="width: 50px"
+							:modes="['hex', 'rgb', 'hsl', 'hsv']"
+							:render-label="colorRenderLabel"></n-color-picker>
+						<n-input v-model:value="text_color"></n-input>
+					</div>
+				</n-form-item>
+				<n-form-item>
+					<template #label><span class="form-label">Page Background</span></template>
+					<div class="flex justify-between gap-2.5 w-100%">
+						<n-color-picker
+							v-model:value="page_background"
+							style="width: 50px"
+							:modes="['hex', 'rgb', 'hsl', 'hsv']"
+							:render-label="colorRenderLabel"></n-color-picker>
+						<n-input v-model:value="page_background"></n-input>
+					</div>
+				</n-form-item>
+				<n-form-item>
+					<template #label><span class="form-label">Container Background</span></template>
+					<div class="flex justify-between gap-2.5 w-100%">
+						<n-color-picker
+							v-model:value="container_background"
+							style="width: 50px"
+							:modes="['hex', 'rgb', 'hsl', 'hsv']"
+							:render-label="colorRenderLabel"></n-color-picker>
+						<n-input v-model:value="container_background"></n-input>
+					</div>
+				</n-form-item>
+				<n-form-item>
+					<template #label><span class="form-label">Link footer color</span></template>
+					<div class="flex justify-between gap-2.5 w-100%">
+						<n-color-picker
+							v-model:value="link_footer_color"
+							style="width: 50px"
+							:modes="['hex', 'rgb', 'hsl', 'hsv']"
+							:render-label="colorRenderLabel"></n-color-picker>
+						<n-input v-model:value="link_footer_color"></n-input>
+					</div>
+				</n-form-item>
+				<n-form-item>
+					<template #label><span class="form-label">Link social color</span></template>
+					<div class="flex justify-between gap-2.5 w-100%">
+						<n-color-picker
+							v-model:value="link_social_color"
+							style="width: 50px"
+							:modes="['hex', 'rgb', 'hsl', 'hsv']"
+							:render-label="colorRenderLabel"></n-color-picker>
+						<n-input v-model:value="link_social_color"></n-input>
+					</div>
+				</n-form-item>
+			</n-form>
+		</n-card>
 
+		<n-card class="mb-5">
+			<div class="page-tit mb-5">
+				<div class="left-tit">
+					<div class="back-tool">
+						<i class="i-ri:apps-fill text-6"></i>
+					</div>
+					<span class="tit-content"> Typography </span>
+				</div>
+			</div>
+			<n-form>
+				<n-form-item>
+					<template #label><span class="form-label">Heading Font</span></template>
+					<n-input v-model:value="heading_font"></n-input>
+				</n-form-item>
 
-        <n-card class="mb-5">
-            <div class="page-tit mb-5">
-                <div class="left-tit">
-                    <div class="back-tool">
-                        <i class="i-ri:apps-fill text-6"></i>
-                    </div>
-                    <span class="tit-content">
-                        Typography
-                    </span>
-                </div>
-            </div>
-            <n-form>
-                <n-form-item>
-                    <template #label><span class="form-label">Heading Font</span></template>
-                    <n-input v-model:value="heading_font"></n-input>
-                </n-form-item>
+				<n-card class="form-desc">
+					<div class="container">
+						<div class="form-label">Preview:</div>
+						<div class="desc" :style="{ fontFamily: heading_font }">
+							The quick brown fox jumps over the lazy dog
+						</div>
+					</div>
+				</n-card>
+			</n-form>
 
-                <n-card class="form-desc">
-                    <div class="container">
-                        <div class="form-label">Preview:</div>
-                        <div class="desc" :style="{ fontFamily: heading_font }">The quick brown fox jumps over the lazy
-                            dog
-                        </div>
-                    </div>
-                </n-card>
-            </n-form>
+			<n-form class="mt-5">
+				<n-form-item>
+					<template #label><span class="form-label">Body Font</span></template>
+					<n-input v-model:value="body_font"></n-input>
+				</n-form-item>
 
-            <n-form class="mt-5">
-                <n-form-item>
-                    <template #label><span class="form-label">Body Font</span></template>
-                    <n-input v-model:value="body_font"></n-input>
-                </n-form-item>
+				<n-card class="form-desc">
+					<div class="container">
+						<div class="form-label">Preview:</div>
+						<div class="desc" :style="{ fontFamily: body_font }">
+							The quick brown fox jumps over the lazy dog
+						</div>
+					</div>
+				</n-card>
+			</n-form>
+		</n-card>
 
-                <n-card class="form-desc">
-                    <div class="container">
-                        <div class="form-label">Preview:</div>
-                        <div class="desc" :style="{ fontFamily: body_font }">The quick brown fox jumps over the lazy dog
-                        </div>
-                    </div>
-                </n-card>
-            </n-form>
-        </n-card>
-
-
-        <n-card>
-            <div class="attention">
-                <div class="attention-tit">Typography Guidelines:</div>
-                <div class="attention-item">Use web-safe fonts for better compatibility</div>
-                <div class="attention-item">Always include fallback fonts for better performance</div>
-            </div>
-        </n-card>
-    </div>
+		<n-card>
+			<div class="attention">
+				<div class="attention-tit">Typography Guidelines:</div>
+				<div class="attention-item">Use web-safe fonts for better compatibility</div>
+				<div class="attention-item">Always include fallback fonts for better performance</div>
+			</div>
+		</n-card>
+	</div>
 </template>
 
 <script setup lang="tsx">
-    import { getStylingInfo, updateStyleingInfo } from '../controller/styleing.controller'
-    import { getEditDomainStoreData } from '../store'
-    const {
-        accent_color,
-        text_color,
-        link_footer_color,
-        link_social_color,
-        page_background,
-        container_background,
-        heading_font,
-        body_font,
-    } = getEditDomainStoreData()
-    const route = useRoute()
-    const domain = route.params.domain as string
-    getStylingInfo(domain)
+import { getStylingInfo } from '../controller/styleing.controller'
+import { getEditDomainStoreData } from '../store'
+const {
+	accent_color,
+	text_color,
+	link_footer_color,
+	link_social_color,
+	page_background,
+	container_background,
+	heading_font,
+	body_font,
+} = getEditDomainStoreData()
+const route = useRoute()
+const domain = route.params.domain as string
+getStylingInfo(domain)
 
-
-    function colorRenderLabel() {
-        return ""
-    }
+function colorRenderLabel() {
+	return ''
+}
 </script>
 
 <style scoped lang="scss">
-    @use "@/styles/index" as base;
-    @use "./mixin.scss" as mixin;
+@use '@/styles/index' as base;
+@use './mixin.scss' as mixin;
 
-    .content-wrapper {
-        @include mixin.content-wrapper;
+.content-wrapper {
+	@include mixin.content-wrapper;
 
-        .page-tit {
-            @include mixin.page-tit;
-        }
+	.page-tit {
+		@include mixin.page-tit;
+	}
 
-        .form-label {
-            @include mixin.form-label;
-        }
+	.form-label {
+		@include mixin.form-label;
+	}
 
-        .sub-tit {
-            color: var(--color-text-1);
-        }
+	.sub-tit {
+		color: var(--color-text-1);
+	}
 
-        .form-desc {
-            border: 1px solid var(--color-border-1);
+	.form-desc {
+		border: 1px solid var(--color-border-1);
 
-            .container {
-                @include base.col-flex-start;
-                align-items: flex-start;
-                gap: 10px;
+		.container {
+			@include base.col-flex-start;
+			align-items: flex-start;
+			gap: 10px;
 
-                .desc {
-                    color: var(--color-text-1);
-                    font-size: 14px;
-                }
-            }
-        }
+			.desc {
+				color: var(--color-text-1);
+				font-size: 14px;
+			}
+		}
+	}
 
-        .attention {
-            .attention-tit {
-                margin-bottom: 10px;
-            }
+	.attention {
+		.attention-tit {
+			margin-bottom: 10px;
+		}
 
-            .attention-item {
-                padding-left: 10px;
-                position: relative;
+		.attention-item {
+			padding-left: 10px;
+			position: relative;
 
-                &::before {
-                    content: "";
-                    display: block;
-                    width: 4px;
-                    height: 4px;
-                    background: var(--color-text-2);
-                    border-radius: 50%;
-                    position: absolute;
-                    left: 0;
-                    top: 7px;
-                }
-            }
-        }
-    }
+			&::before {
+				content: '';
+				display: block;
+				width: 4px;
+				height: 4px;
+				background: var(--color-text-2);
+				border-radius: 50%;
+				position: absolute;
+				left: 0;
+				top: 7px;
+			}
+		}
+	}
+}
 </style>

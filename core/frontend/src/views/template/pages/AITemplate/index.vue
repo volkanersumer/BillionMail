@@ -209,7 +209,7 @@ function handleRegenerate(key: string) {
 /**
  * @description Listen scroll wrapper for height-change
  */
-function scrollwrapperHeightChange(timer?: any, index = 0) {
+function scrollWrapperHeightChange(timer?: any, index = 0) {
 	let timeoutTimer = timer || null
 	let startIndex = index
 	if (startIndex >= 6) {
@@ -226,7 +226,7 @@ function scrollwrapperHeightChange(timer?: any, index = 0) {
 	} else {
 		startIndex++
 		timeoutTimer = setTimeout(() => {
-			scrollwrapperHeightChange(timeoutTimer, startIndex)
+			scrollWrapperHeightChange(timeoutTimer, startIndex)
 		}, 100)
 	}
 }
@@ -238,7 +238,7 @@ function handleScroll(event: WheelEvent) {
 }
 
 onMounted(() => {
-	scrollwrapperHeightChange()
+	scrollWrapperHeightChange()
 })
 </script>
 

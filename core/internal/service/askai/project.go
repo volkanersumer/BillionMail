@@ -146,6 +146,13 @@ func Create(Domain string, urls []string) error {
 	if urls == nil || len(urls) == 0 {
 		urls = append(urls, "http://"+Domain) // Default URL if none provided
 	}
+	// Ensure all URLs start with "http://"
+	for i, urlStr := range urls {
+		if !strings.HasPrefix(urlStr, "http") {
+			urls[i] = "http://" + urlStr
+		}
+	}
+
 	var config ProjectConfig = ProjectConfig{
 		Domain:        Domain,
 		Urls:          urls,
@@ -1015,8 +1022,11 @@ func AutoGetProjectInfo() {
 		if len(config.Urls) == 0 {
 			continue // Skip if there are no URLs to process
 		}
-
-		url := "http://cdn.billionmail.com/bot?url=" + config.Urls[0]
+		toUrl := config.Urls[0]
+		if !strings.HasPrefix(toUrl, "http") {
+			toUrl = "http://" + toUrl
+		}
+		url := "http://cdn.billionmail.com/bot?url=" + toUrl
 		resultBody, err := public.HttpGetSrc(url, 1800)
 		if err != nil {
 			fmt.Printf("Error fetching project data for %s: %v\n", domain, err)

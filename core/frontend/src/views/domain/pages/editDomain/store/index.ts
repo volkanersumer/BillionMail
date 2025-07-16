@@ -1,16 +1,17 @@
 import { defineStore, storeToRefs } from "pinia";
 import { KnowledgeBase, SiteInfo } from "../dto";
 
-const editDomainStore = defineStore("editDomainStoroe", () => {
+const editDomainStore = defineStore("editDomainStore", () => {
     // domain configuration
+    const hasGotDomainConfiguration = ref(false)
     const domainTit = ref("")
     const quota = ref("0")
     const unit = ref("B")
     const mailboxes = ref(0)
     const catch_email = ref("")
-    const initAi = ref(false)
     const urls = ref([""])
     const configurationStatus = ref(false)
+
     
 
     // Project detail
@@ -27,7 +28,7 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
         title: "",
         content: "",
         kid: "",
-        update_timme: 0
+        update_time: 0
     })
     const knowledgeTitle = ref("")
     const knowledgeContent = ref("")
@@ -46,8 +47,8 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
     const phone = ref("")
     const support_url = ref("")
 
-    // Styleing
-    const hasGotStyleing = ref(false)
+    // Styling
+    const hasGotStyling = ref(false)
     const accent_color = ref("")
     const text_color = ref("")
     const page_background = ref("")
@@ -76,12 +77,12 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
     const prompt = ref("")
 
     return {
+        hasGotDomainConfiguration,
         domainTit,
         quota,
         unit,
         mailboxes,
         catch_email,
-        initAi,
         urls,
         configurationStatus,
         
@@ -111,7 +112,7 @@ const editDomainStore = defineStore("editDomainStoroe", () => {
         phone,
         support_url,
 
-        hasGotStyleing,
+        hasGotStyling,
         accent_color,
         text_color,
         page_background,

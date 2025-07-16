@@ -8,6 +8,7 @@ export type ChatInfo = {
     supplierName: string
     title: string
     update_time: number
+    domain:string
 }
 
 export type ChatMessage = {

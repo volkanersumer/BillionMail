@@ -2,7 +2,7 @@ import { instance } from "@/api";
 import { getEditDomainStoreData } from "../store";
 import { instanceOptions } from "./companyProfile.controller"
 /**
- * @description Get styleing info
+ * @description Get styling info
  * 
  * @param { string } domain
  */
@@ -16,9 +16,9 @@ export async function getStylingInfo(domain: string) {
         link_footer_color,
         heading_font,
         body_font,
-        hasGotStyleing
+        hasGotStyling
     } = getEditDomainStoreData()
-    if (hasGotStyleing.value) return
+    if (hasGotStyling.value) return
     try {
         const res = await instance.post("/askai/project/get_style_config", { domain }, instanceOptions) as Record<string, any>
         accent_color.value = res.accent_color
@@ -29,16 +29,16 @@ export async function getStylingInfo(domain: string) {
         link_footer_color.value = res.link_footer_color
         heading_font.value = res.heading_font
         body_font.value = res.body_font
-        hasGotStyleing.value = true
+        hasGotStyling.value = true
     } catch (error) {
         console.warn(error)
     }
 }
 
 /**
- * @description Update styleing info
+ * @description Update styling info
  */
-export async function updateStyleingInfo(domain: string) {
+export async function updateStylingInfo(domain: string) {
     const {
         accent_color,
         text_color,

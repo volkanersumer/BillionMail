@@ -10,5 +10,5 @@ export type KnowledgeBase = {
     title: string
     content: string
     kid: string
-    update_timme: number
+    update_time: number
 }

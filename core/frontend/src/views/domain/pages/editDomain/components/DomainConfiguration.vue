@@ -17,7 +17,7 @@
 				<n-form>
 					<n-form-item>
 						<template #label><span class="form-label">Domain</span></template>
-						<n-input v-model:value="domainTit"></n-input>
+						<n-input v-model:value="domainTit" @input="syncToUrl"></n-input>
 					</n-form-item>
 					<n-form-item label="">
 						<template #label><span class="form-label">Domain Quota</span></template>
@@ -39,7 +39,7 @@
 
 			<n-card class="mt-5">
 				<n-form-item label="Automatically create brand information">
-					<n-switch v-model:value="initAi"></n-switch>
+					<n-switch v-model:value="configurationStatus"></n-switch>
 				</n-form-item>
 				<n-alert v-if="!configurationStatus" type="warning" class="mb-15px" :show-icon="false">
 					<div class="w-100% flex justify-between items-center">
@@ -59,12 +59,14 @@
 				</bt-tips>
 				<n-form-item label="Specify a domain name">
 					<div class="w-100% flex flex-col gap-2.5">
-						<n-input
-							v-for="(_, index) in urls"
-							:key="index"
-							v-model:value="urls[index]"
-							placeholder="">
-						</n-input>
+						<div v-for="(_, index) in urls" :key="index" class="flex justify-start items-center gap-2.5">
+							<n-input v-model:value="urls[index]" placeholder="">
+							</n-input>
+							<div v-if="index != 0" class="close" @click="removeUrl(index)">
+								<i class="i-material-symbols:close-rounded text-5"></i>
+							</div>
+							<!-- <div v-else class="w-34px h-34px"></div> -->
+						</div>
 						<n-button type="primary" ghost @click="addUrl">
 							<template #icon>
 								<i class="i-material-symbols:add-circle-outline"></i>
@@ -116,78 +118,89 @@
 </template>
 
 <script setup lang="ts">
-import { getDomainDetail } from '../controller/domainConfiguration.controller'
-import { getEditDomainStoreData } from '../store'
-const { domainTit, quota, unit, mailboxes, catch_email, initAi, urls, configurationStatus } =
-	getEditDomainStoreData()
-const route = useRoute()
-const domain = route.params.domain as any
-const uinitOptions = ref([
-	{
-		label: 'B',
-		value: 'B',
-	},
-	{
-		label: 'KB',
-		value: 'KB',
-	},
-	{
-		label: 'MB',
-		value: 'MB',
-	},
-	{
-		label: 'GB',
-		value: 'GB',
-	},
-	{
-		label: 'TB',
-		value: 'TB',
-	},
-])
+	import { getDomainDetail, syncToUrl, removeUrl } from '../controller/domainConfiguration.controller'
+	import { getEditDomainStoreData } from '../store'
+	const {
+		domainTit,
+		quota,
+		unit,
+		mailboxes,
+		catch_email,
+		urls,
+		configurationStatus
+	} = getEditDomainStoreData()
+	const route = useRoute()
+	const domain = route.params.domain as any
+	const uinitOptions = ref([
+		{
+			label: 'B',
+			value: 'B',
+		},
+		{
+			label: 'KB',
+			value: 'KB',
+		},
+		{
+			label: 'MB',
+			value: 'MB',
+		},
+		{
+			label: 'GB',
+			value: 'GB',
+		},
+		{
+			label: 'TB',
+			value: 'TB',
+		},
+	])
 
-getDomainDetail(domain)
+	getDomainDetail(domain)
 
-/**
- * @description Add url to urls
- */
-function addUrl() {
-	urls.value.push('')
-}
+	/**
+	 * @description Add url to urls
+	 */
+	function addUrl() {
+		urls.value.push('')
+	}
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/index' as base;
-@use './mixin.scss' as mixin;
+	@use '@/styles/index' as base;
+	@use './mixin.scss' as mixin;
 
-.content-wrapper {
-	@include mixin.content-wrapper;
+	.content-wrapper {
+		@include mixin.content-wrapper;
 
-	// title
-	.page-tit {
-		@include mixin.page-tit;
-	}
-
-	.form-label {
-		@include mixin.form-label;
-	}
-
-	// Switch settings
-	.switch-settings {
-		@mixin settings-label {
-			font-size: 14px;
-			font-weight: bold;
+		// title
+		.page-tit {
+			@include mixin.page-tit;
 		}
 
-		.switch-item {
-			@include base.row-flex;
-			justify-content: space-between;
-			margin-bottom: 15px;
+		.form-label {
+			@include mixin.form-label;
+		}
 
-			.label {
-				color: var(--color-text-2);
-				@include settings-label();
+		// Switch settings
+		.switch-settings {
+			@mixin settings-label {
+				font-size: 14px;
+				font-weight: bold;
+			}
+
+			.switch-item {
+				@include base.row-flex;
+				justify-content: space-between;
+				margin-bottom: 15px;
+
+				.label {
+					color: var(--color-text-2);
+					@include settings-label();
+				}
 			}
 		}
+
+		.close {
+			@include mixin.operation-close
+		}
 	}
-}
 </style>

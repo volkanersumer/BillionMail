@@ -42,7 +42,7 @@ const route: RouteRecordRaw = {
 				{
 					path: "ai-model",
 					name: "AiModel",
-					meta: { title: "ai-model", titleKey: "ai-model" },
+					meta: { title: "AI Model", titleKey: "AI Model" },
 					component: () => import("@/views/settings/ai-model/index.vue")
 				}
 			],

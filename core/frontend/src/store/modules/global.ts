@@ -8,6 +8,7 @@ interface LangResponse {
 }
 
 export default defineStore('GlobalStore', () => {
+	const domainSource = ref("")
 	const lang = ref('en')
 
 	const langList = ref<Array<{ cn: string; name: string }>>([])
@@ -33,6 +34,7 @@ export default defineStore('GlobalStore', () => {
 	}
 
 	return {
+		domainSource,
 		lang,
 		langList,
 		isCollapse,
@@ -40,4 +42,11 @@ export default defineStore('GlobalStore', () => {
 		setLang,
 		setCollapse,
 	}
+}, {
+	persist: [
+		{
+			pick: ["domainSource"],
+			storage: localStorage
+		}
+	]
 })

@@ -2,10 +2,6 @@
 	<div class="wrapper">
 		<!-- Page tit -->
 		<div class="page-tit">
-			<div class="back-tool">
-				<i class="i-ci:arrow-left-lg text-4"></i>
-				<div class="back-btn">back</div>
-			</div>
 			<span class="tit-content"> Domain / Edit domain </span>
 		</div>
 
@@ -37,14 +33,15 @@
 </template>
 
 <script setup lang="ts">
-import { updateDomain } from './controller/domainConfiguration.controller'
+import { onBeforeRouteLeave } from 'vue-router'
+import { updateDomain,resetAllApiStatus } from './controller/domainConfiguration.controller'
 import { updateProjectDetail } from './controller/projectDetail.controller'
 import { updateCompanyProfile } from './controller/companyProfile.controller'
-import { updateStyleingInfo } from './controller/styleing.controller'
+import { updateStylingInfo } from './controller/styling.controller'
 import { updateTypography } from './controller/typography.controller'
 // import {} from "./controller/sitemap.controller"
-import { updateFootersettingsInfo } from './controller/footerSettings.controller'
-import { updateAisettingsInfo } from './controller/aiSettings.controller'
+import { updateFooterSettingsInfo } from './controller/footerSettings.controller'
+import { updateAiSettingsInfo } from './controller/aiSettings.controller'
 
 const DomainConfiguration = defineAsyncComponent(
 	() => import('./components/DomainConfiguration.vue')
@@ -55,7 +52,7 @@ const Styling = defineAsyncComponent(() => import('./components/Styling.vue'))
 // const Typography = defineAsyncComponent(() => import('./components/Typography.vue'))
 const Sitemap = defineAsyncComponent(() => import('./components/Sitemap.vue'))
 const FooterSettings = defineAsyncComponent(() => import('./components/FooterSettings.vue'))
-const AISettings = defineAsyncComponent(() => import('./components/AISettings.vue'))
+// const AISettings = defineAsyncComponent(() => import('./components/AISettings.vue'))
 
 const menuList = ref([
 	'Domain Configuration',
@@ -64,7 +61,7 @@ const menuList = ref([
 	'Styling',
 	'Sitemap',
 	'Footer Settings',
-	'AI Settings',
+	// 'AI Settings',
 ])
 const activeTab = ref('Domain Configuration')
 const contentMap = new Map([
@@ -74,7 +71,7 @@ const contentMap = new Map([
 	['Styling', Styling],
 	['Sitemap', Sitemap],
 	['Footer Settings', FooterSettings],
-	['AI Settings', AISettings],
+	// ['AI Settings', AISettings],
 ])
 const route = useRoute()
 const domain = route.params.domain as string
@@ -94,7 +91,7 @@ function switchHanldeSave() {
 			updateCompanyProfile(domain)
 			break
 		case 'Styling':
-			updateStyleingInfo(domain)
+			updateStylingInfo(domain)
 			break
 		case 'Typography':
 			updateTypography(domain)
@@ -102,13 +99,18 @@ function switchHanldeSave() {
 		case 'Sitemap':
 			break
 		case 'Footer Settings':
-			updateFootersettingsInfo(domain)
+			updateFooterSettingsInfo(domain)
 			break
 		case 'AI Settings':
-			updateAisettingsInfo(domain)
+			updateAiSettingsInfo(domain)
 			break
 	}
 }
+
+/**
+ * Reset all api status when router leave
+ */
+ onBeforeRouteLeave(resetAllApiStatus)
 </script>
 
 <style scoped lang="scss">

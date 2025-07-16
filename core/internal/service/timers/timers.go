@@ -1,6 +1,7 @@
 package timers
 
 import (
+	"billionmail-core/internal/service/abnormal_recipient"
 	"billionmail-core/internal/service/askai"
 	"billionmail-core/internal/service/batch_mail"
 	"billionmail-core/internal/service/collect"
@@ -130,6 +131,10 @@ func Start(ctx context.Context) (err error) {
 
 	// askai timers
 	gtimer.Add(5*time.Second, askai.AutoGetProjectInfo)
+
+	gtimer.Add(30*time.Minute, func() {
+		abnormal_recipient.AbnormalRecipientAutoStat(context.Background())
+	})
 
 	g.Log().Debug(ctx, "All timers started successfully")
 	return nil

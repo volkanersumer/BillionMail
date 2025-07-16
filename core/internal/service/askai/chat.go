@@ -58,6 +58,7 @@ type File struct {
 
 type ChatInfo struct {
 	ChatId       string    `json:"chatId"`       // Unique identifier for the chat
+	Domain       string    `json:"domain"`       // Domain associated with the chat
 	Prompt       string    `json:"prompt"`       // Prompt or question for the chat
 	Title        string    `json:"title"`        // Title of the chat
 	SupplierName string    `json:"supplierName"` // Name of the AI model supplier
@@ -180,6 +181,7 @@ func CreateChat(Domain string, AddType int, TempName string) (string, error) {
 	// This function should handle the logic for initializing a chat with default values
 	chatInfo := ChatInfo{
 		ChatId:       chatId,
+		Domain:       Domain,
 		Prompt:       "",
 		Title:        TempName,
 		SupplierName: "",

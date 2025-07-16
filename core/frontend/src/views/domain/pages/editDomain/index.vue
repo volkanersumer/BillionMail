@@ -2,7 +2,7 @@
 	<div class="wrapper">
 		<!-- Page tit -->
 		<div class="page-tit">
-			<span class="tit-content"> Domain / Edit domain </span>
+			<span class="tit-content">{{ $t('domain.edit.pageTitle') }}</span>
 		</div>
 
 		<!-- Content tabs -->
@@ -12,7 +12,7 @@
 				:key="index"
 				:class="['tab-item', { active: activeTab == item }]"
 				@click="activeTab = item">
-				<span>{{ item }}</span>
+				<span>{{ getTabLabel(item) }}</span>
 			</div>
 		</div>
 		<div class="dynamic-content">
@@ -26,7 +26,7 @@
 				<template #icon>
 					<i class="i-mingcute:save-2-line text-5"></i>
 				</template>
-				Save
+				{{ $t('domain.edit.save') }}
 			</n-button>
 		</div>
 	</div>
@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { onBeforeRouteLeave } from 'vue-router'
-import { updateDomain,resetAllApiStatus } from './controller/domainConfiguration.controller'
+import { updateDomain, resetAllApiStatus } from './controller/domainConfiguration.controller'
 import { updateProjectDetail } from './controller/projectDetail.controller'
 import { updateCompanyProfile } from './controller/companyProfile.controller'
 import { updateStylingInfo } from './controller/styling.controller'
@@ -54,6 +54,8 @@ const Sitemap = defineAsyncComponent(() => import('./components/Sitemap.vue'))
 const FooterSettings = defineAsyncComponent(() => import('./components/FooterSettings.vue'))
 // const AISettings = defineAsyncComponent(() => import('./components/AISettings.vue'))
 
+const { t } = useI18n()
+
 const menuList = ref([
 	'Domain Configuration',
 	'Project Details',
@@ -63,7 +65,9 @@ const menuList = ref([
 	'Footer Settings',
 	// 'AI Settings',
 ])
+
 const activeTab = ref('Domain Configuration')
+
 const contentMap = new Map([
 	['Domain Configuration', DomainConfiguration],
 	['Project Details', ProjectDetails],
@@ -73,8 +77,25 @@ const contentMap = new Map([
 	['Footer Settings', FooterSettings],
 	// ['AI Settings', AISettings],
 ])
+
 const route = useRoute()
 const domain = route.params.domain as string
+
+/**
+ * @description Get tab label with i18n
+ */
+function getTabLabel(tabKey: string): string {
+	const keyMap: Record<string, string> = {
+		'Domain Configuration': 'domain.edit.tabs.domainConfiguration',
+		'Project Details': 'domain.edit.tabs.projectDetails',
+		'Company Profile': 'domain.edit.tabs.companyProfile',
+		Styling: 'domain.edit.tabs.styling',
+		Sitemap: 'domain.edit.tabs.sitemap',
+		'Footer Settings': 'domain.edit.tabs.footerSettings',
+		'AI Settings': 'domain.edit.tabs.aiSettings',
+	}
+	return t(keyMap[tabKey] || tabKey)
+}
 
 /**
  * @description Switch for handle save
@@ -110,7 +131,7 @@ function switchHanldeSave() {
 /**
  * Reset all api status when router leave
  */
- onBeforeRouteLeave(resetAllApiStatus)
+onBeforeRouteLeave(resetAllApiStatus)
 </script>
 
 <style scoped lang="scss">

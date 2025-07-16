@@ -1,9 +1,12 @@
+import i18n from '@/i18n'
 import { instance } from '@/api'
 import { ChatInfo, TemplateStore } from '../dto'
 
+const { t } = i18n.global
+
 export const instanceOptions = {
 	fetchOptions: {
-		loading: 'Loading... Please wait.',
+		loading: t('template.ai.loading.message'),
 		successMessage: true,
 	},
 }

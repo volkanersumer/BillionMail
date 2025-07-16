@@ -6,18 +6,26 @@
 					<div class="back-tool">
 						<i class="i-ri:apps-fill text-6"></i>
 					</div>
-					<span class="tit-content"> Project Details </span>
+					<span class="tit-content">{{ $t('domain.edit.projectDetails.title') }}</span>
 				</div>
 			</div>
 		</n-card>
 		<n-card class="mb-5">
 			<n-form>
 				<n-form-item>
-					<template #label><span class="form-label">Project Name</span></template>
+					<template #label
+						><span class="form-label">{{
+							$t('domain.edit.projectDetails.projectName')
+						}}</span></template
+					>
 					<n-input v-model:value="project_name"></n-input>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Description</span></template>
+					<template #label
+						><span class="form-label">{{
+							$t('domain.edit.projectDetails.description')
+						}}</span></template
+					>
 					<n-input v-model:value="description" type="textarea" :rows="7"></n-input>
 				</n-form-item>
 			</n-form>
@@ -29,25 +37,25 @@
 					<div class="back-tool">
 						<i class="i-ri:earth-fill text-6"></i>
 					</div>
-					<span class="tit-content"> Brand Logos </span>
+					<span class="tit-content">{{ $t('domain.edit.projectDetails.brandLogos') }}</span>
 				</div>
 			</div>
 
 			<div class="sub-tit">
-				<span class="tit">Logo System</span>
-				<span
-					>Upload your brand's logo system to maintain consistent branding across your project</span
-				>
+				<span class="tit">{{ $t('domain.edit.projectDetails.logoSystem') }}</span>
+				<span>{{ $t('domain.edit.projectDetails.logoSystemDesc') }}</span>
 			</div>
 
 			<div class="logo-operation">
 				<div class="operation-item">
-					<div class="operation-tit">Primary Logo</div>
-					<div class="operation-sub-tit">Horizontal version for headers</div>
+					<div class="operation-tit">{{ $t('domain.edit.projectDetails.primaryLogo') }}</div>
+					<div class="operation-sub-tit">
+						{{ $t('domain.edit.projectDetails.primaryLogoDesc') }}
+					</div>
 					<div class="logo-area" @click="choosePrimary">
 						<div v-if="!primary_logo" class="upload-logo-placeholder">
 							<i class="i-carbon:cloud-upload text-8"></i>
-							<span>Primary Logo</span>
+							<span>{{ $t('domain.edit.projectDetails.primaryLogo') }}</span>
 						</div>
 						<n-image
 							v-else
@@ -59,7 +67,7 @@
 							<template #error>
 								<div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
 									<i class="i-mingcute:pic-line text-15"></i>
-									<span>loading failed</span>
+									<span>{{ $t('domain.edit.projectDetails.loadingFailed') }}</span>
 								</div>
 							</template>
 						</n-image>
@@ -71,12 +79,14 @@
 					</div>
 				</div>
 				<div class="operation-item">
-					<div class="operation-tit">Secondary Logo</div>
-					<div class="operation-sub-tit">Vertical/stacked version</div>
+					<div class="operation-tit">{{ $t('domain.edit.projectDetails.secondaryLogo') }}</div>
+					<div class="operation-sub-tit">
+						{{ $t('domain.edit.projectDetails.secondaryLogoDesc') }}
+					</div>
 					<div class="logo-area" @click="chooseSecondary">
 						<div v-if="!secondary_logo" class="upload-logo-placeholder">
 							<i class="i-carbon:cloud-upload text-8"></i>
-							<span>Primary Logo</span>
+							<span>{{ $t('domain.edit.projectDetails.primaryLogo') }}</span>
 						</div>
 						<n-image
 							v-else
@@ -88,7 +98,7 @@
 							<template #error>
 								<div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
 									<i class="i-mingcute:pic-line text-15"></i>
-									<span>loading failed</span>
+									<span>{{ $t('domain.edit.projectDetails.loadingFailed') }}</span>
 								</div>
 							</template>
 						</n-image>
@@ -100,12 +110,12 @@
 					</div>
 				</div>
 				<div class="operation-item">
-					<div class="operation-tit">Favicon</div>
-					<div class="operation-sub-tit">Icon for browser tabs</div>
+					<div class="operation-tit">{{ $t('domain.edit.projectDetails.favicon') }}</div>
+					<div class="operation-sub-tit">{{ $t('domain.edit.projectDetails.faviconDesc') }}</div>
 					<div class="logo-area" @click="chooseFavicon">
 						<div v-if="!favicon" class="upload-logo-placeholder">
 							<i class="i-carbon:cloud-upload text-8"></i>
-							<span>Primary Logo</span>
+							<span>{{ $t('domain.edit.projectDetails.primaryLogo') }}</span>
 						</div>
 						<n-image
 							v-else
@@ -117,7 +127,7 @@
 							<template #error>
 								<div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
 									<i class="i-mingcute:pic-line text-15"></i>
-									<span>loading failed</span>
+									<span>{{ $t('domain.edit.projectDetails.loadingFailed') }}</span>
 								</div>
 							</template>
 						</n-image>
@@ -151,11 +161,13 @@
 					<div class="back-tool">
 						<i class="i-ri:earth-fill text-6"></i>
 					</div>
-					<span class="tit-content"> Knowledge Base </span>
+					<span class="tit-content">{{ $t('domain.edit.projectDetails.knowledgeBase') }}</span>
 				</div>
 
 				<div class="right-tit">
-					<n-button @click="knowledgeModalShow = true">New File</n-button>
+					<n-button @click="knowledgeModalShow = true">{{
+						$t('domain.edit.projectDetails.newFile')
+					}}</n-button>
 				</div>
 			</div>
 
@@ -168,16 +180,18 @@
 					<div class="top-info">
 						<div class="info-left">
 							<span class="info-tit">{{ item.title }}</span>
-							<span class="info-sub-tit">11 days ago</span>
+							<span class="info-sub-tit">11 {{ $t('domain.edit.common.daysAgo') }}</span>
 						</div>
 						<div class="info-right" @click="handleDelete(item)">
 							<i class="i-material-symbols:close-rounded text-5"></i>
 						</div>
 					</div>
 					<div class="operation">
-						<n-button type="primary" ghost @click="openEditKnowledge(item)">Edit</n-button>
+						<n-button type="primary" ghost @click="openEditKnowledge(item)">{{
+							$t('domain.edit.projectDetails.edit')
+						}}</n-button>
 						<n-button type="primary" ghost @click="previewKnowledgeBaseContent(item)">
-							Preview
+							{{ $t('domain.edit.projectDetails.preview') }}
 						</n-button>
 					</div>
 				</div>
@@ -192,11 +206,11 @@
 		draggable
 		:close-on-esc="false"
 		:mask-closable="false"
-		title="New Knowledge File"
+		:title="$t('domain.edit.projectDetails.newKnowledgeFile')"
 		class="w-150"
 		:on-after-leave="closeKnowledgeModal">
 		<n-form>
-			<n-form-item label="File Name">
+			<n-form-item :label="$t('domain.edit.projectDetails.fileName')">
 				<n-input v-model:value="knowledgeTitle"></n-input>
 			</n-form-item>
 			<n-form-item label="Content">

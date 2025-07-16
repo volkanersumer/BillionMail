@@ -28,7 +28,7 @@ const route: RouteRecordRaw = {
 				{
 					path: 'template',
 					name: 'MarketTemplate',
-					meta: { title: 'Template', titleKey: 'layout.menu.template' },
+					meta: { title: 'Template', hidden: true, titleKey: 'layout.menu.template' },
 					component: () => import('@/views/market/template/index.vue'),
 				},
 			],

@@ -7,11 +7,13 @@
 				<div class="tools">
 					<div class="tool-item" @click="copyContent">
 						<i class="i-material-symbols:chrome-restore-rounded text-5"></i>
-						<span>{{ copied ? 'Copied' : 'Copy' }}</span>
+						<span>{{
+							copied ? $t('template.ai.buttons.copied') : $t('template.ai.buttons.copy')
+						}}</span>
 					</div>
 					<div class="tool-item" @click="viewCodeRender">
 						<i class="i-mingcute:eye-2-fill text-5"></i>
-						<span>View</span>
+						<span>{{ $t('template.ai.buttons.view') }}</span>
 					</div>
 				</div>
 			</div>

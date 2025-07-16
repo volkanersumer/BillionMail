@@ -36,7 +36,7 @@
 import { getFootersettingsInfo } from '../controller/footerSettings.controller'
 import { getEditDomainStoreData } from '../store'
 
-const { copyright_text, disclaimer } = getEditDomainStoreData()
+const { copyright_text } = getEditDomainStoreData()
 const route = useRoute()
 const domain = route.params.domain as string
 getFootersettingsInfo(domain)

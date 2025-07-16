@@ -13,8 +13,11 @@ export async function getDomainDetail(domain: string) {
         quota,
         unit,
         mailboxes,
-        catch_email
+        catch_email,
+        hasGotDomainConfiguration,
+        urls
     } = getEditDomainStoreData()
+    if (hasGotDomainConfiguration.value) return
     try {
         const { list } = await instance.get("/domains/list", { params: { keyword: domain, page: 1, page_size: 1 }, ...instanceOptions }) as { total: number, list: Record<string, any>[] }
         const quotaAndUnit = getByteUnit(list[0].quota, true, 2).split(" ")
@@ -23,7 +26,9 @@ export async function getDomainDetail(domain: string) {
         unit.value = quotaAndUnit[1]
         mailboxes.value = list[0].mailboxes
         catch_email.value = list[0].email
+        urls.value = list[0].urls
         await configurationStatus()
+        hasGotDomainConfiguration.value = true
     } catch (error) {
         console.warn(error)
     }
@@ -50,6 +55,7 @@ export async function updateDomain() {
         domainTit,
         quota,
         unit,
+        urls,
         mailboxes,
         catch_email
     } = getEditDomainStoreData()
@@ -62,7 +68,8 @@ export async function updateDomain() {
             quota: quotaParam,
             rateLimit: 1,
             active: 1,
-            email: catch_email.value
+            email: catch_email.value,
+            urls: urls.value
         }, instanceOptions)
     } catch (error) {
         console.warn(error)
@@ -86,4 +93,34 @@ function calcBaseUnits(quota: number, unit: string) {
         default:
             return quota
     }
+}
+
+/**
+ * @description Sync domain to url
+ */
+export function syncToUrl(domainVal: string) {
+    const { urls } = getEditDomainStoreData()
+    urls.value[0] = domainVal
+}
+
+/**
+ * @description Remove url
+ */
+export function removeUrl(index: number) {
+    const { urls } = getEditDomainStoreData()
+    urls.value.splice(index, 1)
+}
+
+/**
+ * @description Reset all api status
+ */
+export function resetAllApiStatus() {
+    const { hasGotAisettings, hasGotCompanyProfile, hasGotDomainConfiguration, hasGotFootersettings, hasGotProjectDetail, hasGotSitemap, hasGotStyling } = getEditDomainStoreData()
+    hasGotAisettings.value = false
+    hasGotCompanyProfile.value = false
+    hasGotDomainConfiguration.value = false
+    hasGotFootersettings.value = false
+    hasGotProjectDetail.value = false
+    hasGotSitemap.value = false
+    hasGotStyling.value = false
 }

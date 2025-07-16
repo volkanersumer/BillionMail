@@ -16,6 +16,7 @@ type DomainParams = {
 	quota: number
 	mailboxes: number
 	email: string
+	urls: string[]
 }
 
 export const createDomain = (params: DomainParams) => {
@@ -93,4 +94,8 @@ export const initAiConfiguration = (params: { domain: string, urls: string[] }) 
 			successMessage: true,
 		}
 	})
+}
+
+export const checkAiConfiguration = () => {
+	return instance.post("/askai/supplier/status")
 }

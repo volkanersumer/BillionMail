@@ -108,25 +108,8 @@ function handleAdd() {
 		}
 
 		.operation {
-			width: 34px;
-			height: 34px;
-			@include base.row-flex-center;
-			background: var(--color-bg-1);
-			border: 1px solid var(--color-border-1);
-			border-radius: 5px;
-			color: var(--color-text-2);
-			transition: 0.2s all ease-in-out;
-			cursor: pointer;
-
-			&.close {
-				border-color: var(--color-error-1);
-				color: var(--color-error-1);
-			}
-
-			&.close:hover {
-				color: #fff;
-				background: var(--color-error-1);
-			}
+			
+			@include mixin.operation-close();
 
 			&.save {
 				color: var(--color-primary-1);

@@ -27,7 +27,7 @@ export async function getFootersettingsInfo(domain: string) {
  * @description Update footer settings info
  * 
  */
-export async function updateFootersettingsInfo(domain: string) {
+export async function updateFooterSettingsInfo(domain: string) {
     const {
         copyright_text,
         disclaimer

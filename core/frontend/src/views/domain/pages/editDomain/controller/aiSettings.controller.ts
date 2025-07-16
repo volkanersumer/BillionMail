@@ -22,7 +22,7 @@ export async function getAisettingsInfo(domain: string) {
 /**
  * @description Update ai settings info
  */
-export async function updateAisettingsInfo(domain: string) {
+export async function updateAiSettingsInfo(domain: string) {
     const { prompt } = getEditDomainStoreData()
     try {
         const res = await instance.post("/askai/project/modify_prompt", {

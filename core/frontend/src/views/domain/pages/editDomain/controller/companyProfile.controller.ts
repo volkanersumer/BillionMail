@@ -63,3 +63,4 @@ export async function updateCompanyProfile(domain: string) {
         console.warn(error)
     }
 }
+

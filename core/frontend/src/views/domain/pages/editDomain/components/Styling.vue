@@ -132,7 +132,7 @@
 </template>
 
 <script setup lang="tsx">
-import { getStylingInfo } from '../controller/styleing.controller'
+import { getStylingInfo } from '../controller/styling.controller'
 import { getEditDomainStoreData } from '../store'
 const {
 	accent_color,

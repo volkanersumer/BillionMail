@@ -23,10 +23,10 @@
 					<template #label><span class="form-label">Copyright Text</span></template>
 					<n-input v-model:value="copyright_text"></n-input>
 				</n-form-item>
-				<n-form-item>
+				<!-- <n-form-item>
 					<template #label><span class="form-label">Disclaimer</span></template>
 					<n-input v-model:value="disclaimer" type="textarea" :rows="8"></n-input>
-				</n-form-item>
+				</n-form-item> -->
 			</n-form>
 		</n-card>
 	</div>

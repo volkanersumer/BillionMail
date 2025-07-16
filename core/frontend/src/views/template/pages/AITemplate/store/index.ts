@@ -6,6 +6,7 @@ export function useTemplateStore(): TemplateStore {
     const chatId = ref("")
     const questionContent = ref("")
     const chatInfo = ref<ChatInfo>({
+        domain:"",
         chatId: "",
         create_time: 0,
         files: [],
@@ -53,6 +54,6 @@ export function useTemplateStore(): TemplateStore {
         isChat,
         chatScrollRef,
         scrollWrapperRef,
-        scrollable
+        scrollable,
     }
 }

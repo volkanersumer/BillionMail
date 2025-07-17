@@ -141,6 +141,7 @@
 
 <script lang="ts" setup>
 	import { FormRules } from 'naive-ui'
+	import { useGlobalStore } from '@/store'
 	import { useElementBounding } from '@vueuse/core'
 	import { confirm, Message } from '@/utils'
 	import { addTask, sendTestEmail } from '@/api/modules/market/task'
@@ -151,7 +152,7 @@
 	import { Template } from '../template/interface'
 
 	const { t } = useI18n()
-
+	const globalStore = useGlobalStore()
 	const router = useRouter()
 	const route = useRoute()
 
@@ -336,6 +337,7 @@
 			const findRes = list.find(item => item.chat_id == route.query.chat_id)
 			if (findRes) {
 				form.template_id = findRes.id
+				form.subject = globalStore.temp_subject
 				templateContent.value = findRes.html_content
 			}
 		}

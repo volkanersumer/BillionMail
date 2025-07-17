@@ -6,20 +6,19 @@
 
 		<div class="ai-container">
 			<div class="chat-area">
-				<div class="model-select">
+				<!-- <div class="model-select">
 					<n-card>
 						<div class="flex justify-start items-center gap-15px">
-							<!-- <span>Choose Model</span> -->
 							<n-select v-model:value="currentModelTitle" class="flex-1" :options="modelList"
 								label-field="title" value-field="title" @update:value="changeModel">
 							</n-select>
 						</div>
 					</n-card>
-				</div>
+				</div> -->
 
 				<div ref="answerRef" class="answer" @wheel="handleScroll">
 					<n-card class="h-100%">
-						<n-scrollbar ref="chatScrollRef" style="height: calc(100vh - 522px)">
+						<n-scrollbar ref="chatScrollRef" style="height: calc(100vh - 452px)">
 							<div ref="scrollWrapperRef">
 								<template v-for="item in chatRecord" :key="item[0]">
 									<div class="answer-container">
@@ -119,7 +118,8 @@
 						</div>
 						<n-scrollbar style="height: calc(100% - 40px)">
 							<!-- <div v-if="previewStatus == 'view'" v-html="previewCode"></div> -->
-							 <iframe  v-if="previewStatus == 'view'" :srcdoc="previewCode" frameborder="0" class="w-100%" style="height: calc(100vh - 224px)"></iframe>
+							<iframe v-if="previewStatus == 'view'" :srcdoc="previewCode" frameborder="0" class="w-100%"
+								style="height: calc(100vh - 224px)"></iframe>
 							<BtEditor v-else :value="previewCode" style="height: calc(100vh - 217px)"
 								@save="saveCodeChange(store)">
 							</BtEditor>
@@ -132,6 +132,7 @@
 </template>
 
 <script setup lang="ts">
+	import { useGlobalStore } from '@/store'
 	import {
 		initialTemplateInfo,
 		sendChat,
@@ -146,6 +147,7 @@
 	import { useTemplateStore } from './store'
 	import { TemplateStore } from './dto'
 	import BtEditor from '@/components/base/bt-editor/index.vue'
+	const globalStore = useGlobalStore()
 	const router = useRouter()
 	const store = useTemplateStore()
 	provide<TemplateStore>('modelStore', store)
@@ -244,7 +246,7 @@
 	 */
 	async function goToSendEmail() {
 		await saveCodeChange(store)
-
+		globalStore.temp_subject = previewTit.value
 		router.push({
 			path: "/market/task/edit",
 			query: {
@@ -281,12 +283,11 @@
 
 			.chat-area {
 				display: grid;
-				grid-template-rows: 76px 1fr 230px;
+				grid-template-rows: 1fr 230px;
 				gap: 15px;
 
 				.answer {
 					width: 100%;
-					height: calc(100vh - 472px);
 
 					.answer-container {
 						padding: 30px 10px;

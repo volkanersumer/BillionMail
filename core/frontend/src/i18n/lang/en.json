@@ -558,6 +558,7 @@
 			"editTitle": "Edit Domain",
 			"domain": "Domain",
 			"domainPlaceholder": "Please enter domain, e.g.: billionmail.com",
+			"urlsPlacement": "Please enter url, e.g.: https://billionmail.com",
 			"aRecord": "A Record",
 			"aRecordPlaceholder": "Please enter A record, e.g.: mail.aapanel.com",
 			"quota": "Domain Quota",

@@ -15,6 +15,8 @@ export default defineStore('GlobalStore', () => {
 
 	const isCollapse = ref(false)
 
+	const temp_subject = ref("")
+
 	const setCollapse = () => {
 		isCollapse.value = !isCollapse.value
 	}
@@ -38,6 +40,7 @@ export default defineStore('GlobalStore', () => {
 		lang,
 		langList,
 		isCollapse,
+		temp_subject,
 		getLang,
 		setLang,
 		setCollapse,

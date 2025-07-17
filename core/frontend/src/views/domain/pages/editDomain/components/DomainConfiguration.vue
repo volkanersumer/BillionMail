@@ -16,38 +16,30 @@
 				<!-- form data -->
 				<n-form>
 					<n-form-item>
-						<template #label
-							><span class="form-label">{{
-								$t('domain.edit.domainConfiguration.domain')
-							}}</span></template
-						>
+						<template #label><span class="form-label">{{
+							$t('domain.edit.domainConfiguration.domain')
+						}}</span></template>
 						<n-input v-model:value="domainTit" @input="syncToUrl"></n-input>
 					</n-form-item>
 					<n-form-item label="">
-						<template #label
-							><span class="form-label">{{
-								$t('domain.edit.domainConfiguration.domainQuota')
-							}}</span></template
-						>
+						<template #label><span class="form-label">{{
+							$t('domain.edit.domainConfiguration.domainQuota')
+						}}</span></template>
 						<div class="flex justify-between gap-5 items-center w-100%">
 							<n-input v-model:value="quota"></n-input>
 							<n-select v-model:value="unit" :options="uinitOptions" class="w-20"></n-select>
 						</div>
 					</n-form-item>
 					<n-form-item>
-						<template #label
-							><span class="form-label">{{
-								$t('domain.edit.domainConfiguration.mailboxCount')
-							}}</span></template
-						>
+						<template #label><span class="form-label">{{
+							$t('domain.edit.domainConfiguration.mailboxCount')
+						}}</span></template>
 						<n-input-number v-model:value="mailboxes" :show-button="false"></n-input-number>
 					</n-form-item>
 					<n-form-item>
-						<template #label
-							><span class="form-label">{{
-								$t('domain.edit.domainConfiguration.catchAll')
-							}}</span></template
-						>
+						<template #label><span class="form-label">{{
+							$t('domain.edit.domainConfiguration.catchAll')
+						}}</span></template>
 						<n-input v-model:value="catch_email"></n-input>
 					</n-form-item>
 				</n-form>
@@ -78,11 +70,9 @@
 				</bt-tips>
 				<n-form-item :label="$t('domain.edit.domainConfiguration.specifyDomain')">
 					<div class="w-100% flex flex-col gap-2.5">
-						<div
-							v-for="(_, index) in urls"
-							:key="index"
-							class="flex justify-start items-center gap-2.5">
-							<n-input v-model:value="urls[index]" placeholder=""> </n-input>
+						<div v-for="(_, index) in urls" :key="index" class="flex justify-start items-center gap-2.5">
+							<n-input v-model:value="urls[index]" :placeholder="$t('domain.form.urlsPlacement')">
+							</n-input>
 							<div v-if="index != 0" class="close" @click="removeUrl(index)">
 								<i class="i-material-symbols:close-rounded text-5"></i>
 							</div>
@@ -139,82 +129,82 @@
 </template>
 
 <script setup lang="ts">
-import { getDomainDetail, syncToUrl, removeUrl } from '../controller/domainConfiguration.controller'
-import { getEditDomainStoreData } from '../store'
-const { domainTit, quota, unit, mailboxes, catch_email, urls, configurationStatus } =
-	getEditDomainStoreData()
-const route = useRoute()
-const domain = route.params.domain as any
-const uinitOptions = ref([
-	{
-		label: 'B',
-		value: 'B',
-	},
-	{
-		label: 'KB',
-		value: 'KB',
-	},
-	{
-		label: 'MB',
-		value: 'MB',
-	},
-	{
-		label: 'GB',
-		value: 'GB',
-	},
-	{
-		label: 'TB',
-		value: 'TB',
-	},
-])
+	import { getDomainDetail, syncToUrl, removeUrl } from '../controller/domainConfiguration.controller'
+	import { getEditDomainStoreData } from '../store'
+	const { domainTit, quota, unit, mailboxes, catch_email, urls, configurationStatus } =
+		getEditDomainStoreData()
+	const route = useRoute()
+	const domain = route.params.domain as any
+	const uinitOptions = ref([
+		{
+			label: 'B',
+			value: 'B',
+		},
+		{
+			label: 'KB',
+			value: 'KB',
+		},
+		{
+			label: 'MB',
+			value: 'MB',
+		},
+		{
+			label: 'GB',
+			value: 'GB',
+		},
+		{
+			label: 'TB',
+			value: 'TB',
+		},
+	])
 
-getDomainDetail(domain)
+	getDomainDetail(domain)
 
-/**
- * @description Add url to urls
- */
-function addUrl() {
-	urls.value.push('')
-}
+	/**
+	 * @description Add url to urls
+	 */
+	function addUrl() {
+		urls.value.push('')
+	}
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/index' as base;
-@use './mixin.scss' as mixin;
+	@use '@/styles/index' as base;
+	@use './mixin.scss' as mixin;
 
-.content-wrapper {
-	@include mixin.content-wrapper;
+	.content-wrapper {
+		@include mixin.content-wrapper;
 
-	// title
-	.page-tit {
-		@include mixin.page-tit;
-	}
-
-	.form-label {
-		@include mixin.form-label;
-	}
-
-	// Switch settings
-	.switch-settings {
-		@mixin settings-label {
-			font-size: 14px;
-			font-weight: bold;
+		// title
+		.page-tit {
+			@include mixin.page-tit;
 		}
 
-		.switch-item {
-			@include base.row-flex;
-			justify-content: space-between;
-			margin-bottom: 15px;
+		.form-label {
+			@include mixin.form-label;
+		}
 
-			.label {
-				color: var(--color-text-2);
-				@include settings-label();
+		// Switch settings
+		.switch-settings {
+			@mixin settings-label {
+				font-size: 14px;
+				font-weight: bold;
+			}
+
+			.switch-item {
+				@include base.row-flex;
+				justify-content: space-between;
+				margin-bottom: 15px;
+
+				.label {
+					color: var(--color-text-2);
+					@include settings-label();
+				}
 			}
 		}
-	}
 
-	.close {
-		@include mixin.operation-close;
+		.close {
+			@include mixin.operation-close;
+		}
 	}
-}
 </style>

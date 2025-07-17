@@ -1,4 +1,5 @@
 import { RouteRecordRaw } from 'vue-router'
+import { isDev } from '@/utils'
 import { Layout } from '@/router/constant'
 
 const route: RouteRecordRaw = {
@@ -34,7 +35,7 @@ const route: RouteRecordRaw = {
 				{
 					path: 'suspend',
 					name: 'ContactsSuspend',
-					meta: { title: 'Suspend List', titleKey: '' },
+					meta: { title: 'Suspend List', hidden: !isDev, titleKey: '' },
 					component: () => import('@/views/contacts/suspend/index.vue'),
 				},
 			],

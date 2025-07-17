@@ -6,6 +6,7 @@
 	"scripts": {
 		"build": "rsbuild build",
 		"build:deploy": "rsbuild build && node deploy.js",
+		"git": "node git.js",
 		"dev": "rsbuild dev",
 		"operation": "rsbuild dev RSBUILD_MODE=operation --open --mode=development",
 		"preview": "rsbuild preview",

@@ -73,7 +73,8 @@
 						<!-- <n-input v-for="(item, index) in urls" :key="index" v-model:value="urls[index]" placeholder="">
 						</n-input> -->
 						<div v-for="(_, index) in urls" :key="index" class="flex justify-start items-center gap-2.5">
-							<n-input v-model:value="urls[index]" :placeholder="t('domain.form.urlsPlacement')"></n-input>
+							<n-input v-model:value="urls[index]"
+								:placeholder="t('domain.form.urlsPlacement')"></n-input>
 							<div v-if="index != 0" class="close" @click="removeUrl(index)">
 								<i class="i-material-symbols:close-rounded text-5"></i>
 							</div>
@@ -91,9 +92,13 @@
 			</bt-form>
 		</div>
 	</modal>
+
+	<!--  -->
+	<WaitAndCheckDomainStatus ref="waitAndCheckDomainStatusRef" />
 </template>
 
 <script lang="ts" setup>
+	import WaitAndCheckDomainStatus from './WaitAndCheckDomainStatus.vue'
 	import { FormRules } from 'naive-ui'
 	import { getByteUnit, getNumber } from '@/utils'
 	import { useModal } from '@/hooks/modal/useModal'
@@ -108,6 +113,7 @@
 	const { t } = useI18n()
 
 	const isEdit = ref(false)
+	const waitAndCheckDomainStatusRef = ref()
 
 	const title = computed(() => {
 		return isEdit.value ? t('domain.form.editTitle') : t('domain.form.addTitle')
@@ -237,6 +243,7 @@
 						domain: form.domain,
 						urls: urls.value,
 					})
+					waitAndCheckDomainStatusRef.value.open(form.domain)
 				}
 			}
 			const state = modalApi.getState<{ refresh: Function }>()

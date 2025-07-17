@@ -553,6 +553,11 @@
 			"title": "Delete Domain",
 			"confirm": "Are you sure you want to delete domain [{domain}]?"
 		},
+		"waitAndCheckDomainStatus":{
+			"success":"Brand information initialization successful.",
+			"error":"Brand information initialization failed.",
+			"loading":"Initializing brand information, please wait..."
+		},
 		"form": {
 			"addTitle": "Add Domain",
 			"editTitle": "Edit Domain",

@@ -146,6 +146,7 @@ export async function sendChat(store: TemplateStore) {
 		isChat,
 	} = store
 	if (isChat.value) return
+	if (!questionContent.value) return
 	const chatRecordKey = `${questionContent.value}_+_${chatRecord.value.size}`
 	chatRecord.value.set(chatRecordKey, [])
 	currentChatRecordKey.value = chatRecordKey

@@ -553,6 +553,11 @@
 			"confirm": "确定要删除域名【{domain}】吗？",
 			"confirmButton": "删除"
 		},
+		"waitAndCheckDomainStatus":{
+			"success":"品牌信息初始化成功",
+			"error":"品牌信息初始化失败",
+			"loading":"正在初始化品牌信息，请稍后..."
+		},
 		"form": {
 			"addTitle": "添加域名",
 			"editTitle": "编辑域名",

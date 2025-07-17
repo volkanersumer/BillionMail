@@ -412,6 +412,11 @@
       "title": "ドメイン削除",
       "confirm": "ドメイン [{domain}] を削除してもよろしいですか？"
     },
+    "waitAndCheckDomainStatus":{
+			"success":"ブランド情報の初期化が成功しました。",
+			"error":"ブランド情報の初期化が失敗しました。",
+      "loading":"ブランド情報を初期化中です、しばらくお待ちください..."
+		},
     "form": {
       "addTitle": "ドメイン追加",
       "editTitle": "ドメイン編集",

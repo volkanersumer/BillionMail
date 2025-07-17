@@ -68,7 +68,7 @@
 							:placeholder="$t('template.ai.welcomeMessage', { domain: chatInfo.domain })"
 							class="question-input" @keydown.enter="sendChat(store)"></n-input>
 						<div class="question-tools">
-							<n-select v-model:value="currentModelTitle" class="flex-1" :options="modelList"
+							<n-select v-model:value="currentModelTitle" :options="modelList"
 								label-field="title" value-field="title" @update:value="changeModel">
 							</n-select>
 
@@ -88,8 +88,8 @@
 			</div>
 			<div class="view-area">
 				<n-card style="height: 100%">
-					<div style="height: calc(100vh - 177px)">
-						<div class="h-10 flex justify-between items-center gap-2.5">
+					<div style="height: calc(100vh - 165px)">
+						<div class="h-10 flex justify-between items-center gap-2.5 mb-5">
 							<n-button-group size="small">
 								<n-button :type="previewStatus == 'view' ? 'primary' : 'default'"
 									@click="previewStatus = 'view'">
@@ -278,7 +278,7 @@
 
 		.ai-container {
 			display: grid;
-			grid-template-columns: 2fr 5fr;
+			grid-template-columns: minmax(400px,2fr) 5fr;
 			gap: 15px;
 
 			.chat-area {

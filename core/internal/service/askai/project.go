@@ -809,6 +809,9 @@ type BotData struct {
 	Style         BotStyle     `json:"style"`
 	Title         string       `json:"title"`
 	URL           string       `json:"url"`
+	Email         string       `json:"email"`
+	Phone         string       `json:"phone"`
+	SupportUrl    string       `json:"support_url"`
 }
 
 type BotFooter struct {
@@ -1045,6 +1048,7 @@ func AutoGetProjectInfo() {
 		config.Favicon = result.Data.Icon
 		config.PrimaryLogo = result.Data.PrimaryLogo
 		config.SecondaryLogo = result.Data.SecondaryLogo
+		config.ProjectName = result.Data.Title
 		config.UpdateTime = public.GetNowTime()
 		SaveProjectConfig(domain, config)
 
@@ -1055,10 +1059,20 @@ func AutoGetProjectInfo() {
 		if companyConfig.WebSite == "" {
 			companyConfig.WebSite = result.Data.URL
 		}
-
 		if companyConfig.CompanyProfile == "" {
 			companyConfig.CompanyProfile = result.Data.Description
 		}
+		if companyConfig.Email == "" {
+			companyConfig.Email = result.Data.Email
+		}
+
+		if companyConfig.Phone == "" {
+			companyConfig.Phone = result.Data.Phone
+		}
+		if companyConfig.SupportUrl == "" {
+			companyConfig.SupportUrl = result.Data.SupportUrl
+		}
+
 		companyConfig.UpdateTime = public.GetNowTime()
 
 		SaveCompanyProfile(domain, companyConfig)

@@ -157,7 +157,7 @@ export async function sendChat(store: TemplateStore) {
 	let answerText = ''
 	// Character pointer position
 	let strPos = 0
-	
+
 
 	/**
 	 * @description spliced content
@@ -221,7 +221,7 @@ export async function sendChat(store: TemplateStore) {
 		scrollable.value = true
 		chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight })
 		isChat.value = false
-		saveCodeChange(store)
+		getHtmlTemplateContent(store)
 	} catch (error) {
 		console.warn(error)
 	} finally {

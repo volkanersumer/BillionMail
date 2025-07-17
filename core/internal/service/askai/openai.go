@@ -458,9 +458,9 @@ func (o *OpenAI) GetMessages() []openai.ChatCompletionMessage {
 	historyMessages := o.ReadMessages() // Read messages from the chat history
 	lastContent, _ := GetHtml(o.ChatId)
 	o.IsModify = false
-	if len(historyMessages) > 0 && lastContent != "" {
-		o.IsModify = true // If there are history messages and last content is not empty, set IsModify to true
-	}
+	// if len(historyMessages) > 0 && lastContent != "" {
+	// 	o.IsModify = true // If there are history messages and last content is not empty, set IsModify to true
+	// }
 
 	messages := []openai.ChatCompletionMessage{
 		{Role: openai.ChatMessageRoleSystem, Content: o.GetSystemPrompt()},
@@ -758,11 +758,6 @@ func (o *OpenAI) SetHtmlContent(content string, isText bool) (reasoning string, 
 			}
 		}
 	}
-
-	// isModify is true, it means the user is modifying the chat
-	// if o.IsModify {
-
-	// }
 
 	// If the content is a thinking block, append it to the Reasoning
 	if o.IsThinking {

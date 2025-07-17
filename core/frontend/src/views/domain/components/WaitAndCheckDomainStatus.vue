@@ -5,16 +5,25 @@
             <span class="text-white flex items-center text-4">{{ $t("domain.waitAndCheckDomainStatus.loading") }}</span>
         </div>
     </n-modal>
+ 
+    <!-- Create Ai template -->
+    <CreateTplModal ref="createTplModal" :only-ai="true"/>
 </template>
 
 <script setup lang="ts">
+    import CreateTplModal from '@/views/template/components/CreateTplModal.vue'
+    import { useGlobalStore } from '@/store';
     import { instance } from '@/api';
     import { Message } from '@/utils';
     const { t } = useI18n()
     const show = ref(false)
+    const globalStore = useGlobalStore()
+    const createTplModal = ref()
+
 
     function open(domain: string) {
         checkStatus(domain)
+        globalStore.domainSource = domain
         show.value = true
     }
     function close() {
@@ -27,6 +36,7 @@
                 close()
                 clearInterval(timer)
                 Message.success(t("domain.waitAndCheckDomainStatus.success"))
+                createTplModal.value.open()
             }
         }, 1000)
     }

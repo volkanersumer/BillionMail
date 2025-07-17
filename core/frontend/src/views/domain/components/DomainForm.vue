@@ -93,8 +93,10 @@
 		</div>
 	</modal>
 
-	<!--  -->
+	<!-- Wait for init brand info -->
 	<WaitAndCheckDomainStatus ref="waitAndCheckDomainStatusRef" />
+	
+
 </template>
 
 <script lang="ts" setup>

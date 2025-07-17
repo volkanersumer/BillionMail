@@ -176,7 +176,6 @@
 	// Handle add template
 	const handleAdd = () => {
 		createTemplateModalRef.value.open()
-
 	}
 
 	// Confirm choose template type

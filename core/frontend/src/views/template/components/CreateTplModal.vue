@@ -3,14 +3,15 @@
 		class="w-110" title="">
 		<div class="wrapper">
 			<div class="creation-methods">
-				<div v-for="(item, index) in methodsList" :key="index"
+				<div v-for="(item, index) in computedMethodsList" :key="index"
 					:class="['choose-item', { active: choosedMethod == item }]" @click="choosedMethod = item">
 					<span class="item-label">{{ item }}</span>
 				</div>
 			</div>
 			<div :class="['url-source', { hidden: choosedMethod !== 'AI' }]">
 				<span class="label">Source Url</span>
-				<n-select v-model:value="sourceDomain" class="flex-1" label-field="domain" value-field="domain" :options="domainList" >
+				<n-select v-model:value="sourceDomain" class="flex-1" label-field="domain" value-field="domain"
+					:options="domainList">
 				</n-select>
 			</div>
 			<div class="desc">
@@ -34,19 +35,33 @@
 	// import { TemplateStore } from '../pages/AITemplate/dto'
 
 	// const store = inject<TemplateStore>('modelStore')!
+	const props = defineProps<{
+		onlyAi?: boolean,
+	}>()
 	const globalStore = useGlobalStore()
 	const router = useRouter()
 	const methodsList = ref(['Drag', 'AI', 'HTML'])
 	const choosedMethod = ref('AI')
 	const sourceDomain = ref('')
 	const show = ref(false)
-	const emits = defineEmits(['confirmType'])
+	const emits = defineEmits(['confirmType','hasCreateTpl'])
 	const domainList = ref<any>([])
+
+	const computedMethodsList = computed(() => {
+		if (props.onlyAi) {
+			return ["AI"]
+		} else {
+			return methodsList.value
+		}
+	})
 
 	/**
 	 * @description open modal
 	 */
 	function open() {
+		if(globalStore.domainSource){
+			globalStore.domainSource = sourceDomain.value
+		}
 		show.value = true
 	}
 

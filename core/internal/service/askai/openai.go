@@ -586,49 +586,6 @@ type ReplaceHtml struct {
 }
 
 func (o *OpenAI) ReplaceHtml() {
-	// SEARCH_START          = "<<<<<<< SEARCH"
-	// DIVIDER               = "======="
-	// REPLACE_END           = ">>>>>>> REPLACE"
-	// FOLLOW_UP_SYSTEM_PROMPT = `You are an expert email writer crafting or modifying professional emails. The user wants to refine an existing email based on their request. You MUST output ONLY the changes required using the following SEARCH/REPLACE block format. Do NOT rewrite the entire email unless explicitly requested.
-
-	// Explain the changes briefly *before* the blocks if necessary, but the content changes THEMSELVES MUST be within the blocks.
-
-	// Format Rules:
-	// 1. Start with ` + SEARCH_START + `
-	// 2. Provide the exact lines from the current email that need to be replaced.
-	// 3. Use ` + DIVIDER + ` to separate the search block from the replacement.
-	// 4. Provide the new lines that should replace the original lines.
-	// 5. End with ` + REPLACE_END + `
-	// 6. You can use multiple SEARCH/REPLACE blocks if changes are needed in different parts of the email.
-	// 7. To insert content, use an empty SEARCH block (only ` + SEARCH_START + ` and ` + DIVIDER + ` on their lines) if inserting at the very beginning, otherwise provide the line *before* the insertion point in the SEARCH block and include that line plus the new content in the REPLACE block.
-	// 8. To delete content, provide the lines to delete in the SEARCH block and leave the REPLACE block empty (only ` + DIVIDER + ` and ` + REPLACE_END + ` on their lines).
-	// 9. IMPORTANT: The SEARCH block must *exactly* match the current email content, including punctuation and formatting.
-
-	// Example Modifying Email:
-	// ` + "```" + `
-	// Updated the greeting to be more personal:
-	// ` + SEARCH_START + `
-	// Dear Sir/Madam,
-	// ` + DIVIDER + `
-	// Dear Ms. Johnson,
-	// ` + REPLACE_END + `
-
-	// Shortened the introduction for clarity:
-	// ` + SEARCH_START + `
-	// I hope this email finds you well. I am writing to follow up on our recent conversation regarding the upcoming project. As we discussed, I wanted to provide you with some additional information that I believe will be helpful as we move forward.
-	// ` + DIVIDER + `
-	// Following up on our call, here's the information you requested:
-	// ` + REPLACE_END + `
-	// ` + "```" + `
-
-	// Example Deleting Content:
-	// ` + "```" + `
-	// Removed redundant information:
-	// ` + SEARCH_START + `
-	// Please let me know if you have any questions. I look forward to hearing from you soon.
-	// ` + DIVIDER + `
-	// ` + REPLACE_END + `
-	// ` + "```"
 
 	if !o.IsModify {
 		return // If not modifying, return early
@@ -639,66 +596,6 @@ func (o *OpenAI) ReplaceHtml() {
 		return
 	}
 
-	// Here are the changes to make the footer more email-appropriate:
-
-	// 1. Simplified the footer content and structure:
-	// <<<<<<< SEARCH
-	//                     <!-- 页脚 -->
-	//                     <tr>
-	// 					<td class="section" style="background-color: #f1f4f8; padding: 30px 50px; color: #666666; font-size: 13px;">
-	// 					<table width="100%">
-	// 					<tr>
-	// 					<td>
-	// 					<p style="margin: 0 0 15px; line-height: 1.8;">
-	// 					<a href="http://www.bt.cn/new/agreement_open.html" style="color: #666666; text-decoration: underline; margin-right: 15px;">开源许可协议</a>
-	//                                             <a href="http://www.bt.cn/new/agreement_user.html" style="color: #666666; text-decoration: underline; margin-right: 15px;">用户协议</a>
-	//                                             <a href="http://www.bt.cn/new/agreement_privacy.html" style="color: #666666; text-decoration: underline;">隐私声明</a>
-	//                                         </p>
-
-	//                                         <p style="margin: 8px 0;">高新技术企业编号 GR201944000059 | 粤B2-20201398</p>
-	//                                         <p style="margin: 8px 0;">粤ICP备17030143号 | 粤公网安备 44190002003211号</p>
-
-	//                                         <p style="margin: 20px 0 15px;">Copyright © 2023 宝塔面板 (www.bt.cn) 广东堡塔安全技术有限公司 版权所有</p>
-
-	//                                         <p style="margin: 0 0 15px;">
-	//                                             <a href="http://www.bt.cn/report/" style="color: #666666; text-decoration: underline; margin-right: 15px;">违规信息举报入口</a>
-	//                                             <a href="http://www.bt.cn/new/about.html" style="color: #666666; text-decoration: underline;">公司简介</a>
-	//                                         </p>
-	// =======
-	//                     <!-- 邮件页脚 -->
-	//                     <tr>
-	//                         <td class="section" style="background-color: #f1f4f8; padding: 25px 50px; color: #666666; font-size: 12px; text-align: center;">
-	//                             <p style="margin: 0 0 10px;">宝塔面板 - 让运维简单高效</p>
-	//                             <p style="margin: 0 0 15px;">
-	//                                 <a href="http://www.bt.cn" style="color: #666666; text-decoration: none; margin: 0 10px;">官网</a> |
-	//                                 <a href="http://www.bt.cn/bbs" style="color: #666666; text-decoration: none; margin: 0 10px;">社区</a> |
-	//                                 <a href="http://www.bt.cn/new/download.html" style="color: #666666; text-decoration: none; margin: 0 10px;">下载</a>
-	//                             </p>
-	//                             <p style="margin: 0 0 10px; color: #999999;">© 2023 宝塔面板 广东堡塔安全技术有限公司</p>
-	//                             <p style="margin: 0; font-size: 11px; color: #999999;">
-	//                                 本邮件为系统自动发送，请勿直接回复
-	//                             </p>
-	// >>>>>>> REPLACE
-
-	// 2. Added a small adjustment to the section above the footer to better transition:
-	// <<<<<<< SEARCH
-	//                     <!-- 客服支持 -->
-	//                     <tr>
-	//                         <td class="section" style="padding-top: 10px; padding-bottom: 30px;">
-	// =======
-	//                     <!-- 客服支持 -->
-	//                     <tr>
-	//                         <td class="section" style="padding-top: 10px; padding-bottom: 20px;">
-	// >>>>>>> REPLACE
-
-	// These changes:
-	// 1. Simplified the footer content to be more email-appropriate
-	// 2. Centered the content and made it more compact
-	// 3. Added common email footer elements like "do not reply" notice
-	// 4. Reduced the legal/compliance information to just essentials
-	// 5. Made the links more prominent but still subtle
-	// 6. Adjusted spacing between sections for better flow
-	// fmt.Println(o.Content)
 	replaceHtml := []ReplaceHtml{}
 	if strings.Contains(o.Content, SEARCH_START) && strings.Contains(o.Content, REPLACE_END) && strings.Contains(o.Content, DIVIDER) {
 
@@ -711,8 +608,6 @@ func (o *OpenAI) ReplaceHtml() {
 				if len(subParts) == 2 && strings.Contains(subParts[0], DIVIDER) {
 					searchReplace := strings.Split(subParts[0], DIVIDER)
 					if len(searchReplace) == 2 {
-						fmt.Println("Search Content:", searchReplace[0])
-						fmt.Println("Replace Content:", searchReplace[1])
 						replaceHtml = append(replaceHtml, ReplaceHtml{
 							SearchContent:  searchReplace[0],
 							ReplaceContent: searchReplace[1],

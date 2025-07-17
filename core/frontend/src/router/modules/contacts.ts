@@ -35,7 +35,7 @@ const route: RouteRecordRaw = {
 				{
 					path: 'suspend',
 					name: 'ContactsSuspend',
-					meta: { title: 'Suspend List', hidden: isDev, titleKey: '' },
+					meta: { title: 'Suspend List', hidden: !isDev, titleKey: '' },
 					component: () => import('@/views/contacts/suspend/index.vue'),
 				},
 			],

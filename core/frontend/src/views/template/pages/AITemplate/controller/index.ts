@@ -145,6 +145,7 @@ export async function sendChat(store: TemplateStore) {
 		chatScrollRef,
 		isChat,
 	} = store
+	if (isChat.value) return
 	const chatRecordKey = `${questionContent.value}_+_${chatRecord.value.size}`
 	chatRecord.value.set(chatRecordKey, [])
 	currentChatRecordKey.value = chatRecordKey
@@ -156,6 +157,8 @@ export async function sendChat(store: TemplateStore) {
 	let answerText = ''
 	// Character pointer position
 	let strPos = 0
+	
+
 	/**
 	 * @description spliced content
 	 */
@@ -174,7 +177,7 @@ export async function sendChat(store: TemplateStore) {
 			chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight })
 		)
 		await instance.post(
-			'/askai/chat/chat', // 接口地址
+			'/askai/chat/chat',
 			{
 				chatId: chatId.value,
 				supplierName: currentModel.value.supplierName,
@@ -218,6 +221,7 @@ export async function sendChat(store: TemplateStore) {
 		scrollable.value = true
 		chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight })
 		isChat.value = false
+		saveCodeChange(store)
 	} catch (error) {
 		console.warn(error)
 	} finally {
@@ -233,17 +237,17 @@ export async function sendChat(store: TemplateStore) {
  * @param sseContent @
  */
 function parseSSEToObjects(sseContent: string): Array<string> {
-	// 1. 按行分割
+	// 1. Split by row
 	const events = sseContent.split('\n')
 	let jsonList = []
 	for (const line of events) {
-		// 匹配以"data:"开头的行（忽略前后空格）
+		// Match lines starting with "data:" (ignore the Spaces before and after)
 		const trimmedLine = line.trim()
 		if (trimmedLine.startsWith('data:')) {
-			// 去除"data:"前缀，得到JSON字符串
+			// Remove the prefix "data:" to obtain the JSON string
 			const jsonStr = trimmedLine.slice('data:'.length).trim()
 			if (jsonStr) {
-				// 排除空值（如最后一行的空data）
+				// Exclude null values (such as the empty data in the last row)
 				jsonList.push(jsonStr)
 			}
 		}
@@ -252,18 +256,18 @@ function parseSSEToObjects(sseContent: string): Array<string> {
 }
 
 /**
- * @description 对字符内容进行分割处理
+ * @description Segment the character content
  */
 function sliceContentToArray(content: string) {
-	// 匹配所有代码块（闭合或未闭合）
-	// 正则逻辑：```开头，匹配到内容结尾或下一个```（取较长的匹配）
+	// Match all code blocks (closed or unclosed)
+	// Regular logic: Start with ' ', match to the end of the content or the next ' '(take the longer match)
 	const codeBlockRegex = /```[\s\S]*?(?:```|$)/g
 	const codeBlocks = content.match(codeBlockRegex) || []
 
-	// 分割非代码部分
+	// Separate the non-code part
 	const textParts = content.split(codeBlockRegex)
 
-	// 合并文本与代码块
+	// Merge text and code blocks
 	const result = []
 	const maxLength = Math.max(textParts.length, codeBlocks.length)
 
@@ -287,15 +291,32 @@ export function removeHtmlCodeBlockMarkers(content: string) {
 }
 
 /**
+ * @description Remove sign code for "<<<<<search" and ">>>>>replace"
+ */
+export function removeSignCode(content: string) {
+	const signCodeRegex = /<<<<<<<\s+SEARCH[\s\S]*?=======([\s\S]*?)>>>>>>>\s+REPLACE/g;
+	return content.replace(signCodeRegex, "$1")
+}
+
+/**
+ * @description Get content from title tags
+ */
+export function getContentFromTitleTags(content: string) {
+	const match = content.match(/<title>(.*?)<\/title>/i);
+	return match ? match[1] : '';
+}
+
+/**
  * @description Get html template code content
  */
 export async function getHtmlTemplateContent(store: TemplateStore) {
-	const { chatId, previewCode } = store
+	const { chatId, previewCode, previewTit } = store
 	try {
 		const codeContent = (await instance.post('/askai/chat/get_html', {
 			chatId: chatId.value,
 		})) as string
 		previewCode.value = codeContent
+		previewTit.value = getContentFromTitleTags(previewCode.value)
 	} catch (error) {
 		console.warn(error)
 	}
@@ -320,4 +341,4 @@ export async function saveCodeChange(store: TemplateStore) {
 /**
  * @description Duplicate template
  */
-export async function duplicateTemplate() {}
+export async function duplicateTemplate() { }

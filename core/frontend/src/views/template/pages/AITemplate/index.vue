@@ -26,13 +26,6 @@
 					<n-card class="h-100%">
 						<n-scrollbar ref="chatScrollRef" style="height: calc(100vh - 522px)">
 							<div ref="scrollWrapperRef">
-								<div class="answer-container">
-									<div class="ask-content">
-										<div class="text">
-											{{ $t('template.ai.welcomeMessage', { domain: chatInfo.domain }) }}
-										</div>
-									</div>
-								</div>
 								<template v-for="item in chatRecord" :key="item[0]">
 									<div class="answer-container">
 										<div class="ask-content">
@@ -55,7 +48,7 @@
 												<MarkdownRender
 													v-for="(_item, _index) in item[1]"
 													:key="_index"
-													:content="_item"
+													:content="removeSignCode(_item)"
 													:chat-record-key="item[0]"
 													class="mb-4"
 													@code-render="handleCodeRender">
@@ -84,6 +77,7 @@
 						<n-input
 							v-model:value="questionContent"
 							type="textarea"
+							:placeholder="previewCode?'':$t('template.ai.welcomeMessage', { domain: chatInfo.domain })"
 							class="question-input"
 							@keydown.enter="sendChat(store)"></n-input>
 						<div class="question-tools">
@@ -115,7 +109,7 @@
 			<div class="view-area">
 				<n-card style="height: 100%">
 					<div style="height: calc(100vh - 177px)">
-						<div class="h-10 flex justify-start items-center gap-2.5">
+						<div class="h-10 flex justify-between items-center gap-2.5">
 							<n-button-group size="small">
 								<n-button
 									:type="previewStatus == 'view' ? 'primary' : 'default'"
@@ -135,6 +129,13 @@
 								</n-button>
 							</n-button-group>
 							<span v-if="previewStatus == 'edit'">{{ $t('template.ai.tips.saveShortcut') }}</span>
+							<span class="text-4 fw-bold">{{previewTit}}</span>
+							<n-button style="width: 134px;" type="primary" :disabled="!previewCode" @click="goToSendEmail">
+								<template #icon>
+									<i class="i-mingcute:mail-send-fill"></i>
+								</template>
+								Send
+							</n-button>
 						</div>
 						<n-scrollbar style="height: calc(100% - 40px)">
 							<div v-if="previewStatus == 'view'" v-html="previewCode"></div>
@@ -160,11 +161,14 @@ import {
 	getHtmlTemplateContent,
 	saveCodeChange,
 	stopChat,
+	removeSignCode,
+	getContentFromTitleTags
 } from './controller'
 import MarkdownRender from './components/MarkdownRender.vue'
 import { useTemplateStore } from './store'
 import { TemplateStore } from './dto'
 import BtEditor from '@/components/base/bt-editor/index.vue'
+const router = useRouter()
 const store = useTemplateStore()
 provide<TemplateStore>('modelStore', store)
 const {
@@ -181,6 +185,7 @@ const {
 	scrollWrapperRef,
 	scrollable,
 	chatInfo,
+	previewTit
 } = store
 const route = useRoute()
 
@@ -210,8 +215,8 @@ initialTemplateInfo(store)
  */
 function handleCodeRender(data: { code: string; key: string }) {
 	if (data.key == currentChatRecordKey.value) {
-		// console.log(data.key, currentChatRecordKey.value)
-		previewCode.value = removeHtmlCodeBlockMarkers(data.code)
+		previewCode.value = removeSignCode(removeHtmlCodeBlockMarkers(data.code))
+		previewTit.value = getContentFromTitleTags(previewCode.value)
 	}
 }
 
@@ -247,11 +252,25 @@ function scrollWrapperHeightChange(timer?: any, index = 0) {
 		}, 100)
 	}
 }
-
+/**
+ * @description If user scroll then stop n-scrollbar behavior
+ */
 function handleScroll(event: WheelEvent) {
 	if (event.deltaY < 0) {
 		scrollable.value = false
 	}
+}
+
+/**
+ * @description Go to send email
+ */
+function goToSendEmail(){
+	router.push({
+		path:"/market/task/edit",
+		query:{
+			chat_id:chatInfo.value.chatId
+		}
+	})
 }
 
 onMounted(() => {
@@ -360,7 +379,7 @@ onMounted(() => {
 					position: absolute;
 					padding: 5px 30px;
 					@include base.row-flex;
-					gap: 200px;
+					gap: 100px;
 					bottom: 22px;
 					left: 0;
 					width: 100%;

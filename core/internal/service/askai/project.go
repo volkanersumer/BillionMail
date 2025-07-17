@@ -13,7 +13,7 @@ import (
 
 const (
 	PRODUCT_CONFIG_PATH = "../conf/askai"
-	FILE_CDN_API        = "https://cdn.billionmail.cn" // CDN API for file access
+	FILE_CDN_API        = "https://cdn.billionmail.com" // CDN API for file access
 )
 
 type KnowledgeInfo struct {
@@ -191,6 +191,7 @@ func GetBaseInfo(Domain string) (ProjectConfig, error) {
 		PrimaryLogo:   config.PrimaryLogo,
 		SecondaryLogo: config.SecondaryLogo,
 		Favicon:       config.Favicon,
+		UpdateTime:    config.UpdateTime,
 	}
 
 	// Get the knowledge base list
@@ -1025,12 +1026,21 @@ func AutoGetProjectInfo() {
 		if len(config.Urls) == 0 {
 			continue // Skip if there are no URLs to process
 		}
+
+		// Check if the project is already being processed
+		// Use a cache to prevent multiple concurrent updates for the same domain
+		isLock := public.GetCache(domain)
+		if isLock != nil && isLock.(bool) {
+			continue
+		}
+		public.SetCache(domain, true, 300) // Set a lock for 300 seconds
+
 		toUrl := config.Urls[0]
 		if !strings.HasPrefix(toUrl, "http") {
 			toUrl = "http://" + toUrl
 		}
-		url := "http://cdn.billionmail.com/bot?url=" + toUrl
-		resultBody, err := public.HttpGetSrc(url, 1800)
+		url := FILE_CDN_API + "/bot?url=" + toUrl
+		resultBody, err := public.HttpGetSrc(url, 360)
 		if err != nil {
 			fmt.Printf("Error fetching project data for %s: %v\n", domain, err)
 			continue
@@ -1051,6 +1061,9 @@ func AutoGetProjectInfo() {
 		config.ProjectName = result.Data.Title
 		config.UpdateTime = public.GetNowTime()
 		SaveProjectConfig(domain, config)
+
+		// Clear the cache for this domain
+		public.RemoveCache(domain)
 
 		companyConfig, _ := GetCompanyProfile(domain)
 		if companyConfig.LegalCompanyName == "" {
@@ -1078,30 +1091,15 @@ func AutoGetProjectInfo() {
 		SaveCompanyProfile(domain, companyConfig)
 
 		styleConfig, _ := GetStyleConfig(domain)
-		if styleConfig.AccentColor == "" {
-			styleConfig.AccentColor = result.Data.Style.AccentColor
-		}
-		if styleConfig.TextColor == "" {
-			styleConfig.TextColor = result.Data.Style.TextColor
-		}
-		if styleConfig.PageBackground == "" {
-			styleConfig.PageBackground = result.Data.Style.PageBackground
-		}
-		if styleConfig.ContainerBackground == "" {
-			styleConfig.ContainerBackground = result.Data.Style.ContainerBackground
-		}
-		if styleConfig.LinkSocialColor == "" {
-			styleConfig.LinkSocialColor = result.Data.Style.LinkSocialColor
-		}
-		if styleConfig.LinkFooterColor == "" {
-			styleConfig.LinkFooterColor = result.Data.Style.LinkFooterColor
-		}
-		if styleConfig.HeadingFont == "" {
-			styleConfig.HeadingFont = result.Data.Style.HeadingFont
-		}
-		if styleConfig.BodyFont == "" {
-			styleConfig.BodyFont = result.Data.Style.BodyFont
-		}
+
+		styleConfig.AccentColor = result.Data.Style.AccentColor
+		styleConfig.TextColor = result.Data.Style.TextColor
+		styleConfig.PageBackground = result.Data.Style.PageBackground
+		styleConfig.ContainerBackground = result.Data.Style.ContainerBackground
+		styleConfig.LinkSocialColor = result.Data.Style.LinkSocialColor
+		styleConfig.LinkFooterColor = result.Data.Style.LinkFooterColor
+		styleConfig.HeadingFont = result.Data.Style.HeadingFont
+		styleConfig.BodyFont = result.Data.Style.BodyFont
 		styleConfig.UpdateTime = public.GetNowTime()
 
 		SaveStyleConfig(domain, styleConfig)

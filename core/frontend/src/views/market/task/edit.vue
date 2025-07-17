@@ -252,7 +252,7 @@ const templateContent = ref('')
 
 // 跳转模板页面
 const handleGoTemplate = () => {
-	router.push('/market/template')
+	router.push('/template')
 }
 
 // 查看案例

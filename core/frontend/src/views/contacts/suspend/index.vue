@@ -14,7 +14,7 @@
 				<bt-search
 					v-model:value="tableParams.keyword"
 					:width="240"
-					placeholder="Please enter name"
+					placeholder="Please enter email"
 					@search="resetTable">
 				</bt-search>
 			</template>
@@ -34,10 +34,16 @@
 
 <script lang="tsx" setup>
 import { DataTableColumns, NButton, NFlex } from 'naive-ui'
-import { confirm, formatTime } from '@/utils'
+import { confirm, formatTime, isNumber } from '@/utils'
 import { useDataTable } from '@/hooks/useDataTable'
 import { useModal } from '@/hooks/modal/useModal'
-import { deleteSuspend, getSuspendList } from '@/api/modules/contacts/suspend'
+import {
+	clearSuspend,
+	deleteSuspend,
+	getAutoScan,
+	getSuspendList,
+	setAutoScan,
+} from '@/api/modules/contacts/suspend'
 import type { Suspend, SuspendParams } from './types/base'
 
 import Scan from './components/Scan.vue'
@@ -47,12 +53,26 @@ const { t } = useI18n()
 
 const autoScan = ref(false)
 
+const getScanStatus = async () => {
+	const res = await getAutoScan()
+	if (isNumber(res)) {
+		autoScan.value = res === 1
+	}
+}
+
+getScanStatus()
+
 const handleUpdateAutoScan = async (value: boolean) => {
-	// await setAutoScanEmail({ operation: value ? 1 : 0 })
+	await setAutoScan({ oper: value ? 1 : 0 })
 }
 
 const [ScanModal, scanModalApi] = useModal({
 	component: Scan,
+	state: {
+		showLogs: () => {
+			scanLogsModalApi.open()
+		},
+	},
 })
 
 const handleShowScan = () => {
@@ -72,13 +92,13 @@ const handleClear = () => {
 		title: 'Clear',
 		content: `This will clear all data under that type, do you continue?`,
 		onConfirm: async () => {
-			// await deleteSuspend({ id: row.id })
+			await clearSuspend()
 			fetchTable()
 		},
 	})
 }
 
-const { tableKeys, tableParams, tableProps, pageProps, fetchTable, resetTable } = useDataTable<
+const { tableParams, tableProps, pageProps, fetchTable, resetTable } = useDataTable<
 	Suspend,
 	SuspendParams
 >({
@@ -92,10 +112,6 @@ const { tableKeys, tableParams, tableProps, pageProps, fetchTable, resetTable } 
 })
 
 const columns = ref<DataTableColumns<Suspend>>([
-	{
-		type: 'selection',
-		width: 40,
-	},
 	{
 		key: 'recipient',
 		title: 'Email',

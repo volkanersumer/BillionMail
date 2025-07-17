@@ -122,11 +122,19 @@ func buildBaseURL(hostname string) (s string) {
 
 	if hostname == "" {
 		hostname, err = public.DockerEnv("BILLIONMAIL_HOSTNAME")
+		if hostname != "" && hostname != "mail.example.com" {
+			s = scheme + "://" + hostname
+		} else {
+			s = scheme + "://" + serverIP
+		}
+
+		if withPort {
+			s += ":" + gconv.String(serverPort)
+		}
+
+		return
 	} else {
 		hostname = public.FormatMX(hostname)
-	}
-
-	if err == nil {
 		v1DNSRecord := v1.DNSRecord{
 			Type:  "A",
 			Host:  hostname,
@@ -143,10 +151,7 @@ func buildBaseURL(hostname string) (s string) {
 		}
 	}
 
-	s = scheme + "://" + serverIP
-	if withPort {
-		s += ":" + gconv.String(serverPort)
-	}
+	s = GetBaseURL()
 
 	return
 }

@@ -27,6 +27,7 @@ func (c *ControllerV1) UpdateDomain(ctx context.Context, req *v1.UpdateDomainReq
 		RateLimit:    req.RateLimit,
 		Active:       req.Active,
 		Catchall:     req.Catchall,
+		Urls:         req.Urls,
 	}
 
 	if err = domains.Update(ctx, domain); err != nil {

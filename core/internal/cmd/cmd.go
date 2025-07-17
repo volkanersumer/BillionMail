@@ -3,6 +3,7 @@ package cmd
 import (
 	"billionmail-core/internal/consts"
 	"billionmail-core/internal/controller/abnormal_recipient"
+	"billionmail-core/internal/controller/askai"
 	"billionmail-core/internal/controller/batch_mail"
 	"billionmail-core/internal/controller/campaign"
 	"billionmail-core/internal/controller/contact"
@@ -32,10 +33,6 @@ import (
 	"billionmail-core/internal/service/timers"
 	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/gogf/gf/v2/os/gcmd"
-	"github.com/gogf/gf/v2/util/gconv"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -43,6 +40,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 var (
@@ -248,6 +250,7 @@ var (
 					settings.NewV1(),
 					subscribe_list.NewV1(),
 					operation_log.NewV1(),
+					askai.NewV1(),
 				)
 			})
 

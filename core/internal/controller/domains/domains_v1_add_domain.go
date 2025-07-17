@@ -24,6 +24,7 @@ func (c *ControllerV1) AddDomain(ctx context.Context, req *v1.AddDomainReq) (res
 		Quota:        int64(req.Quota),
 		RateLimit:    req.RateLimit,
 		Catchall:     req.Catchall,
+		Urls:         req.Urls,
 	}
 
 	if err = domains.Add(ctx, domain); err != nil {

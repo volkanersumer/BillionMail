@@ -13,12 +13,12 @@ func (c *ControllerV1) AddMailbox(ctx context.Context, req *v1.AddMailboxReq) (r
 	res = &v1.AddMailboxRes{}
 
 	mailbox := &v1.Mailbox{
-		Username:  req.FullName + "@" + req.Domain,
+		Username:  req.LocalPart + "@" + req.Domain,
 		Password:  req.Password,
 		FullName:  req.FullName,
 		IsAdmin:   req.IsAdmin,
 		Quota:     int64(req.Quota),
-		LocalPart: req.FullName,
+		LocalPart: req.LocalPart,
 		Domain:    req.Domain,
 		Active:    req.Active,
 	}
@@ -29,7 +29,7 @@ func (c *ControllerV1) AddMailbox(ctx context.Context, req *v1.AddMailboxReq) (r
 
 	_ = public.WriteLog(ctx, public.LogParams{
 		Type: consts.LOGTYPE.Mailboxes,
-		Log:  "Add email address :" + req.FullName + "@" + req.Domain + " successfully",
+		Log:  "Add email address :" + req.LocalPart + "@" + req.Domain + " successfully",
 		Data: mailbox,
 	})
 

@@ -173,17 +173,6 @@ func sendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string)
 
 	// 3. Handle unsubscribe link
 	content := emailHtml
-	//if !strings.Contains(content, "{{ UnsubscribeURL . }}") {
-	//	content = public.AddUnsubscribeButton(content)
-	//}
-
-	//// 4. Generate unsubscribe JWT and link
-	//jwtToken, _ := batch_mail.GenerateUnsubscribeJWT(email, templateId, 0)
-	//domain := domains.GetBaseURL()
-	//unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
-	//groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)
-	//unsubscribeJumpURL := fmt.Sprintf("%s/unsubscribe.html?jwt=%s&email=%s&url_type=%s&url_unsubscribe=%s",
-	//	domain, jwtToken, email, groupURL, unsubscribeURL)
 
 	// 5. Render content and subject
 	engine := batch_mail.GetTemplateEngine()

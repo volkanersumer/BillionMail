@@ -18,18 +18,12 @@
 							</n-popover>
 						</div>
 					</template>
-					<n-input
-						v-model:value="form.domain"
-						:disabled="isEdit"
-						:placeholder="t('domain.form.domainPlaceholder')"
-						@update:value="syncToUrls">
+					<n-input v-model:value="form.domain" :disabled="isEdit"
+						:placeholder="t('domain.form.domainPlaceholder')" @update:value="syncToUrls">
 					</n-input>
 				</n-form-item>
 				<n-form-item v-if="false" label="A记录">
-					<n-input
-						v-model:value="form.a_record"
-						:disabled="isEdit"
-						placeholder="请输入A记录，例如：mail.aapanel.com">
+					<n-input v-model:value="form.a_record" :disabled="isEdit" placeholder="请输入A记录，例如：mail.aapanel.com">
 					</n-input>
 				</n-form-item>
 				<n-form-item :label="t('domain.form.quota')">
@@ -40,36 +34,33 @@
 					</div>
 				</n-form-item>
 				<n-form-item :label="t('domain.form.mailboxCount')">
-					<n-input-number
-						v-model:value="form.mailboxes"
-						class="flex-1"
-						:min="0"
-						:show-button="false">
+					<n-input-number v-model:value="form.mailboxes" class="flex-1" :min="0" :show-button="false">
 					</n-input-number>
 				</n-form-item>
 				<n-form-item :label="t('domain.form.globalCatch')">
-					<n-input
-						v-model:value="form.email"
-						:placeholder="t('domain.form.globalCatchPlaceholder')">
+					<n-input v-model:value="form.email" :placeholder="t('domain.form.globalCatchPlaceholder')">
 					</n-input>
 				</n-form-item>
 
-				<n-form-item label="Automatically create brand information">
+				<n-form-item>
+					<template #label>
+						<div class="flex justify-start items-center ">
+							<i class="i-domain:brand-info w-5 h-5 mr-1.25 "></i>
+							<span>Automatically create brand information</span>
+						</div>
+					</template>
 					<n-switch v-model:value="initAi"></n-switch>
 				</n-form-item>
-				<n-alert
-					v-if="!aiConfigurationStatus"
-					style="margin: 0 0 15px 0"
-					type="warning"
-					:show-icon="false">
+				<n-alert v-if="!aiConfigurationStatus" style="margin: 0 0 15px 0" type="warning" :show-icon="false">
 					<div class="w-100% flex justify-between items-center">
 						<span class="mr-5">To use this feature, you need to integrate an AI model first.</span>
 						<n-button type="primary">Integrate immediately</n-button>
 					</div>
 				</n-alert>
-				<div class="text-[#777]">
-					AI-driven information import automatically analyzes and creates brand information from
-					email domains. After creation, you can modify it at your discretion.
+				<div class="text-[#777] flex justify-start">
+					<span><i class="i-domain:brand-info w-5 h-5 mr-1.25"></i></span>
+					<span>AI-driven information import automatically analyzes and creates brand information from
+						email domains. After creation, you can modify it at your discretion.</span>
 				</div>
 				<bt-tips style="margin-bottom: 15px">
 					<li>Extract brand and color</li>
@@ -81,11 +72,8 @@
 					<div class="w-100% flex flex-col gap-2.5">
 						<!-- <n-input v-for="(item, index) in urls" :key="index" v-model:value="urls[index]" placeholder="">
 						</n-input> -->
-						<div
-							v-for="(_, index) in urls"
-							:key="index"
-							class="flex justify-start items-center gap-2.5">
-							<n-input v-model:value="urls[index]" placeholder=""> </n-input>
+						<div v-for="(_, index) in urls" :key="index" class="flex justify-start items-center gap-2.5">
+							<n-input v-model:value="urls[index]" :placeholder="t('domain.form.urlsPlacement')"></n-input>
 							<div v-if="index != 0" class="close" @click="removeUrl(index)">
 								<i class="i-material-symbols:close-rounded text-5"></i>
 							</div>
@@ -106,156 +94,168 @@
 </template>
 
 <script lang="ts" setup>
-import { FormRules } from 'naive-ui'
-import { getByteUnit, getNumber } from '@/utils'
-import { useModal } from '@/hooks/modal/useModal'
-import {
-	createDomain,
-	initAiConfiguration,
-	updateDomain,
-	checkAiConfiguration,
-} from '@/api/modules/domain'
-import type { MailDomain } from '../interface'
+	import { FormRules } from 'naive-ui'
+	import { getByteUnit, getNumber } from '@/utils'
+	import { useModal } from '@/hooks/modal/useModal'
+	import {
+		createDomain,
+		initAiConfiguration,
+		updateDomain,
+		checkAiConfiguration,
+	} from '@/api/modules/domain'
+	import type { MailDomain } from '../interface'
 
-const { t } = useI18n()
+	const { t } = useI18n()
 
-const isEdit = ref(false)
+	const isEdit = ref(false)
 
-const title = computed(() => {
-	return isEdit.value ? t('domain.form.editTitle') : t('domain.form.addTitle')
-})
+	const title = computed(() => {
+		return isEdit.value ? t('domain.form.editTitle') : t('domain.form.addTitle')
+	})
 
-const aiConfigurationStatus = ref(false)
+	const aiConfigurationStatus = ref(false)
 
-const formRef = useTemplateRef('formRef')
-const initAi = ref(false)
-const urls = ref([''])
-const form = reactive({
-	domain: '',
-	a_record: '',
-	quota: 5,
-	quota_unit: 'GB',
-	mailboxes: 50,
-	email: '',
-})
+	const formRef = useTemplateRef('formRef')
+	const initAi = ref(false)
+	const urls = ref(['https://'])
+	const form = reactive({
+		domain: '',
+		a_record: '',
+		quota: 5,
+		quota_unit: 'GB',
+		mailboxes: 50,
+		email: '',
+	})
 
-const unitOptions = [
-	{ label: 'GB', value: 'GB' },
-	{ label: 'MB', value: 'MB' },
-]
+	const unitOptions = [
+		{ label: 'GB', value: 'GB' },
+		{ label: 'MB', value: 'MB' },
+	]
 
-const rules: FormRules = {
-	domain: {
-		trigger: ['blur', 'input'],
-		validator: () => {
-			if (form.domain.trim() === '') {
-				return new Error(t('domain.form.validation.domainRequired'))
-			}
-			return true
+	const rules: FormRules = {
+		domain: {
+			trigger: ['blur', 'input'],
+			validator: () => {
+				if (form.domain.trim() === '') {
+					return new Error(t('domain.form.validation.domainRequired'))
+				}
+				return true
+			},
 		},
-	},
-}
-
-/**
- * @description Calculate the byte number based on the domain quota and unit
- * @param quota
- * @param quota_unit
- */
-const getQuotaByte = (quota: number, quota_unit: string) => {
-	switch (quota_unit) {
-		case 'GB':
-			return quota * 1024 * 1024 * 1024
-		case 'MB':
-			return quota * 1024 * 1024
-		default:
-			return quota
 	}
-}
 
-/**
- * @description Sync domain to urls
- */
-const syncToUrls = (domainVal: string) => {
-	urls.value[0] = domainVal
-}
-
-/**
- * @description Remove url
- */
-const removeUrl = (index: number) => {
-	urls.value.splice(index, 1)
-}
-
-const [Modal, modalApi] = useModal({
-	onChangeState: async isOpen => {
-		if (isOpen) {
-			const state = modalApi.getState<{ isEdit: boolean; row: MailDomain | null }>()
-			isEdit.value = state.isEdit
-			const res = (await checkAiConfiguration()) as Record<string, any>
-			aiConfigurationStatus.value = res.is_configured
-			if (state.row) {
-				const { row } = state
-				form.domain = row.domain
-				form.a_record = row.a_record
-				const quota = getByteUnit(row.quota)
-				form.quota = getNumber(quota.split(' ')[0])
-				form.quota_unit = quota.split(' ')[1]
-				form.mailboxes = row.mailboxes
-				form.email = row.email
-			}
-		} else {
-			form.domain = ''
-			form.a_record = ''
-			form.quota = 5
-			form.quota_unit = 'GB'
-			form.mailboxes = 50
-			form.email = ''
-			urls.value = ['']
+	/**
+	 * @description Calculate the byte number based on the domain quota and unit
+	 * @param quota
+	 * @param quota_unit
+	 */
+	const getQuotaByte = (quota: number, quota_unit: string) => {
+		switch (quota_unit) {
+			case 'GB':
+				return quota * 1024 * 1024 * 1024
+			case 'MB':
+				return quota * 1024 * 1024
+			default:
+				return quota
 		}
-	},
-	onConfirm: async () => {
-		await formRef.value?.validate()
-		if (isEdit.value) {
-			await updateDomain({
-				domain: form.domain,
-				quota: getQuotaByte(form.quota, form.quota_unit),
-				mailboxes: form.mailboxes,
-				email: form.email,
-				urls: urls.value,
-			})
-		} else {
-			await createDomain({
-				domain: form.domain,
-				quota: getQuotaByte(form.quota, form.quota_unit),
-				mailboxes: form.mailboxes,
-				email: form.email,
-				urls: urls.value,
-			})
-			// Init Ai configuration (via. src\api\modules\domain.ts)
-			if (initAi.value) {
-				await initAiConfiguration({
+	}
+
+	/**
+	 * @description Sync domain to urls
+	 */
+	const syncToUrls = (domainVal: string) => {
+		const httpStr = urls.value[0].match(/http:\/\/?/g)
+		const httpsStr = urls.value[0].match(/https:\/\/?/g)
+		if (httpStr) {
+			urls.value[0] = httpStr[0] + domainVal
+		}
+
+		if (httpsStr) {
+			urls.value[0] = httpsStr[0] + domainVal
+		}
+
+		if (!httpStr && !httpsStr) {
+			urls.value[0] = 'https://' + domainVal
+		}
+	}
+
+	/**
+	 * @description Remove url
+	 */
+	const removeUrl = (index: number) => {
+		urls.value.splice(index, 1)
+	}
+
+	const [Modal, modalApi] = useModal({
+		onChangeState: async isOpen => {
+			if (isOpen) {
+				const state = modalApi.getState<{ isEdit: boolean; row: MailDomain | null }>()
+				isEdit.value = state.isEdit
+				const res = (await checkAiConfiguration()) as Record<string, any>
+				aiConfigurationStatus.value = res.is_configured
+				if (state.row) {
+					const { row } = state
+					form.domain = row.domain
+					form.a_record = row.a_record
+					const quota = getByteUnit(row.quota)
+					form.quota = getNumber(quota.split(' ')[0])
+					form.quota_unit = quota.split(' ')[1]
+					form.mailboxes = row.mailboxes
+					form.email = row.email
+				}
+			} else {
+				form.domain = ''
+				form.a_record = ''
+				form.quota = 5
+				form.quota_unit = 'GB'
+				form.mailboxes = 50
+				form.email = ''
+				urls.value = ['https://']
+			}
+		},
+		onConfirm: async () => {
+			await formRef.value?.validate()
+			if (isEdit.value) {
+				await updateDomain({
 					domain: form.domain,
+					quota: getQuotaByte(form.quota, form.quota_unit),
+					mailboxes: form.mailboxes,
+					email: form.email,
 					urls: urls.value,
 				})
+			} else {
+				await createDomain({
+					domain: form.domain,
+					quota: getQuotaByte(form.quota, form.quota_unit),
+					mailboxes: form.mailboxes,
+					email: form.email,
+					urls: urls.value,
+				})
+				// Init Ai configuration (via. src\api\modules\domain.ts)
+				if (initAi.value) {
+					await initAiConfiguration({
+						domain: form.domain,
+						urls: urls.value,
+					})
+				}
 			}
-		}
-		const state = modalApi.getState<{ refresh: Function }>()
-		state.refresh()
-	},
-})
+			const state = modalApi.getState<{ refresh: Function }>()
+			state.refresh()
+		},
+	})
 
-/**
- * @description Add url to urls
- */
-function addUrl() {
-	urls.value.push('')
-}
+	/**
+	 * @description Add url to urls
+	 */
+	function addUrl() {
+		urls.value.push('')
+	}
 </script>
 
 <style lang="scss" scoped>
-@use '@/views/domain/pages/editDomain/components/mixin.scss';
+	@use '@/views/domain/pages/editDomain/components/mixin.scss';
 
-.close {
-	@include mixin.operation-close;
-}
+	.close {
+		@include mixin.operation-close;
+	}
 </style>

@@ -9,7 +9,7 @@ const editDomainStore = defineStore("editDomainStore", () => {
     const unit = ref("B")
     const mailboxes = ref(0)
     const catch_email = ref("")
-    const urls = ref([""])
+    const urls = ref(["https://"])
     const configurationStatus = ref(false)
 
     

@@ -71,4 +71,5 @@ export type TemplateStore = {
     chatScrollRef:Ref<any>
     scrollWrapperRef:Ref<any>
     scrollable:Ref<boolean>
+    previewTit:Ref<string>
 }

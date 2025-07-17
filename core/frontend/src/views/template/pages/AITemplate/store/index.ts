@@ -36,6 +36,7 @@ export function useTemplateStore(): TemplateStore {
     const chatScrollRef = ref()
     const scrollWrapperRef = ref()
     const scrollable = ref(true)
+    const previewTit = ref("")
 
     return {
         domainList,
@@ -55,5 +56,6 @@ export function useTemplateStore(): TemplateStore {
         chatScrollRef,
         scrollWrapperRef,
         scrollable,
+        previewTit
     }
 }

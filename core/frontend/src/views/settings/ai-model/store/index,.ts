@@ -29,7 +29,7 @@ export function useModelManagerStore(): ModelStore {
     const addModelFormData = ref<AddModelFormData>({
         title: "",
         modelId: "",
-        max_tokens: 0,
+        max_tokens: 8192,
         capability: []
     })
     const addModelFormRef = ref<FormInst | null | undefined>()

@@ -29,7 +29,7 @@
 import markdownit from 'markdown-it'
 import hljs from 'highlight.js'
 import '../highlight.theme.css'
-import { removeHtmlCodeBlockMarkers } from '../controller'
+import { removeHtmlCodeBlockMarkers,removeSignCode } from '../controller'
 import { TemplateStore } from '../dto'
 import { useClipboard } from '@vueuse/core'
 const { copy, copied } = useClipboard()
@@ -62,7 +62,7 @@ const md = markdownit({
 		return md.utils.escapeHtml(str) // 使用额外的默认转义
 	},
 })
-codeHtml.value = md.render(props.content)
+codeHtml.value = md.render(removeSignCode(props.content))
 watch(
 	() => props.content,
 	val => {
@@ -73,7 +73,8 @@ watch(
 				key: props.chatRecordKey,
 			})
 		}
-	}
+	},
+	{immediate:true}
 )
 
 /**

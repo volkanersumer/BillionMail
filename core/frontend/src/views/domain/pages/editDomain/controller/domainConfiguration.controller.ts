@@ -100,7 +100,19 @@ function calcBaseUnits(quota: number, unit: string) {
  */
 export function syncToUrl(domainVal: string) {
     const { urls } = getEditDomainStoreData()
-    urls.value[0] = domainVal
+    const httpStr = urls.value[0].match(/http:\/\/?/g)
+    const httpsStr = urls.value[0].match(/https:\/\/?/g)
+    if(httpStr){
+        urls.value[0] = httpStr[0] + domainVal
+    }
+
+    if(httpsStr){
+        urls.value[0] = httpsStr[0] + domainVal
+    }
+
+    if(!httpStr && !httpsStr){
+        urls.value[0] = 'https://' + domainVal
+    }
 }
 
 /**
@@ -108,6 +120,7 @@ export function syncToUrl(domainVal: string) {
  */
 export function removeUrl(index: number) {
     const { urls } = getEditDomainStoreData()
+    
     urls.value.splice(index, 1)
 }
 

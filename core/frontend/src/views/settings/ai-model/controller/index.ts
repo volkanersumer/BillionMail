@@ -110,6 +110,7 @@ export async function changeProviderStatus(status: boolean, modelStore: ModelSto
 			instanceOptions
 		)
 	} catch (error) {
+		currentProvider.value.status = !status
 		console.warn(error)
 	}
 }

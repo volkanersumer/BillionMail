@@ -66,10 +66,10 @@
 							<span class="tit">模型</span>
 							<span class="sub-tit">默认从/models获取所有模型</span>
 						</div>
-						<!-- <div class="add-model" @click="handleAddModel">
+						<div class="add-model" @click="handleAddModel">
                             <i class="i-ic:baseline-control-point text-4"></i>
                             <span class="tit">新建模型</span>
-                        </div> -->
+                        </div>
 					</div>
 					<div v-for="item in modelList" :key="item.title" class="model-list">
 						<div class="model-item">
@@ -137,9 +137,9 @@
 	/**
 	 * @description Handle add  model
 	 */
-	// function handleAddModel() {
-	// 	addModelRef.value.open()
-	// }
+	function handleAddModel() {
+		addModelRef.value.open()
+	}
 </script>
 
 <style scoped lang="scss">
@@ -194,8 +194,8 @@
 
 					.status {
 						display: block;
-						width: 5px;
-						height: 5px;
+						width: 8px;
+						height: 8px;
 						background: var(--color-text-3);
 						border-radius: 50%;
 

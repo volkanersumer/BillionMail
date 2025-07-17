@@ -1,10 +1,10 @@
 import { instance } from "@/api";
 import { getEditDomainStoreData } from "../store";
 export const instanceOptions = {
-    fetchOptions: {
-        loading: 'Loading... Please wait.',
-        successMessage: true,
-    }
+    // fetchOptions: {
+    //     loading: 'Loading... Please wait.',
+    //     successMessage: true,
+    // }
 }
 /**
  * @description Get company profile

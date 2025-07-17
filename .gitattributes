@@ -1,0 +1,3 @@
+conf/* merge=ours
+Dockerfiles/* merge=ours
+ssl-self-signed/* merge=ours

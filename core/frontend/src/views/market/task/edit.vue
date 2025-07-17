@@ -155,27 +155,27 @@
 </template>
 
 <script lang="ts" setup>
-	import { FormRules } from 'naive-ui'
-	import { useGlobalStore } from '@/store'
-	import { useElementBounding } from '@vueuse/core'
-	import { confirm, Message } from '@/utils'
-	import { addTask, sendTestEmail } from '@/api/modules/market/task'
+import { FormRules } from 'naive-ui'
+import { useGlobalStore } from '@/store'
+import { useElementBounding } from '@vueuse/core'
+import { confirm, Message } from '@/utils'
+import { addTask, sendTestEmail } from '@/api/modules/market/task'
 
-	import FromSelect from './components/FromSelect.vue'
-	import GroupSelect from './components/GroupSelect.vue'
-	import TemplateSelect from './components/TemplateSelect.vue'
-	import { Template } from '../template/interface'
+import FromSelect from './components/FromSelect.vue'
+import GroupSelect from './components/GroupSelect.vue'
+import TemplateSelect from './components/TemplateSelect.vue'
+import { Template } from '../template/interface'
 
-	const { t } = useI18n()
-	const globalStore = useGlobalStore()
-	const router = useRouter()
-	const route = useRoute()
+const { t } = useI18n()
+const globalStore = useGlobalStore()
+const router = useRouter()
+const route = useRoute()
 
-	const formRef = useTemplateRef('formRef')
+const formRef = useTemplateRef('formRef')
 
-	const formContentRef = useTemplateRef('formContentRef')
+const formContentRef = useTemplateRef('formContentRef')
 
-	const { height } = useElementBounding(formContentRef)
+const { height } = useElementBounding(formContentRef)
 
 // 表单数据
 const form = reactive({
@@ -298,172 +298,63 @@ const handleSendTest = async () => {
 		recipient: testEmail.value,
 		template_id: form.template_id || 0,
 	})
+}
 
-
-	const rules: FormRules = {
-		full_name: {
-			trigger: ['blur', 'input'],
-			validator: () => {
-				if (form.full_name === '') {
-					return new Error(t('market.task.edit.validation.displayNameRequired'))
-				}
-				return true
+const handleGoBack = () => {
+	if (form.subject || form.group_ids.length > 0) {
+		confirm({
+			title: t('market.task.edit.discard.title'),
+			content: t('market.task.edit.discard.content'),
+			onConfirm: () => {
+				router.go(-1)
 			},
-		},
-		subject: {
-			trigger: ['blur', 'input'],
-			validator: () => {
-				if (form.subject === '') {
-					return new Error(t('market.task.edit.validation.subjectRequired'))
-				}
-				return true
-			},
-		},
-		group_ids: {
-			trigger: 'change',
-			validator: () => {
-				if (form.group_ids.length === 0) {
-					return new Error(t('market.task.edit.validation.recipientsRequired'))
-				}
-				return true
-			},
-		},
-		template_id: {
-			trigger: 'change',
-			validator: () => {
-				if (form.template_id === null) {
-					return new Error(t('market.task.edit.validation.templateRequired'))
-				}
-				return true
-			},
-		},
-		start_time: {
-			validator: () => {
-				if (sendTimeType.value === 1 && form.start_time === null) {
-					return new Error(t('market.task.edit.validation.sendTimeRequired'))
-				}
-				return true
-			},
-		},
-	}
-
-	// 分组名称
-	const groupNames = ref<string[]>([])
-
-	// 线程类型
-	const threadsType = ref(0)
-
-	// 发送时间类型
-	const sendTimeType = ref(0)
-
-	// 测试邮件
-	const testEmail = ref('')
-
-	// 模板内容
-	const templateContent = ref('')
-
-	// 跳转模板页面
-	const handleGoTemplate = () => {
-		router.push('/market/template')
-	}
-
-	// 查看案例
-	// const handleViewCase = () => {}
-
-	// 更新线程类型
-	const handleUpdateThread = (val: number) => {
-		if (val === 0) {
-			form.threads = 0
-		} else {
-			form.threads = 5
-		}
-	}
-
-	const handleUpdateSend = () => {
-		if (sendTimeType.value === 0) {
-			form.start_time = null
-		}
-	}
-
-	// 发送测试邮件
-	const handleSendTest = async () => {
-		if (!testEmail.value) {
-			Message.error(t('market.task.edit.validation.testEmailRequired'))
-			return
-		}
-		if (!form.subject) {
-			Message.error(t('market.task.edit.validation.subjectRequired'))
-			return
-		}
-		if (!form.template_id) {
-			Message.error(t('market.task.edit.validation.templateRequired'))
-			return
-		}
-
-		await sendTestEmail({
-			addresser: form.addresser || '',
-			subject: form.subject,
-			recipient: testEmail.value,
-			template_id: form.template_id || 0,
 		})
+	} else {
+		router.go(-1)
 	}
+}
 
-	const handleGoBack = () => {
-		if (form.subject || form.group_ids.length > 0) {
-			confirm({
-				title: t('market.task.edit.discard.title'),
-				content: t('market.task.edit.discard.content'),
-				onConfirm: () => {
-					router.go(-1)
-				},
-			})
-		} else {
-			router.go(-1)
+const getParams = () => {
+	let startTime = form.start_time
+	if (sendTimeType.value === 0 || startTime === null) {
+		startTime = Date.now()
+	}
+	return {
+		track_open: 1,
+		track_click: 1,
+		addresser: form.addresser || '',
+		full_name: form.full_name,
+		subject: form.subject,
+		group_ids: form.group_ids,
+		template_id: form.template_id || 0,
+		is_record: form.is_record,
+		unsubscribe: form.unsubscribe,
+		warmup: form.warmup,
+		threads: form.threads,
+		start_time: startTime / 1000,
+		remark: form.remark,
+	}
+}
+
+const handleSubmit = async () => {
+	await formRef.value?.validate()
+	await addTask(getParams())
+	router.push('/market/task')
+}
+
+/**
+ * @description Find templateId from template list
+ */
+function findTemplateId(list: Template[]) {
+	if (route.query.chat_id) {
+		const findRes = list.find(item => item.chat_id == route.query.chat_id)
+		if (findRes) {
+			form.template_id = findRes.id
+			form.subject = globalStore.temp_subject
+			templateContent.value = findRes.html_content
 		}
 	}
-
-	const getParams = () => {
-		let startTime = form.start_time
-		if (sendTimeType.value === 0 || startTime === null) {
-			startTime = Date.now()
-		}
-		return {
-			track_open: 1,
-			track_click: 1,
-			addresser: form.addresser || '',
-			full_name: form.full_name,
-			subject: form.subject,
-			group_ids: form.group_ids,
-			template_id: form.template_id || 0,
-			is_record: form.is_record,
-			unsubscribe: form.unsubscribe,
-			warmup: form.warmup,
-			threads: form.threads,
-			start_time: startTime / 1000,
-			remark: form.remark,
-		}
-	}
-
-	const handleSubmit = async () => {
-		await formRef.value?.validate()
-		await addTask(getParams())
-		router.push('/market/task')
-	}
-
-
-	/**
-	 * @description Find templateId from template list
-	 */
-	function findTemplateId(list: Template[]) {
-		if (route.query.chat_id) {
-			const findRes = list.find(item => item.chat_id == route.query.chat_id)
-			if (findRes) {
-				form.template_id = findRes.id
-				form.subject = globalStore.temp_subject
-				templateContent.value = findRes.html_content
-			}
-		}
-	}
+}
 </script>
 
 <style lang="scss" scoped>

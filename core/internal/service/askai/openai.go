@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -257,21 +258,69 @@ func (o *OpenAI) WriteMessage(content string, finishReason string) {
 	o.AppendMessage(userMessage, assistantMessage) // Append the messages to the chat
 }
 
+// DataToText converts structured data to a text representation
+// It handles different data types (structs, slices, etc.) and formats them for better readability.
+func DataToText(data interface{}, dataTitle string, filterKey []string) string {
+	var sb strings.Builder
+	filter := make(map[string]struct{})
+	for _, k := range filterKey {
+		filter[k] = struct{}{}
+	}
+
+	writeStruct := func(v reflect.Value, indent string) {
+		t := v.Type()
+		for i := 0; i < v.NumField(); i++ {
+			field := t.Field(i)
+			if _, ok := filter[field.Name]; ok {
+				continue
+			}
+			// continue if the field is empty and is string
+			if v.Field(i).Kind() == reflect.String && v.Field(i).Len() == 0 {
+				continue
+			}
+			fmt.Fprintf(&sb, "%s%s: %v\n", indent, field.Name, v.Field(i).Interface())
+		}
+	}
+
+	rv := reflect.ValueOf(data)
+	kind := rv.Kind()
+
+	if (kind == reflect.Slice || kind == reflect.Array) && rv.Len() == 0 {
+		return ""
+	}
+
+	sb.WriteString(fmt.Sprintf("<%s-START>\n", dataTitle))
+
+	switch kind {
+	case reflect.Struct:
+		writeStruct(rv, "")
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < rv.Len(); i++ {
+			item := rv.Index(i)
+			fmt.Fprintf(&sb, "[%d]:\n", i+1)
+			if item.Kind() == reflect.Struct {
+				writeStruct(item, "")
+			} else {
+				fmt.Fprintf(&sb, "%v\n", item.Interface())
+			}
+		}
+	default:
+		fmt.Fprintf(&sb, "%v\n", rv.Interface())
+	}
+
+	sb.WriteString(fmt.Sprintf("<%s-END>\n", dataTitle))
+
+	return sb.String()
+}
+
 func (o *OpenAI) GetCompanyProfilePrompt() (string, int) {
 	companyProFile, err := GetCompanyProfile(o.TempInfo.Domain) // Get the company profile for the chat
 	if err != nil {
 		fmt.Println("Error getting company profile:", err)
 		return "", 0
 	}
-	companyProFileJson, err := json.Marshal(companyProFile) // Marshal the company profile to JSON
-	if err != nil {
-		fmt.Println("Error marshalling company profile:", err)
-		return "", 0
-	}
-
-	prompt := "Company Profile: " + string(companyProFileJson) + "\n\n" // Return the company profile as a string
-	tokens, _ := o.CalculateTokens(prompt, true)                        // Calculate the tokens for the company profile prompt
-
+	prompt := DataToText(companyProFile, "Company Profile", []string{"UpdateTime"}) // Convert the company profile to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                                    // Calculate the tokens for the company profile prompt
 	return prompt, tokens
 }
 
@@ -281,13 +330,8 @@ func (o *OpenAI) GetProjectConfigPrompt() (string, int) {
 		fmt.Println("Error reading project config:", err)
 		return "", 0
 	}
-	projectConfigJson, err := json.Marshal(projectConfig) // Marshal the project configuration to JSON
-	if err != nil {
-		fmt.Println("Error marshalling project config:", err)
-		return "", 0
-	}
-	prompt := "Project Config: " + string(projectConfigJson) + "\n\n" // Return the project configuration as a string
-	tokens, _ := o.CalculateTokens(prompt, true)                      // Calculate the tokens for the project configuration prompt
+	prompt := DataToText(projectConfig, "Project Config", []string{"UpdateTime", "Urls", "KnowledgeBase", "Domain"}) // Convert the project configuration to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                                                                     // Calculate the tokens for the project configuration prompt
 	return prompt, tokens
 }
 
@@ -298,13 +342,8 @@ func (o *OpenAI) GetSitemapPrompt() (string, int) {
 		return "", 0
 	}
 
-	sitemapJson, err := json.Marshal(sitemap) // Marshal the sitemap to JSON
-	if err != nil {
-		fmt.Println("Error marshalling sitemap:", err)
-		return "", 0
-	}
-	prompt := "Sitemap: " + string(sitemapJson) + "\n\n" // Return the sitemap as a string
-	tokens, _ := o.CalculateTokens(prompt, true)         // Calculate the tokens for the sitemap prompt
+	prompt := DataToText(sitemap, "Sitemap", []string{"UpdateTime"}) // Convert the sitemap to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                     // Calculate the tokens for the sitemap prompt
 	return prompt, tokens
 }
 
@@ -314,13 +353,9 @@ func (o *OpenAI) GetStylePrompt() (string, int) {
 		fmt.Println("Error getting style config:", err)
 		return "", 0
 	}
-	styleConfigJson, err := json.Marshal(styleConfig) // Marshal the style configuration to JSON
-	if err != nil {
-		fmt.Println("Error marshalling style config:", err)
-		return "", 0
-	}
-	prompt := "Style Config: " + string(styleConfigJson) + "\n\n" // Return the style configuration as a string
-	tokens, _ := o.CalculateTokens(prompt, true)                  // Calculate the tokens for the style configuration prompt
+
+	prompt := DataToText(styleConfig, "Style Config", []string{"UpdateTime"}) // Convert the style configuration to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                              // Calculate the tokens for the style configuration prompt
 	return prompt, tokens
 }
 
@@ -330,13 +365,9 @@ func (o *OpenAI) GetFooterPrompt() (string, int) {
 		fmt.Println("Error getting footer:", err)
 		return "", 0
 	}
-	footerJson, err := json.Marshal(footer) // Marshal the footer to JSON
-	if err != nil {
-		fmt.Println("Error marshalling footer:", err)
-		return "", 0
-	}
-	prompt := "Footer: " + string(footerJson) + "\n\n" // Return the footer as a string
-	tokens, _ := o.CalculateTokens(prompt, true)       // Calculate the tokens for the footer prompt
+
+	prompt := DataToText(footer, "Footer", []string{"UpdateTime", "Text"}) // Convert the footer to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                           // Calculate the tokens for the footer prompt
 	return prompt, tokens
 }
 
@@ -350,18 +381,13 @@ func (o *OpenAI) GetKnowledgeBasePrompt() (string, int) {
 	// 取内容长度小于1024的文档
 	var filteredKnowledgeBase []string
 	for i := len(knowledgeBase) - 1; i >= 0; i-- {
-		if len(knowledgeBase[i].Content) < 1024 {
+		if len(knowledgeBase[i].Content) < 8192 {
 			filteredKnowledgeBase = append(filteredKnowledgeBase, knowledgeBase[i].Content)
 		}
 	}
 
-	knowledgeBaseJson, err := json.Marshal(filteredKnowledgeBase) // Marshal the knowledge base to JSON
-	if err != nil {
-		fmt.Println("Error marshalling knowledge base:", err)
-		return "", 0
-	}
-	prompt := "Knowledge Base Doc List: " + string(knowledgeBaseJson) + "\n\n" // Return the knowledge base as a string
-	tokens, _ := o.CalculateTokens(prompt, true)                               // Calculate the tokens for the knowledge base prompt
+	prompt := DataToText(filteredKnowledgeBase, "Knowledge Base", []string{"UpdateTime", "Kid"}) // Convert the knowledge base to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                                                 // Calculate the tokens for the knowledge base prompt
 	return prompt, tokens
 }
 
@@ -371,22 +397,15 @@ func (o *OpenAI) GetImagesPrompt() (string, int) {
 		fmt.Println("Error reading images list:", err)
 		return "", 0
 	}
-	if err != nil {
-		fmt.Println("Error reading images list:", err)
-		return "", 0
-	}
-	imagesJson, err := json.Marshal(images) // Marshal the images configuration to JSON
-	if err != nil {
-		fmt.Println("Error marshalling images list:", err)
-		return "", 0
-	}
-	prompt := "Images: " + string(imagesJson) + "\n\n" // Return the images configuration as a string
-	tokens, _ := o.CalculateTokens(prompt, true)       // Calculate the tokens for the images prompt
+
+	prompt := DataToText(images, "Images", []string{"UpdateTime", "ImageId"}) // Convert the images configuration to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                              // Calculate the tokens for the images prompt
 	return prompt, tokens
 }
 
 func (o *OpenAI) GetLastPrompt() (string, int) {
-	prompt := "The following are reference materials, all in JSON format, which you can use as needed:\n\n"
+	prompt := fmt.Sprintf("Current time: %s\n\n", public.GetNowDate())
+	prompt += "The following is reference information, segmented in the format of<xxx-START>...<xxx-END>, which you can use as needed:\n\n"
 	tokens, _ := o.CalculateTokens(prompt, true) // Calculate the tokens for the last prompt
 	return prompt, tokens
 }
@@ -422,8 +441,6 @@ func (o *OpenAI) GetSystemPrompt() string {
 		prompt, tokens = o.GetImagesPrompt()         // Get the images prompt
 		o.AddedSystemPrompt += prompt                // Add the images prompt to the system prompt
 		o.AddedSystemPromptTokens += tokens          // Add the tokens for the images prompt
-
-		o.AddedSystemPrompt += fmt.Sprintf("Current time: %s\n\n", public.GetNowDate())
 	}
 	systemPrompt := INITIAL_SYSTEM_PROMPT
 	if o.IsModify {

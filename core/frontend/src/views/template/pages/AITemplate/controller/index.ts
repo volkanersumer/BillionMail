@@ -334,6 +334,7 @@ export async function saveCodeChange(store: TemplateStore) {
 			{ chatId: chatId.value, content: previewCode.value },
 			instanceOptions
 		)
+		getHtmlTemplateContent(store)
 	} catch (error) {
 		console.warn(error)
 	}

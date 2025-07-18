@@ -664,7 +664,7 @@ func (e *TaskExecutor) processRecipientBatch(ctx context.Context, task *entity.E
 					updates[recipient.Id] = waits * 2
 				}
 				// rate limit exceeded, skip this recipient
-				g.Log().Warningf(ctx, "Rate limit exceeded for recipient %d, wait for %d seconds after retry, skipping", recipient.Id, waits)
+				g.Log().Debug(ctx, "Rate limit exceeded for recipient %d, wait for %d seconds after retry, skipping", recipient.Id, waits)
 				continue
 			}
 		}

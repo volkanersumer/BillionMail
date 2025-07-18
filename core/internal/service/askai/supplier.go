@@ -150,6 +150,10 @@ func List() []Supplier {
 			continue
 		}
 
+		if supplierConfig.BaseUrl == "" || supplierConfig.ApiKey == "" {
+			supplierConfig.Status = false // If base URL or API key is missing, set status to false
+		}
+
 		supplierList = append(supplierList, supplierConfig)
 	}
 
@@ -442,7 +446,6 @@ func testBaseURLAccessibility(baseUrl string) error {
 // or if the response status is not OK (200) or not found (404).
 func testAPIKeyValidity(baseUrl, apiKey string) error {
 	apiUrl := baseUrl + "/models"
-	fmt.Println("Testing API key validity at:", apiUrl)
 	client := &http.Client{Timeout: 15 * time.Second}
 	req, err := http.NewRequest("GET", apiUrl, nil)
 	if err != nil {
@@ -484,7 +487,9 @@ func SetSupplierStatus(supplierName string, status bool) error {
 	if err != nil {
 		return errors.New("supplier configuration not found")
 	}
-
+	if supplierConfig.ApiKey == "" || supplierConfig.BaseUrl == "" {
+		return errors.New("supplier configuration is incomplete, cannot set status")
+	}
 	supplierConfig.Status = status
 
 	return SaveSupplierConfig(supplierName, *supplierConfig)

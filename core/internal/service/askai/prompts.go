@@ -21,9 +21,10 @@ Requirements for Email Generation (only used when generating emails):
     3. Regarding the use of pictures: only use pictures from reliable sources, and it is forbidden to fabricate false pictures.
     4. The email subject should be concise and clear, able to accurately convey the email theme and attract users' attention, and put the subject into the HTML <title> tag. The main body of the email must contain a clear brand logo (such as a logo), and provide contact information (such as customer service phone number, email address, etc.) at the beginning or end of the email, so that users can easily contact you if they have any questions or need further information.
     5. Note: If there is a QR code for contact information, use it as much as possible, but note that the size of the QR code should not be less than 80x80px. When you need to use icons in the main text, you can use emojis or Unicode characters instead of icons to avoid using pictures with uncertain purposes.
-    6. Output: A complete email (subject, HTML body, signature). Only prepare HTML (no explanation); all tags are closed.
-    7. The HTML code must be included in the code block, and the language mark of the code block is ` + "```html\n\n ... \n\n```" + `。
-	8. Example Email Content:` + "```" + `html<!DOCTYPE html><html lang="XX">...</html>` + "```"
+    6. Output: A complete email (subject, HTML body, signature). Prepare only HTML (without comments); Ensure that all tags are closed.
+	7. http_request tool:Get the webpage content of a specified URL. When you think you need to obtain information on the webpage, you can use this tool in the format: <|FunctionCallBegin|>[{"name":"http_request","parameters":{"url":"https://example.com"}}]<|FunctionCallEnd|>
+    8. The HTML code must be included in the code block, and the language mark of the code block is ` + "```html\n\n ... \n\n```" + `。
+	9. Example Email Content:` + "```" + `html<!DOCTYPE html><html lang="XX">...</html>` + "```"
 
 	FOLLOW_UP_SYSTEM_PROMPT = `You are an expert web developer modifying an existing HTML file.
 The user wants to apply changes based on their request.

@@ -338,24 +338,30 @@
 		}
 	},
 	"template": {
+		"createTpl": {
+			"sourceUrl": "引用域名",
+			"useAiTools": "使用人工智能工具帮您自动生成邮件内容，提升工作您的效率",
+			"create":"创建"
+		},
 		"ai": {
-			"title": "AI Template",
+			"title": "AI 模板",
 			"welcomeMessage": "您可以说：创建一份欢迎用户加入{domain}的欢迎邮件",
 			"brandName": "BillionMail",
 			"buttons": {
-				"regenerate": "Regenerate",
-				"info": "Info",
-				"view": "View",
-				"edit": "Edit",
-				"copy": "Copy",
-				"copied": "Copied"
+				"regenerate": "重新生成",
+				"info": "信息",
+				"view": "预览",
+				"edit": "编辑",
+				"copy": "复制",
+				"copied": "已复制"
 			},
 			"tips": {
-				"saveShortcut": "[Ctrl + s] to save your change"
+				"saveShortcut": "通过 [Ctrl + s] 保存您的修改"
 			},
 			"loading": {
-				"message": "Loading... Please wait."
-			}
+				"message": "加载中... 请稍后"
+			},
+			"send":"发送"
 		}
 	},
 	"contacts": {
@@ -553,10 +559,10 @@
 			"confirm": "确定要删除域名【{domain}】吗？",
 			"confirmButton": "删除"
 		},
-		"waitAndCheckDomainStatus":{
-			"success":"品牌信息初始化成功",
-			"error":"品牌信息初始化失败",
-			"loading":"正在初始化品牌信息，请稍后..."
+		"waitAndCheckDomainStatus": {
+			"success": "品牌信息初始化成功",
+			"error": "品牌信息初始化失败",
+			"loading": "正在初始化品牌信息，请稍后..."
 		},
 		"form": {
 			"addTitle": "添加域名",
@@ -689,7 +695,17 @@
 				"edit": "编辑",
 				"preview": "预览",
 				"newKnowledgeFile": "新建知识文件",
-				"fileName": "文件名"
+				"fileName": "文件名",
+				"day": "天",
+				"hour": "小时",
+				"minute": "分",
+				"ago": "前",
+				"justNow": "刚刚",
+				"close": "关闭",
+				"cancel": "取消",
+				"create": "创建",
+				"notice": "提示",
+				"sureDel": "是否确认删除?"
 			},
 			"companyProfile": {
 				"title": "公司详情",

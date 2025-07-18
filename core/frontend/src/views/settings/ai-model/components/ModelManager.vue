@@ -12,7 +12,7 @@
 						<n-image v-if="item.icon" :src="item.icon" height="24" width="24"></n-image>
 						<i v-else class="i-ai:big-model w-6.5 h-6.5"></i>
 					</div>
-					<span class="tit">{{ item.supplierTitle }}</span>
+					<span class="tit">{{ item.supplierTitle[0].toUpperCase() + item.supplierTitle.slice(1) }}</span>
 					<span :class="['status', { active: item.status }]"></span>
 				</div>
 			</div>
@@ -31,8 +31,8 @@
 			<div class="right-configuration">
 				<div class="top-switch">
 					<div class="switch-info">
-						<i class="i-ic:baseline-error text-5"></i>
-						<span class="tit">{{ currentProvider.supplierName }}</span>
+						<!-- <i class="i-ic:baseline-error text-5"></i> -->
+						<span class="tit">{{ currentProvider.supplierName[0].toUpperCase() + currentProvider.supplierName.slice(1) }}</span>
 						<n-switch v-model:value="currentProvider.status"
 							@update:value="status => changeProviderStatus(status, modelStore)"></n-switch>
 					</div>

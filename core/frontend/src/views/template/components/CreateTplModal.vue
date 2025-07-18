@@ -9,20 +9,19 @@
 				</div>
 			</div>
 			<div :class="['url-source', { hidden: choosedMethod !== 'AI' }]">
-				<span class="label">Source Url</span>
+				<span class="label">{{ $t("template.createTpl.sourceUrl") }}</span>
 				<n-select v-model:value="sourceDomain" class="flex-1" label-field="domain" value-field="domain"
 					:options="domainList">
 				</n-select>
 			</div>
 			<div class="desc">
-				Use AI tools to help you automatically generate email content and improve your work
-				efficiency.
+				{{ $t("template.createTpl.useAiTools") }}
 			</div>
 		</div>
 
 		<template #footer>
 			<div class="flex justify-end">
-				<n-button type="primary" @click="createTemplate">Create</n-button>
+				<n-button type="primary" @click="createTemplate">{{ $t("template.createTpl.create") }}</n-button>
 			</div>
 		</template>
 	</n-modal>

@@ -6,14 +6,14 @@
 					<div class="back-tool">
 						<i class="i-ri:apps-fill text-6"></i>
 					</div>
-					<span class="tit-content"> Sitemap </span>
+					<span class="tit-content"> {{ $t("domain.edit.sitemap.title") }} </span>
 				</div>
 			</div>
 		</n-card>
 
 		<n-card>
 			<div class="mb-5">
-				<n-button type="primary" @click="handleAdd">Add link</n-button>
+				<n-button type="primary" @click="handleAdd">{{ $t("domain.edit.sitemap.addLink") }}</n-button>
 			</div>
 			<div v-for="(item, index) in sitemap" :key="index" class="mb-2.5">
 				<div class="inline-form-items">

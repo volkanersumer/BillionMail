@@ -6,7 +6,7 @@
 					<div class="back-tool">
 						<i class="i-ri:apps-fill text-6"></i>
 					</div>
-					<span class="tit-content"> Footer Settings </span>
+					<span class="tit-content"> {{ $t("domain.edit.footerSettings.title") }} </span>
 				</div>
 			</div>
 		</n-card>
@@ -14,13 +14,13 @@
 		<n-card>
 			<div class="page-tit mb-5">
 				<div class="left-tit">
-					<span class="tit-content"> Additional Content </span>
+					<span class="tit-content"> {{ $t("domain.edit.footerSettings.additionalContent") }} </span>
 				</div>
 			</div>
 
 			<n-form>
 				<n-form-item>
-					<template #label><span class="form-label">Copyright Text</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.footerSettings.copyrightText") }}</span></template>
 					<n-input v-model:value="copyright_text"></n-input>
 				</n-form-item>
 				<!-- <n-form-item>

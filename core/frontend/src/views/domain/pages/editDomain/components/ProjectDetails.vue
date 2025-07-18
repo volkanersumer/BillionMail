@@ -13,19 +13,15 @@
 		<n-card class="mb-5">
 			<n-form>
 				<n-form-item>
-					<template #label
-						><span class="form-label">{{
-							$t('domain.edit.projectDetails.projectName')
-						}}</span></template
-					>
+					<template #label><span class="form-label">{{
+						$t('domain.edit.projectDetails.projectName')
+					}}</span></template>
 					<n-input v-model:value="project_name"></n-input>
 				</n-form-item>
 				<n-form-item>
-					<template #label
-						><span class="form-label">{{
-							$t('domain.edit.projectDetails.description')
-						}}</span></template
-					>
+					<template #label><span class="form-label">{{
+						$t('domain.edit.projectDetails.description')
+					}}</span></template>
 					<n-input v-model:value="description" type="textarea" :rows="7"></n-input>
 				</n-form-item>
 			</n-form>
@@ -57,12 +53,7 @@
 							<i class="i-carbon:cloud-upload text-8"></i>
 							<span>{{ $t('domain.edit.projectDetails.primaryLogo') }}</span>
 						</div>
-						<n-image
-							v-else
-							:src="primary_logo"
-							height="100"
-							width="150"
-							object-fit="contain"
+						<n-image v-else :src="primary_logo" height="100" width="150" object-fit="contain"
 							preview-disabled>
 							<template #error>
 								<div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
@@ -71,10 +62,7 @@
 								</div>
 							</template>
 						</n-image>
-						<input
-							v-show="false"
-							ref="primaryUpload"
-							type="file"
+						<input v-show="false" ref="primaryUpload" type="file"
 							@change="event => faviconChange(event, 'primary')" />
 					</div>
 				</div>
@@ -88,12 +76,7 @@
 							<i class="i-carbon:cloud-upload text-8"></i>
 							<span>{{ $t('domain.edit.projectDetails.primaryLogo') }}</span>
 						</div>
-						<n-image
-							v-else
-							:src="secondary_logo"
-							height="100"
-							width="150"
-							object-fit="contain"
+						<n-image v-else :src="secondary_logo" height="100" width="150" object-fit="contain"
 							preview-disabled>
 							<template #error>
 								<div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
@@ -102,10 +85,7 @@
 								</div>
 							</template>
 						</n-image>
-						<input
-							v-show="false"
-							ref="secondaryUpload"
-							type="file"
+						<input v-show="false" ref="secondaryUpload" type="file"
 							@change="event => faviconChange(event, 'secondary')" />
 					</div>
 				</div>
@@ -117,13 +97,7 @@
 							<i class="i-carbon:cloud-upload text-8"></i>
 							<span>{{ $t('domain.edit.projectDetails.primaryLogo') }}</span>
 						</div>
-						<n-image
-							v-else
-							:src="favicon"
-							height="40"
-							width="60"
-							object-fit="contain"
-							preview-disabled>
+						<n-image v-else :src="favicon" height="40" width="60" object-fit="contain" preview-disabled>
 							<template #error>
 								<div class="w-100% h-100% flex justify-center items-center flex-col gap-1.25">
 									<i class="i-mingcute:pic-line text-15"></i>
@@ -131,10 +105,7 @@
 								</div>
 							</template>
 						</n-image>
-						<input
-							v-show="false"
-							ref="faviconUpload"
-							type="file"
+						<input v-show="false" ref="faviconUpload" type="file"
 							@change="event => faviconChange(event, 'favicon')" />
 					</div>
 					<div class="operation-tools">
@@ -171,16 +142,13 @@
 				</div>
 			</div>
 
-			<n-card
-				v-for="(item, index) in knowledge_base"
-				:key="index"
-				class="mt-5"
+			<n-card v-for="(item, index) in knowledge_base" :key="index" class="mt-5"
 				style="background-color: var(--color-radio-1)">
 				<div class="knowledge-box">
 					<div class="top-info">
 						<div class="info-left">
 							<span class="info-tit">{{ item.title }}</span>
-							<span class="info-sub-tit">11 {{ $t('domain.edit.common.daysAgo') }}</span>
+							<span class="info-sub-tit">{{ formatTimeDifference(item.update_time) }} {{ $t('domain.edit.projectDetails.ago') }}</span>
 						</div>
 						<div class="info-right" @click="handleDelete(item)">
 							<i class="i-material-symbols:close-rounded text-5"></i>
@@ -200,15 +168,8 @@
 	</div>
 
 	<!-- Add knowledge base -->
-	<n-modal
-		v-model:show="knowledgeModalShow"
-		preset="card"
-		draggable
-		:close-on-esc="false"
-		:mask-closable="false"
-		:title="$t('domain.edit.projectDetails.newKnowledgeFile')"
-		class="w-150"
-		:on-after-leave="closeKnowledgeModal">
+	<n-modal v-model:show="knowledgeModalShow" preset="card" draggable :close-on-esc="false" :mask-closable="false"
+		:title="$t('domain.edit.projectDetails.newKnowledgeFile')" class="w-150" :on-after-leave="closeKnowledgeModal">
 		<n-form>
 			<n-form-item :label="$t('domain.edit.projectDetails.fileName')">
 				<n-input v-model:value="knowledgeTitle"></n-input>
@@ -220,26 +181,18 @@
 
 		<template #footer>
 			<div class="flex justify-end gap-5">
-				<n-button @click="closeKnowledgeModal">Cancel</n-button>
-				<n-button
-					type="primary"
-					:disabled="!knowledgeTitle || !knowledgeContent"
+				<n-button @click="closeKnowledgeModal">{{ $t('domain.edit.projectDetails.Cancel') }}</n-button>
+				<n-button type="primary" :disabled="!knowledgeTitle || !knowledgeContent"
 					@click="createOrUpdateKnowledge">
-					Create
+					{{ $t('domain.edit.projectDetails.create') }}
 				</n-button>
 			</div>
 		</template>
 	</n-modal>
 
 	<!-- Preview knowledge base -->
-	<n-modal
-		v-model:show="knowledgeBasePreview"
-		preset="card"
-		draggable
-		:close-on-esc="false"
-		:mask-closable="false"
-		:title="knowledgeBasePreviewTit"
-		class="w-180">
+	<n-modal v-model:show="knowledgeBasePreview" preset="card" draggable :close-on-esc="false" :mask-closable="false"
+		:title="knowledgeBasePreviewTit" class="w-180">
 		<div class="preview-wrapper">
 			<n-scrollbar style="max-height: 700px">
 				<div v-html="mdRes"></div>
@@ -247,7 +200,7 @@
 		</div>
 		<template #footer>
 			<div class="flex justify-end">
-				<n-button>Close</n-button>
+				<n-button>{{ $t('domain.edit.projectDetails.close') }}</n-button>
 			</div>
 		</template>
 	</n-modal>
@@ -268,7 +221,7 @@ import {
 } from '../controller/projectDetail.controller'
 import { getEditDomainStoreData } from '../store'
 import { KnowledgeBase } from '../dto'
-
+const { t } = useI18n()
 const {
 	project_name,
 	description,
@@ -322,8 +275,8 @@ function createOrUpdateKnowledge() {
  */
 function handleDelete(knowledge: KnowledgeBase) {
 	confirm({
-		title: 'Notice',
-		content: 'Are you sure you want to delete?',
+		title: t('domain.edit.projectDetails.notice'),
+		content: t("domain.edit.projectDetails.sureDel"),
 		onConfirm() {
 			deleteKnowledgeBase(domain, knowledge)
 		},
@@ -373,6 +326,30 @@ function faviconChange(event: Event, type: string) {
 		}
 	}
 	reader.readAsDataURL(file)
+}
+
+/**
+ * @description Format time difference
+ * @param timestamp 
+ */
+function formatTimeDifference(timestamp: number): string {
+	const targetMs = timestamp * 1000;
+	const nowMs = Date.now();
+	const diffMs = targetMs - nowMs;
+
+	const absDiffMs = Math.abs(diffMs);
+	const days = Math.floor(absDiffMs / (24 * 60 * 60 * 1000));
+	const hours = Math.floor((absDiffMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+	const minutes = Math.floor((absDiffMs % (60 * 60 * 1000)) / (60 * 1000));
+
+	if( days === 0 && hours === 0 && minutes === 0) {
+		return t("domain.edit.projectDetails.justNow");
+	}else if (days === 0 && hours === 0) {
+		return `${minutes}${t("domain.edit.projectDetails.minute")}`;
+	} else if (days === 0 ) {
+		return `${hours}${t("domain.edit.projectDetails.hour")} ${minutes}${t("domain.edit.projectDetails.minute")}`;
+	}
+	return `${days}${t("domain.edit.projectDetails.day")} ${hours}${t("domain.edit.projectDetails.hour")} ${minutes}${t("domain.edit.projectDetails.minute")}`;
 }
 </script>
 

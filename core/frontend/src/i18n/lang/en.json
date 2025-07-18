@@ -334,6 +334,11 @@
 		}
 	},
 	"template": {
+		"createTpl": {
+			"sourceUrl": "Source Url",
+			"useAiTools": "Use AI tools to help you automatically generate email content and improve your work efficiency.",
+			"create":"Create"
+		},
 		"ai": {
 			"title": "AI Template",
 			"welcomeMessage": "You can say: Create a welcome email for users joining {domain}",
@@ -351,7 +356,8 @@
 			},
 			"loading": {
 				"message": "Loading... Please wait."
-			}
+			},
+			"send":"Send"
 		}
 	},
 	"contacts": {
@@ -553,10 +559,10 @@
 			"title": "Delete Domain",
 			"confirm": "Are you sure you want to delete domain [{domain}]?"
 		},
-		"waitAndCheckDomainStatus":{
-			"success":"Brand information initialization successful.",
-			"error":"Brand information initialization failed.",
-			"loading":"Initializing brand information, please wait..."
+		"waitAndCheckDomainStatus": {
+			"success": "Brand information initialization successful.",
+			"error": "Brand information initialization failed.",
+			"loading": "Initializing brand information, please wait..."
 		},
 		"form": {
 			"addTitle": "Add Domain",
@@ -688,7 +694,17 @@
 				"edit": "Edit",
 				"preview": "Preview",
 				"newKnowledgeFile": "New Knowledge File",
-				"fileName": "File Name"
+				"fileName": "File Name",
+				"day": "days",
+				"hour": "hours",
+				"minute": "minutes",
+				"ago": "ago",
+				"justNow": "just now",
+				"close": "Close",
+				"cancel": "Cancel",
+				"create": "Create",
+				"notice": "Notice",
+				"sureDel": "Are you sure you want to delete?"
 			},
 			"companyProfile": {
 				"title": "Company Detail",

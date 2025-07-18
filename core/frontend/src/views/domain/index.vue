@@ -72,12 +72,7 @@
 						<NButton
 							text
 							type="primary"
-							onClick={() => {
-								router.push({
-									path: '/mailbox',
-									state: { domain: row.domain },
-								})
-							}}>
+							onClick={() => handleEdit(row)}>
 							{row.domain}
 						</NButton>
 						{row.default ? (

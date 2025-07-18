@@ -6,12 +6,12 @@
 					<div class="back-tool">
 						<i class="i-ri:apps-fill text-6"></i>
 					</div>
-					<span class="tit-content"> Color Palette </span>
+					<span class="tit-content"> {{ $t("domain.edit.styling.colorPalette") }} </span>
 				</div>
 			</div>
 			<n-form>
 				<n-form-item>
-					<template #label><span class="form-label">Accent Color</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.styling.accentColor") }}</span></template>
 					<div class="flex justify-between gap-2.5 w-100%">
 						<n-color-picker
 							v-model:value="accent_color"
@@ -22,7 +22,7 @@
 					</div>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Text Color</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.styling.textColor") }}</span></template>
 					<div class="flex justify-between gap-2.5 w-100%">
 						<n-color-picker
 							v-model:value="text_color"
@@ -33,7 +33,7 @@
 					</div>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Page Background</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.styling.pageBackground") }}</span></template>
 					<div class="flex justify-between gap-2.5 w-100%">
 						<n-color-picker
 							v-model:value="page_background"
@@ -44,7 +44,7 @@
 					</div>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Container Background</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.styling.containerBackground") }}</span></template>
 					<div class="flex justify-between gap-2.5 w-100%">
 						<n-color-picker
 							v-model:value="container_background"
@@ -55,7 +55,7 @@
 					</div>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Link footer color</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.styling.linkFooterColor") }}</span></template>
 					<div class="flex justify-between gap-2.5 w-100%">
 						<n-color-picker
 							v-model:value="link_footer_color"
@@ -66,7 +66,7 @@
 					</div>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Link social color</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.styling.linkSocialColor") }}</span></template>
 					<div class="flex justify-between gap-2.5 w-100%">
 						<n-color-picker
 							v-model:value="link_social_color"
@@ -85,20 +85,20 @@
 					<div class="back-tool">
 						<i class="i-ri:apps-fill text-6"></i>
 					</div>
-					<span class="tit-content"> Typography </span>
+					<span class="tit-content">{{ $t("domain.edit.styling.typography") }} </span>
 				</div>
 			</div>
 			<n-form>
 				<n-form-item>
-					<template #label><span class="form-label">Heading Font</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.styling.headingFont") }}</span></template>
 					<n-input v-model:value="heading_font"></n-input>
 				</n-form-item>
 
 				<n-card class="form-desc">
 					<div class="container">
-						<div class="form-label">Preview:</div>
+						<div class="form-label">{{ $t("domain.edit.styling.preview") }}</div>
 						<div class="desc" :style="{ fontFamily: heading_font }">
-							The quick brown fox jumps over the lazy dog
+							{{ $t("domain.edit.styling.previewText") }}
 						</div>
 					</div>
 				</n-card>
@@ -106,15 +106,15 @@
 
 			<n-form class="mt-5">
 				<n-form-item>
-					<template #label><span class="form-label">Body Font</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.styling.bodyFont") }}</span></template>
 					<n-input v-model:value="body_font"></n-input>
 				</n-form-item>
 
 				<n-card class="form-desc">
 					<div class="container">
-						<div class="form-label">Preview:</div>
+						<div class="form-label">{{ $t("domain.edit.styling.preview") }}</div>
 						<div class="desc" :style="{ fontFamily: body_font }">
-							The quick brown fox jumps over the lazy dog
+							{{ $t("domain.edit.styling.previewText") }}
 						</div>
 					</div>
 				</n-card>
@@ -123,9 +123,9 @@
 
 		<n-card>
 			<div class="attention">
-				<div class="attention-tit">Typography Guidelines:</div>
-				<div class="attention-item">Use web-safe fonts for better compatibility</div>
-				<div class="attention-item">Always include fallback fonts for better performance</div>
+				<div class="attention-tit">{{ $t("domain.edit.styling.typographyGuidelines") }}</div>
+				<div class="attention-item">{{ $t("domain.edit.styling.webSafeFonts") }}</div>
+				<div class="attention-item">{{ $t("domain.edit.styling.fallbackFonts") }}</div>
 			</div>
 		</n-card>
 	</div>

@@ -7,7 +7,7 @@
 						<div class="back-tool">
 							<i class="i-ri:apps-fill text-6"></i>
 						</div>
-						<span class="tit-content"> Company Detail </span>
+						<span class="tit-content"> {{ $t("domain.edit.companyProfile.title") }} </span>
 					</div>
 				</div>
 			</div>
@@ -17,20 +17,20 @@
 			<n-form>
 				<div class="flex justify-between gap-5">
 					<n-form-item class="flex-1">
-						<template #label><span class="form-label">Legal Company Name</span></template>
+						<template #label><span class="form-label"> {{ $t("domain.edit.companyProfile.legalCompanyName") }} </span></template>
 						<n-input v-model:value="legal_company_name"></n-input>
 					</n-form-item>
 					<n-form-item class="flex-1">
-						<template #label><span class="form-label">web_site</span></template>
+						<template #label><span class="form-label">{{ $t("domain.edit.companyProfile.website") }}</span></template>
 						<n-input v-model:value="web_site"></n-input>
 					</n-form-item>
 				</div>
 				<n-form-item>
-					<template #label><span class="form-label">Organization Number</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.companyProfile.organizationNumber") }}</span></template>
 					<n-input></n-input>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Additional Company Information</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.companyProfile.additionalInfo") }}</span></template>
 					<n-input v-model:value="company_profile" type="textarea" :rows="8"></n-input>
 				</n-form-item>
 			</n-form>
@@ -42,21 +42,21 @@
 					<div class="back-tool">
 						<i class="i-ri:apps-fill text-6"></i>
 					</div>
-					<span class="tit-content"> Contact Information </span>
+					<span class="tit-content"> {{ $t("domain.edit.companyProfile.contactInfo") }} </span>
 				</div>
 			</div>
 
 			<n-form>
 				<n-form-item>
-					<template #label><span class="form-label">Contact Email</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.companyProfile.contactEmail") }}</span></template>
 					<n-input v-model:value="email"></n-input>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Phone Number</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.companyProfile.phoneNumber") }}</span></template>
 					<n-input v-model:value="phone"></n-input>
 				</n-form-item>
 				<n-form-item>
-					<template #label><span class="form-label">Support URL</span></template>
+					<template #label><span class="form-label">{{ $t("domain.edit.companyProfile.supportUrl") }}</span></template>
 					<n-input v-model:value="support_url"></n-input>
 				</n-form-item>
 			</n-form>

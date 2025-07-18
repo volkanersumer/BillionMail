@@ -113,12 +113,12 @@
 								<template #icon>
 									<i class="i-mingcute:mail-send-fill"></i>
 								</template>
-								Send
+								{{ $t('template.ai.send') }}
 							</n-button>
 						</div>
 						<n-scrollbar style="height: calc(100% - 40px)">
-							<!-- <div v-if="previewStatus == 'view'" v-html="previewCode"></div> -->
-							<iframe v-if="previewStatus == 'view'" :srcdoc="previewCode" frameborder="0" class="w-100%"
+							<div v-if="previewStatus == 'view' && isChat" v-html="previewCode"></div>
+							<iframe v-else-if="previewStatus == 'view' && !isChat" :srcdoc="previewCode" frameborder="0" class="w-100%"
 								style="height: calc(100vh - 224px)"></iframe>
 							<BtEditor v-else :value="previewCode" style="height: calc(100vh - 217px)"
 								@save="saveCodeChange(store)">
@@ -147,6 +147,7 @@
 	import { useTemplateStore } from './store'
 	import { TemplateStore } from './dto'
 	import BtEditor from '@/components/base/bt-editor/index.vue'
+import { t } from '@wangeditor/core'
 	const globalStore = useGlobalStore()
 	const router = useRouter()
 	const store = useTemplateStore()

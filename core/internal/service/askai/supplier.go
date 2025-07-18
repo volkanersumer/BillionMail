@@ -544,6 +544,10 @@ func RemoveSupplier(supplierName string) error {
 	if !public.FileExists(supplierPath) {
 		return errors.New("supplier does not exist")
 	}
+	templatePath := SUPPLIER_TEMPLATE_PATH + "/" + supplierName
+	if public.FileExists(templatePath) {
+		return errors.New("Cannot delete the system's built-in model supplier.")
+	}
 
 	err := os.RemoveAll(supplierPath)
 	if err != nil {

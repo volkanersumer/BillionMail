@@ -609,7 +609,8 @@ func (o *OpenAI) CreateChatCompletionStream(request *ghttp.Request, req openai.C
 		}
 		if err != nil {
 			fmt.Println("Error receiving stream:", err)
-			return err
+			// return err
+			break
 		}
 		// Check if the response contains tool calls
 		if len(response.Choices[0].Delta.ToolCalls) > 0 {

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -258,6 +259,69 @@ func SaveModelInfo(supplierName string, modelId string, modelInfo ModelInfo) err
 	return saveModelsToFile(modelsFile, existingModels)
 }
 
+// GetCloudModels fetches the list of models from the supplier's API and saves them to the models.json file.
+// It constructs the API URL using the supplier's base URL and sends a GET request with the API key.
+// It processes the response to extract model information and saves it in the models.json file.
+func GetCloudModels(supplierName string) {
+	supplierConfig, err := ReadSupplierConfig(supplierName)
+	if err != nil {
+		return
+	}
+	if supplierConfig.ApiKey == "" || supplierConfig.BaseUrl == "" {
+		return
+	}
+
+	apiUrl := supplierConfig.BaseUrl + "/models"
+	client := &http.Client{Timeout: 15 * time.Second}
+	req, err := http.NewRequest("GET", apiUrl, nil)
+	if err != nil {
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+supplierConfig.ApiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return // Handle error appropriately, e.g., log it or return an error
+	}
+
+	var response struct {
+		Data []struct {
+			ID      string `json:"id"`
+			Object  string `json:"object"`
+			OwnedBy string `json:"owned_by"`
+		} `json:"data"`
+	}
+
+	resultBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	if err := json.Unmarshal(resultBody, &response); err != nil {
+		return
+	}
+
+	// Process the response data
+	for _, model := range response.Data {
+		// Map the API response to the ModelInfo struct
+		modelInfo := ModelInfo{
+			Title:        "",
+			SupplierName: supplierName,
+			ModelId:      model.ID,
+			MaxTokens:    8192,
+			Capability:   []string{"llm"}, // Default capability, can be updated later
+			Status:       true,
+		}
+		// Save or update the model information
+		SaveModelInfo(supplierName, model.ID, modelInfo)
+	}
+}
+
 // Models retrieves a list of models for a specific supplier or all suppliers if no name is provided.
 // It checks the status of each model and returns only those that are active if no supplier name is specified.
 func Models(supplierName string) []ModelInfo {
@@ -277,17 +341,23 @@ func Models(supplierName string) []ModelInfo {
 			supplierList = append(supplierList, supplier.Name())
 		}
 	}
-
-	models := make([]ModelInfo, 0)
-	for _, supplier := range supplierList {
-		models = append(models, GetModelList(supplier)...)
-	}
-
 	// Filter models by status
 	isCheckStatus := false
 	if supplierName == "" {
 		isCheckStatus = true
 	}
+
+	models := make([]ModelInfo, 0)
+	for _, supplier := range supplierList {
+		supplierModels := GetModelList(supplier)
+		if len(supplierModels) == 0 && isCheckStatus == false {
+			// 自动从供应商API获取模型列表
+			GetCloudModels(supplier)
+			supplierModels = GetModelList(supplier) // Re-fetch after getting cloud models
+		}
+		models = append(models, supplierModels...)
+	}
+
 	if isCheckStatus {
 		modelList := make([]ModelInfo, 0)
 		for i := 0; i < len(models); i++ {

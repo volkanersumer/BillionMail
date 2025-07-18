@@ -4,16 +4,16 @@
         "supplierName": "DeepSeek",
         "modelName": "deepseek-reasoner",
         "capability": [
-            "llm"
+            "llm","tools"
         ],
-        "status": false
+        "status": true
     },
     {
         "title": "",
         "supplierName": "DeepSeek",
         "modelName": "deepseek-chat",
         "capability": [
-            "llm"
+            "llm","tools"
         ],
         "status": true
     }

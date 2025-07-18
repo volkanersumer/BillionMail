@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -257,21 +258,69 @@ func (o *OpenAI) WriteMessage(content string, finishReason string) {
 	o.AppendMessage(userMessage, assistantMessage) // Append the messages to the chat
 }
 
+// DataToText converts structured data to a text representation
+// It handles different data types (structs, slices, etc.) and formats them for better readability.
+func DataToText(data interface{}, dataTitle string, filterKey []string) string {
+	var sb strings.Builder
+	filter := make(map[string]struct{})
+	for _, k := range filterKey {
+		filter[k] = struct{}{}
+	}
+
+	writeStruct := func(v reflect.Value, indent string) {
+		t := v.Type()
+		for i := 0; i < v.NumField(); i++ {
+			field := t.Field(i)
+			if _, ok := filter[field.Name]; ok {
+				continue
+			}
+			// continue if the field is empty and is string
+			if v.Field(i).Kind() == reflect.String && v.Field(i).Len() == 0 {
+				continue
+			}
+			fmt.Fprintf(&sb, "%s%s: %v\n", indent, field.Name, v.Field(i).Interface())
+		}
+	}
+
+	rv := reflect.ValueOf(data)
+	kind := rv.Kind()
+
+	if (kind == reflect.Slice || kind == reflect.Array) && rv.Len() == 0 {
+		return ""
+	}
+
+	sb.WriteString(fmt.Sprintf("<%s-START>\n", dataTitle))
+
+	switch kind {
+	case reflect.Struct:
+		writeStruct(rv, "")
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < rv.Len(); i++ {
+			item := rv.Index(i)
+			fmt.Fprintf(&sb, "[%d]:\n", i+1)
+			if item.Kind() == reflect.Struct {
+				writeStruct(item, "")
+			} else {
+				fmt.Fprintf(&sb, "%v\n", item.Interface())
+			}
+		}
+	default:
+		fmt.Fprintf(&sb, "%v\n", rv.Interface())
+	}
+
+	sb.WriteString(fmt.Sprintf("<%s-END>\n", dataTitle))
+
+	return sb.String()
+}
+
 func (o *OpenAI) GetCompanyProfilePrompt() (string, int) {
 	companyProFile, err := GetCompanyProfile(o.TempInfo.Domain) // Get the company profile for the chat
 	if err != nil {
 		fmt.Println("Error getting company profile:", err)
 		return "", 0
 	}
-	companyProFileJson, err := json.Marshal(companyProFile) // Marshal the company profile to JSON
-	if err != nil {
-		fmt.Println("Error marshalling company profile:", err)
-		return "", 0
-	}
-
-	prompt := "Company Profile: " + string(companyProFileJson) + "\n\n" // Return the company profile as a string
-	tokens, _ := o.CalculateTokens(prompt, true)                        // Calculate the tokens for the company profile prompt
-
+	prompt := DataToText(companyProFile, "Company Profile", []string{"UpdateTime"}) // Convert the company profile to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                                    // Calculate the tokens for the company profile prompt
 	return prompt, tokens
 }
 
@@ -281,13 +330,8 @@ func (o *OpenAI) GetProjectConfigPrompt() (string, int) {
 		fmt.Println("Error reading project config:", err)
 		return "", 0
 	}
-	projectConfigJson, err := json.Marshal(projectConfig) // Marshal the project configuration to JSON
-	if err != nil {
-		fmt.Println("Error marshalling project config:", err)
-		return "", 0
-	}
-	prompt := "Project Config: " + string(projectConfigJson) + "\n\n" // Return the project configuration as a string
-	tokens, _ := o.CalculateTokens(prompt, true)                      // Calculate the tokens for the project configuration prompt
+	prompt := DataToText(projectConfig, "Project Config", []string{"UpdateTime", "Urls", "KnowledgeBase", "Domain"}) // Convert the project configuration to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                                                                     // Calculate the tokens for the project configuration prompt
 	return prompt, tokens
 }
 
@@ -298,13 +342,8 @@ func (o *OpenAI) GetSitemapPrompt() (string, int) {
 		return "", 0
 	}
 
-	sitemapJson, err := json.Marshal(sitemap) // Marshal the sitemap to JSON
-	if err != nil {
-		fmt.Println("Error marshalling sitemap:", err)
-		return "", 0
-	}
-	prompt := "Sitemap: " + string(sitemapJson) + "\n\n" // Return the sitemap as a string
-	tokens, _ := o.CalculateTokens(prompt, true)         // Calculate the tokens for the sitemap prompt
+	prompt := DataToText(sitemap, "Sitemap", []string{"UpdateTime"}) // Convert the sitemap to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                     // Calculate the tokens for the sitemap prompt
 	return prompt, tokens
 }
 
@@ -314,13 +353,9 @@ func (o *OpenAI) GetStylePrompt() (string, int) {
 		fmt.Println("Error getting style config:", err)
 		return "", 0
 	}
-	styleConfigJson, err := json.Marshal(styleConfig) // Marshal the style configuration to JSON
-	if err != nil {
-		fmt.Println("Error marshalling style config:", err)
-		return "", 0
-	}
-	prompt := "Style Config: " + string(styleConfigJson) + "\n\n" // Return the style configuration as a string
-	tokens, _ := o.CalculateTokens(prompt, true)                  // Calculate the tokens for the style configuration prompt
+
+	prompt := DataToText(styleConfig, "Style Config", []string{"UpdateTime"}) // Convert the style configuration to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                              // Calculate the tokens for the style configuration prompt
 	return prompt, tokens
 }
 
@@ -330,13 +365,9 @@ func (o *OpenAI) GetFooterPrompt() (string, int) {
 		fmt.Println("Error getting footer:", err)
 		return "", 0
 	}
-	footerJson, err := json.Marshal(footer) // Marshal the footer to JSON
-	if err != nil {
-		fmt.Println("Error marshalling footer:", err)
-		return "", 0
-	}
-	prompt := "Footer: " + string(footerJson) + "\n\n" // Return the footer as a string
-	tokens, _ := o.CalculateTokens(prompt, true)       // Calculate the tokens for the footer prompt
+
+	prompt := DataToText(footer, "Footer", []string{"UpdateTime", "Text"}) // Convert the footer to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                           // Calculate the tokens for the footer prompt
 	return prompt, tokens
 }
 
@@ -350,18 +381,13 @@ func (o *OpenAI) GetKnowledgeBasePrompt() (string, int) {
 	// 取内容长度小于1024的文档
 	var filteredKnowledgeBase []string
 	for i := len(knowledgeBase) - 1; i >= 0; i-- {
-		if len(knowledgeBase[i].Content) < 1024 {
+		if len(knowledgeBase[i].Content) < 8192 {
 			filteredKnowledgeBase = append(filteredKnowledgeBase, knowledgeBase[i].Content)
 		}
 	}
 
-	knowledgeBaseJson, err := json.Marshal(filteredKnowledgeBase) // Marshal the knowledge base to JSON
-	if err != nil {
-		fmt.Println("Error marshalling knowledge base:", err)
-		return "", 0
-	}
-	prompt := "Knowledge Base Doc List: " + string(knowledgeBaseJson) + "\n\n" // Return the knowledge base as a string
-	tokens, _ := o.CalculateTokens(prompt, true)                               // Calculate the tokens for the knowledge base prompt
+	prompt := DataToText(filteredKnowledgeBase, "Knowledge Base", []string{"UpdateTime", "Kid"}) // Convert the knowledge base to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                                                 // Calculate the tokens for the knowledge base prompt
 	return prompt, tokens
 }
 
@@ -371,22 +397,15 @@ func (o *OpenAI) GetImagesPrompt() (string, int) {
 		fmt.Println("Error reading images list:", err)
 		return "", 0
 	}
-	if err != nil {
-		fmt.Println("Error reading images list:", err)
-		return "", 0
-	}
-	imagesJson, err := json.Marshal(images) // Marshal the images configuration to JSON
-	if err != nil {
-		fmt.Println("Error marshalling images list:", err)
-		return "", 0
-	}
-	prompt := "Images: " + string(imagesJson) + "\n\n" // Return the images configuration as a string
-	tokens, _ := o.CalculateTokens(prompt, true)       // Calculate the tokens for the images prompt
+
+	prompt := DataToText(images, "Images", []string{"UpdateTime", "ImageId"}) // Convert the images configuration to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                              // Calculate the tokens for the images prompt
 	return prompt, tokens
 }
 
 func (o *OpenAI) GetLastPrompt() (string, int) {
-	prompt := "The following are reference materials, all in JSON format, which you can use as needed:\n\n"
+	prompt := fmt.Sprintf("Current time: %s\n\n", public.GetNowDate())
+	prompt += "The following is reference information, segmented in the format of<xxx-START>...<xxx-END>, which you can use as needed:\n\n"
 	tokens, _ := o.CalculateTokens(prompt, true) // Calculate the tokens for the last prompt
 	return prompt, tokens
 }
@@ -422,8 +441,6 @@ func (o *OpenAI) GetSystemPrompt() string {
 		prompt, tokens = o.GetImagesPrompt()         // Get the images prompt
 		o.AddedSystemPrompt += prompt                // Add the images prompt to the system prompt
 		o.AddedSystemPromptTokens += tokens          // Add the tokens for the images prompt
-
-		o.AddedSystemPrompt += fmt.Sprintf("Current time: %s\n\n", public.GetNowDate())
 	}
 	systemPrompt := INITIAL_SYSTEM_PROMPT
 	if o.IsModify {
@@ -441,9 +458,9 @@ func (o *OpenAI) GetMessages() []openai.ChatCompletionMessage {
 	historyMessages := o.ReadMessages() // Read messages from the chat history
 	lastContent, _ := GetHtml(o.ChatId)
 	o.IsModify = false
-	if len(historyMessages) > 0 && lastContent != "" {
-		o.IsModify = true // If there are history messages and last content is not empty, set IsModify to true
-	}
+	// if len(historyMessages) > 0 && lastContent != "" {
+	// 	o.IsModify = true // If there are history messages and last content is not empty, set IsModify to true
+	// }
 
 	messages := []openai.ChatCompletionMessage{
 		{Role: openai.ChatMessageRoleSystem, Content: o.GetSystemPrompt()},
@@ -586,49 +603,6 @@ type ReplaceHtml struct {
 }
 
 func (o *OpenAI) ReplaceHtml() {
-	// SEARCH_START          = "<<<<<<< SEARCH"
-	// DIVIDER               = "======="
-	// REPLACE_END           = ">>>>>>> REPLACE"
-	// FOLLOW_UP_SYSTEM_PROMPT = `You are an expert email writer crafting or modifying professional emails. The user wants to refine an existing email based on their request. You MUST output ONLY the changes required using the following SEARCH/REPLACE block format. Do NOT rewrite the entire email unless explicitly requested.
-
-	// Explain the changes briefly *before* the blocks if necessary, but the content changes THEMSELVES MUST be within the blocks.
-
-	// Format Rules:
-	// 1. Start with ` + SEARCH_START + `
-	// 2. Provide the exact lines from the current email that need to be replaced.
-	// 3. Use ` + DIVIDER + ` to separate the search block from the replacement.
-	// 4. Provide the new lines that should replace the original lines.
-	// 5. End with ` + REPLACE_END + `
-	// 6. You can use multiple SEARCH/REPLACE blocks if changes are needed in different parts of the email.
-	// 7. To insert content, use an empty SEARCH block (only ` + SEARCH_START + ` and ` + DIVIDER + ` on their lines) if inserting at the very beginning, otherwise provide the line *before* the insertion point in the SEARCH block and include that line plus the new content in the REPLACE block.
-	// 8. To delete content, provide the lines to delete in the SEARCH block and leave the REPLACE block empty (only ` + DIVIDER + ` and ` + REPLACE_END + ` on their lines).
-	// 9. IMPORTANT: The SEARCH block must *exactly* match the current email content, including punctuation and formatting.
-
-	// Example Modifying Email:
-	// ` + "```" + `
-	// Updated the greeting to be more personal:
-	// ` + SEARCH_START + `
-	// Dear Sir/Madam,
-	// ` + DIVIDER + `
-	// Dear Ms. Johnson,
-	// ` + REPLACE_END + `
-
-	// Shortened the introduction for clarity:
-	// ` + SEARCH_START + `
-	// I hope this email finds you well. I am writing to follow up on our recent conversation regarding the upcoming project. As we discussed, I wanted to provide you with some additional information that I believe will be helpful as we move forward.
-	// ` + DIVIDER + `
-	// Following up on our call, here's the information you requested:
-	// ` + REPLACE_END + `
-	// ` + "```" + `
-
-	// Example Deleting Content:
-	// ` + "```" + `
-	// Removed redundant information:
-	// ` + SEARCH_START + `
-	// Please let me know if you have any questions. I look forward to hearing from you soon.
-	// ` + DIVIDER + `
-	// ` + REPLACE_END + `
-	// ` + "```"
 
 	if !o.IsModify {
 		return // If not modifying, return early
@@ -639,66 +613,6 @@ func (o *OpenAI) ReplaceHtml() {
 		return
 	}
 
-	// Here are the changes to make the footer more email-appropriate:
-
-	// 1. Simplified the footer content and structure:
-	// <<<<<<< SEARCH
-	//                     <!-- 页脚 -->
-	//                     <tr>
-	// 					<td class="section" style="background-color: #f1f4f8; padding: 30px 50px; color: #666666; font-size: 13px;">
-	// 					<table width="100%">
-	// 					<tr>
-	// 					<td>
-	// 					<p style="margin: 0 0 15px; line-height: 1.8;">
-	// 					<a href="http://www.bt.cn/new/agreement_open.html" style="color: #666666; text-decoration: underline; margin-right: 15px;">开源许可协议</a>
-	//                                             <a href="http://www.bt.cn/new/agreement_user.html" style="color: #666666; text-decoration: underline; margin-right: 15px;">用户协议</a>
-	//                                             <a href="http://www.bt.cn/new/agreement_privacy.html" style="color: #666666; text-decoration: underline;">隐私声明</a>
-	//                                         </p>
-
-	//                                         <p style="margin: 8px 0;">高新技术企业编号 GR201944000059 | 粤B2-20201398</p>
-	//                                         <p style="margin: 8px 0;">粤ICP备17030143号 | 粤公网安备 44190002003211号</p>
-
-	//                                         <p style="margin: 20px 0 15px;">Copyright © 2023 宝塔面板 (www.bt.cn) 广东堡塔安全技术有限公司 版权所有</p>
-
-	//                                         <p style="margin: 0 0 15px;">
-	//                                             <a href="http://www.bt.cn/report/" style="color: #666666; text-decoration: underline; margin-right: 15px;">违规信息举报入口</a>
-	//                                             <a href="http://www.bt.cn/new/about.html" style="color: #666666; text-decoration: underline;">公司简介</a>
-	//                                         </p>
-	// =======
-	//                     <!-- 邮件页脚 -->
-	//                     <tr>
-	//                         <td class="section" style="background-color: #f1f4f8; padding: 25px 50px; color: #666666; font-size: 12px; text-align: center;">
-	//                             <p style="margin: 0 0 10px;">宝塔面板 - 让运维简单高效</p>
-	//                             <p style="margin: 0 0 15px;">
-	//                                 <a href="http://www.bt.cn" style="color: #666666; text-decoration: none; margin: 0 10px;">官网</a> |
-	//                                 <a href="http://www.bt.cn/bbs" style="color: #666666; text-decoration: none; margin: 0 10px;">社区</a> |
-	//                                 <a href="http://www.bt.cn/new/download.html" style="color: #666666; text-decoration: none; margin: 0 10px;">下载</a>
-	//                             </p>
-	//                             <p style="margin: 0 0 10px; color: #999999;">© 2023 宝塔面板 广东堡塔安全技术有限公司</p>
-	//                             <p style="margin: 0; font-size: 11px; color: #999999;">
-	//                                 本邮件为系统自动发送，请勿直接回复
-	//                             </p>
-	// >>>>>>> REPLACE
-
-	// 2. Added a small adjustment to the section above the footer to better transition:
-	// <<<<<<< SEARCH
-	//                     <!-- 客服支持 -->
-	//                     <tr>
-	//                         <td class="section" style="padding-top: 10px; padding-bottom: 30px;">
-	// =======
-	//                     <!-- 客服支持 -->
-	//                     <tr>
-	//                         <td class="section" style="padding-top: 10px; padding-bottom: 20px;">
-	// >>>>>>> REPLACE
-
-	// These changes:
-	// 1. Simplified the footer content to be more email-appropriate
-	// 2. Centered the content and made it more compact
-	// 3. Added common email footer elements like "do not reply" notice
-	// 4. Reduced the legal/compliance information to just essentials
-	// 5. Made the links more prominent but still subtle
-	// 6. Adjusted spacing between sections for better flow
-	// fmt.Println(o.Content)
 	replaceHtml := []ReplaceHtml{}
 	if strings.Contains(o.Content, SEARCH_START) && strings.Contains(o.Content, REPLACE_END) && strings.Contains(o.Content, DIVIDER) {
 
@@ -711,8 +625,6 @@ func (o *OpenAI) ReplaceHtml() {
 				if len(subParts) == 2 && strings.Contains(subParts[0], DIVIDER) {
 					searchReplace := strings.Split(subParts[0], DIVIDER)
 					if len(searchReplace) == 2 {
-						fmt.Println("Search Content:", searchReplace[0])
-						fmt.Println("Replace Content:", searchReplace[1])
 						replaceHtml = append(replaceHtml, ReplaceHtml{
 							SearchContent:  searchReplace[0],
 							ReplaceContent: searchReplace[1],
@@ -846,11 +758,6 @@ func (o *OpenAI) SetHtmlContent(content string, isText bool) (reasoning string, 
 			}
 		}
 	}
-
-	// isModify is true, it means the user is modifying the chat
-	// if o.IsModify {
-
-	// }
 
 	// If the content is a thinking block, append it to the Reasoning
 	if o.IsThinking {

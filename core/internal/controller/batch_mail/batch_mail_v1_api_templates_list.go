@@ -5,7 +5,6 @@ import (
 	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
-	"time"
 )
 
 func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplatesListReq) (res *v1.ApiTemplatesListRes, err error) {
@@ -23,15 +22,15 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 		model = model.Where("active", req.Active)
 	}
 
-	if req.StartTime > 0 && req.EndTime <= 0 {
-		req.EndTime = int(time.Now().Unix())
-	}
-	if req.StartTime > 0 {
-		model = model.WhereGTE("create_time", req.StartTime)
-	}
-	if req.EndTime > 0 {
-		model = model.WhereLTE("create_time", req.EndTime)
-	}
+	//if req.StartTime > 0 && req.EndTime <= 0 {
+	//	req.EndTime = int(time.Now().Unix())
+	//}
+	//if req.StartTime > 0 {
+	//	model = model.WhereGTE("create_time", req.StartTime)
+	//}
+	//if req.EndTime > 0 {
+	//	model = model.WhereLTE("create_time", req.EndTime)
+	//}
 	// get total
 	total, err := model.Count()
 	if err != nil {

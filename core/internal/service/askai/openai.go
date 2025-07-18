@@ -65,6 +65,26 @@ type OpenAI struct {
 
 }
 
+const (
+	TOOL_NAME_HTTP_REQUEST = "http_request" // Name of the tool for HTTP requests
+)
+
+type ToolDescription struct {
+	Name        string        `json:"name"`        // Name of the tool
+	Description string        `json:"description"` // Description of the tool
+	Parameters  ToolParameter `json:"parameters"`  // Parameters of the tool
+}
+
+type ToolParameter struct {
+	Type       string                 `json:"type"`       // Type of the parameters (e.g., "object")
+	Properties map[string]interface{} `json:"properties"` // Properties of the parameters
+	Required   []string               `json:"required"`   // Required parameters
+}
+
+type WebSearchParams struct {
+	Url string `json:"url"` // The URL of the webpage to retrieve
+}
+
 func NewOpenAI(ctx context.Context, apiKey, baseUrl, modelId, chatId, supplierName string, maxTokens int) *OpenAI {
 	tempInfo, err := GetTempChat(chatId)
 	if err != nil {
@@ -122,6 +142,65 @@ func (o *OpenAI) GetClient() *openai.Client {
 		o.Client = openai.NewClientWithConfig(config)
 	}
 	return o.Client
+}
+
+// 新增网页访问工具
+func (o *OpenAI) RegisterWebSearchTool() openai.Tool {
+	functionObj := openai.FunctionDefinition{
+		Name: TOOL_NAME_HTTP_REQUEST,
+		Description: `Request and retrieve webpage content from a specified URL
+		Args:
+			url: <string> url of the webpage to retrieve
+		Returns:
+			string: json title and body of the webpage content.
+		`,
+		Strict: true,
+		Parameters: ToolParameter{
+			Type: "object",
+			Properties: map[string]interface{}{
+				"url": map[string]string{
+					"type":        "string",
+					"description": "The URL of the webpage to retrieve",
+				},
+			},
+			Required: []string{"url"},
+		},
+	}
+
+	return openai.Tool{
+		Type:     openai.ToolTypeFunction,
+		Function: &functionObj,
+	}
+}
+
+func (o *OpenAI) HttpRequestTool(url string) string {
+	urlKey := public.Md5(url)
+	cachePath := CHAT_CONFIG_PATH + "/" + o.ChatId + "/temp"
+	cacheFile := cachePath + "/" + urlKey
+
+	// 1. 先查本地缓存
+	if public.FileExists(cacheFile) {
+		cacheBodyBytes, err := os.ReadFile(cacheFile)
+		if err == nil && len(cacheBodyBytes) > 100 {
+			return string(cacheBodyBytes)
+		}
+	}
+
+	// 2. 缓存不存在或无效，发起请求
+	toUrl := FILE_CDN_API + "/bot?url=" + url
+	res, err := public.HttpGetSrc(toUrl, 120)
+	if err != nil || len(res) <= 100 {
+		// 请求失败或内容过短，直接返回空
+		return ""
+	}
+
+	// 3. 写入缓存（忽略写入错误）
+	if !public.FileExists(cachePath) {
+		_ = os.MkdirAll(cachePath, 0755)
+	}
+	_ = os.WriteFile(cacheFile, []byte(res), 0600)
+
+	return res
 }
 
 // GetCacheTokens retrieves the cached tokens for a specific key
@@ -216,7 +295,7 @@ func (o *OpenAI) WriteMessage(content string, finishReason string) {
 		Ppid:          "", // Parent message ID is empty for the initial message
 		ChatId:        o.ChatId,
 		Role:          openai.ChatMessageRoleUser,
-		Content:       content,
+		Content:       o.UserContent,
 		HtmlContent:   "",
 		CreateTime:    o.CreateTime,        // Use the creation time set in the OpenAI struct
 		EndTime:       public.GetNowTime(), // End time is 0 for the initial message
@@ -474,6 +553,10 @@ func (o *OpenAI) GetMessages() []openai.ChatCompletionMessage {
 			content = "..."
 		}
 
+		if len(content) == 0 {
+			content = "..."
+		}
+
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    message.Role,
 			Content: content,
@@ -500,45 +583,19 @@ func (o *OpenAI) GetMessages() []openai.ChatCompletionMessage {
 	return messages
 }
 
-func (o *OpenAI) Chat(content string, isText bool) error {
-	// Implementation for sending a chat message to OpenAI
-	// This function should handle the logic for sending a chat message and return the response or any error encountered
-
-	request := ghttp.RequestFromCtx(o.Ctx)
-	if request == nil {
-		return errors.New("request context is nil")
-	}
-
-	if o.Client == nil {
-		o.GetClient()
-	}
-
-	o.UserContent = content // Set the user content to the provided content
-
-	req := openai.ChatCompletionRequest{
-		Model:               o.ModelId,
-		MaxCompletionTokens: o.MaxTokens,
-		Messages:            o.GetMessages(), // Get the messages for the chat
-		Temperature:         0.6,             // Set temperature for the chat completion
-		Stream:              true,
-	}
-	o.MessageId = GetUUID()
-
-	o.RequestTime = public.GetNowTime() // Set request time to the current time
-	o.CalculatePromptTokens(content)    // Calculate prompt tokens based on the content
-
+// CreateChatCompletionStream creates a chat completion stream for the OpenAI API
+// It handles the streaming of responses, tool calls, and writing events to the response.
+// It also manages the chat status and ensures proper handling of tool calls.
+func (o *OpenAI) CreateChatCompletionStream(request *ghttp.Request, req openai.ChatCompletionRequest, isText bool) error {
 	stream, err := o.Client.CreateChatCompletionStream(o.Ctx, req)
 	if err != nil {
+		fmt.Println("Error creating chat completion stream:", err)
 		return err
 	}
 
 	defer stream.Close()
-
-	// set request.Response.Header().Set("Content-Type", "text/event-stream")
-	request.Response.Header().Set("Content-Type", "text/event-stream; charset=utf-8") // Set content type for SSE (Server-Sent Events)
-	request.Response.Header().Set("Cache-Control", "no-cache")
-	request.Response.Header().Set("Connection", "keep-alive")
-	request.Response.WriteHeader(200) // OK status
+	toolCallMap := make(map[string]*openai.ToolCall)
+	toolId := ""
 	finishReason := ""
 	for {
 		if ChatStatus[o.ChatId] == false {
@@ -551,50 +608,149 @@ func (o *OpenAI) Chat(content string, isText bool) error {
 			break
 		}
 		if err != nil {
-			return err
+			fmt.Println("Error receiving stream:", err)
+			// return err
+			break
 		}
-
-		// Set Usage.PromptTokens, CompletionTokens, and TotalTokens
-		o.Usage.CompletionTokens += len(response.Choices[0].Delta.Content)
-		o.Usage.TotalTokens += o.Usage.PromptTokens + o.Usage.CompletionTokens
-		finishReason = string(response.Choices[0].FinishReason)
-
-		messageBody := response.Choices[0].Delta.Content
-		if messageBody == "" {
-			if response.Choices[0].Delta.ReasoningContent != "" {
-				if !o.IsThinkContent {
-					o.ThinkStart = true
-				} else {
-					o.ThinkStart = false
+		// Check if the response contains tool calls
+		if len(response.Choices[0].Delta.ToolCalls) > 0 {
+			for _, toolCall := range response.Choices[0].Delta.ToolCalls {
+				if toolCall.ID != "" {
+					toolId = toolCall.ID
 				}
-				o.IsThinking = true
-				o.IsThinkContent = true                                  // Set thinking content state to true
-				messageBody = response.Choices[0].Delta.ReasoningContent // Use reasoning content
-			} else {
-				continue // Skip empty messages
+				if _, ok := toolCallMap[toolId]; !ok {
+					toolCallMap[toolId] = &openai.ToolCall{
+						ID:       toolCall.ID,
+						Type:     toolCall.Type,
+						Function: toolCall.Function,
+					}
+				}
+				if toolCall.Function.Name != "" {
+					toolCallMap[toolId].Function.Name = toolCall.Function.Name
+				}
+				if toolCall.Function.Arguments != "" {
+					toolCallMap[toolId].Function.Arguments += toolCall.Function.Arguments
+				}
 			}
 		} else {
-			if o.IsThinkContent {
-				o.ThinkEnd = true                          // Set thinking end state to true if content is not empty
-				o.WriteEvent(request, "\n", isText, false) // Write event to the response
-				o.ThinkEnd = false
-				o.IsThinkContent = false // Reset thinking content state after processing
-				if o.IsThinking {
-					o.IsThinking = false // Reset thinking state after processing
+			// Set Usage.PromptTokens, CompletionTokens, and TotalTokens
+			o.Usage.CompletionTokens += len(response.Choices[0].Delta.Content)
+			o.Usage.TotalTokens += o.Usage.PromptTokens + o.Usage.CompletionTokens
+			finishReason = string(response.Choices[0].FinishReason)
+
+			messageBody := response.Choices[0].Delta.Content
+			if messageBody == "" {
+				if response.Choices[0].Delta.ReasoningContent != "" {
+					if !o.IsThinkContent {
+						o.ThinkStart = true
+					} else {
+						o.ThinkStart = false
+					}
+					o.IsThinking = true
+					o.IsThinkContent = true                                  // Set thinking content state to true
+					messageBody = response.Choices[0].Delta.ReasoningContent // Use reasoning content
+				} else {
+					continue // Skip empty messages
+				}
+			} else {
+				if o.IsThinkContent {
+					o.ThinkEnd = true                          // Set thinking end state to true if content is not empty
+					o.WriteEvent(request, "\n", isText, false) // Write event to the response
+					o.ThinkEnd = false
+					o.IsThinkContent = false // Reset thinking content state after processing
+					if o.IsThinking {
+						o.IsThinking = false // Reset thinking state after processing
+					}
 				}
 			}
+
+			o.WriteEvent(request, messageBody, isText, false) // Write event to the response
 		}
-
-		// 获取HTML内容，格式：```html
-		// if messageBody
-
-		o.WriteEvent(request, messageBody, isText, false) // Write event to the response
 	}
-	// Ensure the response is properly closed
-	o.WriteHtml()                           // Write HTML content if the chat has ended
-	o.WriteMessage(content, finishReason)   // Write the final message to the chat
-	o.WriteEvent(request, "", isText, true) // Write final event to indicate completion
+
+	if len(toolCallMap) > 0 {
+		// If there are tool calls, write them to the response
+		for _, toolCall := range toolCallMap {
+			if toolCall.Function.Name == TOOL_NAME_HTTP_REQUEST {
+				var params WebSearchParams
+				if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &params); err != nil {
+					return fmt.Errorf("failed to unmarshal tool call arguments: %v, %s", err, toolCall.Function.Arguments)
+				}
+
+				o.WriteEvent(request, "\n\n<tool>Requesting URL: "+params.Url, isText, false)
+				// Call the HTTP request tool with the URL from the tool call
+				responseContent := o.HttpRequestTool(params.Url)
+				o.WriteEvent(request, " complete</tool>\n\n", isText, false)
+
+				assistantMessage := openai.ChatCompletionMessage{
+					Role:    openai.ChatMessageRoleAssistant,
+					Content: "",
+					ToolCalls: []openai.ToolCall{
+						{
+							ID:       toolCall.ID,
+							Type:     toolCall.Type,
+							Function: toolCall.Function, // Use the function from the tool call
+						},
+					},
+				}
+
+				toolMessage := openai.ChatCompletionMessage{
+					Role:       openai.ChatMessageRoleTool,
+					Content:    responseContent,
+					ToolCallID: toolCall.ID,
+				}
+				req.Messages = append(req.Messages, assistantMessage, toolMessage)
+
+			}
+		}
+		// Recursively call the function to handle tool calls
+		return o.CreateChatCompletionStream(request, req, isText)
+	}
+
+	if o.Content != "" {
+		// Ensure the response is properly closed
+		o.WriteHtml()                           // Write HTML content if the chat has ended
+		o.WriteMessage(o.Content, finishReason) // Write the final message to the chat
+		o.WriteEvent(request, "", isText, true) // Write final event to indicate completion
+	}
 	return nil
+}
+
+func (o *OpenAI) Chat(content string, isText bool) error {
+	// Implementation for sending a chat message to OpenAI
+	// This function should handle the logic for sending a chat message and return the response or any error encountered
+	request := ghttp.RequestFromCtx(o.Ctx)
+	if request == nil {
+		return errors.New("request context is nil")
+	}
+
+	if o.Client == nil {
+		o.GetClient()
+	}
+
+	tools := []openai.Tool{
+		o.RegisterWebSearchTool(), // Register the web search tool for HTTP requests
+	}
+
+	o.UserContent = content // Set the user content to the provided content
+
+	req := openai.ChatCompletionRequest{
+		Model:               o.ModelId,
+		MaxCompletionTokens: o.MaxTokens,
+		Messages:            o.GetMessages(), // Get the messages for the chat
+		Temperature:         0.6,             // Set temperature for the chat completion
+		Stream:              true,
+		Tools:               tools, // Add the registered tools to the request
+	}
+	o.MessageId = GetUUID()
+
+	o.RequestTime = public.GetNowTime()                                               // Set request time to the current time
+	o.CalculatePromptTokens(content)                                                  // Calculate prompt tokens based on the content
+	request.Response.Header().Set("Content-Type", "text/event-stream; charset=utf-8") // Set content type for SSE (Server-Sent Events)
+	request.Response.Header().Set("Cache-Control", "no-cache")
+	request.Response.Header().Set("Connection", "keep-alive")
+	request.Response.WriteHeader(200)                         // OK status
+	return o.CreateChatCompletionStream(request, req, isText) // Create chat completion stream with the request
 }
 
 type ReplaceHtml struct {

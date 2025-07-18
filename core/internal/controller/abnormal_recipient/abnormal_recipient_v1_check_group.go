@@ -108,7 +108,7 @@ func (c *ControllerV1) CheckGroup(ctx context.Context, req *v1.CheckGroupReq) (r
 
 		switch req.Oper {
 		case 2: // Add abnormal table
-			_ = abnormal_recipient.BatchUpsertAbnormalRecipients(ctx, invalidEmails, 3, "Manual scanning group exception")
+			_ = abnormal_recipient.BatchUpsertAbnormalRecipients(ctx, invalidEmails, 3, "Manual scanning group")
 			appendLogLine(logDir, "Adding invalid emails to blocklist...")
 		case 3: // Remove from the group
 			_, _ = g.DB().Model("bm_contacts").Where("group_id", req.GroupId).WhereIn("email", invalidEmails).Delete()

@@ -11,7 +11,7 @@ import (
 )
 
 func (c *ControllerV1) ClearabnormalRecipient(ctx context.Context, req *v1.ClearabnormalRecipientReq) (res *v1.ClearabnormalRecipientRes, err error) {
-
+	res = &v1.ClearabnormalRecipientRes{}
 	_, err = g.DB().Model("abnormal_recipient").Where("1=1").Delete()
 	if err != nil {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Clearing failed: {}", err.Error())))

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -240,10 +241,16 @@ func GetChatInfo(chatId string) (*ChatInfo, error) {
 }
 
 func Chat(ctx context.Context, chatId string, supplierName string, modelId string, content string, isText bool) error {
+	content = strings.TrimSpace(content)
+	if content == "" {
+		return errors.New("Content cannot be empty")
+	}
+
 	supplierInfo, err := GetSupplierConfig(supplierName)
 	if err != nil {
 		return errors.New("Supplier not found")
 	}
+
 	modelInfo := GetModelInfo(supplierName, modelId)
 	if modelInfo == nil {
 		return errors.New("Model not found")

@@ -144,8 +144,12 @@ func SaveProjectConfig(Domain string, config ProjectConfig) error {
 // Create initializes a new project configuration with the provided domain and URLs.
 // It sets default values for other fields and saves the configuration to a file.
 func Create(Domain string, urls []string) error {
-	if urls == nil || len(urls) == 0 {
+	urlsCount := len(urls)
+	if urls == nil || urlsCount == 0 {
 		urls = append(urls, "http://"+Domain) // Default URL if none provided
+	}
+	if urlsCount > 3 {
+		return fmt.Errorf("Add up to 3 URLs")
 	}
 	// Ensure all URLs start with "http://"
 	for i, urlStr := range urls {
@@ -240,7 +244,7 @@ func SetProjectStatus(Domain string, status bool) error {
 // ModifyBaseInfo updates the base information of a project configuration based on the provided domain.
 // It reads the existing configuration, modifies the specified fields, and saves the updated configuration back to the file.
 // If any field is empty, it will not be updated.
-func ModifyBaseInfo(Domain string, projectName, description, industry, primaryLogo, secondaryLogo, favicon string) error {
+func ModifyBaseInfo(Domain string, projectName, description, industry, primaryLogo, secondaryLogo, favicon string, urls []string) error {
 	config, err := ReadProjectConfig(Domain)
 	if err != nil {
 		return fmt.Errorf("error reading project configuration: %v", err)
@@ -264,6 +268,13 @@ func ModifyBaseInfo(Domain string, projectName, description, industry, primaryLo
 	}
 	if favicon != "" {
 		config.Favicon = favicon
+	}
+	urlsCount := len(urls)
+	if urlsCount > 0 {
+		if urlsCount > 3 {
+			return fmt.Errorf("Add up to 3 URLs")
+		}
+		config.Urls = urls
 	}
 
 	err = SaveProjectConfig(Domain, config)
@@ -350,8 +361,11 @@ func GetUUID() string {
 
 // CreateKnowledgeBaseFile creates a new knowledge base file with the provided domain, title, and content.
 // It generates a unique ID for the knowledge base, constructs a KnowledgeInfo struct, and saves it using the SaveKnowledgeBase function.
-func CreateKnowledgeBaseFile(Domain string, Title string, Content string) error {
-	Tid := GetUUID()
+func CreateKnowledgeBaseFile(Domain string, Title string, Content string, Tid string) error {
+	if Tid == "" {
+		Tid = GetUUID()
+	}
+
 	knowledge := KnowledgeInfo{
 		Kid:        Tid,
 		Title:      Title,
@@ -1026,8 +1040,150 @@ func GetImages(Domain string) ([]ImageInfo, error) {
 	return images, nil
 }
 
-func AutoGetProjectInfo() {
+func AppendImages(domain string, Images []ImageInfo) {
+	images, err := ReadImagesConfig(domain)
+	if err != nil {
+		fmt.Printf("Error reading images configuration for %s: %v\n", domain, err)
+		return
+	}
 
+	for _, image := range Images {
+		exists := false
+		for _, img := range images {
+			if img.ImageUrl == image.ImageUrl {
+				exists = true
+				break
+			}
+		}
+		if !exists && image.ImageUrl != "" {
+			image.ImageId = GetUUID()
+			image.UpdateTime = public.GetNowTime()
+			images = append(images, image)
+		}
+	}
+	err = SaveImagesConfig(domain, images)
+	if err != nil {
+		fmt.Printf("Error saving images configuration for %s: %v\n", domain, err)
+		return
+	}
+}
+
+func AppendSitemap(domain string, Sitemap []BotSitemap) {
+	siteMap, _ := GetSiteMap(domain)
+	for _, sitemapNode := range Sitemap {
+		// check if the node already exists in the site map
+		exists := false
+		for _, existingNode := range siteMap {
+			if existingNode.UriPath == sitemapNode.URIPath {
+				exists = true
+				break
+			}
+		}
+		if exists {
+			continue
+		}
+		newNode := SiteMap{
+			Title: sitemapNode.Title,
+			// PageTitle:    sitemapNode.PageTitle,
+			// PageMarkdown: sitemapNode.PageMarkdown,
+			UriPath:    sitemapNode.URIPath,
+			UpdateTime: public.GetNowTime(),
+		}
+		siteMap = append(siteMap, newNode)
+	}
+	SaveSiteMap(domain, siteMap)
+}
+
+func AppendStyle(domain string, Style BotStyle) {
+	styleConfig, _ := GetStyleConfig(domain)
+	styleConfig.AccentColor = Style.AccentColor
+	styleConfig.TextColor = Style.TextColor
+	styleConfig.PageBackground = Style.PageBackground
+	styleConfig.ContainerBackground = Style.ContainerBackground
+	styleConfig.LinkSocialColor = Style.LinkSocialColor
+	styleConfig.LinkFooterColor = Style.LinkFooterColor
+	styleConfig.HeadingFont = Style.HeadingFont
+	styleConfig.BodyFont = Style.BodyFont
+	styleConfig.UpdateTime = public.GetNowTime()
+	SaveStyleConfig(domain, styleConfig)
+}
+
+func AppendCompanyConfig(domain string, Data BotData) {
+	companyConfig, _ := GetCompanyProfile(domain)
+	if companyConfig.LegalCompanyName == "" {
+		companyConfig.LegalCompanyName = Data.Title
+	}
+	if companyConfig.WebSite == "" {
+		companyConfig.WebSite = Data.URL
+	}
+	if companyConfig.CompanyProfile == "" {
+		companyConfig.CompanyProfile = Data.Description
+	}
+	if companyConfig.Email == "" {
+		companyConfig.Email = Data.Email
+	}
+
+	if companyConfig.Phone == "" {
+		companyConfig.Phone = Data.Phone
+	}
+	if companyConfig.SupportUrl == "" {
+		companyConfig.SupportUrl = Data.SupportUrl
+	}
+	companyConfig.UpdateTime = public.GetNowTime()
+	SaveCompanyProfile(domain, companyConfig)
+}
+
+func AppendProjectConfig(domain string, config ProjectConfig, Data BotData) {
+	config.Description = Data.Description
+	config.Favicon = Data.Icon
+	config.PrimaryLogo = Data.PrimaryLogo
+	config.SecondaryLogo = Data.SecondaryLogo
+	config.ProjectName = Data.Title
+	config.UpdateTime = public.GetNowTime()
+	SaveProjectConfig(domain, config)
+}
+
+func GetUrlIsRequest(domain string, urlMd5 string) bool {
+	tipsPath := fmt.Sprintf("%s/%s/tips", PRODUCT_CONFIG_PATH, domain)
+	if !public.FileExists(tipsPath) {
+		os.MkdirAll(tipsPath, 0755)
+	}
+
+	tipsFile := fmt.Sprintf("%s/%s", tipsPath, urlMd5)
+	return public.FileExists(tipsFile)
+}
+
+func SetUrlIsRequest(domain string, urlMd5 string) {
+	tipsPath := fmt.Sprintf("%s/%s/tips", PRODUCT_CONFIG_PATH, domain)
+	if !public.FileExists(tipsPath) {
+		os.MkdirAll(tipsPath, 0755)
+	}
+	tipsFile := fmt.Sprintf("%s/%s", tipsPath, urlMd5)
+	os.WriteFile(tipsFile, []byte(public.GetNowTimeStr()), 0600)
+}
+
+func RequestUrl(domain, toUrl string) (BotResponse, error) {
+	if !strings.HasPrefix(toUrl, "http") {
+		toUrl = "http://" + toUrl
+	}
+	var result BotResponse
+	url := FILE_CDN_API + "/bot?url=" + toUrl
+	resultBody, err := public.HttpGetSrc(url, 360)
+	if err != nil {
+		fmt.Printf("Error fetching project data for %s: %v\n", domain, err)
+		return result, err
+	}
+
+	// Parse the JSON response
+	err = json.Unmarshal([]byte(resultBody), &result)
+	if err != nil {
+		fmt.Printf("Error parsing project data for %s: %v\n", domain, err)
+		return result, err
+	}
+	return result, nil
+}
+
+func AutoGetProjectInfo() {
 	dirs, err := os.ReadDir(PRODUCT_CONFIG_PATH)
 	if err != nil {
 		fmt.Println("Error reading project config directory:", err)
@@ -1044,7 +1200,6 @@ func AutoGetProjectInfo() {
 		if !public.FileExists(projectConfigFile) {
 			continue // Skip if project.json does not exist for this domain
 		}
-
 		// Read the project configuration
 		config, err := ReadProjectConfig(domain)
 		if err != nil {
@@ -1052,9 +1207,9 @@ func AutoGetProjectInfo() {
 			continue
 		}
 
-		if config.UpdateTime > 0 {
-			continue // Skip if the project configuration has already been updated
-		}
+		// if config.UpdateTime > 0 {
+		// 	continue // Skip if the project configuration has already been updated
+		// }
 
 		if len(config.Urls) == 0 {
 			continue // Skip if there are no URLs to process
@@ -1066,133 +1221,46 @@ func AutoGetProjectInfo() {
 		if isLock != nil && isLock.(bool) {
 			continue
 		}
-		public.SetCache(domain, true, 300) // Set a lock for 300 seconds
+		public.SetCache(domain, true, 600) // Set a lock for 300 seconds
 
-		toUrl := config.Urls[0]
-		if !strings.HasPrefix(toUrl, "http") {
-			toUrl = "http://" + toUrl
-		}
-		url := FILE_CDN_API + "/bot?url=" + toUrl
-		resultBody, err := public.HttpGetSrc(url, 360)
-		if err != nil {
-			fmt.Printf("Error fetching project data for %s: %v\n", domain, err)
-			continue
-		}
+		for i, toUrl := range config.Urls {
+			urlMd5 := public.Md5(toUrl)
 
-		// Parse the JSON response
-		var result BotResponse
-		err = json.Unmarshal([]byte(resultBody), &result)
-		if err != nil {
-			fmt.Printf("Error parsing project data for %s: %v\n", domain, err)
-			continue
-		}
+			// check is requestd
+			if GetUrlIsRequest(domain, urlMd5) {
+				continue
+			}
 
-		config.Description = result.Data.Description
-		config.Favicon = result.Data.Icon
-		config.PrimaryLogo = result.Data.PrimaryLogo
-		config.SecondaryLogo = result.Data.SecondaryLogo
-		config.ProjectName = result.Data.Title
-		config.UpdateTime = public.GetNowTime()
-		SaveProjectConfig(domain, config)
+			result, err := RequestUrl(domain, toUrl)
+			if err != nil {
+				continue
+			}
+			if i == 0 {
+				AppendProjectConfig(domain, config, result.Data)
+				AppendCompanyConfig(domain, result.Data)
+				AppendStyle(domain, result.Data.Style)
+				if result.Data.Footer.Copyright != "" {
+					ModifyFooter(domain, result.Data.Footer.Copyright, result.Data.Footer.Disclaimer, result.Data.Footer.Text)
+				}
+			} else {
+				for i, sitemapNode := range result.Data.Sitemap {
+					if strings.HasPrefix(sitemapNode.URIPath, "http") {
+						continue
+					}
+					result.Data.Sitemap[i].URIPath = strings.Replace(result.Data.SupportUrl+result.Data.Sitemap[i].URIPath, "//", "/", 1)
+				}
+			}
+
+			AppendSitemap(domain, result.Data.Sitemap)
+			CreateKnowledgeBaseFile(domain, result.Data.Title, result.Data.Markdown, urlMd5)
+			AppendImages(domain, result.Data.Images)
+
+			// tip requestd
+			SetUrlIsRequest(domain, urlMd5)
+		}
 
 		// Clear the cache for this domain
 		public.RemoveCache(domain)
-
-		companyConfig, _ := GetCompanyProfile(domain)
-		if companyConfig.LegalCompanyName == "" {
-			companyConfig.LegalCompanyName = result.Data.Title
-		}
-		if companyConfig.WebSite == "" {
-			companyConfig.WebSite = result.Data.URL
-		}
-		if companyConfig.CompanyProfile == "" {
-			companyConfig.CompanyProfile = result.Data.Description
-		}
-		if companyConfig.Email == "" {
-			companyConfig.Email = result.Data.Email
-		}
-
-		if companyConfig.Phone == "" {
-			companyConfig.Phone = result.Data.Phone
-		}
-		if companyConfig.SupportUrl == "" {
-			companyConfig.SupportUrl = result.Data.SupportUrl
-		}
-
-		companyConfig.UpdateTime = public.GetNowTime()
-
-		SaveCompanyProfile(domain, companyConfig)
-
-		styleConfig, _ := GetStyleConfig(domain)
-
-		styleConfig.AccentColor = result.Data.Style.AccentColor
-		styleConfig.TextColor = result.Data.Style.TextColor
-		styleConfig.PageBackground = result.Data.Style.PageBackground
-		styleConfig.ContainerBackground = result.Data.Style.ContainerBackground
-		styleConfig.LinkSocialColor = result.Data.Style.LinkSocialColor
-		styleConfig.LinkFooterColor = result.Data.Style.LinkFooterColor
-		styleConfig.HeadingFont = result.Data.Style.HeadingFont
-		styleConfig.BodyFont = result.Data.Style.BodyFont
-		styleConfig.UpdateTime = public.GetNowTime()
-
-		SaveStyleConfig(domain, styleConfig)
-
-		siteMap, _ := GetSiteMap(domain)
-
-		for _, sitemapNode := range result.Data.Sitemap {
-			// check if the node already exists in the site map
-			exists := false
-			for _, existingNode := range siteMap {
-				if existingNode.UriPath == sitemapNode.URIPath {
-					exists = true
-					break
-				}
-			}
-			if exists {
-				continue
-			}
-			newNode := SiteMap{
-				Title: sitemapNode.Title,
-				// PageTitle:    sitemapNode.PageTitle,
-				// PageMarkdown: sitemapNode.PageMarkdown,
-				UriPath:    sitemapNode.URIPath,
-				UpdateTime: public.GetNowTime(),
-			}
-			siteMap = append(siteMap, newNode)
-		}
-		SaveSiteMap(domain, siteMap)
-
-		CreateKnowledgeBaseFile(domain, result.Data.Title, result.Data.Markdown)
-
-		images, err := ReadImagesConfig(domain)
-		if err != nil {
-			fmt.Printf("Error reading images configuration for %s: %v\n", domain, err)
-			continue
-		}
-
-		for _, image := range result.Data.Images {
-			exists := false
-			for _, img := range images {
-				if img.ImageUrl == image.ImageUrl {
-					exists = true
-					break
-				}
-			}
-			if !exists && image.ImageUrl != "" {
-				image.ImageId = GetUUID()
-				image.UpdateTime = public.GetNowTime()
-				images = append(images, image)
-			}
-		}
-		err = SaveImagesConfig(domain, images)
-		if err != nil {
-			fmt.Printf("Error saving images configuration for %s: %v\n", domain, err)
-			continue
-		}
-
-		if result.Data.Footer.Copyright != "" {
-			ModifyFooter(domain, result.Data.Footer.Copyright, result.Data.Footer.Disclaimer, result.Data.Footer.Text)
-		}
 
 	}
 }

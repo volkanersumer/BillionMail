@@ -457,10 +457,10 @@ func (o *OpenAI) GetKnowledgeBasePrompt() (string, int) {
 		return "", 0
 	}
 
-	// 取内容长度小于1024的文档
+	// 取内容长度小于10240的文档
 	var filteredKnowledgeBase []string
 	for i := len(knowledgeBase) - 1; i >= 0; i-- {
-		if len(knowledgeBase[i].Content) < 8192 {
+		if len(knowledgeBase[i].Content) < 10240 {
 			filteredKnowledgeBase = append(filteredKnowledgeBase, knowledgeBase[i].Content)
 		}
 	}
@@ -477,8 +477,18 @@ func (o *OpenAI) GetImagesPrompt() (string, int) {
 		return "", 0
 	}
 
-	prompt := DataToText(images, "Images", []string{"UpdateTime", "ImageId"}) // Convert the images configuration to a text representation
-	tokens, _ := o.CalculateTokens(prompt, true)                              // Calculate the tokens for the images prompt
+	n := 0
+	newImages := []ImageInfo{}
+	for _, image := range images {
+		if n > 50 {
+			break
+		}
+		newImages = append(newImages, image)
+		n++
+	}
+
+	prompt := DataToText(newImages, "Images", []string{"UpdateTime", "ImageId", "Filename", "ImageTag"}) // Convert the images configuration to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                                                         // Calculate the tokens for the images prompt
 	return prompt, tokens
 }
 

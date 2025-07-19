@@ -56,7 +56,7 @@ func (c *ControllerV1) GetBaseInfo(ctx context.Context, req *v1.GetBaseInfoReq) 
 
 func (c *ControllerV1) ModifyBaseInfo(ctx context.Context, req *v1.ModifyBaseInfoReq) (res *v1.ModifyBaseInfoRes, err error) {
 	res = &v1.ModifyBaseInfoRes{}
-	err = askai.ModifyBaseInfo(req.Domain, req.ProjectName, req.Description, req.Industry, req.PrimaryLogo, req.SecondaryLogo, req.Favicon)
+	err = askai.ModifyBaseInfo(req.Domain, req.ProjectName, req.Description, req.Industry, req.PrimaryLogo, req.SecondaryLogo, req.Favicon, req.Urls)
 	if err != nil {
 		res.SetError(err)
 	} else {
@@ -78,7 +78,7 @@ func (c *ControllerV1) ModifyKnowledgeBaseFile(ctx context.Context, req *v1.Modi
 
 func (c *ControllerV1) CreateKnowledgeBaseFile(ctx context.Context, req *v1.CreateKnowledgeBaseFileReq) (res *v1.CreateKnowledgeBaseFileRes, err error) {
 	res = &v1.CreateKnowledgeBaseFileRes{}
-	err = askai.CreateKnowledgeBaseFile(req.Domain, req.Title, req.Content)
+	err = askai.CreateKnowledgeBaseFile(req.Domain, req.Title, req.Content, "")
 	if err != nil {
 		res.SetError(err)
 	} else {

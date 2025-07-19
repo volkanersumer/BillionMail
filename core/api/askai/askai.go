@@ -45,6 +45,8 @@ type IAskAiV1 interface {
 	RemoveImage(req *v1.RemoveImageReq) (res *v1.RemoveImageRes, err error)
 	ModifyImage(req *v1.ModifyImageReq) (res *v1.ModifyImageRes, err error)
 	GetImages(req *v1.GetImagesReq) (res *v1.GetImagesRes, err error)
+	GetProjectStatus(req *v1.GetProjectStatusReq) (res *v1.GetProjectStatusRes, err error)
+	SetProjectStatus(req *v1.SetProjectStatusReq) (res *v1.SetProjectStatusRes, err error)
 
 	// Chat related methods
 	CreateChat(req *v1.CreateChatReq) (res *v1.CreateChatRes, err error)

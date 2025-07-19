@@ -1,6 +1,6 @@
 {
     "supplierTitle": "OpenAI",
-    "supplierName": "openai",
+    "supplierName": "OpenAI",
     "baseUrl": "",
     "baseUrlExample":"https://api.openai.com/v1",
     "isUseUrlExample": true,

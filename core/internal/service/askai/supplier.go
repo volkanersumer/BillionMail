@@ -6,8 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"sort"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -147,6 +151,10 @@ func List() []Supplier {
 			continue
 		}
 
+		if supplierConfig.BaseUrl == "" || supplierConfig.ApiKey == "" {
+			supplierConfig.Status = false // If base URL or API key is missing, set status to false
+		}
+
 		supplierList = append(supplierList, supplierConfig)
 	}
 
@@ -251,6 +259,69 @@ func SaveModelInfo(supplierName string, modelId string, modelInfo ModelInfo) err
 	return saveModelsToFile(modelsFile, existingModels)
 }
 
+// GetCloudModels fetches the list of models from the supplier's API and saves them to the models.json file.
+// It constructs the API URL using the supplier's base URL and sends a GET request with the API key.
+// It processes the response to extract model information and saves it in the models.json file.
+func GetCloudModels(supplierName string) {
+	supplierConfig, err := ReadSupplierConfig(supplierName)
+	if err != nil {
+		return
+	}
+	if supplierConfig.ApiKey == "" || supplierConfig.BaseUrl == "" {
+		return
+	}
+
+	apiUrl := supplierConfig.BaseUrl + "/models"
+	client := &http.Client{Timeout: 15 * time.Second}
+	req, err := http.NewRequest("GET", apiUrl, nil)
+	if err != nil {
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+supplierConfig.ApiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return // Handle error appropriately, e.g., log it or return an error
+	}
+
+	var response struct {
+		Data []struct {
+			ID      string `json:"id"`
+			Object  string `json:"object"`
+			OwnedBy string `json:"owned_by"`
+		} `json:"data"`
+	}
+
+	resultBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	if err := json.Unmarshal(resultBody, &response); err != nil {
+		return
+	}
+
+	// Process the response data
+	for _, model := range response.Data {
+		// Map the API response to the ModelInfo struct
+		modelInfo := ModelInfo{
+			Title:        "",
+			SupplierName: supplierName,
+			ModelId:      model.ID,
+			MaxTokens:    8192,
+			Capability:   []string{"llm"}, // Default capability, can be updated later
+			Status:       true,
+		}
+		// Save or update the model information
+		SaveModelInfo(supplierName, model.ID, modelInfo)
+	}
+}
+
 // Models retrieves a list of models for a specific supplier or all suppliers if no name is provided.
 // It checks the status of each model and returns only those that are active if no supplier name is specified.
 func Models(supplierName string) []ModelInfo {
@@ -270,17 +341,23 @@ func Models(supplierName string) []ModelInfo {
 			supplierList = append(supplierList, supplier.Name())
 		}
 	}
-
-	models := make([]ModelInfo, 0)
-	for _, supplier := range supplierList {
-		models = append(models, GetModelList(supplier)...)
-	}
-
 	// Filter models by status
 	isCheckStatus := false
 	if supplierName == "" {
 		isCheckStatus = true
 	}
+
+	models := make([]ModelInfo, 0)
+	for _, supplier := range supplierList {
+		supplierModels := GetModelList(supplier)
+		if len(supplierModels) == 0 && isCheckStatus == false {
+			// 自动从供应商API获取模型列表
+			GetCloudModels(supplier)
+			supplierModels = GetModelList(supplier) // Re-fetch after getting cloud models
+		}
+		models = append(models, supplierModels...)
+	}
+
 	if isCheckStatus {
 		modelList := make([]ModelInfo, 0)
 		for i := 0; i < len(models); i++ {
@@ -390,19 +467,80 @@ func SetSupplierConfig(supplierName string, baseUrl string, apiKey string) error
 	return SaveSupplierConfig(supplierName, *supplierConfig)
 }
 
-// Test whether the model supplier baseURL and apiKey are available
-// Test whether the baseURL can be accessed normally
-// Test whether the apiKey is correct
-func Testing(applierName string, baseUrl string, apiKey string) error {
-	if applierName == "" || baseUrl == "" || apiKey == "" {
-		return errors.New("applier name, base URL, and API key are required")
+// Testing validates the supplier's configuration by checking the base URL and API key.
+// It performs the following checks:
+// 1. Validates the base URL format.
+// 2. Tests the accessibility of the base URL by sending a HEAD request.
+// 3. Validates the API key by sending a GET request to the models endpoint.
+// If any of these checks fail, it returns an error indicating the issue.
+func Testing(supplierName, baseUrl, apiKey string) error {
+	if supplierName == "" || baseUrl == "" || apiKey == "" {
+		return errors.New("supplier name, base URL, and API key are required")
 	}
 
-	// fmt.Printf("Testing supplier: %s\n", applierName)
-	// fmt.Printf("Base URL: %s\n", baseUrl)
-	// fmt.Printf("API Key: %s\n", apiKey)
-	// Here you would implement the actual testing logic, such as making a request to the supplier
+	// Validate base URL format
+	parsedUrl, err := url.ParseRequestURI(baseUrl)
+	if err != nil {
+		return fmt.Errorf("invalid base URL format: %w", err)
+	}
+	if parsedUrl.Scheme != "http" && parsedUrl.Scheme != "https" {
+		return errors.New("base URL must use http or https protocol")
+	}
+	// Ensure the base URL ends with a slash
+	if err := testBaseURLAccessibility(baseUrl); err != nil {
+		return fmt.Errorf("base URL accessibility test failed: %w", err)
+	}
+	// Validate API key by making a request to the models endpoint
+	if err := testAPIKeyValidity(baseUrl, apiKey); err != nil {
+		return fmt.Errorf("API key validation failed: %w", err)
+	}
+
 	return nil
+}
+
+// testBaseURLAccessibility checks if the base URL is accessible by sending a HEAD request.
+// It returns an error if the request fails or if the response status is not OK (200).
+func testBaseURLAccessibility(baseUrl string) error {
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Head(baseUrl)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
+}
+
+// testAPIKeyValidity checks if the provided API key is valid by making a GET request to the models endpoint.
+// It constructs the API URL using the base URL and sends a request with the API key in the Authorization header.
+// It returns an error if the request fails, if the response status is unauthorized (401),
+// or if the response status is not OK (200) or not found (404).
+func testAPIKeyValidity(baseUrl, apiKey string) error {
+	apiUrl := baseUrl + "/models"
+	client := &http.Client{Timeout: 15 * time.Second}
+	req, err := http.NewRequest("GET", apiUrl, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		return nil // API key is successfully validated
+	case http.StatusUnauthorized:
+		return errors.New("invalid API key")
+	case http.StatusNotFound:
+		return nil
+	default:
+		return fmt.Errorf("unexpected API response: %d %s",
+			resp.StatusCode, http.StatusText(resp.StatusCode))
+	}
 }
 
 // GetSupplierConfig retrieves the configuration for a specific supplier by its name.
@@ -419,7 +557,9 @@ func SetSupplierStatus(supplierName string, status bool) error {
 	if err != nil {
 		return errors.New("supplier configuration not found")
 	}
-
+	if supplierConfig.ApiKey == "" || supplierConfig.BaseUrl == "" {
+		return errors.New("supplier configuration is incomplete, cannot set status")
+	}
 	supplierConfig.Status = status
 
 	return SaveSupplierConfig(supplierName, *supplierConfig)
@@ -478,6 +618,10 @@ func RemoveSupplier(supplierName string) error {
 	supplierPath := SUPPLIER_CONFIG_PATH + "/" + supplierName
 	if !public.FileExists(supplierPath) {
 		return errors.New("supplier does not exist")
+	}
+	templatePath := SUPPLIER_TEMPLATE_PATH + "/" + supplierName
+	if public.FileExists(templatePath) {
+		return errors.New("Cannot delete the system's built-in model supplier.")
 	}
 
 	err := os.RemoveAll(supplierPath)

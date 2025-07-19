@@ -241,3 +241,23 @@ type GetImagesReq struct {
 type GetImagesRes struct {
 	api_v1.StandardRes
 }
+
+// GetProjectStatusReq is the request structure for retrieving the status of a project in AskAi.
+type GetProjectStatusReq struct {
+	g.Meta `path:"/askai/project/get_project_status" method:"post" tags:"AskAi" summary:"get project status"`
+	Domain string `json:"domain" dc:"domain" v:"required#domain is required"`
+}
+type GetProjectStatusRes struct {
+	api_v1.StandardRes
+}
+
+// SetProjectStatusReq is the request structure for setting the status of a project in AskAi.
+type SetProjectStatusReq struct {
+	g.Meta `path:"/askai/project/set_project_status" method:"post" tags:"AskAi" summary:"set project status"`
+	Domain string `json:"domain" dc:"domain" v:"required#domain is required"`
+	Status bool   `json:"status" dc:"status" v:"required#status is required"`
+}
+
+type SetProjectStatusRes struct {
+	api_v1.StandardRes
+}

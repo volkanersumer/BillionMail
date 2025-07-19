@@ -33,6 +33,7 @@ type ProjectConfig struct {
 	SecondaryLogo string          `json:"secondary_logo"` // 副Logo
 	Favicon       string          `json:"favicon"`        // 网站图标
 	KnowledgeBase []KnowledgeInfo `json:"knowledge_base"` // 知识库
+	Status        bool            `json:"status"`         // 项目状态
 	UpdateTime    int64           `json:"update_time"`    // 更新时间
 
 }
@@ -162,6 +163,7 @@ func Create(Domain string, urls []string) error {
 		PrimaryLogo:   "",
 		SecondaryLogo: "",
 		Favicon:       "",
+		Status:        true, // Default status is active
 		KnowledgeBase: []KnowledgeInfo{},
 	}
 
@@ -192,6 +194,7 @@ func GetBaseInfo(Domain string) (ProjectConfig, error) {
 		SecondaryLogo: config.SecondaryLogo,
 		Favicon:       config.Favicon,
 		UpdateTime:    config.UpdateTime,
+		Status:        config.Status,
 	}
 
 	// Get the knowledge base list
@@ -202,6 +205,36 @@ func GetBaseInfo(Domain string) (ProjectConfig, error) {
 	}
 
 	return baseInfo, nil
+}
+
+// GetProjectStatus retrieves the status of a project configuration based on the provided domain.
+// It reads the project configuration and returns a boolean indicating whether the project is active or not.
+func GetProjectStatus(Domain string) (bool, bool, error) {
+	config, err := ReadProjectConfig(Domain)
+	if err != nil {
+		return false, false, nil
+	}
+
+	// Return the project status
+	return config.Status, true, nil
+}
+
+// SetProjectStatus updates the status of a project configuration based on the provided domain.
+// It reads the existing configuration, modifies the status, and saves the updated configuration back to the file.
+func SetProjectStatus(Domain string, status bool) error {
+	config, err := ReadProjectConfig(Domain)
+	if err != nil {
+		return fmt.Errorf("error reading project configuration: %v", err)
+	}
+
+	// Update the project status
+	config.Status = status
+
+	err = SaveProjectConfig(Domain, config)
+	if err != nil {
+		return fmt.Errorf("error saving project configuration: %v", err)
+	}
+	return nil
 }
 
 // ModifyBaseInfo updates the base information of a project configuration based on the provided domain.

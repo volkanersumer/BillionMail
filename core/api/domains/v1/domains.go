@@ -74,9 +74,9 @@ type UpdateDomainReq struct {
 	Domain        string   `json:"domain" v:"required|domain" dc:"Domain"`
 	Mailboxes     int      `json:"mailboxes" v:"min:1" dc:"Mailboxes" d:"50"`
 	MailboxQuota  int      `json:"mailboxQuota" v:"min:1" dc:"MailboxQuota" d:"5242880"`
-	Quota         int      `json:"quota" v:"required" dc:"Quota" d:"10485760"`
+	Quota         int      `json:"quota" dc:"Quota" d:"10485760"`
 	RateLimit     int      `json:"rateLimit" v:"min:1" dc:"RateLimit" d:"12"`
-	Active        int      `json:"active" v:"required" dc:"Active" d:"1"`
+	Active        int      `json:"active" dc:"Active" d:"1"`
 	Catchall      string   `json:"email" v:"email" dc:"Catch all email address, used for domain verification"`
 	Urls          []string `json:"urls" dc:"Additional URLs associated with the domain"`
 	HasBrandInfo  int      `json:"hasbrandinfo"        dc:"Brand information : 1-exist, 0-not exist"`

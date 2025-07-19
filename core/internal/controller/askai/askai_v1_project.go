@@ -17,6 +17,32 @@ func (c *ControllerV1) Create(ctx context.Context, req *v1.CreateReq) (res *v1.C
 	return res, nil
 }
 
+func (c *ControllerV1) GetProjectStatus(ctx context.Context, req *v1.GetProjectStatusReq) (res *v1.GetProjectStatusRes, err error) {
+	res = &v1.GetProjectStatusRes{}
+	projectStatus, createStatus, err := askai.GetProjectStatus(req.Domain)
+	if err != nil {
+		res.SetError(err)
+	} else {
+		res.Data = map[string]interface{}{
+			"status":        projectStatus,
+			"create_status": createStatus,
+		}
+		res.SetSuccess("Project status retrieved successfully")
+	}
+	return res, nil
+}
+
+func (c *ControllerV1) SetProjectStatus(ctx context.Context, req *v1.SetProjectStatusReq) (res *v1.SetProjectStatusRes, err error) {
+	res = &v1.SetProjectStatusRes{}
+	err = askai.SetProjectStatus(req.Domain, req.Status)
+	if err != nil {
+		res.SetError(err)
+	} else {
+		res.SetSuccess("Project status set successfully")
+	}
+	return res, nil
+}
+
 func (c *ControllerV1) GetBaseInfo(ctx context.Context, req *v1.GetBaseInfoReq) (res *v1.GetBaseInfoRes, err error) {
 	res = &v1.GetBaseInfoRes{}
 	res.Data, err = askai.GetBaseInfo(req.Domain)

@@ -14,10 +14,10 @@
 			<n-form-item label="供应商名称" path="supplierName">
 				<n-input v-model:value="addProviderFormData.supplierName"></n-input>
 			</n-form-item>
-			<n-form-item label="接口地址" path="baseUrl">
+			<n-form-item label="BaseURL" path="baseUrl">
 				<n-input v-model:value="addProviderFormData.baseUrl"></n-input>
 			</n-form-item>
-			<n-form-item label="密钥" path="apiKey">
+			<n-form-item label="ApiKey" path="apiKey">
 				<n-input v-model:value="addProviderFormData.apiKey"></n-input>
 			</n-form-item>
 		</n-form>

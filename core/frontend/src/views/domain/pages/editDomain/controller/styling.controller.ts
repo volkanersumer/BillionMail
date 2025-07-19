@@ -20,7 +20,7 @@ export async function getStylingInfo(domain: string) {
     } = getEditDomainStoreData()
     if (hasGotStyling.value) return
     try {
-        const res = await instance.post("/askai/project/get_style_config", { domain }, instanceOptions) as Record<string, any>
+        const res = await instance.post("/askai/project/get_style_config", { domain }) as Record<string, any>
         accent_color.value = res.accent_color
         text_color.value = res.text_color
         page_background.value = res.page_background

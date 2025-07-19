@@ -1,10 +1,10 @@
 import { instance } from "@/api";
 import { getEditDomainStoreData } from "../store";
 export const instanceOptions = {
-    // fetchOptions: {
-    //     loading: 'Loading... Please wait.',
-    //     successMessage: true,
-    // }
+    fetchOptions: {
+        loading: 'Loading... Please wait.',
+        successMessage: true,
+    }
 }
 /**
  * @description Get company profile
@@ -23,7 +23,7 @@ export async function getCompanuyProfile(domain: string) {
     } = getEditDomainStoreData()
     if (hasGotCompanyProfile.value) return
     try {
-        const res = await instance.post("/askai/project/get_company_profile", { domain }, instanceOptions) as Record<string, any>
+        const res = await instance.post("/askai/project/get_company_profile", { domain } ) as Record<string, any>
         legal_company_name.value = res.legal_company_name
         web_site.value = res.web_site
         company_profile.value = res.company_profile

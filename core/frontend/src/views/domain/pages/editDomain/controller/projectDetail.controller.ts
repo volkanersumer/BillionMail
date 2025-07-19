@@ -5,7 +5,7 @@ import { KnowledgeBase } from '../dto'
 /**
  * @description Get project detail
  */
-export async function getProjectDetail(domainStr: string, noOption?: boolean) {
+export async function getProjectDetail(domainStr: string) {
 	const {
 		project_name,
 		primary_logo,
@@ -20,8 +20,7 @@ export async function getProjectDetail(domainStr: string, noOption?: boolean) {
 	try {
 		const res = (await instance.post(
 			'/askai/project/get_base_info',
-			{ domain: domainStr },
-			noOption ? {} : instanceOptions
+			{ domain: domainStr }
 		)) as Record<string, any>
 		project_name.value = res.project_name
 		primary_logo.value = res.primary_logo
@@ -77,7 +76,7 @@ export async function createKnowledgeBase(domain: string) {
 			instanceOptions
 		)) as Record<string, any>
 		hasGotProjectDetail.value = false
-		await getProjectDetail(domain, true)
+		await getProjectDetail(domain)
 		closeKnowledgeModal()
 	} catch (error) {
 		console.warn(error)
@@ -98,7 +97,7 @@ export async function updateKnowledgeBase(domain: string) {
 			kid: activeKnowledge.value.kid,
 		})
 		hasGotProjectDetail.value = false
-		await getProjectDetail(domain, true)
+		await getProjectDetail(domain)
 		closeKnowledgeModal()
 	} catch (error) {
 		console.warn(error)
@@ -143,7 +142,7 @@ export async function deleteKnowledgeBase(domain: string, knowledge: KnowledgeBa
 			instanceOptions
 		)
 		hasGotProjectDetail.value = false
-		getProjectDetail(domain, true)
+		getProjectDetail(domain)
 	} catch (error) {
 		console.warn(error)
 	}

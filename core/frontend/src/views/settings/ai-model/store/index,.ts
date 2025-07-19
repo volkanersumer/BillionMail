@@ -30,7 +30,7 @@ export function useModelManagerStore(): ModelStore {
         title: "",
         modelId: "",
         max_tokens: 8192,
-        capability: []
+        capability: ["llm"]
     })
     const addModelFormRef = ref<FormInst | null | undefined>()
     const addModelRef = ref<any>()

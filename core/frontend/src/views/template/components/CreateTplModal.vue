@@ -11,7 +11,7 @@
 			<div :class="['url-source', { hidden: choosedMethod !== 'AI' }]">
 				<span class="label">{{ $t("template.createTpl.sourceUrl") }}</span>
 				<n-select v-model:value="sourceDomain" class="flex-1" label-field="domain" value-field="domain"
-					:options="domainList">
+					:options="domainListHasBrandInfo">
 				</n-select>
 			</div>
 			<div class="desc">
@@ -54,10 +54,15 @@
 		}
 	})
 
+	const domainListHasBrandInfo = computed(() => {
+		return domainList.value.filter((item: any) => item.hasbrandinfo == 1)
+	})
+
 	/**
 	 * @description open modal
 	 */
 	function open() {
+		getDomainList()
 		if(globalStore.domainSource){
 			globalStore.domainSource = sourceDomain.value
 		}
@@ -108,7 +113,7 @@
 		}
 	}
 
-	getDomainList()
+	
 </script>
 
 <style scoped lang="scss">

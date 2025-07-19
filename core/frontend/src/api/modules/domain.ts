@@ -17,6 +17,7 @@ type DomainParams = {
 	mailboxes: number
 	email: string
 	urls: string[]
+	hasbrandinfo?: number
 }
 
 export const createDomain = (params: DomainParams) => {

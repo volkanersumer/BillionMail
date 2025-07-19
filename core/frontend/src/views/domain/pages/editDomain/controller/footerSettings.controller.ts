@@ -14,7 +14,7 @@ export async function getFootersettingsInfo(domain: string) {
     } = getEditDomainStoreData()
     if (hasGotFootersettings.value) return
     try {
-        const res = await instance.post("/askai/project/get_footer", { domain }, instanceOptions) as Record<string, string>
+        const res = await instance.post("/askai/project/get_footer", { domain }) as Record<string, string>
         copyright_text.value = res.copyright_text
         disclaimer.value = res.disclaimer
         hasGotFootersettings.value = true

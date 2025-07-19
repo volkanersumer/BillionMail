@@ -129,10 +129,25 @@ export async function stopChat(store: TemplateStore) {
 	}
 }
 
+/***
+ * @description Check shift+enter
+ */
+function checkShiftEnter(e: KeyboardEvent, content: Ref<string>) {
+	if (e.shiftKey && e.key === 'Enter') {
+		e.preventDefault()
+		const textarea = e.target as HTMLTextAreaElement
+		const start = textarea.selectionStart
+		const end = textarea.selectionEnd
+		content.value = content.value.substring(0, start) + '\n' + content.value.substring(end)
+		textarea.selectionStart = textarea.selectionEnd = start + 1
+		return true
+	}
+}
+
 /**
  * Send chat and generate markdown
  */
-export async function sendChat(store: TemplateStore) {
+export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 	const {
 		scrollable,
 		generateShow,
@@ -147,6 +162,7 @@ export async function sendChat(store: TemplateStore) {
 	} = store
 	if (isChat.value) return
 	if (!questionContent.value) return
+	if (e && checkShiftEnter(e, questionContent)) return
 	const chatRecordKey = `${questionContent.value}_+_${chatRecord.value.size}`
 	chatRecord.value.set(chatRecordKey, [])
 	currentChatRecordKey.value = chatRecordKey
@@ -158,7 +174,6 @@ export async function sendChat(store: TemplateStore) {
 	let answerText = ''
 	// Character pointer position
 	let strPos = 0
-
 
 	/**
 	 * @description spliced content
@@ -295,16 +310,16 @@ export function removeHtmlCodeBlockMarkers(content: string) {
  * @description Remove sign code for "<<<<<search" and ">>>>>replace"
  */
 export function removeSignCode(content: string) {
-	const signCodeRegex = /<<<<<<<\s+SEARCH[\s\S]*?=======([\s\S]*?)>>>>>>>\s+REPLACE/g;
-	return content.replace(signCodeRegex, "$1")
+	const signCodeRegex = /<<<<<<<\s+SEARCH[\s\S]*?=======([\s\S]*?)>>>>>>>\s+REPLACE/g
+	return content.replace(signCodeRegex, '$1')
 }
 
 /**
  * @description Get content from title tags
  */
 export function getContentFromTitleTags(content: string) {
-	const match = content.match(/<title>(.*?)<\/title>/i);
-	return match ? match[1] : '';
+	const match = content.match(/<title>(.*?)<\/title>/i)
+	return match ? match[1] : ''
 }
 
 /**
@@ -343,4 +358,5 @@ export async function saveCodeChange(store: TemplateStore) {
 /**
  * @description Duplicate template
  */
-export async function duplicateTemplate() { }
+export async function duplicateTemplate() {}
+

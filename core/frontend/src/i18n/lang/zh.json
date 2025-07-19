@@ -572,7 +572,7 @@
 			"urlsPlacement": "请输入域名，例如：http://billionmail.com",
 			"aRecord": "A记录",
 			"aRecordPlaceholder": "请输入A记录，例如：mailAapanelCom",
-			"quota": "域名配额",
+			"quota": "域名配额",    
 			"mailboxCount": "邮箱数量",
 			"globalCatch": "Catch All",
 			"globalCatchPlaceholder": "捕获不存在的邮件，转发至此邮件",
@@ -583,7 +583,22 @@
 				"aRecordFailed": "提示A记录解析失败。请检查填写的A记录域名是否已解析到服务器 IP",
 				"dnsSetup": "需要在您的DNS服务提供商控制台添加A记录",
 				"cloudflare": "如果使用CloudFlare，请在添加记录时选择【仅DNS】"
-			}
+			},
+			"createBrandInfo":"自动创建品牌信息",
+			"modelNotice":"要使用此功能，您需要先进行大模型配置",
+			"integrateImmediately": "立即配置",
+			"modelDescription": "AI驱动的信息导入会自动分析并从邮件域名创建品牌信息。创建后，您可以根据需要进行修改",
+			"extractBrand": "提取品牌和颜色",
+			"analyzeStructure": "分析内容结构",
+			"importContent": "导入图片和内容",
+			"customLogo": "使用自定义徽标（可选）",
+			"specifyDomain": "指定域名",
+			"addMoreUrls": "添加更多URL",
+			"maxUrl":"最多只能填写3个URL",
+			"createImmediately":"立即创建",
+			"brandInfo":"品牌信息",
+			"noBrandInfo":"暂无品牌信息",
+			"fillDomain":"请填写域名"
 		},
 		"dns": {
 			"title": "DNS 记录",
@@ -751,7 +766,8 @@
 				"instructionsDescription": "这些指令将用作生成新邮件时的默认指南。您可以根据需要为单个邮件覆盖这些指令。"
 			},
 			"common": {
-				"daysAgo": "天前"
+				"daysAgo": "天前",
+				"noBrandInfo":"当前域名没有品牌信息."
 			}
 		},
 		"api": {

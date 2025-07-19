@@ -1,5 +1,6 @@
 import { instance } from '@/api'
 import { Model, ModelStore, Provider } from '../dto'
+import { confirm } from '@/utils'
 export const instanceOptions = {
 	fetchOptions: {
 		loading: 'Loading... Please wait.',
@@ -46,6 +47,8 @@ export async function getModelList(supplierName: string, modelStore: ModelStore)
 export async function confirmAddProvider(modelStore: ModelStore) {
 	const { addProviderFormData, addProviderFormDataRef, addProviderRef } = modelStore
 	try {
+		const checkStatus = await checkProviderConfig(modelStore)
+		if (!checkStatus) return false
 		await addProviderFormDataRef.value?.validate()
 		await instance.post('/askai/supplier/add_supplier', addProviderFormData.value, instanceOptions)
 		addProviderRef.value.close()
@@ -158,19 +161,20 @@ export async function setProviderConfiguration(modelStore: ModelStore) {
 /**
  * @description Set model status
  */
-export async function setModelStatus(modelId: string, status: boolean, modelStore: ModelStore) {
+export async function setModelStatus(model: Model, status: boolean, modelStore: ModelStore) {
 	const { currentProvider } = modelStore
 	try {
 		await instance.post(
 			'/askai/supplier/set_model_status',
 			{
 				supplierName: currentProvider.value.supplierName,
-				modelId,
+				modelId: model.modelId,
 				status,
 			},
 			instanceOptions
 		)
 	} catch (error) {
+		model.status = !status
 		console.warn(error)
 	}
 }
@@ -180,14 +184,56 @@ export async function setModelStatus(modelId: string, status: boolean, modelStor
  */
 export async function removeProvider(modelStore: ModelStore) {
 	const { currentProvider } = modelStore
+	confirm({
+		title: 'Notice',
+		content: `Are you sure to remove the provider "${currentProvider.value.supplierName}"?`,
+		onConfirm: async () => {
+			try {
+				await instance.post(
+					'/askai/supplier/remove_supplier',
+					{ supplierName: currentProvider.value.supplierName },
+					instanceOptions
+				)
+				await getProviderList(modelStore)
+			} catch (error) {
+				console.warn(error)
+			}
+		},
+	})
+}
+
+/**
+ * @description Check provider configuration
+ */
+export async function checkProviderConfig(store: ModelStore) {
+	const { addProviderFormData } = store
 	try {
-		await instance.post(
-			'/askai/supplier/remove_supplier',
-			{ supplierName: currentProvider.value.supplierName },
-			instanceOptions
-		)
-		await getProviderList(modelStore)
+		await instance.post('/askai/supplier/testing', addProviderFormData.value)
+		return true
 	} catch (error) {
 		console.warn(error)
+		return false
 	}
+}
+
+/**
+ * @description Remove model
+ */
+export async function removeModel(model: Model, modelStore: ModelStore) {
+	confirm({
+		title: 'Notice',
+		content: `Are you sure to remove the Model "${model.title}"?`,
+		onConfirm: async () => {
+			try {
+				await instance.post(
+					'/askai/supplier/remove_model',
+					{ supplierName: model.supplierName, modelId: model.modelId },
+					instanceOptions
+				)
+				await getModelList(model.supplierName,modelStore)
+			} catch (error) {
+				console.warn(error)
+			}
+		},
+	})
 }

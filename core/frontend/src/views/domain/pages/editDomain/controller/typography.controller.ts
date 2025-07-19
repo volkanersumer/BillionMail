@@ -14,7 +14,7 @@ export async function updateTypography(domain: string) {
             domain,
             heading_font: heading_font.value,
             body_font: body_font.value
-        }, instanceOptions)
+        })
     } catch (error) {
         console.warn(error)
     }

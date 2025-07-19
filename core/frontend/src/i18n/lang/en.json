@@ -583,7 +583,18 @@
 				"aRecordFailed": "A record resolution failed. Please check if the A record domain is resolved to the server IP",
 				"dnsSetup": "You need to add an A record in your DNS provider's console",
 				"cloudflare": "If using CloudFlare, please select [DNS only] when adding records"
-			}
+			},
+			"createBrandInfo":"Automatically create brand information",
+			"modelNotice":"To use this feature, you need to integrate an AI model first.",
+			"integrateImmediately": "Integrate immediately",
+			"modelDescription": "AI-driven information import automatically analyzes and creates brand information from email domains. After creation, you can modify it at your discretion.",
+			"extractBrand": "Extract brand and color",
+			"analyzeStructure": "Analyze content structure",
+			"importContent": "Import images and content",
+			"customLogo": "Use a custom logo (optional)",
+			"specifyDomain": "Specify a domain name",
+			"addMoreUrls": "Add more URLs",
+			"maxUrl":"Maximum of 3 URLs can be filled in."
 		},
 		"dns": {
 			"title": "DNS Records",
@@ -673,7 +684,11 @@
 					"customLogo": "Use a custom logo (optional)"
 				},
 				"specifyDomain": "Specify a domain name",
-				"addMoreUrls": "Add more URLs"
+				"addMoreUrls": "Add more URLs",
+				"createNow":"Create Immediately",
+				"brandInfo":"Brand information",
+				"noBrandInfo":"No brand information available.",
+				"fillDomain":"Please fill in the domain name"
 			},
 			"projectDetails": {
 				"title": "Project Details",
@@ -750,7 +765,8 @@
 				"instructionsDescription": "These instructions will be used as default guidelines when generating new emails. You can override these instructions for individual emails as needed."
 			},
 			"common": {
-				"daysAgo": "days ago"
+				"daysAgo": "days ago",
+				"noBrandInfo":"There is no brand information for the current domain."
 			}
 		},
 		"api": {

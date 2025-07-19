@@ -10,7 +10,9 @@ const editDomainStore = defineStore("editDomainStore", () => {
     const mailboxes = ref(0)
     const catch_email = ref("")
     const urls = ref(["https://"])
-    const configurationStatus = ref(false)
+    const brandInfo = ref(false)
+    const waitAndCheckDomainStatusRef = ref()
+    const createdBrandInfo = ref(false)
 
     
 
@@ -84,7 +86,9 @@ const editDomainStore = defineStore("editDomainStore", () => {
         mailboxes,
         catch_email,
         urls,
-        configurationStatus,
+        brandInfo,
+        waitAndCheckDomainStatusRef,
+        createdBrandInfo,
         
         hasGotProjectDetail,
         domain,

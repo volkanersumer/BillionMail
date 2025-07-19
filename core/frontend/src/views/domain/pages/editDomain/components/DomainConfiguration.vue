@@ -1,9 +1,8 @@
 <template>
 	<div class="content-wrapper">
 		<div>
-			<n-card class="mb-5">
-				<!-- title -->
-				<div class="page-tit">
+			<n-card>
+				<div class="page-tit mb-5">
 					<div class="left-tit">
 						<div class="back-tool">
 							<i class="i-cuida:mail-outline text-7"></i>
@@ -11,8 +10,6 @@
 						<span class="tit-content">{{ $t('domain.edit.domainConfiguration.title') }}</span>
 					</div>
 				</div>
-			</n-card>
-			<n-card>
 				<!-- form data -->
 				<n-form>
 					<n-form-item>
@@ -45,11 +42,34 @@
 				</n-form>
 			</n-card>
 
-			<n-card class="mt-5">
-				<n-form-item :label="$t('domain.edit.domainConfiguration.autoCreateBrand')">
-					<n-switch v-model:value="configurationStatus"></n-switch>
-				</n-form-item>
-				<n-alert v-if="!configurationStatus" type="warning" class="mb-15px" :show-icon="false">
+			<n-card v-if="createdBrandInfo" class="mt-5">
+				<div class="page-tit mb-5">
+					<div class="left-tit">
+						<div class="back-tool">
+							<i class="i-cuida:mail-outline text-7"></i>
+						</div>
+						<span class="tit-content">{{ $t("domain.edit.domainConfiguration.brandInfo") }}</span>
+					</div>
+					<div class="right-tit">
+						<n-switch v-model:value="brandInfo" @update:value="switchBrandInfo"></n-switch>
+					</div>
+				</div>
+
+				<div class="w-100% flex flex-col gap-2.5">
+					<div v-for="(_, index) in urls" :key="index" class="flex justify-start items-center gap-2.5">
+						<n-input v-model:value="urls[index]" :placeholder="$t('domain.form.urlsPlacement')"
+							:disabled="!supplierStatus" readonly>
+						</n-input>
+						<div v-if="index != 0" class="close" @click="removeUrl(index)">
+							<i class="i-material-symbols:close-rounded text-5"></i>
+						</div>
+					</div>
+				</div>
+			</n-card>
+
+			<n-card v-else class="mt-5">
+				<div class="fw-bold text-4 mb-5 text-[#777]">{{ $t("domain.edit.domainConfiguration.noBrandInfo") }}</div>
+				<n-alert v-if="!supplierStatus" type="warning" class="mb-15px" :show-icon="false">
 					<div class="w-100% flex justify-between items-center">
 						<span class="mr-5">{{
 							$t('domain.edit.domainConfiguration.aiIntegrationWarning')
@@ -71,140 +91,122 @@
 				<n-form-item :label="$t('domain.edit.domainConfiguration.specifyDomain')">
 					<div class="w-100% flex flex-col gap-2.5">
 						<div v-for="(_, index) in urls" :key="index" class="flex justify-start items-center gap-2.5">
-							<n-input v-model:value="urls[index]" :placeholder="$t('domain.form.urlsPlacement')">
+							<n-input v-model:value="urls[index]" :placeholder="$t('domain.form.urlsPlacement')"
+								:disabled="!supplierStatus">
 							</n-input>
 							<div v-if="index != 0" class="close" @click="removeUrl(index)">
 								<i class="i-material-symbols:close-rounded text-5"></i>
 							</div>
-							<!-- <div v-else class="w-34px h-34px"></div> -->
 						</div>
-						<n-button type="primary" ghost @click="addUrl">
+						<!-- <div class="text-[#777]">{{ $t("domain.form.maxUrl") }}</div> -->
+						<!-- <n-button type="primary" :disabled="!supplierStatus" ghost @click="addUrl">
 							<template #icon>
 								<i class="i-material-symbols:add-circle-outline"></i>
 							</template>
 							{{ $t('domain.edit.domainConfiguration.addMoreUrls') }}
-						</n-button>
+						</n-button> -->
 					</div>
 				</n-form-item>
+				<n-button type="primary" class="w-100%" @click="createBrandInfo">{{ $t("domain.edit.domainConfiguration.createNow") }}</n-button>
 			</n-card>
 		</div>
-
-		<!-- <n-card class="my-5">
-            <div class="switch-settings">
-                <div class="switch-item">
-                    <div class="label">Track Email Opens</div>
-                    <n-switch></n-switch>
-                </div>
-                <div class="switch-item" style="margin-bottom: 0;">
-                    <div class="label">Track Link Clicks</div>
-                    <n-switch></n-switch>
-                </div>
-            </div>
-        </n-card> -->
-
-		<!-- <n-card>
-            <div class="page-tit mb-5">
-                <div class="left-tit">
-                    <div class="back-tool">
-                        <i class="i-ri:rss-fill text-6"></i>
-                    </div>
-                    <span class="tit-content">
-                        Subscription Management
-                    </span>
-                </div>
-            </div>
-
-            <div class="switch-settings">
-                <div class="switch-item">
-                    <div class="label">Include Unsubscribe Link</div>
-                    <n-switch></n-switch>
-                </div>
-                <div class="switch-item" style="margin-bottom: 0;">
-                    <div class="label">Inlcude Preferences Link</div>
-                    <n-switch></n-switch>
-                </div>
-            </div>
-        </n-card> -->
 	</div>
+
+	<!-- Wait for init brand info -->
+	<WaitAndCheckDomainStatus ref="waitAndCheckDomainStatusRef" />
 </template>
 
 <script setup lang="ts">
-	import { getDomainDetail, syncToUrl, removeUrl } from '../controller/domainConfiguration.controller'
-	import { getEditDomainStoreData } from '../store'
-	const { domainTit, quota, unit, mailboxes, catch_email, urls, configurationStatus } =
-		getEditDomainStoreData()
-	const route = useRoute()
-	const domain = route.params.domain as any
-	const uinitOptions = ref([
-		{
-			label: 'B',
-			value: 'B',
-		},
-		{
-			label: 'KB',
-			value: 'KB',
-		},
-		{
-			label: 'MB',
-			value: 'MB',
-		},
-		{
-			label: 'GB',
-			value: 'GB',
-		},
-		{
-			label: 'TB',
-			value: 'TB',
-		},
-	])
+import WaitAndCheckDomainStatus from '@/views/domain/components/WaitAndCheckDomainStatus.vue'
+import {
+	checkAiConfiguration,
+} from '@/api/modules/domain'
+import { getDomainDetail, syncToUrl, removeUrl, createBrandInfo,switchBrandInfo } from '../controller/domainConfiguration.controller'
+import { getEditDomainStoreData } from '../store'
+const supplierStatus = ref(false)
+const { domainTit, quota, unit, mailboxes, catch_email, urls, brandInfo, createdBrandInfo, waitAndCheckDomainStatusRef } = getEditDomainStoreData()
+const route = useRoute()
+const domain = route.params.domain as any
+const uinitOptions = ref([
+	{
+		label: 'B',
+		value: 'B',
+	},
+	{
+		label: 'KB',
+		value: 'KB',
+	},
+	{
+		label: 'MB',
+		value: 'MB',
+	},
+	{
+		label: 'GB',
+		value: 'GB',
+	},
+	{
+		label: 'TB',
+		value: 'TB',
+	},
+])
 
-	getDomainDetail(domain)
-
-	/**
-	 * @description Add url to urls
-	 */
-	function addUrl() {
-		urls.value.push('')
+getDomainDetail(domain)
+/**
+ * @description Check AI configuration
+ */
+async function checkAiConfig() {
+	const res = await checkAiConfiguration() as Record<string, any>
+	if (res) {
+		supplierStatus.value = res.is_configured
 	}
+}
+checkAiConfig()
+
+/**
+ * @description Add url to urls
+ */
+// function addUrl() {
+// 	urls.value.push('')
+// }
 </script>
 
 <style scoped lang="scss">
-	@use '@/styles/index' as base;
-	@use './mixin.scss' as mixin;
+@use '@/styles/index' as base;
+@use './mixin.scss' as mixin;
 
-	.content-wrapper {
-		@include mixin.content-wrapper;
+.content-wrapper {
+	@include mixin.content-wrapper;
 
-		// title
-		.page-tit {
-			@include mixin.page-tit;
+	// title
+	.page-tit {
+		@include mixin.page-tit;
+	}
+
+	.form-label {
+		@include mixin.form-label;
+	}
+
+	// Switch settings
+	.switch-settings {
+		@mixin settings-label {
+			font-size: 14px;
+			font-weight: bold;
 		}
 
-		.form-label {
-			@include mixin.form-label;
-		}
+		.switch-item {
+			@include base.row-flex;
+			justify-content: space-between;
+			margin-bottom: 15px;
 
-		// Switch settings
-		.switch-settings {
-			@mixin settings-label {
-				font-size: 14px;
-				font-weight: bold;
+			.label {
+				color: var(--color-text-2);
+				@include settings-label();
 			}
-
-			.switch-item {
-				@include base.row-flex;
-				justify-content: space-between;
-				margin-bottom: 15px;
-
-				.label {
-					color: var(--color-text-2);
-					@include settings-label();
-				}
-			}
-		}
-
-		.close {
-			@include mixin.operation-close;
 		}
 	}
+
+	.close {
+		@include mixin.operation-close;
+	}
+}
 </style>

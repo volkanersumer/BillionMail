@@ -19,7 +19,7 @@
 				</n-select>
 			</n-form-item>
 			<n-form-item label="最大上下文长度" path="max_tokens">
-				<n-input-number v-model:value="addModelFormData.max_tokens" class="w-100%"></n-input-number>
+				<n-input-number v-model:value="addModelFormData.max_tokens" :min="1" class="w-100%"></n-input-number>
 			</n-form-item>
 		</n-form>
 		<template #footer>
@@ -97,8 +97,8 @@ function open() {
  */
 function close() {
 	show.value = false
-	addModelFormData.value.capability = []
-	addModelFormData.value.max_tokens = 0
+	addModelFormData.value.capability = ["llm"]
+	addModelFormData.value.max_tokens = 8192
 	addModelFormData.value.modelId = ''
 	addModelFormData.value.title = ''
 }

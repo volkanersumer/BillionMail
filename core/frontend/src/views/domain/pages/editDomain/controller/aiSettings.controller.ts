@@ -11,7 +11,7 @@ export async function getAisettingsInfo(domain: string) {
     const { prompt, hasGotAisettings } = getEditDomainStoreData()
     if (hasGotAisettings.value) return
     try {
-        const res = await instance.post("/askai/project/get_prompt", { domain }, instanceOptions) as Record<string, string>
+        const res = await instance.post("/askai/project/get_prompt", { domain }) as Record<string, string>
         prompt.value = res.prompt
         hasGotAisettings.value = true
     } catch (error) {

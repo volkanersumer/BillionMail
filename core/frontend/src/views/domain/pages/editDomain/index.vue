@@ -7,11 +7,8 @@
 
 		<!-- Content tabs -->
 		<div class="content-tabs">
-			<div
-				v-for="(item, index) in menuList"
-				:key="index"
-				:class="['tab-item', { active: activeTab == item }]"
-				@click="activeTab = item">
+			<div v-for="(item, index) in menuList" :key="index" :class="['tab-item', { active: activeTab == item }]"
+				@click="switchToTab(item)">
 				<span>{{ getTabLabel(item) }}</span>
 			</div>
 		</div>
@@ -42,7 +39,9 @@ import { updateTypography } from './controller/typography.controller'
 // import {} from "./controller/sitemap.controller"
 import { updateFooterSettingsInfo } from './controller/footerSettings.controller'
 import { updateAiSettingsInfo } from './controller/aiSettings.controller'
-
+import { getEditDomainStoreData } from './store'
+import { Message } from '@/utils'
+const { createdBrandInfo } = getEditDomainStoreData()
 const DomainConfiguration = defineAsyncComponent(
 	() => import('./components/DomainConfiguration.vue')
 )
@@ -65,6 +64,14 @@ const menuList = ref([
 	'Footer Settings',
 	// 'AI Settings',
 ])
+
+const dynamicMenuList = computed(() => {
+	if (createdBrandInfo.value) {
+		return menuList.value
+	} else {
+		return menuList.value.filter(item => item == 'Domain Configuration')
+	}
+})
 
 const activeTab = ref('Domain Configuration')
 
@@ -132,6 +139,21 @@ function switchHanldeSave() {
  * Reset all api status when router leave
  */
 onBeforeRouteLeave(resetAllApiStatus)
+
+/**
+ * @description Switch to tab
+ */
+function switchToTab(tab: string) {
+	if(tab == "Domain Configuration"){
+		activeTab.value = tab
+	} else {
+		if(createdBrandInfo.value){
+			activeTab.value = tab
+		}else{
+			Message.info(t("domain.edit.common.noBrandInfo"))
+		}
+	}
+}
 </script>
 
 <style scoped lang="scss">

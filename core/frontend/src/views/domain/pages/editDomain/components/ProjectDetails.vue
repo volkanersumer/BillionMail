@@ -108,7 +108,7 @@
 						<input v-show="false" ref="faviconUpload" type="file"
 							@change="event => faviconChange(event, 'favicon')" />
 					</div>
-					<div class="operation-tools">
+					<!-- <div class="operation-tools">
 						<div class="tool-item">
 							<i class="i-carbon:copy text-4"></i>
 						</div>
@@ -121,7 +121,7 @@
 						<div class="tool-item">
 							<i class="i-material-symbols:delete-outline text-4"></i>
 						</div>
-					</div>
+					</div> -->
 				</div>
 			</div>
 		</n-card>
@@ -151,7 +151,7 @@
 							<span class="info-sub-tit">{{ formatTimeDifference(item.update_time) }} {{ $t('domain.edit.projectDetails.ago') }}</span>
 						</div>
 						<div class="info-right" @click="handleDelete(item)">
-							<i class="i-material-symbols:close-rounded text-5"></i>
+							<i class="i-material-symbols:delete-outline text-5"></i>
 						</div>
 					</div>
 					<div class="operation">
@@ -181,7 +181,7 @@
 
 		<template #footer>
 			<div class="flex justify-end gap-5">
-				<n-button @click="closeKnowledgeModal">{{ $t('domain.edit.projectDetails.Cancel') }}</n-button>
+				<n-button @click="closeKnowledgeModal">{{ $t('domain.edit.projectDetails.cancel') }}</n-button>
 				<n-button type="primary" :disabled="!knowledgeTitle || !knowledgeContent"
 					@click="createOrUpdateKnowledge">
 					{{ $t('domain.edit.projectDetails.create') }}

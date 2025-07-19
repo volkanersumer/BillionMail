@@ -1207,9 +1207,9 @@ func AutoGetProjectInfo() {
 			continue
 		}
 
-		// if config.UpdateTime > 0 {
-		// 	continue // Skip if the project configuration has already been updated
-		// }
+		if config.UpdateTime > 0 {
+			continue // Skip if the project configuration has already been updated
+		}
 
 		if len(config.Urls) == 0 {
 			continue // Skip if there are no URLs to process
@@ -1223,7 +1223,7 @@ func AutoGetProjectInfo() {
 		}
 		public.SetCache(domain, true, 600) // Set a lock for 300 seconds
 
-		for i, toUrl := range config.Urls {
+		for _, toUrl := range config.Urls {
 			urlMd5 := public.Md5(toUrl)
 
 			// check is requestd
@@ -1235,21 +1235,21 @@ func AutoGetProjectInfo() {
 			if err != nil {
 				continue
 			}
-			if i == 0 {
-				AppendProjectConfig(domain, config, result.Data)
-				AppendCompanyConfig(domain, result.Data)
-				AppendStyle(domain, result.Data.Style)
-				if result.Data.Footer.Copyright != "" {
-					ModifyFooter(domain, result.Data.Footer.Copyright, result.Data.Footer.Disclaimer, result.Data.Footer.Text)
-				}
-			} else {
-				for i, sitemapNode := range result.Data.Sitemap {
-					if strings.HasPrefix(sitemapNode.URIPath, "http") {
-						continue
-					}
-					result.Data.Sitemap[i].URIPath = strings.Replace(result.Data.SupportUrl+result.Data.Sitemap[i].URIPath, "//", "/", 1)
-				}
+			// if i == 0 {
+			AppendProjectConfig(domain, config, result.Data)
+			AppendCompanyConfig(domain, result.Data)
+			AppendStyle(domain, result.Data.Style)
+			if result.Data.Footer.Copyright != "" {
+				ModifyFooter(domain, result.Data.Footer.Copyright, result.Data.Footer.Disclaimer, result.Data.Footer.Text)
 			}
+			// } else {
+			// 	for i, sitemapNode := range result.Data.Sitemap {
+			// 		if strings.HasPrefix(sitemapNode.URIPath, "http") {
+			// 			continue
+			// 		}
+			// 		result.Data.Sitemap[i].URIPath = strings.Replace(result.Data.SupportUrl+result.Data.Sitemap[i].URIPath, "//", "/", 1)
+			// 	}
+			// }
 
 			AppendSitemap(domain, result.Data.Sitemap)
 			CreateKnowledgeBaseFile(domain, result.Data.Title, result.Data.Markdown, urlMd5)
@@ -1257,6 +1257,7 @@ func AutoGetProjectInfo() {
 
 			// tip requestd
 			SetUrlIsRequest(domain, urlMd5)
+			break // Break after processing the first URL
 		}
 
 		// Clear the cache for this domain

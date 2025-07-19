@@ -78,7 +78,7 @@ func (c *ControllerV1) ModifyKnowledgeBaseFile(ctx context.Context, req *v1.Modi
 
 func (c *ControllerV1) CreateKnowledgeBaseFile(ctx context.Context, req *v1.CreateKnowledgeBaseFileReq) (res *v1.CreateKnowledgeBaseFileRes, err error) {
 	res = &v1.CreateKnowledgeBaseFileRes{}
-	err = askai.CreateKnowledgeBaseFile(req.Domain, req.Title, req.Content)
+	err = askai.CreateKnowledgeBaseFile(req.Domain, req.Title, req.Content, "")
 	if err != nil {
 		res.SetError(err)
 	} else {

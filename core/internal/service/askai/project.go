@@ -1227,9 +1227,9 @@ func AutoGetProjectInfo() {
 			urlMd5 := public.Md5(toUrl)
 
 			// check is requestd
-			if GetUrlIsRequest(domain, urlMd5) {
-				continue
-			}
+			// if GetUrlIsRequest(domain, urlMd5) {
+			// 	continue
+			// }
 
 			result, err := RequestUrl(domain, toUrl)
 			if err != nil {
@@ -1256,7 +1256,7 @@ func AutoGetProjectInfo() {
 			AppendImages(domain, result.Data.Images)
 
 			// tip requestd
-			SetUrlIsRequest(domain, urlMd5)
+			// SetUrlIsRequest(domain, urlMd5)
 			break // Break after processing the first URL
 		}
 

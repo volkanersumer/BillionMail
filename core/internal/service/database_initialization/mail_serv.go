@@ -19,6 +19,7 @@ func init() {
 				create_time INT NOT NULL default 0,
 				active SMALLINT NOT NULL DEFAULT 1,
 				urls TEXT[] NOT NULL DEFAULT '{}'::TEXT[],
+				hasbrandinfo SMALLINT NOT NULL DEFAULT 0,
 				PRIMARY KEY (domain)
 			)`,
 
@@ -117,5 +118,6 @@ func init() {
 
 		// domain
 		_ = AddColumnIfNotExists("domain", "urls", "TEXT[]", "'{}'::TEXT[]", false)
+		_ = AddColumnIfNotExists("domain", "hasbrandinfo", "SMALLINT", "0", false)
 	})
 }

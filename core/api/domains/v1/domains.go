@@ -48,6 +48,7 @@ type Domain struct {
 	Catchall     string     `json:"email"      dc:"Cache all DNS records, used for domain verification"`
 	Default      int        `json:"default"      dc:"Default sender domain, 1-yes, 0-no"`
 	Urls         []string   `json:"urls" dc:"Additional URLs associated with the domain"`
+	HasBrandInfo int        `json:"hasbrandinfo"        dc:"Brand information : 1-exist, 0-not exist"`
 }
 
 type AddDomainReq struct {
@@ -60,6 +61,7 @@ type AddDomainReq struct {
 	RateLimit     int      `json:"rateLimit" v:"min:1" dc:"RateLimit" d:"12"`
 	Catchall      string   `json:"email" v:"email" dc:"Catch all email address, used for domain verification"`
 	Urls          []string `json:"urls" dc:"Additional URLs associated with the domain"`
+	HasBrandInfo  int      `json:"hasbrandinfo"        dc:"Brand information : 1-exist, 0-not exist"`
 }
 
 type AddDomainRes struct {
@@ -77,6 +79,7 @@ type UpdateDomainReq struct {
 	Active        int      `json:"active" v:"required" dc:"Active" d:"1"`
 	Catchall      string   `json:"email" v:"email" dc:"Catch all email address, used for domain verification"`
 	Urls          []string `json:"urls" dc:"Additional URLs associated with the domain"`
+	HasBrandInfo  int      `json:"hasbrandinfo"        dc:"Brand information : 1-exist, 0-not exist"`
 }
 
 type UpdateDomainRes struct {

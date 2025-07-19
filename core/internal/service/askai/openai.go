@@ -477,8 +477,18 @@ func (o *OpenAI) GetImagesPrompt() (string, int) {
 		return "", 0
 	}
 
-	prompt := DataToText(images, "Images", []string{"UpdateTime", "ImageId", "Filename", "ImageTag"}) // Convert the images configuration to a text representation
-	tokens, _ := o.CalculateTokens(prompt, true)                                                      // Calculate the tokens for the images prompt
+	n := 0
+	newImages := []ImageInfo{}
+	for _, image := range images {
+		if n > 50 {
+			break
+		}
+		newImages = append(newImages, image)
+		n++
+	}
+
+	prompt := DataToText(newImages, "Images", []string{"UpdateTime", "ImageId", "Filename", "ImageTag"}) // Convert the images configuration to a text representation
+	tokens, _ := o.CalculateTokens(prompt, true)                                                         // Calculate the tokens for the images prompt
 	return prompt, tokens
 }
 

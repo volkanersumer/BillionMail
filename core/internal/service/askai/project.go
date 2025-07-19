@@ -144,8 +144,12 @@ func SaveProjectConfig(Domain string, config ProjectConfig) error {
 // Create initializes a new project configuration with the provided domain and URLs.
 // It sets default values for other fields and saves the configuration to a file.
 func Create(Domain string, urls []string) error {
-	if urls == nil || len(urls) == 0 {
+	urlsCount := len(urls)
+	if urls == nil || urlsCount == 0 {
 		urls = append(urls, "http://"+Domain) // Default URL if none provided
+	}
+	if urlsCount > 3 {
+		return fmt.Errorf("Add up to 3 URLs")
 	}
 	// Ensure all URLs start with "http://"
 	for i, urlStr := range urls {
@@ -240,7 +244,7 @@ func SetProjectStatus(Domain string, status bool) error {
 // ModifyBaseInfo updates the base information of a project configuration based on the provided domain.
 // It reads the existing configuration, modifies the specified fields, and saves the updated configuration back to the file.
 // If any field is empty, it will not be updated.
-func ModifyBaseInfo(Domain string, projectName, description, industry, primaryLogo, secondaryLogo, favicon string) error {
+func ModifyBaseInfo(Domain string, projectName, description, industry, primaryLogo, secondaryLogo, favicon string, urls []string) error {
 	config, err := ReadProjectConfig(Domain)
 	if err != nil {
 		return fmt.Errorf("error reading project configuration: %v", err)
@@ -264,6 +268,13 @@ func ModifyBaseInfo(Domain string, projectName, description, industry, primaryLo
 	}
 	if favicon != "" {
 		config.Favicon = favicon
+	}
+	urlsCount := len(urls)
+	if urlsCount > 0 {
+		if urlsCount > 3 {
+			return fmt.Errorf("Add up to 3 URLs")
+		}
+		config.Urls = urls
 	}
 
 	err = SaveProjectConfig(Domain, config)

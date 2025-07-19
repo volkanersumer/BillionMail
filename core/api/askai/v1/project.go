@@ -28,13 +28,14 @@ type GetBaseInfoRes struct {
 // ModifyBaseInfoReq is the request structure for modifying the base information of a project in AskAi.
 type ModifyBaseInfoReq struct {
 	g.Meta        `path:"/askai/project/modify_base_info" method:"post" tags:"AskAi" summary:"modify project base info"`
-	Domain        string `json:"domain" dc:"domain" v:"required#domain is required"`
-	ProjectName   string `json:"project_name" dc:"project name" v:"required#project name is required"`
-	Description   string `json:"description" dc:"project description"`
-	Industry      string `json:"industry" dc:"project industry"`
-	PrimaryLogo   string `json:"primary_logo" dc:"primary logo"`
-	SecondaryLogo string `json:"secondary_logo" dc:"secondary logo"`
-	Favicon       string `json:"favicon" dc:"favicon"`
+	Domain        string   `json:"domain" dc:"domain" v:"required#domain is required"`
+	ProjectName   string   `json:"project_name" dc:"project name" v:"required#project name is required"`
+	Description   string   `json:"description" dc:"project description"`
+	Industry      string   `json:"industry" dc:"project industry"`
+	PrimaryLogo   string   `json:"primary_logo" dc:"primary logo"`
+	SecondaryLogo string   `json:"secondary_logo" dc:"secondary logo"`
+	Favicon       string   `json:"favicon" dc:"favicon"`
+	Urls          []string `json:"urls" dc:"urls"`
 }
 type ModifyBaseInfoRes struct {
 	api_v1.StandardRes

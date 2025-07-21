@@ -1,4 +1,4 @@
-import { ChatInfo, Model, TemplateStore } from "../dto"
+import { ChatInfo, Model, TemplateStore, UsageInfo } from "../dto"
 export function useTemplateStore(): TemplateStore {
     const domainList = ref<string[]>([])
     const sourceDomain = ref("")
@@ -31,6 +31,7 @@ export function useTemplateStore(): TemplateStore {
     const previewCode = ref<string>("")
     const generateShow = ref<boolean>(false)
     const chatRecord = ref<Map<string, string[]>>(new Map())
+    const usageRecord= ref<Map<string,UsageInfo>>(new Map())
     const isChat = ref(false)
     const chatScrollRef = ref()
     const scrollWrapperRef = ref()
@@ -51,6 +52,7 @@ export function useTemplateStore(): TemplateStore {
         previewCode,
         generateShow,
         chatRecord,
+        usageRecord,
         isChat,
         chatScrollRef,
         scrollWrapperRef,

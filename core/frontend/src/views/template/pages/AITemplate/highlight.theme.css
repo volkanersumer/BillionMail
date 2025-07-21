@@ -94,3 +94,11 @@ pre code.hljs {
   .hljs-link {
     text-decoration: underline
   }
+
+  .hljs-regexp, .hljs-string, .hljs-meta .hljs-string{
+    color: #d19a66
+  }
+
+  .hljs-attr, .hljs-attribute, .hljs-literal, .hljs-meta, .hljs-number, .hljs-operator, .hljs-variable, .hljs-selector-attr, .hljs-selector-class, .hljs-selector-id {
+    color:#5ae4e5
+  }

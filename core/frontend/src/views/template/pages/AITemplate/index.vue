@@ -44,15 +44,27 @@
 													class="mb-4" @code-render="handleCodeRender">
 												</MarkdownRender>
 											</div>
-											<div class="answer-tool" @click="handleRegenerate(item[0].toString())">
-												<div class="tool-item">
+											<div class="answer-tool">
+												<div class="tool-item" @click="handleRegenerate(item[0].toString())">
 													<i class="i-ri:refresh-line text-5"></i>
 													<span>{{ $t('template.ai.buttons.regenerate') }}</span>
 												</div>
-												<div class="tool-item">
-													<i class="i-ri:information-2-fill text-5"></i>
-													<span>{{ $t('template.ai.buttons.info') }}</span>
-												</div>
+												<n-popover trigger="hover">
+													<template #trigger>
+														<div class="tool-item">
+															<i class="i-ri:information-2-fill text-5"></i>
+															<span>{{ $t('template.ai.buttons.info') }}</span>
+														</div>
+													</template>
+													<div v-if="usageRecord.get(item[0])"
+														class="flex justify-start items-center gap-2.5">
+														<div v-for="(info, info_key) in usageRecord.get(item[0])"
+															:key="info_key">
+															<span class="fw-bold">{{ info_key }}: </span>
+															<span>{{ info }}</span>
+														</div>
+													</div>
+												</n-popover>
 											</div>
 										</div>
 										<!-- </n-spin> -->
@@ -167,7 +179,8 @@ const {
 	scrollWrapperRef,
 	scrollable,
 	chatInfo,
-	previewTit
+	previewTit,
+	usageRecord
 } = store
 const route = useRoute()
 

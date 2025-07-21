@@ -1,6 +1,6 @@
 import i18n from '@/i18n'
 import { instance } from '@/api'
-import { ChatInfo, TemplateStore } from '../dto'
+import { ChatInfo, TemplateStore, UsageInfo } from '../dto'
 
 const { t } = i18n.global
 
@@ -91,7 +91,8 @@ export async function getChatList() {
  * @description Get chat info
  */
 export async function getChatInfo(store: TemplateStore) {
-	const { chatId, chatInfo, currentModel, modelList, currentModelTitle, chatRecord } = store
+	const { chatId, chatInfo, currentModel, modelList, currentModelTitle, chatRecord, usageRecord } =
+		store
 	try {
 		chatInfo.value = (await instance.post('/askai/chat/info', { chatId: chatId.value })) as ChatInfo
 		// Check chatInfo and assign currentModel and currentModelTitle
@@ -104,10 +105,15 @@ export async function getChatInfo(store: TemplateStore) {
 		}
 		// Init chatRecord
 		for (let i = 0; i < chatInfo.value.messages.length; i++) {
+			const key = `${chatInfo.value.messages[i].content}_+_${chatRecord.value.size}`
 			if (chatInfo.value.messages[i].role == 'user') {
 				chatRecord.value.set(
-					`${chatInfo.value.messages[i].content}_+_${chatRecord.value.size}`,
+					key,
 					sliceContentToArray(chatInfo.value.messages[i + 1].content)
+				)
+				usageRecord.value.set(
+					key,
+					chatInfo.value.messages[i + 1].usage
 				)
 			}
 		}
@@ -159,6 +165,7 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 		scrollWrapperRef,
 		chatScrollRef,
 		isChat,
+		usageRecord
 	} = store
 	if (isChat.value) return
 	if (!questionContent.value) return
@@ -237,7 +244,9 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 		scrollable.value = true
 		chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight })
 		isChat.value = false
-		getHtmlTemplateContent(store)
+		getHtmlTemplateContent(store,(usage:UsageInfo)=>{
+			usageRecord.value.set(chatRecordKey, usage)
+		})
 	} catch (error) {
 		console.warn(error)
 	} finally {
@@ -325,14 +334,17 @@ export function getContentFromTitleTags(content: string) {
 /**
  * @description Get html template code content
  */
-export async function getHtmlTemplateContent(store: TemplateStore) {
+export async function getHtmlTemplateContent(store: TemplateStore,callback?: (usage: UsageInfo) => void) {
 	const { chatId, previewCode, previewTit } = store
 	try {
 		const codeContent = (await instance.post('/askai/chat/get_html', {
 			chatId: chatId.value,
-		})) as string
-		previewCode.value = codeContent
+		})) as Record<string,any>
+		previewCode.value = codeContent.html_content
 		previewTit.value = getContentFromTitleTags(previewCode.value)
+		if(callback){
+			callback(codeContent.last_usage)
+		}
 	} catch (error) {
 		console.warn(error)
 	}
@@ -359,4 +371,3 @@ export async function saveCodeChange(store: TemplateStore) {
  * @description Duplicate template
  */
 export async function duplicateTemplate() {}
-

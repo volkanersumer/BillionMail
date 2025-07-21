@@ -25,11 +25,7 @@ export type ChatMessage = {
     role: string
     supplier_name: string
     time_consuming: number
-    usage: {
-        completion_tokens: number
-        prompt_tokens: number
-        total_tokens: number
-    }
+    usage: UsageInfo
 }
 
 
@@ -67,9 +63,16 @@ export type TemplateStore = {
     previewCode: Ref<string>
     generateShow: Ref<boolean>
     chatRecord: Ref<Map<string, string[]>>
+    usageRecord:Ref<Map<string,UsageInfo>>
     isChat:Ref<boolean>
     chatScrollRef:Ref<any>
     scrollWrapperRef:Ref<any>
     scrollable:Ref<boolean>
     previewTit:Ref<string>
+}
+
+export type UsageInfo = {
+    completion_tokens: number
+        prompt_tokens: number
+        total_tokens: number
 }

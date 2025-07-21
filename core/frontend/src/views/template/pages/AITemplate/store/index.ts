@@ -1,5 +1,4 @@
 import { ChatInfo, Model, TemplateStore } from "../dto"
-import { str } from "./test"
 export function useTemplateStore(): TemplateStore {
     const domainList = ref<string[]>([])
     const sourceDomain = ref("")
@@ -31,9 +30,7 @@ export function useTemplateStore(): TemplateStore {
     const answerContent = ref<string[]>([])
     const previewCode = ref<string>("")
     const generateShow = ref<boolean>(false)
-    const chatRecord = ref<Map<string, string[]>>(new Map([
-        ["帮我像一个问题",[str]]
-    ]))
+    const chatRecord = ref<Map<string, string[]>>(new Map())
     const isChat = ref(false)
     const chatScrollRef = ref()
     const scrollWrapperRef = ref()

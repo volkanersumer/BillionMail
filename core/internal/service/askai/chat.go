@@ -309,7 +309,27 @@ func GetHtml(chatId string) (string, error) {
 	var htmlContent string
 	filename := CHAT_CONFIG_PATH + "/" + chatId + "/code.html"
 	if !public.FileExists(filename) {
-		return "", nil
+		messages := GetMessages(chatId)
+		messagesLen := len(messages)
+		if messagesLen == 0 {
+			return "", nil
+		}
+		message := messages[messagesLen-1]
+		if message.HtmlContent == "" {
+			if strings.Contains(message.Content, `<!DOCTYPE html>`) && strings.Contains(message.Content, "</html>") {
+				// 截取 HTML 内容
+				startIndex := strings.Index(message.Content, "<!DOCTYPE html>")
+				if startIndex == -1 {
+					return "", nil
+				}
+				endIndex := strings.LastIndex(message.Content, "</html>")
+				if endIndex == -1 {
+					return "", nil
+				}
+				htmlContent = message.Content[startIndex : endIndex+len("</html>")]
+				return htmlContent, nil
+			}
+		}
 	}
 	data, err := os.ReadFile(filename)
 	if err != nil {

@@ -12,7 +12,7 @@ interface FetchOptions {
 
 const instance = axios.create({
 	baseURL: apiUrlPrefix,
-	timeout: 250000,
+	timeout: 600000,
 	headers: {
 		'Content-Type': 'application/json',
 	},

@@ -689,7 +689,8 @@
 				"createNow":"Create Immediately",
 				"brandInfo":"Brand information",
 				"noBrandInfo":"No brand information available.",
-				"fillDomain":"Please fill in the domain name"
+				"fillDomain":"Please fill in the domain name",
+				"fillValidDomain":"Please fill in a valid domain name"
 			},
 			"projectDetails": {
 				"title": "Project Details",

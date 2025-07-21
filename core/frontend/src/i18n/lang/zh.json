@@ -599,7 +599,8 @@
 			"createImmediately":"立即创建",
 			"brandInfo":"品牌信息",
 			"noBrandInfo":"暂无品牌信息",
-			"fillDomain":"请填写域名"
+			"fillDomain":"请填写域名",
+			"fillValidDomain":"请填写正确的域名"
 		},
 		"dns": {
 			"title": "DNS 记录",

@@ -1,7 +1,7 @@
 import { instance } from '@/api'
 import { instanceOptions } from './companyProfile.controller'
 import { getEditDomainStoreData } from '../store'
-import { getByteUnit, Message } from '@/utils'
+import { getByteUnit, Message,isUrl } from '@/utils'
 import { initAiConfiguration } from '@/api/modules/domain'
 import { useGlobalStore } from '@/store'
 import i18n from '@/i18n'
@@ -116,6 +116,9 @@ export async function createBrandInfo() {
 	hasGotDomainConfiguration.value = false
 	if (urls.value.length == 0 || urls.value[0] == '') {
 		Message.error(i18n.global.t('domain.edit.domainConfiguration.fillDomain'))
+	}else if(!isUrl(urls.value[0])) {
+		Message.error(i18n.global.t('domain.edit.domainConfiguration.fillValidDomain'))
+
 	} else {
 		try {
 			await initAiConfiguration({

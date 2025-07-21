@@ -70,11 +70,15 @@ func (c *ControllerV1) Stop(ctx context.Context, req *v1.StopReq) (res *v1.StopR
 
 func (c *ControllerV1) GetHtml(ctx context.Context, req *v1.GetHtmlReq) (res *v1.GetHtmlRes, err error) {
 	res = &v1.GetHtmlRes{}
-	res.Data, err = askai.GetHtml(req.ChatId)
+	htmlContent, err := askai.GetHtml(req.ChatId)
 	if err != nil {
 		res.SetError(err)
 	} else {
 		res.SetSuccess("HTML content retrieved successfully")
+		res.Data = map[string]interface{}{
+			"html_content": htmlContent,
+			"last_usage":   askai.GetLastUsage(req.ChatId),
+		}
 	}
 	return res, nil
 }

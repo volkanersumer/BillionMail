@@ -303,6 +303,17 @@ func Stop(chatId string) error {
 	return nil
 }
 
+// GetLastUsage retrieves the last usage statistics for a chat by its ID
+// This function should handle the logic for loading the last usage statistics of a chat based on the provided chat ID
+func GetLastUsage(chatId string) ChatUsage {
+	messages := GetMessages(chatId)
+	if len(messages) == 0 {
+		return ChatUsage{}
+	}
+	lastMessage := messages[len(messages)-1]
+	return lastMessage.Usage
+}
+
 // GetHtml retrieves the HTML content of a chat by its ID
 // This function should handle the logic for loading the HTML content of a chat based on the provided chat ID
 func GetHtml(chatId string) (string, error) {

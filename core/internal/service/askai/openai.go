@@ -717,12 +717,11 @@ func (o *OpenAI) CreateChatCompletionStream(request *ghttp.Request, req openai.C
 		return o.CreateChatCompletionStream(request, req, isText)
 	}
 
-	if o.Content != "" {
-		// Ensure the response is properly closed
-		o.WriteHtml()                           // Write HTML content if the chat has ended
-		o.WriteMessage(o.Content, finishReason) // Write the final message to the chat
-		o.WriteEvent(request, "", isText, true) // Write final event to indicate completion
-	}
+	// Ensure the response is properly closed
+	o.WriteHtml()                           // Write HTML content if the chat has ended
+	o.WriteMessage(o.Content, finishReason) // Write the final message to the chat
+	o.WriteEvent(request, "", isText, true) // Write final event to indicate completion
+
 	return nil
 }
 
@@ -825,10 +824,10 @@ func (o *OpenAI) ReplaceHtml() {
 
 // WriteHtml writes the HTML content to a file if it exists
 func (o *OpenAI) WriteHtml() {
-	if o.IsModify {
-		o.ReplaceHtml() // Replace HTML content if modifying
-		return
-	}
+	// if o.IsModify {
+	// 	o.ReplaceHtml() // Replace HTML content if modifying
+	// 	return
+	// }
 	if o.HtmlContent != "" {
 		filename := CHAT_CONFIG_PATH + "/" + o.ChatId + "/code.html"
 		o.HtmlContent = strings.Trim(o.HtmlContent, "`")

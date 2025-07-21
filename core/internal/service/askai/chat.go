@@ -323,9 +323,9 @@ func GetHtml(chatId string) (string, error) {
 // This function should handle the logic for modifying the HTML content of a chat based on the provided chat ID and content
 func ModifyHtml(chatId string, content string) error {
 	filename := CHAT_CONFIG_PATH + "/" + chatId + "/code.html"
-	if !public.FileExists(filename) {
-		return errors.New("HTML file not found")
-	}
+	// if !public.FileExists(filename) {
+	// 	return errors.New("HTML file not found")
+	// }
 	g.DB().Model("email_templates").Where("chat_id", chatId).Update(g.Map{
 		"content": content, // Update the HTML content in the database
 	})

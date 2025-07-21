@@ -183,9 +183,11 @@ func GetModelList(supplierName string) []ModelInfo {
 	if err != nil {
 		return Models
 	}
-	if supplierConfig.Status == false || supplierConfig.ApiKey == "" || supplierConfig.BaseUrl == "" {
-		return Models // If the supplier is not active or missing API key/base URL, return empty models
-	}
+
+	isActive := supplierConfig.Status && supplierConfig.ApiKey != "" && supplierConfig.BaseUrl != ""
+	// if supplierConfig.Status == false || supplierConfig.ApiKey == "" || supplierConfig.BaseUrl == "" {
+	// 	return Models // If the supplier is not active or missing API key/base URL, return empty models
+	// }
 
 	fBody, err := os.ReadFile(modelsFile)
 	if err != nil {
@@ -202,7 +204,11 @@ func GetModelList(supplierName string) []ModelInfo {
 			Models[i].Title = fmt.Sprintf("%s/%s", supplierName, Models[i].ModelId)
 		}
 		if Models[i].MaxTokens == 0 {
-			Models[i].MaxTokens = 4096 // Default max tokens if not specified
+			Models[i].MaxTokens = 8192 // Default max tokens if not specified
+		}
+
+		if !isActive {
+			Models[i].Status = false
 		}
 	}
 

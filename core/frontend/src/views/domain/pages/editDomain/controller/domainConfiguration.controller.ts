@@ -43,7 +43,8 @@ export async function getDomainDetail(domain: string) {
 		unit.value = quotaAndUnit[1]
 		mailboxes.value = list[0].mailboxes
 		catch_email.value = list[0].email
-		urls.value = list[0].urls
+		urls.value =
+			list[0].urls && list[0].urls.length > 0 && list[0].urls[0] != '' ? list[0].urls : ['https://']
 		await configurationStatus(domain)
 		hasGotDomainConfiguration.value = true
 	} catch (error) {
@@ -114,7 +115,7 @@ export async function createBrandInfo() {
 	const globalStore = useGlobalStore()
 	hasGotDomainConfiguration.value = false
 	if (urls.value.length == 0 || urls.value[0] == '') {
-		Message.error(i18n.global.t("domain.edit.domainConfiguration.fillDomain"))
+		Message.error(i18n.global.t('domain.edit.domainConfiguration.fillDomain'))
 	} else {
 		try {
 			await initAiConfiguration({

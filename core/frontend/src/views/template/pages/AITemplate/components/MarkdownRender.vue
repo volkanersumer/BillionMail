@@ -62,6 +62,7 @@ const md = markdownit({
 		return md.utils.escapeHtml(str) // 使用额外的默认转义
 	},
 })
+
 codeHtml.value = md.render(removeSignCode(props.content))
 watch(
 	() => props.content,

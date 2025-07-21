@@ -7,9 +7,11 @@ pre code.hljs {
     padding: 3px 5px
   }
 
-  pre {
+.code-area {
+    pre {
     color: var(--color-bg-2) !important;
   }
+}
   /*
   
   Atom One Dark by Daniel Gamage

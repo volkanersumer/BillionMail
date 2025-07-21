@@ -31,6 +31,8 @@ II. Requirements
 - Place the email subject in the HTML <title> tag.
 - Consolidate all response content into a single HTML file.
 - Compress CSS into a single line before output.
+- Prohibit the use of iframe tags
+- Do not use countdown design
 - Use placeholder for unsubscribe link: '{{ UnsubscribeURL . }}'
 - Page width ≤ 600px.
 - Color: Primary(60%) + Secondary(30%) + Accent(10%)

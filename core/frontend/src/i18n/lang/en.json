@@ -349,7 +349,8 @@
 				"view": "View",
 				"edit": "Edit",
 				"copy": "Copy",
-				"copied": "Copied"
+				"copied": "Copied",
+				"apply":"Apply"
 			},
 			"tips": {
 				"saveShortcut": "[Ctrl + s] to save your change"
@@ -1060,6 +1061,25 @@
 				"deleting": "Deleting, please wait...",
 				"clearing": "Clearing, please wait..."
 			}
+		},
+		"aiModel":{
+			"modelId":"Model ID",
+			"modelAlias":"Model Alias",
+			"modelFeature":"Model Feature",
+			"contentLength":"Maximum Context Length",
+			"supplierTitle":"Supplier Title",
+			"supplierName":"Supplier Name",
+			"cancel":"Cancel",
+			"confirm":"Confirm",
+			"aPIKey":"API Key",
+			"apiPath":"Base Url",
+			"check":"Check",
+			"getKey":"Click to Get Key",
+			"example":"Example",
+			"saveAPI":"Save API",
+			"model":"Model",
+			"byDefault":"By default, all models are retrieved from /models",
+			"addModel":"Add Model"
 		}
 	},
 	"api": {

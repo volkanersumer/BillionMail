@@ -15,6 +15,10 @@
 						<i class="i-mingcute:eye-2-fill text-5"></i>
 						<span>{{ $t('template.ai.buttons.view') }}</span>
 					</div>
+					<div class="tool-item" @click="saveCodeChange(store)">
+						<i class="i-ic:baseline-save text-5"></i>
+						<span>{{ $t('template.ai.buttons.apply') }}</span>
+					</div>
 				</div>
 			</div>
 			<div v-html="codeHtml"></div>
@@ -29,7 +33,7 @@
 import markdownit from 'markdown-it'
 import hljs from 'highlight.js'
 import '../highlight.theme.css'
-import { removeHtmlCodeBlockMarkers,removeSignCode } from '../controller'
+import { removeHtmlCodeBlockMarkers,removeSignCode,saveCodeChange } from '../controller'
 import { TemplateStore } from '../dto'
 import { useClipboard } from '@vueuse/core'
 const { copy, copied } = useClipboard()

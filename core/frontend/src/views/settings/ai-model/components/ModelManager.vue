@@ -43,34 +43,34 @@
 				</div>
 				<div class="center-api">
 					<n-form class="mt-15px">
-						<n-form-item label="API密钥">
+						<n-form-item :label="$t('settings.aiModel.aPIKey')">
 							<div class="w-100%">
 								<n-input-group>
 									<n-input v-model:value="currentProvider.apiKey"></n-input>
-									<n-button @click="checkProviderApiConfiguration(modelStore)">检查</n-button>
+									<n-button @click="checkProviderApiConfiguration(modelStore)">{{$t("settings.aiModel.check")}}</n-button>
 								</n-input-group>
 								<n-button text type="info" class="mt-5px"
-									@click="getProviderConfiguration(modelStore)">点击获取密钥</n-button>
+									@click="getProviderConfiguration(modelStore)">{{$t("settings.aiModel.getKey")}}</n-button>
 							</div>
 						</n-form-item>
-						<n-form-item label="API地址">
+						<n-form-item :label="$t('settings.aiModel.apiPath')">
 							<div class="w-100%">
 								<n-input v-model:value="currentProvider.baseUrl"></n-input>
-								<span class="text-[var(--color-text-3)] mt-5">示例: https://api.deepseek.com/v1</span>
+								<span class="text-[var(--color-text-3)] mt-5">{{$t("settings.aiModel.example")}}: https://api.deepseek.com/v1</span>
 							</div>
 						</n-form-item>
 					</n-form>
-					<n-button type="primary" @click="setProviderConfiguration(modelStore)">保存API</n-button>
+					<n-button type="primary" @click="setProviderConfiguration(modelStore)">{{$t("settings.aiModel.saveAPI")}}</n-button>
 				</div>
 				<div class="bottom-model-list">
 					<div class="header-tit">
 						<div>
-							<span class="tit">模型</span>
-							<span class="sub-tit">默认从/models获取所有模型</span>
+							<span class="tit">{{$t("settings.aiModel.model")}}</span>
+							<span class="sub-tit">{{$t("settings.aiModel.byDefault")}}</span>
 						</div>
 						<div class="add-model" @click="handleAddModel">
 							<i class="i-ic:baseline-control-point text-4"></i>
-							<span class="tit">添加模型</span>
+							<span class="tit">{{$t("settings.aiModel.addModel")}}</span>
 						</div>
 					</div>
 					<div v-for="item in modelList" :key="item.title" class="model-list">

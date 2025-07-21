@@ -353,7 +353,8 @@
 				"view": "预览",
 				"edit": "编辑",
 				"copy": "复制",
-				"copied": "已复制"
+				"copied": "已复制",
+				"apply":"应用模板"
 			},
 			"tips": {
 				"saveShortcut": "通过 [Ctrl + s] 保存您的修改"
@@ -1054,6 +1055,25 @@
 				"deleting": "正在删除，请稍候...",
 				"clearing": "正在清空，请稍候..."
 			}
+		},
+		"aiModel":{
+			"modelId":"模型ID",
+			"modelAlias":"模型别名",
+			"modelFeature":"模型功能",
+			"contentLength":"最大上下文长度",
+			"supplierTitle":"服务商标题",
+			"supplierName":"服务商名称",
+			"cancel":"取消",
+			"confirm":"确认",
+			"aPIKey":"API密钥",
+			"apiPath":"API地址",
+			"check":"检查",
+			"getKey":"点击获取API密钥",
+			"example":"示例",
+			"saveAPI":"保存API",
+			"model":"模型",
+			"byDefault":"默认从/models获取所有模型",
+			"addModel":"添加模型"
 		}
 	},
 	"api": {

@@ -334,7 +334,7 @@ export function getContentFromTitleTags(content: string) {
 /**
  * @description Get html template code content
  */
-export async function getHtmlTemplateContent(store: TemplateStore,callback?: (usage: UsageInfo) => void) {
+export async function getHtmlTemplateContent(store: TemplateStore,callback?: (usage: UsageInfo) => void) { 
 	const { chatId, previewCode, previewTit } = store
 	try {
 		const codeContent = (await instance.post('/askai/chat/get_html', {

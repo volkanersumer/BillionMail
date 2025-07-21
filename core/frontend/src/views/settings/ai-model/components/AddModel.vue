@@ -8,17 +8,17 @@
 		title="Add Model"
 		class="w-100">
 		<n-form ref="addModelFormRef" :model="addModelFormData" :rules="rules">
-			<n-form-item label="模型ID" path="modelId">
+			<n-form-item :label="$t('settings.aiModel.modelId')" path="modelId">
 				<n-input v-model:value="addModelFormData.modelId"></n-input>
 			</n-form-item>
-			<n-form-item label="模型别名" path="title">
+			<n-form-item :label="$t('settings.aiModel.modelAlias')" path="title">
 				<n-input v-model:value="addModelFormData.title"></n-input>
 			</n-form-item>
-			<n-form-item label="模型功能" path="capability">
+			<n-form-item :label="$t('settings.aiModel.modelFeature')" path="capability">
 				<n-select v-model:value="addModelFormData.capability" :options="modelCapabilities" multiple>
 				</n-select>
 			</n-form-item>
-			<n-form-item label="最大上下文长度" path="max_tokens">
+			<n-form-item :label="$t('settings.aiModel.contentLength')" path="max_tokens">
 				<n-input-number v-model:value="addModelFormData.max_tokens" :min="1" class="w-100%"></n-input-number>
 			</n-form-item>
 		</n-form>

@@ -8,10 +8,10 @@
 		class="w-150"
 		title="Add Provider">
 		<n-form ref="addProviderFormDataRef" :model="addProviderFormData" :rules="rules">
-			<n-form-item label="供应商标题" path="supplierTitle">
+			<n-form-item :label="$t('settings.aiModel.supplierTitle')" path="supplierTitle">
 				<n-input v-model:value="addProviderFormData.supplierTitle"></n-input>
 			</n-form-item>
-			<n-form-item label="供应商名称" path="supplierName">
+			<n-form-item :label="$t('settings.aiModel.supplierName')" path="supplierName">
 				<n-input v-model:value="addProviderFormData.supplierName"></n-input>
 			</n-form-item>
 			<n-form-item label="BaseURL" path="baseUrl">

@@ -74,7 +74,7 @@
 						<span class="mr-5">{{
 							$t('domain.edit.domainConfiguration.aiIntegrationWarning')
 						}}</span>
-						<n-button type="primary">{{
+						<n-button type="primary" @click="jumpToAiSettings">{{
 							$t('domain.edit.domainConfiguration.integrateImmediately')
 						}}</n-button>
 					</div>
@@ -123,6 +123,7 @@ import {
 } from '@/api/modules/domain'
 import { getDomainDetail, syncToUrl, removeUrl, createBrandInfo,switchBrandInfo } from '../controller/domainConfiguration.controller'
 import { getEditDomainStoreData } from '../store'
+const router = useRouter()
 const supplierStatus = ref(false)
 const { domainTit, quota, unit, mailboxes, catch_email, urls, brandInfo, createdBrandInfo, waitAndCheckDomainStatusRef } = getEditDomainStoreData()
 const route = useRoute()
@@ -168,6 +169,15 @@ checkAiConfig()
 // function addUrl() {
 // 	urls.value.push('')
 // }
+
+/**
+ * @description Jump to AI settings page
+ */
+function jumpToAiSettings(){
+	router.push({
+		name: "AiModel"
+	})
+}
 </script>
 
 <style scoped lang="scss">

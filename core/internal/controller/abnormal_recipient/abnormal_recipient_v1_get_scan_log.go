@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"os"
+	"strings"
 )
 
 func (c *ControllerV1) GetScanLog(ctx context.Context, req *v1.GetScanLogReq) (res *v1.GetScanLogRes, err error) {
@@ -15,7 +16,17 @@ func (c *ControllerV1) GetScanLog(ctx context.Context, req *v1.GetScanLogReq) (r
 
 	content, err := os.ReadFile(logDir)
 	if err != nil {
+		if os.IsNotExist(err) {
+			res.Data = ""
+			res.SetSuccess(public.LangCtx(ctx, "Success"))
+			return
+		}
 
+		if strings.Contains(err.Error(), "no such file or directory") {
+			res.Data = ""
+			res.SetSuccess(public.LangCtx(ctx, "Success"))
+			return
+		}
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to read log file: : {}", err.Error())))
 		return
 	}

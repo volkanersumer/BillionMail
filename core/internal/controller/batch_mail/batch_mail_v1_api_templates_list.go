@@ -2,6 +2,7 @@ package batch_mail
 
 import (
 	"billionmail-core/api/batch_mail/v1"
+	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
@@ -135,7 +136,7 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 			ips = append(ips, row.Ip)
 		}
 		item.IpWhitelist = ips
-		item.ServerAddresser = public.GethostUrl() + "/api/batch_mail/api/send"
+		item.ServerAddresser = domains.GetBaseURL() + "/api/batch_mail/api/send"
 	}
 
 	res.Data.Total = total

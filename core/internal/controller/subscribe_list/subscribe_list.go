@@ -8,6 +8,7 @@ import (
 	mail_v1 "billionmail-core/api/mail_boxes/v1"
 	"billionmail-core/internal/model/entity"
 	"billionmail-core/internal/service/batch_mail"
+	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/mail_boxes"
 	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/public"
@@ -239,7 +240,7 @@ func getEmailFromToken(token string) (string, string, error) {
 
 // Build confirmation URL
 func buildConfirmUrl(token string) string {
-	hostUrl := public.GethostUrl()
+	hostUrl := domains.GetBaseURL()
 	return fmt.Sprintf("%s/api/subscribe/confirm?token=%s", hostUrl, token)
 }
 
@@ -315,7 +316,7 @@ func GetSubscribeFormCode(groupToken string) string {
 
 	// Link to corresponding page
 	var submitUrl string
-	hostUrl := public.GethostUrl()
+	hostUrl := domains.GetBaseURL()
 	submitUrl = hostUrl + "/api/subscribe/submit?token=" + groupToken
 
 	newContent := strings.ReplaceAll(content, "{{ SubmitURL . }}", submitUrl)

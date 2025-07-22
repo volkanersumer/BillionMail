@@ -1,12 +1,14 @@
 <template>
 	<modal :title="title" width="520">
 		<bt-form ref="formRef" class="pt-20px" :model="form" :rules="rules">
-			<n-form-item label="Name" path="full_name">
-				<n-input v-model:value="form.full_name"> </n-input>
-			</n-form-item>
 			<n-form-item :label="t('mailbox.form.emailAddress')" path="domain">
 				<n-input-group>
-					<n-input v-model:value="form.local_part" class="flex-1" :disabled="isEdit"> </n-input>
+					<n-input
+						v-model:value="form.local_part"
+						class="flex-1"
+						:disabled="isEdit"
+						@update:value="onUpdateLocalPart">
+					</n-input>
 					<domain-select
 						v-model:value="form.domain"
 						class="flex-1"
@@ -14,6 +16,9 @@
 						:disabled="isEdit">
 					</domain-select>
 				</n-input-group>
+			</n-form-item>
+			<n-form-item label="Display Name" path="full_name">
+				<n-input v-model:value="form.full_name"> </n-input>
 			</n-form-item>
 			<n-form-item :label="t('mailbox.form.password')" path="password">
 				<n-input v-model:value="form.password" :placeholder="t('mailbox.form.passwordPlaceholder')">
@@ -121,6 +126,10 @@ const rules: FormRules = {
 			return true
 		},
 	},
+}
+
+const onUpdateLocalPart = (val: string) => {
+	form.full_name = val
 }
 
 /**

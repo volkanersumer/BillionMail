@@ -84,6 +84,7 @@ function deleteFolderRecursive(folderPath) {
 
 // 主执行逻辑
 async function main() {
+	// 再执行文件复制
 	await copyLocalFiles('../public/dist')
 }
 

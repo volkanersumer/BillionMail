@@ -21,7 +21,9 @@ func (c *ControllerV1) UpdateMailbox(ctx context.Context, req *v1.UpdateMailboxR
 		Domain:    req.Domain,
 		Active:    req.Active,
 	}
-
+	if mailbox.FullName == "" {
+		mailbox.FullName = req.LocalPart
+	}
 	if err = mail_boxes.Update(ctx, mailbox); err != nil {
 		return nil, err
 	}

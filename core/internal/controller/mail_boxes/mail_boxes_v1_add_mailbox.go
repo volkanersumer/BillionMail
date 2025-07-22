@@ -23,6 +23,10 @@ func (c *ControllerV1) AddMailbox(ctx context.Context, req *v1.AddMailboxReq) (r
 		Active:    req.Active,
 	}
 
+	if mailbox.FullName == "" {
+		mailbox.FullName = req.LocalPart
+	}
+
 	if err = mail_boxes.Add(ctx, mailbox); err != nil {
 		return nil, err
 	}

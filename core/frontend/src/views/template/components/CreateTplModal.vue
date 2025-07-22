@@ -11,7 +11,7 @@
 			<div :class="['url-source', { hidden: choosedMethod !== 'AI' }]">
 				<span class="label">{{ $t("template.createTpl.sourceUrl") }}</span>
 				<n-select v-model:value="sourceDomain" class="flex-1" label-field="domain" value-field="domain"
-					:options="domainListHasBrandInfo" disabled>
+					:options="domainListHasBrandInfo" :disabled="canNotUse">
 				</n-select>
 			</div>
 			<div class="desc">
@@ -21,7 +21,8 @@
 
 		<template #footer>
 			<div class="flex justify-end">
-				<n-button type="primary" :disabled="canNotUse" @click="createTemplate">{{ $t("template.createTpl.create") }}</n-button>
+				<n-button type="primary" :disabled="canNotUse" @click="createTemplate">{{
+					$t("template.createTpl.create") }}</n-button>
 			</div>
 		</template>
 	</n-modal>
@@ -62,7 +63,7 @@ const domainListHasBrandInfo = computed(() => {
  * @description Whether the button can be used
  */
 const canNotUse = computed(() => {
-	if(choosedMethod.value == 'AI' && domainList.value.length == 0){
+	if (choosedMethod.value == 'AI' && domainListHasBrandInfo.value.length == 0) {
 		return true
 	}
 	return false
@@ -123,9 +124,10 @@ async function getDomainList() {
 	}
 	if (globalStore.domainSource) {
 		sourceDomain.value = globalStore.domainSource
-	} else {
-		sourceDomain.value = domainList.value[0].domain
-		globalStore.domainSource = domainList.value[0].domain
+	}
+	if (domainListHasBrandInfo.value.length > 0) {
+		sourceDomain.value = domainListHasBrandInfo.value[0].domain
+		globalStore.domainSource = domainListHasBrandInfo.value[0].domain
 	}
 }
 

@@ -753,8 +753,8 @@ func GetLanguageList() []map[string]interface{} {
 		{
 			"name":   "zh",
 			"google": "zh-cn",
-			"title":  "Simplified Chinese",
-			"cn":     "Simplified Chinese",
+			"title":  "简体中文",
+			"cn":     "简体中文",
 		},
 		{
 			"name":   "en",

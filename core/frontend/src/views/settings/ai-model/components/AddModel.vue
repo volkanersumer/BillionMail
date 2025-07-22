@@ -1,11 +1,5 @@
 <template>
-	<n-modal
-		v-model:show="show"
-		preset="card"
-		draggable
-		:close-on-esc="false"
-		:mask-closable="false"
-		title="Add Model"
+	<n-modal v-model:show="show" preset="card" draggable :close-on-esc="false" :mask-closable="false" title="Add Model"
 		class="w-100">
 		<n-form ref="addModelFormRef" :model="addModelFormData" :rules="rules">
 			<n-form-item :label="$t('settings.aiModel.modelId')" path="modelId">
@@ -15,7 +9,7 @@
 				<n-input v-model:value="addModelFormData.title"></n-input>
 			</n-form-item>
 			<n-form-item :label="$t('settings.aiModel.modelFeature')" path="capability">
-				<n-select v-model:value="addModelFormData.capability" :options="modelCapabilities" multiple>
+				<n-select v-model:value="addModelFormData.capability" :options="modelCapabilitiesExclude" multiple>
 				</n-select>
 			</n-form-item>
 			<n-form-item :label="$t('settings.aiModel.contentLength')" path="max_tokens">
@@ -56,6 +50,39 @@ const modelCapabilities: SelectOption[] = [
 		value: 'text-to-image',
 	},
 ]
+
+const modelCapabilitiesExclude = computed(() => {
+	if (addModelFormData.value.capability.includes("llm") || addModelFormData.value.capability.includes("vision") || addModelFormData.value.capability.includes("tools")) {
+		return modelCapabilities.map(item=>{
+			if(item.value === "text-to-image"){
+				return {
+					...item,
+					disabled: true
+				}
+			}else{
+				return item
+			}
+		})
+	}
+
+	if(addModelFormData.value.capability.includes("text-to-image")){
+		return modelCapabilities.map(item=>{
+			if(item.value === "text-to-image"){
+				return {
+					...item,
+				}
+			}else{
+				return {
+					...item,
+					disabled: true
+				}
+			}
+		})
+	}
+
+	return modelCapabilities
+})
+
 const rules = {
 	modelId: [{ required: true, message: 'modelId is required', trigger: 'blur' }],
 	title: [{ required: true, message: 'title is required', trigger: 'blur' }],

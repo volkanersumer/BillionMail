@@ -242,7 +242,7 @@ const [Modal, modalApi] = useModal({
 				urls: urls.value,
 				hasbrandinfo:Number(initAi.value),
 			})
-			globalStore.domainSource = form.domain
+			
 			// Init Ai configuration (via. src\api\modules\domain.ts)
 			if (initAi.value) {
 				await initAiConfiguration({
@@ -250,6 +250,9 @@ const [Modal, modalApi] = useModal({
 					urls: urls.value,
 				})
 				waitAndCheckDomainStatusRef.value.open(form.domain)
+				globalStore.domainSource = form.domain
+			}else{
+				globalStore.domainSource = ""
 			}
 
 		}
@@ -258,12 +261,7 @@ const [Modal, modalApi] = useModal({
 	},
 })
 
-/**
- * @description Add url to urls
- */
-function addUrl() {
-	urls.value.push('')
-}
+
 
 /**
  * @description Go to integrate AI model

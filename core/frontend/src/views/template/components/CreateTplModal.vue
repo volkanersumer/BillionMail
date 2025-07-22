@@ -125,6 +125,7 @@ async function getDomainList() {
 		sourceDomain.value = globalStore.domainSource
 	} else {
 		sourceDomain.value = domainList.value[0].domain
+		globalStore.domainSource = domainList.value[0].domain
 	}
 }
 

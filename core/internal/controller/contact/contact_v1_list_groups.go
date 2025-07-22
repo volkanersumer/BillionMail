@@ -30,7 +30,7 @@ func (c *ControllerV1) ListGroups(ctx context.Context, req *v1.ListGroupsReq) (r
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to get group list {}", err.Error())))
 		return
 	}
-	//hostUrl := public.GethostUrl()
+	//hostUrl := domains.GetBaseURL()
 	// Convert group information
 	groupInfos := make([]*v1.ContactGroupInfo, 0, len(groups))
 	for _, group := range groups {

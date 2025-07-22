@@ -19,6 +19,12 @@ var (
 
 // GetBaseURL get baseurl of console panel
 func GetBaseURL() string {
+	// Prioritize the verification of the reverse proxy domain name
+	var reverseProxyDomain string
+	err := public.OptionsMgrInstance.GetOption(context.Background(), "reverse_proxy_domain", &reverseProxyDomain)
+	if err == nil && reverseProxyDomain != "" {
+		return reverseProxyDomain
+	}
 	return baseurl
 }
 

@@ -55,13 +55,13 @@ func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplate
 		query = query.LeftJoin("mailstat_send_mails sm", "mi.postfix_message_id=sm.postfix_message_id")
 		query = query.Where("aml.api_id", item.Id)
 		query = query.Where("aml.status", 2)
-		if req.StartTime > 0 {
-			query.Where("sm.log_time_millis > ?", req.StartTime*1000-1)
-		}
-
-		if req.EndTime > 0 {
-			query.Where("sm.log_time_millis < ?", req.EndTime*1000+1)
-		}
+		//if req.StartTime > 0 {
+		//	query.Where("sm.log_time_millis > ?", req.StartTime*1000-1)
+		//}
+		//
+		//if req.EndTime > 0 {
+		//	query.Where("sm.log_time_millis < ?", req.EndTime*1000+1)
+		//}
 
 		// count各项数据
 		query.Fields(

@@ -112,6 +112,7 @@ export async function changeProviderStatus(status: boolean, modelStore: ModelSto
 			{ supplierName: currentProvider.value.supplierName, status },
 			instanceOptions
 		)
+		currentProvider.value.status = status
 		getModelList(currentProvider.value.supplierName, modelStore)
 	} catch (error) {
 		currentProvider.value.status = !status
@@ -154,6 +155,7 @@ export async function setProviderConfiguration(modelStore: ModelStore) {
 			},
 			instanceOptions
 		)
+		changeProviderStatus(true, modelStore)
 	} catch (error) {
 		console.warn(error)
 	}

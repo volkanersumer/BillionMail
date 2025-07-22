@@ -44,7 +44,7 @@ export async function getDomainDetail(domain: string) {
 		mailboxes.value = list[0].mailboxes
 		catch_email.value = list[0].email
 		urls.value =
-			list[0].urls && list[0].urls.length > 0 && list[0].urls[0] != '' ? list[0].urls : ['https://']
+			list[0].urls && list[0].urls.length > 0 && list[0].urls[0] != '' ? list[0].urls : [`https://${domain}`]
 		await configurationStatus(domain)
 		hasGotDomainConfiguration.value = true
 	} catch (error) {

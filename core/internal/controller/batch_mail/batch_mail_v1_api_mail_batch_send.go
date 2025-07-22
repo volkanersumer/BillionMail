@@ -45,6 +45,18 @@ func (c *ControllerV1) ApiMailBatchSend(ctx context.Context, req *v1.ApiMailBatc
 		res.Code = 1003
 		res.SetError(gerror.New(public.LangCtx(ctx, "Recipients cannot be empty")))
 		return res, nil
+
+		//contacts, err := g.DB().Model("bm_contacts").Where("group_id",1).All()
+		//if err != nil {
+		//	res.Code = 1005
+		//	res.SetError(gerror.New(public.LangCtx(ctx, "Failed to get contacts: {}", err.Error())))
+		//	return res, nil
+		//}
+		//recipientaa := []string{}
+		//for _, contact := range contacts {
+		//	recipientaa = append(recipientaa, contact["email"].String())
+		//}
+		//req.Recipients = recipientaa
 	}
 
 	validRecipients := make([]string, 0, len(req.Recipients))

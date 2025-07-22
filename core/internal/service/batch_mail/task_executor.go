@@ -361,6 +361,7 @@ func (e *TaskExecutor) ProcessTask(ctx context.Context) error {
 		}
 		completeMsg := fmt.Sprintf("task %d is successfully marked as completed", task.Id)
 		g.Log().Info(ctx, completeMsg)
+		RemoveTaskExecutor(task.Id) // The executor is removed at the end of the task
 	}
 
 	return nil
@@ -577,7 +578,8 @@ func (e *TaskExecutor) getNextRecipientBatch(ctx context.Context, taskId, lastId
 	err := g.DB().Model("recipient_info").
 		Where("task_id", taskId).
 		Where("is_sent", 0).
-		Where("sent_time = 0 OR sent_time < ?", time.Now().Unix()). // not sent yet
+		//Where("sent_time = 0 OR sent_time < ?", time.Now().Unix()). // not sent yet
+		Where("sent_time = 0").
 		Where("id > ?", lastId).
 		Order("id ASC").
 		Limit(batchSize).
@@ -662,7 +664,7 @@ func (e *TaskExecutor) processRecipientBatch(ctx context.Context, task *entity.E
 					updates[recipient.Id] = waits * 2
 				}
 				// rate limit exceeded, skip this recipient
-				g.Log().Warningf(ctx, "Rate limit exceeded for recipient %d, wait for %d seconds after retry, skipping", recipient.Id, waits)
+				g.Log().Debug(ctx, "Rate limit exceeded for recipient %d, wait for %d seconds after retry, skipping", recipient.Id, waits)
 				continue
 			}
 		}
@@ -943,7 +945,8 @@ func (e *TaskExecutor) personalizeEmail(ctx context.Context, content string, tas
 	engine := GetTemplateEngine()
 
 	if task.Unsubscribe == 1 {
-		domain := domains.GetBaseURLBySender(task.Addresser)
+		//domain := domains.GetBaseURLBySender(task.Addresser)
+		domain := domains.GetBaseURL()
 		unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
 		groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)
 
@@ -1024,7 +1027,8 @@ func (e *TaskExecutor) sendEmail(ctx context.Context, task *entity.EmailTask, re
 	messageID := sender.GenerateMessageID()
 
 	//Tracking emails
-	baseURL := domains.GetBaseURLBySender(task.Addresser)
+	//baseURL := domains.GetBaseURLBySender(task.Addresser)
+	baseURL := domains.GetBaseURL()
 	mail_tracker := maillog_stat.NewMailTracker(renderedContent, task.Id, messageID, recipient.Recipient, baseURL)
 	mail_tracker.TrackLinks()
 	mail_tracker.AppendTrackingPixel()
@@ -1089,7 +1093,8 @@ func (e *TaskExecutor) sendEmailMock(ctx context.Context, task *entity.EmailTask
 	messageID := sender.GenerateMessageID()
 
 	// Track email
-	baseURL := domains.GetBaseURLBySender(task.Addresser)
+	//baseURL := domains.GetBaseURLBySender(task.Addresser)
+	baseURL := domains.GetBaseURL()
 	mail_tracker := maillog_stat.NewMailTracker(renderedContent, task.Id, messageID, recipient.Recipient, baseURL)
 	mail_tracker.TrackLinks()
 	mail_tracker.AppendTrackingPixel()

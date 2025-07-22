@@ -19,6 +19,12 @@ var (
 
 // GetBaseURL get baseurl of console panel
 func GetBaseURL() string {
+	// Prioritize the verification of the reverse proxy domain name
+	var reverseProxyDomain string
+	err := public.OptionsMgrInstance.GetOption(context.Background(), "reverse_proxy_domain", &reverseProxyDomain)
+	if err == nil && reverseProxyDomain != "" {
+		return reverseProxyDomain
+	}
 	return baseurl
 }
 
@@ -69,17 +75,18 @@ func UpdateBaseURL(ctx context.Context, domain ...string) {
 	go func() {
 		defer wg.Done()
 		baseurl = buildBaseURL("")
+		g.Log().Debug(ctx, "UpdateBaseURL --> Base URL updated:", baseurl)
 	}()
 
 	for _, d := range domains {
 		wg.Add(1)
 		go func(domain string) {
 			defer wg.Done()
-			g.Log().Debug(ctx, "UpdateBaseURL --> Updating base URL for domain:", domain)
 			url := buildBaseURL(domain)
 			baseurlMapMu.Lock()
 			baseurlMap[domain] = url
 			baseurlMapMu.Unlock()
+			g.Log().Debug(ctx, "UpdateBaseURL --> Updating base URL for domain:", domain, " URL:", url)
 		}(d)
 	}
 
@@ -121,11 +128,19 @@ func buildBaseURL(hostname string) (s string) {
 
 	if hostname == "" {
 		hostname, err = public.DockerEnv("BILLIONMAIL_HOSTNAME")
+		if hostname != "" && hostname != "mail.example.com" {
+			s = scheme + "://" + hostname
+		} else {
+			s = scheme + "://" + serverIP
+		}
+
+		if withPort {
+			s += ":" + gconv.String(serverPort)
+		}
+
+		return
 	} else {
 		hostname = public.FormatMX(hostname)
-	}
-
-	if err == nil {
 		v1DNSRecord := v1.DNSRecord{
 			Type:  "A",
 			Host:  hostname,
@@ -142,10 +157,7 @@ func buildBaseURL(hostname string) (s string) {
 		}
 	}
 
-	s = scheme + "://" + serverIP
-	if withPort {
-		s += ":" + gconv.String(serverPort)
-	}
+	s = GetBaseURL()
 
 	return
 }

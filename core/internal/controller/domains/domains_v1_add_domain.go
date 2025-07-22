@@ -1,7 +1,9 @@
 package domains
 
 import (
+	"billionmail-core/internal/consts"
 	"billionmail-core/internal/service/domains"
+	"billionmail-core/internal/service/public"
 	"billionmail-core/internal/service/rbac"
 	"context"
 	"github.com/gogf/gf/os/gtimer"
@@ -22,6 +24,8 @@ func (c *ControllerV1) AddDomain(ctx context.Context, req *v1.AddDomainReq) (res
 		Quota:        int64(req.Quota),
 		RateLimit:    req.RateLimit,
 		Catchall:     req.Catchall,
+		Urls:         req.Urls,
+		HasBrandInfo: req.HasBrandInfo,
 	}
 
 	if err = domains.Add(ctx, domain); err != nil {
@@ -40,6 +44,11 @@ func (c *ControllerV1) AddDomain(ctx context.Context, req *v1.AddDomainReq) (res
 			g.Log().Warningf(ctx, "The domain name [%s] was added successfully, but the current account failed to obtain the certificate automatically: %v", req.Domain, accErr)
 		}
 
+	})
+	_ = public.WriteLog(ctx, public.LogParams{
+		Type: consts.LOGTYPE.Domain,
+		Log:  "Add domain :" + req.Domain + " successfully",
+		Data: domain,
 	})
 
 	res.SetSuccess("Domain added successfully")

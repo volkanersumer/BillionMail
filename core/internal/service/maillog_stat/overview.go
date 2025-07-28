@@ -1,12 +1,17 @@
 package maillog_stat
 
 import (
+	"billionmail-core/internal/consts"
+	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -80,11 +85,12 @@ func (o *Overview) overviewDashboard(campaignID int64, domain string, startTime,
 	query.Fields("coalesce(sum(case when status='bounced' then 1 else 0 end), 0) as bounced")
 
 	aggregate := map[string]interface{}{
-		"sends":     0,
-		"delivered": 0,
-		"opened":    0,
-		"clicked":   0,
-		"bounced":   0,
+		"sends":         0,
+		"delivered":     0,
+		"opened":        0,
+		"clicked":       0,
+		"bounced":       0,
+		"delayed_queue": 0,
 	}
 
 	result, err := query.One()
@@ -116,7 +122,55 @@ func (o *Overview) overviewDashboard(campaignID int64, domain string, startTime,
 		aggregate["click_rate"] = 0
 	}
 
+	// delayed_queue
+	aggregate["delayed_queue"] = 0
+	delayedCount, err := o.getPostfixDeferredQueueCount(context.Background())
+	if err == nil {
+		aggregate["delayed_queue"] = delayedCount
+	}
+
 	return aggregate
+}
+
+// Obtain the number of deferred queues with a 1-minute cache
+func (o *Overview) getPostfixDeferredQueueCount(ctx context.Context) (int, error) {
+	cache := gcache.New()
+	cacheKey := "postfix_deferred_queue_count"
+	if v, err := cache.Get(ctx, cacheKey); err == nil && v != nil {
+		return v.Int(), nil
+	}
+
+	dk, err := docker.NewDockerAPI()
+	if err != nil {
+		return 0, err
+	}
+	defer dk.Close()
+
+	cmd := []string{"postqueue", "-j"}
+	result, err := dk.ExecCommandByName(ctx, consts.SERVICES.Postfix, cmd, "root")
+	if err != nil || result == nil || result.ExitCode != 0 {
+		return 0, err
+	}
+
+	lines := strings.Split(result.Output, "\n")
+	count := 0
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		var item struct {
+			QueueName string `json:"queue_name"`
+		}
+		if err := gjson.Unmarshal([]byte(line), &item); err != nil {
+			continue
+		}
+		if item.QueueName == "deferred" {
+			count++
+		}
+	}
+
+	_ = cache.Set(ctx, cacheKey, count, time.Minute)
+	return count, nil
 }
 
 // overviewProviders statistic mail provider

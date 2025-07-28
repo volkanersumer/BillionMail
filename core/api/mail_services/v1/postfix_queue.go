@@ -47,9 +47,9 @@ type GetPostfixQueueInfoRes struct {
 }
 
 type DeletePostfixQueueByIdReq struct {
-	g.Meta        `path:"/postfix_queue/delete_by_id" method:"post" summary:"Delete specified queue mail"`
-	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	QueueID       string `json:"queue_id" v:"required" dc:"Queue ID"`
+	g.Meta        `path:"/postfix_queue/delete_by_id" method:"post" summary:"Delete specified queue mails (batch supported)"`
+	Authorization string   `json:"authorization" dc:"Authorization" in:"header"`
+	QueueIDs      []string `json:"queue_ids" v:"required" dc:"Queue ID list"`
 }
 
 type DeletePostfixQueueByIdRes struct {
@@ -76,9 +76,9 @@ type FlushPostfixQueueRes struct {
 }
 
 type FlushPostfixQueueByIdReq struct {
-	g.Meta        `path:"/postfix_queue/flush_by_id" method:"post" summary:"Resend specified queue mail"`
-	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	QueueID       string `json:"queue_id" v:"required" dc:"Queue ID"`
+	g.Meta        `path:"/postfix_queue/flush_by_id" method:"post" summary:"Flush specified queue mails (batch supported)"`
+	Authorization string   `json:"authorization" dc:"Authorization" in:"header"`
+	QueueIDs      []string `json:"queue_ids" v:"required" dc:"Queue ID list"`
 }
 
 type FlushPostfixQueueByIdRes struct {

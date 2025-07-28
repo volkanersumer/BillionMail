@@ -15,8 +15,8 @@ import (
 
 func (c *ControllerV1) FlushPostfixQueueById(ctx context.Context, req *v1.FlushPostfixQueueByIdReq) (res *v1.FlushPostfixQueueByIdRes, err error) {
 	res = &v1.FlushPostfixQueueByIdRes{}
-	if req.QueueID == "" {
-		res.SetError(gerror.New(public.LangCtx(ctx, "queue_id required")))
+	if len(req.QueueIDs) == 0 {
+		res.SetError(gerror.New(public.LangCtx(ctx, "queue_ids required")))
 		return res, nil
 	}
 	dk, dockerErr := docker.NewDockerAPI()
@@ -26,28 +26,34 @@ func (c *ControllerV1) FlushPostfixQueueById(ctx context.Context, req *v1.FlushP
 		return res, nil
 	}
 	defer dk.Close()
-	cmd := []string{"postqueue", "-i", req.QueueID}
-	result, err := dk.ExecCommandByName(ctx, consts.SERVICES.Postfix, cmd, "root")
-	if err != nil {
-		g.Log().Error(ctx, "Failed to execute command in container :", err, "command:", strings.Join(cmd, " "))
-		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to execute command in container: {}", err.Error())))
+
+	failed := make([]string, 0)
+	success := make([]string, 0)
+	for _, queueID := range req.QueueIDs {
+		cmd := []string{"postqueue", "-i", queueID}
+		result, err := dk.ExecCommandByName(ctx, consts.SERVICES.Postfix, cmd, "root")
+		if err != nil || result == nil || result.ExitCode != 0 {
+			failed = append(failed, queueID)
+			continue
+		}
+		success = append(success, queueID)
+	}
+
+	if len(failed) > 0 {
+		if len(success) > 0 {
+			_ = public.WriteLog(ctx, public.LogParams{
+				Type: consts.LOGTYPE.PostfixQueue,
+				Log:  "Flush postfix queue mail [" + strings.Join(success, ",") + "] successfully",
+			})
+		}
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to flush some queue mails: {}", failed)))
 		return res, nil
 	}
-	if result == nil {
-		g.Log().Error(ctx, "The result of the command is empty:", "command:", strings.Join(cmd, " "))
-		res.SetError(gerror.New(public.LangCtx(ctx, "The result of the command is empty: {}", strings.Join(cmd, " "))))
-		return res, nil
-	}
-	if result.ExitCode != 0 {
-		g.Log().Error(ctx, "The command execution returns a nonzero status:", result.ExitCode, "output:", result.Output, "command:", strings.Join(cmd, " "))
-		res.SetError(gerror.New(public.LangCtx(ctx, "Command execution failed, exit code: {}, output: {}", result.ExitCode, result.Output)))
-		return res, nil
-	}
-	// Operation Log
+
 	_ = public.WriteLog(ctx, public.LogParams{
 		Type: consts.LOGTYPE.PostfixQueue,
-		Log:  "Flush postfix queue mail [" + req.QueueID + "] successfully",
+		Log:  "Flush postfix queue mail [" + strings.Join(req.QueueIDs, ",") + "] successfully",
 	})
-	res.SetSuccess(public.LangCtx(ctx, "flush postfix queue mail by id success"))
+	res.SetSuccess(public.LangCtx(ctx, "flush postfix queue mails by id success"))
 	return res, nil
 }

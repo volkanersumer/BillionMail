@@ -22,10 +22,17 @@ type GetOperationLogRes struct {
 	Data struct {
 		Total int                   `json:"total" dc:"Total Count"`
 		List  []entity.OperationLog `json:"list" dc:"Operation Log List"`
-		Type  map[string]string     `json:"type"`
 	} `json:"data"`
 }
 
+type GetOperationTypeReq struct {
+	g.Meta        `path:"/operation_log/type_list" method:"get" tags:"Operation Type" summary:"Operation Type"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+}
+
+type GetOperationTypeRes struct {
+	api_v1.StandardRes
+}
 type GetOutputLogReq struct {
 	g.Meta    `path:"/operation_log/output/list" method:"get" tags:"Output Log" summary:"List output logs"`
 	StartDate string `json:"start_date" v:"required" dc:"Start date(YYYY-MM-DD)"`

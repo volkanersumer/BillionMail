@@ -4,7 +4,7 @@ interface ServerConfig {
 	host: string
 }
 
-const serverConfig: Record<string, ServerConfig> = { 
+const serverConfig: Record<string, ServerConfig> = {
 	'192.168.66.66': {
 		https: false,
 		address: 'http://192.168.66.66:64325',
@@ -19,6 +19,11 @@ const serverConfig: Record<string, ServerConfig> = {
 		https: true,
 		address: 'https://192.168.10.35',
 		host: '192.168.10.35',
+	},
+	'103.179.242.193': {
+		https: true,
+		address: 'https://103.179.242.193',
+		host: '103.179.242.193',
 	},
 }
 

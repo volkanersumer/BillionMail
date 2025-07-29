@@ -11,6 +11,11 @@ const route: RouteRecordRaw = {
 			name: 'Overview',
 			component: () => import('@/views/overview/index.vue'),
 		},
+		{
+			path: '/overview/send-queue',
+			name: 'SendQueue',
+			component: () => import('@/views/overview/pages/send-queue/index.vue'),
+		},
 	],
 }
 

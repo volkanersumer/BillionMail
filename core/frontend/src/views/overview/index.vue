@@ -11,9 +11,19 @@
 
 		<!-- Main Metric Cards -->
 		<div class="metrics-cards">
-			<template v-for="(item, key) in rateData" :key="key">
-				<metric-card :title="item.label" :value="item.value" />
-			</template>
+			<metric-card
+				v-for="(item, key) in rateData"
+				:key="key"
+				:title="item.label"
+				:value="item.value"
+				:unit="item.unit">
+			</metric-card>
+			<metric-card
+				class="cursor-pointer"
+				:title="$t('overview.delayedQueue')"
+				:value="delayedQueue"
+				@click="onClickDelayedQueue">
+			</metric-card>
 		</div>
 
 		<!-- Data Details Area -->
@@ -43,7 +53,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { getDayTimeRange, isArray, isObject } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
 import { getOverviewInfo } from '@/api/modules/overview'
-import type { MailOverview, MailProvider, RateData, RateKey } from './interface'
+import type { MailOverview, MailProvider, RateData } from './types'
 
 import FilterBar from './components/FilterBar.vue'
 import MetricCard from './components/MetricCard.vue'
@@ -61,11 +71,13 @@ const dateRange = ref(getDayTimeRange())
 const providers = ref<MailProvider[]>([])
 
 const rateData = reactive<RateData>({
-	delivery: { label: t('overview.delivered'), value: 0 },
-	open: { label: t('overview.opened'), value: 0 },
-	click: { label: t('overview.clicked'), value: 0 },
-	bounce: { label: t('overview.bounced'), value: 0 },
+	delivery_rate: { label: t('overview.delivered'), value: 0, unit: '%' },
+	open_rate: { label: t('overview.opened'), value: 0, unit: '%' },
+	click_rate: { label: t('overview.clicked'), value: 0, unit: '%' },
+	bounce_rate: { label: t('overview.bounced'), value: 0, unit: '%' },
 })
+
+const delayedQueue = ref(0)
 
 const sendMail = ref<MailOverview['send_mail_chart']>({
 	column_type: 'hourly',
@@ -94,6 +106,12 @@ const openRate = ref<MailOverview['open_rate_chart']>({
 	data: [],
 })
 
+const router = useRouter()
+
+const onClickDelayedQueue = () => {
+	router.push('/overview/send-queue')
+}
+
 const [FailModal, failModalApi] = useModal({
 	component: SendFailDetails,
 })
@@ -113,11 +131,11 @@ const handleDataUpdate = useDebounceFn(fetchOverviewData, 300)
 // Function to update rate data
 const updateRateData = (dashboard: MailOverview['dashboard']) => {
 	Object.entries(dashboard).forEach(([key, value]) => {
-		const rateKey = key.replace('_rate', '') as RateKey
-		if (rateKey in rateData) {
-			rateData[rateKey].value = value
+		if (key in rateData) {
+			rateData[key].value = value
 		}
 	})
+	delayedQueue.value = dashboard.delayed_queue
 }
 
 // Function to fetch overview data

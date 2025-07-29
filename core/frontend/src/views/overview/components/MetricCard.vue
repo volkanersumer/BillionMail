@@ -1,7 +1,7 @@
 <template>
 	<n-card class="metric-card" :bordered="false">
 		<div class="title">{{ title }}</div>
-		<div class="value">{{ value }}%</div>
+		<div class="value">{{ value }}{{ unit }}</div>
 	</n-card>
 </template>
 
@@ -15,10 +15,14 @@ defineProps({
 		type: Number,
 		default: 0,
 	},
+	unit: {
+		type: String,
+		default: '',
+	},
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .metric-card {
 	--n-padding-top: 24px;
 	--n-padding-bottom: 24px;

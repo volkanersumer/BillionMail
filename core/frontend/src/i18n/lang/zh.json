@@ -185,6 +185,7 @@
 					"recipient": "收件人",
 					"arrivalTime": "入队时间",
 					"messageSize": "邮件大小",
+					"delayReason": "延迟原因",
 					"action": "操作"
 				}
 			},
@@ -1195,6 +1196,20 @@
 			"model": "模型",
 			"byDefault": "默认从/models获取所有模型",
 			"addModel": "添加模型"
+		}
+	},
+	"logs": {
+		"title": "日志",
+		"table": {
+			"columns": {
+				"username": "用户名",
+				"type": "类型",
+				"operatingTime": "操作时间",
+				"details": "详情"
+			}
+		},
+		"filter": {
+			"all": "全部"
 		}
 	},
 	"api": {

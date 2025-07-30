@@ -1,5 +1,5 @@
 import { instance } from '@/api'
-	import i18n from '@/i18n'
+import i18n from '@/i18n'
 
 const { t } = i18n.global
 
@@ -17,6 +17,10 @@ export const getFailedList = (params: { domain: string; start_time: number; end_
 
 export const getSendQueueList = () => {
 	return instance.get('/postfix_queue/list')
+}
+
+export const getSendQueueInfo = (params: { queue_id: string }) => {
+	return instance.get('/postfix_queue/queue_info', { params })
 }
 
 export const resendQueue = (params: { queue_ids: string[] }) => {

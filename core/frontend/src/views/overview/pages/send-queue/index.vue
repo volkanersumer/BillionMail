@@ -12,9 +12,9 @@
 					$t('overview.sendQueue.buttons.refresh')
 				}}</n-button>
 				<n-button @click="onClear">{{ $t('overview.sendQueue.buttons.quickClear') }}</n-button>
-				<n-button @click="onShowConfig">{{
-					$t('overview.sendQueue.buttons.paramConfig')
-				}}</n-button>
+				<n-button @click="onShowConfig">
+					{{ $t('overview.sendQueue.buttons.paramConfig') }}
+				</n-button>
 			</template>
 			<template #table>
 				<n-data-table v-bind="tableProps" :columns="columns"></n-data-table>
@@ -25,6 +25,7 @@
 			</template>
 			<template #modal>
 				<param-config-modal ref="configModalRef"></param-config-modal>
+				<queue-logs-modal ref="logsModalRef"></queue-logs-modal>
 			</template>
 		</bt-table-layout>
 	</div>
@@ -43,10 +44,12 @@ import {
 import type { SendQueue } from './types'
 
 import ParamConfigModal from './components/param-config.vue'
+import QueueLogsModal from './components/queue-logs.vue'
 
 const { t } = useI18n()
 
 const configModalRef = useTemplateRef('configModalRef')
+const logsModalRef = useTemplateRef('logsModalRef')
 
 const onShowConfig = () => {
 	configModalRef.value?.open()
@@ -76,22 +79,56 @@ const columns = ref<DataTableColumns<SendQueue>>([
 		type: 'selection',
 	},
 	{
+		key: 'queue_id',
+		title: 'ID',
+		width: '8%',
+		minWidth: '90px',
+		render: row => (
+			<NButton
+				type="primary"
+				text
+				onClick={() => {
+					logsModalRef.value?.open(row.queue_id)
+				}}>
+				{row.queue_id}
+			</NButton>
+		),
+	},
+	{
 		key: 'sender',
 		title: t('overview.sendQueue.table.columns.sender'),
+		width: '10%',
+		minWidth: '120px',
 	},
 	{
 		key: 'recipient',
 		title: t('overview.sendQueue.table.columns.recipient'),
+		width: '10%',
+		minWidth: '120px',
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		key: 'arrival_time',
 		title: t('overview.sendQueue.table.columns.arrivalTime'),
+		width: '12%',
+		minWidth: '130px',
 		render: row => formatTime(row.arrival_time),
 	},
 	{
 		key: 'message_size',
 		title: t('overview.sendQueue.table.columns.messageSize'),
+		width: '8%',
+		minWidth: '80px',
 		render: row => getByteUnit(row.message_size),
+	},
+	{
+		key: 'delay_reason',
+		title: t('overview.sendQueue.table.columns.delayReason'),
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		key: 'action',

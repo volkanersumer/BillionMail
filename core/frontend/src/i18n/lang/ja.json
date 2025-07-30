@@ -173,6 +173,7 @@
 					"recipient": "受信者",
 					"arrivalTime": "キュー追加時間",
 					"messageSize": "メールサイズ",
+					"delayReason": "遅延理由",
 					"action": "操作"
 				}
 			},
@@ -820,6 +821,20 @@
 				"restarting": "サービスを再起動中... お待ちください",
 				"saving": "設定を保存中... お待ちください"
 			}
+		}
+	},
+	"logs": {
+		"title": "ログ",
+		"table": {
+			"columns": {
+				"username": "ユーザー名",
+				"type": "タイプ",
+				"operatingTime": "操作時間",
+				"details": "詳細"
+			}
+		},
+		"filter": {
+			"all": "すべて"
 		}
 	}
 }

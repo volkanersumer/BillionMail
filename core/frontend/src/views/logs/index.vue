@@ -3,9 +3,13 @@
 		<bt-table-layout>
 			<template #toolsLeft>
 				<div class="w-240px">
-					<n-select :filterable="true" :options="typeOptions"></n-select>
+					<n-select
+						v-model:value="tableParams.type"
+						:filterable="true"
+						:options="typeOptions"
+						@update:value="() => resetTable()">
+					</n-select>
 				</div>
-				<n-button type="primary">{{ $t('common.actions.refresh') }}</n-button>
 			</template>
 			<template #table>
 				<n-data-table v-bind="tableProps" :columns="columns"></n-data-table>
@@ -24,30 +28,44 @@ import { useDataTable } from '@/hooks/useDataTable'
 import { getLogsList, getLogsType } from './controller'
 import type { Logs } from './types'
 
+const { t } = useI18n()
+
 const columns = ref<DataTableColumns<Logs>>([
 	{
 		key: 'username',
-		title: 'Username',
+		title: t('logs.table.columns.username'),
+		width: '10%',
+		minWidth: '120px',
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		key: 'type',
-		title: 'Type',
-	},
-	{
-		key: 'log',
-		title: 'Details',
+		title: t('logs.table.columns.type'),
+		width: '12%',
+		minWidth: '140px',
 	},
 	{
 		key: 'addtime',
-		title: 'Operating time',
+		title: t('logs.table.columns.operatingTime'),
+		width: 160,
 		render: row => {
 			return formatTime(row.addtime)
 		},
 	},
+	{
+		key: 'log',
+		title: t('logs.table.columns.details'),
+		ellipsis: {
+			tooltip: true,
+		},
+	},
 ])
 
-const { tableProps, pageProps, fetchTable } = useDataTable<Logs>({
+const { tableParams, tableProps, pageProps, fetchTable, resetTable } = useDataTable<Logs>({
 	params: {
+		type: '',
 		page: 1,
 		page_size: 10,
 	},
@@ -64,6 +82,10 @@ const getTypeOptions = async () => {
 			label: value,
 			value: value,
 		}))
+		typeOptions.value.unshift({
+			label: t('logs.filter.all'),
+			value: '',
+		})
 	}
 }
 

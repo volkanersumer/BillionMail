@@ -96,6 +96,21 @@ type SetPostfixConfigRes struct {
 	api_v1.StandardRes
 }
 
+type SetAllPostfixConfigReq struct {
+	g.Meta               `path:"/postfix_queue/set_all_config" method:"post" summary:"批量设置Postfix队列相关配置项"`
+	Authorization        string `json:"authorization" dc:"Authorization" in:"header"`
+	BounceQueueLifetime  string `json:"bounce_queue_lifetime" dc:"Bounce queue lifetime"`
+	MaximalBackoffTime   string `json:"maximal_backoff_time" dc:"Maximal backoff time"`
+	MaximalQueueLifetime string `json:"maximal_queue_lifetime" dc:"Maximal queue lifetime"`
+	MinimalBackoffTime   string `json:"minimal_backoff_time" dc:"Minimal backoff time"`
+	QueueRunDelay        string `json:"queue_run_delay" dc:"Queue run delay"`
+	TriggerTimeout       string `json:"trigger_timeout" dc:"Trigger timeout"`
+}
+
+type SetAllPostfixConfigRes struct {
+	api_v1.StandardRes
+}
+
 type GetPostfixConfigReq struct {
 	g.Meta        `path:"/postfix_queue/get_config" method:"get" summary:"Get Postfix queue-related configuration items"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`

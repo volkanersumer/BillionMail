@@ -28,5 +28,6 @@ type IMailServicesV1 interface {
 	FlushPostfixQueue(ctx context.Context, req *v1.FlushPostfixQueueReq) (res *v1.FlushPostfixQueueRes, err error)
 	FlushPostfixQueueById(ctx context.Context, req *v1.FlushPostfixQueueByIdReq) (res *v1.FlushPostfixQueueByIdRes, err error)
 	SetPostfixConfig(ctx context.Context, req *v1.SetPostfixConfigReq) (res *v1.SetPostfixConfigRes, err error)
+	SetAllPostfixConfig(ctx context.Context, req *v1.SetAllPostfixConfigReq) (res *v1.SetAllPostfixConfigRes, err error)
 	GetPostfixConfig(ctx context.Context, req *v1.GetPostfixConfigReq) (res *v1.GetPostfixConfigRes, err error)
 }

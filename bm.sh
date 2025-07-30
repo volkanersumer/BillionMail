@@ -728,8 +728,14 @@ MODIFY_TZ() {
     if [ $? -ne 0 ]; then
         echo -e "\033[31m Error: The BillionMail time zone modification failed! \033[0m"
         exit 1
-    fi    
-    
+    fi
+
+    if [ -f "postgresql-data/postgresql.conf" ]; then
+        cp -arpf postgresql-data/postgresql.conf  postgresql-data/postgresql.conf_${time}
+        sed -i "s|^log_timezone = .*|log_timezone = \'${NEW_TZ}\'|" postgresql-data/postgresql.conf
+        sed -i "s|^timezone = .*|timezone = \'${NEW_TZ}\'|" postgresql-data/postgresql.conf
+    fi
+
     echo -e "The BillionMail time zone has been modified to: ${NEW_TZ} \n Rebuild the container, please wait..."
     sleep 3
     ${DOCKER_COMPOSE} down

@@ -56,6 +56,7 @@ const { tableParams, tableList, loading, tableTotal, getTableData } = useTableDa
 })
 
 const router = useRouter()
+const route = useRoute()
 
 // Table columns
 const columns = ref<DataTableColumns<MailDomain>>([
@@ -292,6 +293,15 @@ const handleDelete = (row: MailDomain) => {
 		},
 	})
 }
+
+// Whether should open create modal automic
+const initDomainFlag = ref("")
+onMounted(() => {
+	initDomainFlag.value = route.query.init as string
+	if (initDomainFlag.value === "init-domain") {
+		handleAddDomain()
+	}
+})
 </script>
 
 <style lang="scss" scoped>

@@ -151,6 +151,10 @@ func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content
 		return "", err
 	}
 
+	// Analyzing Spintax Grammar
+	spintaxParser := GetSpintaxParser()
+	result = spintaxParser.ParseSpintax(result)
+
 	return result, nil
 }
 

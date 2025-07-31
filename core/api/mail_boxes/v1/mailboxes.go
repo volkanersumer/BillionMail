@@ -68,9 +68,9 @@ type UpdateMailboxRes struct {
 }
 
 type DeleteMailboxReq struct {
-	g.Meta        `path:"/mailbox/delete" tags:"MailBox" method:"post" summary:"Delete mailbox" in:"body"`
-	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	Email         string `json:"email" v:"required|email" dc:"Email"`
+	g.Meta        `path:"/mailbox/delete" tags:"MailBox" method:"post" summary:"Delete mailbox (batch supported)" in:"body"`
+	Authorization string   `json:"authorization" dc:"Authorization" in:"header"`
+	Emails        []string `json:"emails" v:"required" dc:"Email address list for delete"`
 }
 
 type DeleteMailboxRes struct {
@@ -117,4 +117,28 @@ type GetAllEmailReq struct {
 type GetAllEmailRes struct {
 	api_v1.StandardRes
 	Data []string `json:"data"` // List of email addresses
+}
+
+// 导出邮箱
+type ExportMailboxReq struct {
+	g.Meta        `path:"/mailbox/export" tags:"MailBox" method:"post" summary:"Export mailbox" in:"query"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	Domain        string `json:"domain" v:"domain" dc:"Domain"`
+	FileType      string `json:"file_type" v:"in:csv,txt,json" dc:"File type to export, csv or txt or json (default: csv)"`
+}
+
+type ExportMailboxRes struct {
+	api_v1.StandardRes
+}
+
+// 导入邮箱
+type ImportMailboxReq struct {
+	g.Meta        `path:"/mailbox/import" tags:"MailBox" method:"post" summary:"Import mailbox" in:"body"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	FileData      string `json:"file_data" v:"required" dc:"File data in base64 format"`
+	FileType      string `json:"file_type" v:"in:csv,txt,json" dc:"File type to import, csv or txt or json (default: csv)"`
+}
+
+type ImportMailboxRes struct {
+	api_v1.StandardRes
 }

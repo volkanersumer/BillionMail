@@ -24,7 +24,7 @@ func (c *ControllerV1) GetOperationLog(ctx context.Context, req *v1.GetOperation
 	}
 
 	// type filter
-	if req.Type != "" {
+	if req.Type != "" && req.Type != "all" {
 		model = model.Where("type", req.Type)
 	}
 
@@ -81,7 +81,6 @@ func (c *ControllerV1) GetOperationLog(ctx context.Context, req *v1.GetOperation
 
 	res.Data.Total = total
 	res.Data.List = list
-	res.Data.Type = public.LogTypeMap
 	res.SetSuccess(public.LangCtx(ctx, "Get operation logs successfully"))
 	return res, nil
 }

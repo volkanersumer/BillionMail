@@ -164,6 +164,10 @@ func init() {
 			`CREATE INDEX IF NOT EXISTS idx_api_mail_logs_api_id ON api_mail_logs (api_id)`,
 			`CREATE INDEX IF NOT EXISTS idx_api_mail_logs_recipient ON api_mail_logs (recipient)`,
 			`CREATE INDEX IF NOT EXISTS idx_api_mail_logs_message_id ON api_mail_logs (message_id)`,
+			`CREATE INDEX IF NOT EXISTS idx_recipient_info_task_id ON recipient_info(task_id)`,
+			`CREATE INDEX IF NOT EXISTS idx_recipient_info_is_sent ON recipient_info(is_sent)`,
+			`CREATE INDEX IF NOT EXISTS idx_recipient_info_message_id ON recipient_info(message_id)`,
+			`CREATE INDEX IF NOT EXISTS idx_recipient_info_task_sent ON recipient_info(task_id, is_sent)`,
 		}
 
 		for _, sql := range batchMailSQLList {

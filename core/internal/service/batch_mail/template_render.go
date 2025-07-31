@@ -188,7 +188,6 @@ func (e *TemplateEngine) cleanUndefinedVariables(content string) string {
 	allVarRegex := regexp.MustCompile(`\{\{.*?\}\}`)
 
 	content = allVarRegex.ReplaceAllStringFunc(content, func(match string) string {
-
 		inner := strings.TrimSpace(match[2 : len(match)-2])
 
 		for _, pattern := range knownVariablePatterns {
@@ -198,15 +197,14 @@ func (e *TemplateEngine) cleanUndefinedVariables(content string) string {
 		}
 
 		for _, fn := range knownFunctions {
-
 			fnRegex := regexp.MustCompile(`\s*` + regexp.QuoteMeta(fn) + `\s+[^}]*`)
 			if fnRegex.MatchString(inner) {
 				return match
 			}
 		}
 
-		// If no match is found with any of the known items, return the original variable name (without the {{}}).
-		return inner
+		// If no match is found with any of the known items, replace with [__ __] format
+		return "[__" + inner + "__]"
 	})
 
 	lines := strings.Split(content, "\n")

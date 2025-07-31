@@ -1,6 +1,7 @@
 package abnormal_recipient
 
 import (
+	"billionmail-core/api/abnormal_recipient/v1"
 	"billionmail-core/internal/consts"
 	"billionmail-core/internal/model/entity"
 	"billionmail-core/internal/service/abnormal_recipient"
@@ -10,12 +11,11 @@ import (
 	"github.com/gogf/gf/os/gtimer"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
 	"net"
 	"os"
 	"strings"
 	"time"
-
-	"billionmail-core/api/abnormal_recipient/v1"
 )
 
 type DNSRecord struct {
@@ -45,6 +45,9 @@ func (c *ControllerV1) CheckGroup(ctx context.Context, req *v1.CheckGroupReq) (r
 	}
 
 	var logDir = public.HostWorkDir + "/logs/core/check_email_valid.txt"
+	if err := gfile.PutContents(logDir, ""); err != nil {
+		g.Log().Error(ctx, "Failed to create or truncate log file:", err)
+	}
 
 	gtimer.AddOnce(1000*time.Millisecond, func() {
 
@@ -91,9 +94,9 @@ func (c *ControllerV1) CheckGroup(ctx context.Context, req *v1.CheckGroupReq) (r
 				Host:  "@",
 				Value: domain,
 			}
-			g.Log().Info(ctx, "Checking domain:", domain, "emails:", domainEmails)
+			//g.Log().Info(ctx, "Checking domain:", domain, "emails:", domainEmails)
 			status := ValidateMXRecord(record, domain)
-			g.Log().Info(ctx, "ValidateMXRecord result for domain:", domain, "status:", status)
+			//g.Log().Info(ctx, "ValidateMXRecord result for domain:", domain, "status:", status)
 			if status {
 				validEmails = append(validEmails, domainEmails...)
 				validCount += len(domainEmails)

@@ -317,13 +317,14 @@ func AddImport(ctx context.Context, mailbox *v1.Mailbox) (err error) {
 				err = fmt.Errorf("Decode password failed: %w", err)
 				return
 			}
+
+			mailbox.Password, err = PasswdMD5Crypt(ctx, mailbox.Password)
+			if err != nil {
+				err = fmt.Errorf("Generate password md5-crypt failed: %w", err)
+				return
+			}
 		}
 
-		mailbox.Password, err = PasswdMD5Crypt(ctx, mailbox.Password)
-		if err != nil {
-			err = fmt.Errorf("Generate password md5-crypt failed: %w", err)
-			return
-		}
 	} else {
 
 		mailbox.PasswordEncode = PasswdEncode(ctx, mailbox.Password)
@@ -359,4 +360,33 @@ func NormalizeMailboxes() (err error) {
 	})
 
 	return
+}
+
+// TestPasswordHandling 测试密码处理逻辑
+func TestPasswordHandling(ctx context.Context, email string) error {
+	// 查询邮箱信息
+	var mailbox v1.Mailbox
+	err := g.DB().Model("mailbox").Where("username", email).Scan(&mailbox)
+	if err != nil {
+		return fmt.Errorf("Failed to query mailbox: %w", err)
+	}
+
+	// 尝试解密密码
+	decodedPassword, err := PasswdDecode(ctx, mailbox.PasswordEncode)
+	if err != nil {
+		return fmt.Errorf("Failed to decode password: %w", err)
+	}
+
+	// 重新加密
+	reEncryptedPassword, err := PasswdMD5Crypt(ctx, decodedPassword)
+	if err != nil {
+		return fmt.Errorf("Failed to re-encrypt password: %w", err)
+	}
+
+	// 比较是否一致
+	if mailbox.Password != reEncryptedPassword {
+		return fmt.Errorf("Password mismatch: stored=%s, re-encrypted=%s", mailbox.Password, reEncryptedPassword)
+	}
+
+	return nil
 }

@@ -73,8 +73,11 @@ func (c *ControllerV1) ExportMailbox(ctx context.Context, req *v1.ExportMailboxR
 	if r == nil {
 		return nil, gerror.New("Unable to obtain the request context")
 	}
-	r.Response.Header().Set("Content-Type", contentType)
+
+	g.Log().Debug(ctx, "contentType:", contentType)
+	r.Response.Header().Set("Content-Type", "application/octet-stream")
 	r.Response.Header().Set("Content-Disposition", "attachment; filename="+fileName)
+
 	r.Response.Write([]byte(content))
 
 	_ = public.WriteLog(ctx, public.LogParams{

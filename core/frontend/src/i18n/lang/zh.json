@@ -368,6 +368,15 @@
 				"type": "类型",
 				"createdAt": "创建时间"
 			},
+			"types": {
+				"drag": "拖拽",
+				"html": "HTML",
+				"ai": "AI"
+			},
+			"edit": {
+				"confirm": "确认",
+				"cancel": "取消"
+			},
 			"search": {
 				"namePlaceholder": "搜索模板名称"
 			},
@@ -406,11 +415,21 @@
 		"createTpl": {
 			"sourceUrl": "引用域名",
 			"useAiTools": "使用人工智能工具帮您自动生成邮件内容，提升工作您的效率",
-			"create": "创建"
+			"create": "创建",
+			"notices": {
+				"domainListEmpty": "请先为BillionMail创建第一个用于发件的域名",
+				"aiConfigurationInvalid": "当前并未配置AI大模型，您无法使用AI模型创建邮件模板",
+				"invalidBrandDomain": "请先为域名创建品牌信息"
+			},
+			"buttons": {
+				"createNow": "立即创建",
+				"configureNow": "立即配置"
+			}
 		},
 		"ai": {
 			"title": "AI 模板",
 			"welcomeMessage": "您可以说：创建一份欢迎用户加入{domain}的欢迎邮件",
+			"greeting": "让我们创建一个漂亮的邮件模板。",
 			"brandName": "BillionMail",
 			"buttons": {
 				"regenerate": "重新生成",

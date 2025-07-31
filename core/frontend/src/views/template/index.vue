@@ -105,36 +105,36 @@ const columns = ref<DataTableColumns<Template>>([
 			} else {
 				return <div class="flex justify-start gap-1.25 items-center">
 					<n-input class="edit-domain-input" v-model:value={row.edit_name}></n-input>
-					<n-button text type="info" class="text-12px" onClick={()=>confirmUpdateTemplateName(row)}>Confirm</n-button>
+					<n-button text type="info" class="text-12px" onClick={()=>confirmUpdateTemplateName(row)}>{t('market.template.edit.confirm')}</n-button>
 					<n-button text type="default" onClick={()=>{
 						row.isEdit = false
 						row.edit_name = ""
-						}}>Cancel</n-button>
+						}}>{t('market.template.edit.cancel')}</n-button>
 				</div>
 			}
 		},
 	},
 	{
 		key: 'add_type',
-		title: 'Type',
+		title: t('market.template.columns.type'),
 		minWidth: 140,
 		render: row => {
 			if (row.add_type === 1) {
 				return (
 					<NTag size="small" bordered={false} type="primary">
-						Drag
+						{t('market.template.types.drag')}
 					</NTag>
 				)
 			} else if (row.add_type === 0) {
 				return (
 					<NTag size="small" bordered={false} type="info">
-						HTML
+						{t('market.template.types.html')}
 					</NTag>
 				)
 			} else if (row.add_type == 2) {
 				return (
 					<NTag size="small" bordered={false} type="success">
-						AI
+						{t('market.template.types.ai')}
 					</NTag>
 				)
 			}

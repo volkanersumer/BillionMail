@@ -1,40 +1,62 @@
 <template>
-	<n-modal v-model:show="show" preset="card" draggable :close-on-esc="false" :mask-closable="false" segmented
-		class="w-110" title="">
+	<n-modal
+		v-model:show="show"
+		preset="card"
+		draggable
+		:close-on-esc="false"
+		:mask-closable="false"
+		segmented
+		class="w-110"
+		title="">
 		<div class="wrapper">
 			<div class="creation-methods">
-				<div v-for="(item, index) in computedMethodsList" :key="index"
-					:class="['choose-item', { active: choosedMethod == item }]" @click="choosedMethod = item">
+				<div
+					v-for="(item, index) in computedMethodsList"
+					:key="index"
+					:class="['choose-item', { active: choosedMethod == item }]"
+					@click="choosedMethod = item">
 					<span class="item-label">{{ item }}</span>
 				</div>
 			</div>
 			<div :class="['url-source', { hidden: choosedMethod !== 'AI' }]">
-				<span class="label">{{ $t("template.createTpl.sourceUrl") }}</span>
-				<n-select v-model:value="sourceDomain" class="flex-1" label-field="domain" value-field="domain"
-					:options="domainListHasBrandInfo" :disabled="canNotUse" :render-label="renderLabel">
+				<span class="label">{{ $t('template.createTpl.sourceUrl') }}</span>
+				<n-select
+					v-model:value="sourceDomain"
+					class="flex-1"
+					label-field="domain"
+					value-field="domain"
+					:options="domainListHasBrandInfo"
+					:disabled="canNotUse"
+					:render-label="renderLabel">
 				</n-select>
 			</div>
-			<div class="desc" v-if="noticeShowFlag == 'normal'">
-				{{ $t("template.createTpl.useAiTools") }}
+			<div v-if="noticeShowFlag == 'normal'" class="desc">
+				{{ $t('template.createTpl.useAiTools') }}
 			</div>
 			<div v-else-if="noticeShowFlag == 'domain-list-empty'">
-				请先为BillionMail创建第一个用于发件的域名, <n-button text type="primary" @click="jumpToDomainCreate">立即创建</n-button>
-				
+				{{ $t('template.createTpl.notices.domainListEmpty') }},
+				<n-button text type="primary" @click="jumpToDomainCreate">{{
+					$t('template.createTpl.buttons.createNow')
+				}}</n-button>
 			</div>
 			<div v-else-if="noticeShowFlag == 'ai-configuration-invalid'">
-				当前并未配置AI大模型，您无法使用AI模型创建邮件模板, 
+				{{ $t('template.createTpl.notices.aiConfigurationInvalid') }},
 				<n-popover trigger="hover" placement="right">
 					<template #trigger>
-						<n-button text type="primary" @click="jumpToAiSettings">立即配置</n-button>
+						<n-button text type="primary" @click="jumpToAiSettings">{{
+							$t('template.createTpl.buttons.configureNow')
+						}}</n-button>
 					</template>
 					<n-image :src="aiModelNotice" width="600"></n-image>
 				</n-popover>
 			</div>
 			<div v-else-if="noticeShowFlag == 'invalid-brand-domain'">
-				请先为域名创建品牌信息, 
+				{{ $t('template.createTpl.notices.invalidBrandDomain') }},
 				<n-popover trigger="hover" placement="right">
 					<template #trigger>
-						<n-button text type="primary" @click="jumpToDomainEdit">立即创建</n-button>
+						<n-button text type="primary" @click="jumpToDomainEdit">{{
+							$t('template.createTpl.buttons.createNow')
+						}}</n-button>
 					</template>
 					<n-image :src="brandInfoNotice" width="600"></n-image>
 				</n-popover>
@@ -43,10 +65,17 @@
 
 		<template #footer>
 			<div class="flex justify-end">
-				<n-button type="primary"
-					:disabled="canNotUse || ['domain-list-empty', 'ai-configuration-invalid', 'invalid-brand-domain'].includes(noticeShowFlag)"
-					@click="createTemplate">{{
-						$t("template.createTpl.create") }}</n-button>
+				<n-button
+					type="primary"
+					:disabled="
+						canNotUse ||
+						['domain-list-empty', 'ai-configuration-invalid', 'invalid-brand-domain'].includes(
+							noticeShowFlag
+						)
+					"
+					@click="createTemplate"
+					>{{ $t('template.createTpl.create') }}</n-button
+				>
 			</div>
 		</template>
 	</n-modal>
@@ -56,15 +85,15 @@
 import { instance } from '@/api'
 import { createAiTemplate } from '../pages/AITemplate/controller'
 import { useGlobalStore } from '@/store'
-import { checkAiConfiguration } from '@/api/modules/domain';
-import aiModelNotice from "@/assets/images/template/model-notice.png"
-import brandInfoNotice from "@/assets/images/template/create-brand-info.png"
-import { SelectOption } from 'naive-ui';
+import { checkAiConfiguration } from '@/api/modules/domain'
+import aiModelNotice from '@/assets/images/template/model-notice.png'
+import brandInfoNotice from '@/assets/images/template/create-brand-info.png'
+import { SelectOption } from 'naive-ui'
 // import { TemplateStore } from '../pages/AITemplate/dto'
 
 // const store = inject<TemplateStore>('modelStore')!
 const props = defineProps<{
-	onlyAi?: boolean,
+	onlyAi?: boolean
 }>()
 const globalStore = useGlobalStore()
 const router = useRouter()
@@ -78,7 +107,7 @@ const aiConfigurationStatus = ref(false)
 
 const computedMethodsList = computed(() => {
 	if (props.onlyAi) {
-		return ["AI"]
+		return ['AI']
 	} else {
 		return methodsList.value
 	}
@@ -89,26 +118,26 @@ const computedMethodsList = computed(() => {
  */
 const noticeShowFlag = computed(() => {
 	if (domainListHasBrandInfo.value.length == 0) {
-		return "domain-list-empty"
+		return 'domain-list-empty'
 	}
 
 	if (!aiConfigurationStatus.value) {
-		return "ai-configuration-invalid"
+		return 'ai-configuration-invalid'
 	}
 
 	const domainInfo = domainList.value.find((item: any) => item.domain == sourceDomain.value)
 	if (domainInfo && domainInfo.hasbrandinfo !== 1) {
-		return "invalid-brand-domain"
+		return 'invalid-brand-domain'
 	}
 
-	return "normal"
+	return 'normal'
 })
 
 /**
  * @description Calculate the list of domain names for dropdown options
  */
 const domainListHasBrandInfo = computed(() => {
-	return [...domainList.value].sort((a,b)=>b.hasbrandinfo - a.hasbrandinfo)
+	return [...domainList.value].sort((a, b) => b.hasbrandinfo - a.hasbrandinfo)
 })
 
 /**
@@ -125,7 +154,7 @@ const canNotUse = computed(() => {
  * @description open modal
  */
 async function open() {
-	const res = await checkAiConfiguration() as Record<string, any>
+	const res = (await checkAiConfiguration()) as Record<string, any>
 	aiConfigurationStatus.value = res.is_configured
 	await getDomainList()
 
@@ -162,10 +191,10 @@ async function createTemplate() {
  */
 function jumpToDomainCreate() {
 	router.push({
-		name: "Domain",
+		name: 'Domain',
 		query: {
-			init: "init-domain"
-		}
+			init: 'init-domain',
+		},
 	})
 }
 
@@ -174,7 +203,7 @@ function jumpToDomainCreate() {
  */
 function jumpToAiSettings() {
 	router.push({
-		name: "AiModel"
+		name: 'AiModel',
 	})
 }
 
@@ -183,20 +212,24 @@ function jumpToAiSettings() {
  */
 function jumpToDomainEdit() {
 	router.push({
-		name: "EditDomain",
+		name: 'EditDomain',
 		params: {
-			domain: sourceDomain.value
-		}
+			domain: sourceDomain.value,
+		},
 	})
 }
 
 /**
  * @description Render select label
  */
-function renderLabel(option:SelectOption){
-	if(option.hasbrandinfo){
-		return <div><i class="i-domain:brand-info w-4 h-4 mr-1.25"></i> <span>{option.domain}</span></div>
-	}else{
+function renderLabel(option: SelectOption) {
+	if (option.hasbrandinfo) {
+		return (
+			<div>
+				<i class="i-domain:brand-info w-4 h-4 mr-1.25"></i> <span>{option.domain}</span>
+			</div>
+		)
+	} else {
 		return <span>{option.domain}</span>
 	}
 }
@@ -230,7 +263,6 @@ async function getDomainList() {
 		globalStore.domainSource = domainListHasBrandInfo.value[0].domain
 	}
 }
-
 </script>
 
 <style scoped lang="scss">

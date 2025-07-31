@@ -366,6 +366,15 @@
 				"type": "Type",
 				"createdAt": "Created At"
 			},
+			"types": {
+				"drag": "Drag",
+				"html": "HTML",
+				"ai": "AI"
+			},
+			"edit": {
+				"confirm": "Confirm",
+				"cancel": "Cancel"
+			},
 			"search": {
 				"namePlaceholder": "Search template name"
 			},
@@ -402,11 +411,21 @@
 		"createTpl": {
 			"sourceUrl": "Source Url",
 			"useAiTools": "Use AI tools to help you automatically generate email content and improve your work efficiency.",
-			"create": "Create"
+			"create": "Create",
+			"notices": {
+				"domainListEmpty": "Please create the first domain for BillionMail to send emails",
+				"aiConfigurationInvalid": "AI large model is not currently configured, you cannot use AI model to create email templates",
+				"invalidBrandDomain": "Please create brand information for the domain first"
+			},
+			"buttons": {
+				"createNow": "Create Now",
+				"configureNow": "Configure Now"
+			}
 		},
 		"ai": {
 			"title": "AI Template",
 			"welcomeMessage": "You can say: Create a welcome email for users joining {domain}",
+			"greeting": "Let's create a beautiful email template.",
 			"brandName": "BillionMail",
 			"buttons": {
 				"regenerate": "Regenerate",

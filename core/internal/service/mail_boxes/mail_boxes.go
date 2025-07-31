@@ -38,7 +38,7 @@ func Add(ctx context.Context, mailbox *v1.Mailbox) (err error) {
 	mailbox.Active = 1
 	mailbox.Maildir = fmt.Sprintf("%s@%s/", mailbox.LocalPart, mailbox.Domain)
 
-	_, err = g.DB().Model("mailbox").Ctx(ctx).Insert(mailbox)
+	_, err = g.DB().Model("mailbox").Ctx(ctx).InsertIgnore(mailbox)
 	return err
 }
 
@@ -75,6 +75,28 @@ func Delete(ctx context.Context, email string) error {
 		Where("username", email).
 		Delete()
 	return err
+}
+
+func DeleteBatch(ctx context.Context, emails []string) (int64, error) {
+	if len(emails) == 0 {
+		return 0, nil
+	}
+
+	result, err := g.DB().Model("mailbox").
+		Ctx(ctx).
+		WhereIn("username", emails).
+		Delete()
+
+	if err != nil {
+		return 0, err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return affected, nil
 }
 
 func Get(ctx context.Context, domain, keyword string, page, pageSize int) ([]v1.Mailbox, int, error) {
@@ -282,6 +304,48 @@ func BatchAdd(ctx context.Context, domain, password string, quota int, count int
 	}
 
 	return createdEmails, nil
+}
+
+// AddImport
+func AddImport(ctx context.Context, mailbox *v1.Mailbox) (err error) {
+
+	if mailbox.PasswordEncode != "" {
+
+		if mailbox.Password == "" {
+			mailbox.Password, err = PasswdDecode(ctx, mailbox.PasswordEncode)
+			if err != nil {
+				err = fmt.Errorf("Decode password failed: %w", err)
+				return
+			}
+		}
+
+		mailbox.Password, err = PasswdMD5Crypt(ctx, mailbox.Password)
+		if err != nil {
+			err = fmt.Errorf("Generate password md5-crypt failed: %w", err)
+			return
+		}
+	} else {
+
+		mailbox.PasswordEncode = PasswdEncode(ctx, mailbox.Password)
+		mailbox.Password, err = PasswdMD5Crypt(ctx, mailbox.Password)
+		if err != nil {
+			err = fmt.Errorf("Generate password md5-crypt failed: %w", err)
+			return
+		}
+	}
+
+	mailbox.Username = strings.ToLower(mailbox.Username)
+	mailbox.LocalPart = strings.ToLower(mailbox.LocalPart)
+	mailbox.Domain = strings.ToLower(mailbox.Domain)
+
+	now := time.Now().Unix()
+	mailbox.CreateTime = now
+	mailbox.UpdateTime = now
+	mailbox.Active = 1
+	mailbox.Maildir = fmt.Sprintf("%s@%s/", mailbox.LocalPart, mailbox.Domain)
+
+	_, err = g.DB().Model("mailbox").Ctx(ctx).InsertIgnore(mailbox)
+	return err
 }
 
 // NormalizeMailboxes normalizes mailbox usernames, local parts, domains, and maildirs to lowercase.

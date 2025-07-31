@@ -35,7 +35,6 @@ export const createBatchMailbox = (params: {
 	prefix: string
 	count: number
 	quota: number
-	password: string
 }) => {
 	return instance.post('/mailbox/batch_create', params, {
 		fetchOptions: {

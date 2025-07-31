@@ -1,5 +1,9 @@
 <template>
-	<bt-modal v-model:show="show" :title="$t('mailbox.form.batchAddTitle')" :width="500" @confirm="onConfirm">
+	<bt-modal
+		v-model:show="show"
+		:title="$t('mailbox.form.batchAddTitle')"
+		:width="500"
+		@confirm="onConfirm">
 		<bt-form ref="formRef" class="pt-8px" :model="form" :rules="rules">
 			<n-form-item :label="$t('mailbox.form.domain')" path="domain">
 				<domain-select v-model:value="form.domain" class="flex-1" :is-all="false" :disabled="false">
@@ -12,7 +16,7 @@
 				<n-input-number v-model:value="form.count" class="flex-1" :min="1" :show-button="false">
 				</n-input-number>
 			</n-form-item>
-			<n-form-item :label="$t('mailbox.form.password')" path="password">
+			<n-form-item v-if="false" :label="$t('mailbox.form.password')" path="password">
 				<n-input
 					v-model:value="form.password"
 					:placeholder="$t('mailbox.form.passwordPlaceholder')">
@@ -31,7 +35,6 @@
 
 <script lang="ts" setup>
 import { FormRules } from 'naive-ui'
-import { getRandomPassword } from '@/utils'
 import { createBatchMailbox } from '@/api/modules/mailbox'
 import DomainSelect from './DomainSelect.vue'
 
@@ -51,7 +54,7 @@ const form = reactive({
 	count: 10,
 	quota: 5,
 	unit: 'GB',
-	password: getRandomPassword(),
+	password: '',
 })
 
 const rules: FormRules = {
@@ -85,20 +88,6 @@ const rules: FormRules = {
 			return true
 		},
 	},
-	password: {
-		trigger: 'blur',
-		required: true,
-		validator: () => {
-			if (form.password.trim().length < 8) {
-				return new Error(t('mailbox.validation.passwordLength'))
-			}
-			const pwdReg = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/
-			if (!pwdReg.test(form.password)) {
-				return new Error(t('mailbox.validation.passwordFormat'))
-			}
-			return true
-		},
-	},
 }
 
 const unitOptions = [
@@ -115,7 +104,6 @@ const onConfirm = async () => {
 const getParams = () => {
 	return {
 		domain: form.domain || '',
-		password: form.password,
 		quota: getQuotaByte(form.quota, form.unit),
 		prefix: form.prefix,
 		count: form.count,
@@ -148,7 +136,7 @@ const resetForm = () => {
 	form.count = 10
 	form.quota = 5
 	form.unit = 'GB'
-	form.password = getRandomPassword()
+	form.password = ''
 }
 
 defineExpose({

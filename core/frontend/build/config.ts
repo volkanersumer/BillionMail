@@ -12,7 +12,7 @@ const serverConfig: Record<string, ServerConfig> = {
 	},
 	'192.168.66.124': {
 		https: true,
-		address: 'https://192.168.66.124:82',
+		address: 'https://192.168.66.124',
 		host: '192.168.66.124',
 	},
 	'192.168.10.35': {

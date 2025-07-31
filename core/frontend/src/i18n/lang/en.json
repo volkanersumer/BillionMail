@@ -907,7 +907,9 @@
 	"mailbox": {
 		"title": "Mailbox Management",
 		"actions": {
-			"add": "Add Mailbox"
+			"add": "Add Mailbox",
+			"batchAdd": "Batch Add",
+			"batchDelete": "Batch Delete"
 		},
 		"search": {
 			"usernamePlaceholder": "Search username"
@@ -918,7 +920,7 @@
 		"columns": {
 			"username": "Username",
 			"password": "Password",
-			"loginInfo": "Login Info",
+			"loginInfo": "Login Info(WebMail / SMTP)",
 			"quota": "Quota",
 			"type": "Type",
 			"status": "Status"
@@ -930,21 +932,32 @@
 		"form": {
 			"addTitle": "Add Mailbox",
 			"editTitle": "Edit Mailbox",
+			"batchAddTitle": "Batch Add",
+			"exportTitle": "Export Mailbox",
+			"importTitle": "Import Mailbox",
 			"emailAddress": "Email Address",
 			"password": "Password",
 			"passwordPlaceholder": "Enter your mailbox password",
 			"quota": "Quota",
 			"userType": "User Type",
-			"status": "Status"
+			"status": "Status",
+			"domain": "Domain",
+			"prefix": "Email Prefix",
+			"count": "Email Count"
 		},
 		"validation": {
 			"emailRequired": "Please enter email address",
 			"passwordLength": "Password must be at least 8 characters",
-			"passwordFormat": "Password must contain at least one uppercase letter, one lowercase letter and one number"
+			"passwordFormat": "Password must contain at least one uppercase letter, one lowercase letter and one number",
+			"domainRequired": "Please select domain",
+			"prefixRequired": "Please enter email prefix",
+			"countRequired": "Please enter email count",
+			"fileRequired": "Please select upload file"
 		},
 		"delete": {
 			"title": "Delete Mailbox",
-			"confirm": "Are you sure you want to delete mailbox [{name}]?"
+			"confirm": "Are you sure you want to delete mailbox [{name}]?",
+			"batchConfirm": "Are you sure you want to delete {count} mailboxes?"
 		},
 		"loginInfo": {
 			"template": "WebMail: {webmail}\nUsername: {username}\nPassword: {password}\nPOP service [ Address: {mx} Port: 110/995 ]\nIMAP service [ Address: {mx} Port: 143/993 ]\nSMTP service [ Address: {mx} Port: 25/465/587 ]"
@@ -953,7 +966,9 @@
 			"loading": {
 				"creating": "Creating Mailbox, please wait...",
 				"updating": "Updating Mailbox, please wait...",
-				"deleting": "Deleting Mailbox, please wait..."
+				"deleting": "Deleting Mailbox, please wait...",
+				"exporting": "Exporting Mailbox, please wait...",
+				"importing": "Importing Mailbox, please wait..."
 			}
 		}
 	},

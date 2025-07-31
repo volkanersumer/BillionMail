@@ -908,7 +908,9 @@
 	"mailbox": {
 		"title": "邮箱管理",
 		"actions": {
-			"add": "添加邮箱"
+			"add": "添加邮箱",
+			"batchAdd": "批量添加",
+			"batchDelete": "批量删除"
 		},
 		"search": {
 			"usernamePlaceholder": "搜索用户名"
@@ -919,7 +921,7 @@
 		"columns": {
 			"username": "用户名",
 			"password": "密码",
-			"loginInfo": "登录信息",
+			"loginInfo": "登录信息（WebMail / SMTP）",
 			"quota": "配额",
 			"type": "类型",
 			"status": "状态"
@@ -931,21 +933,32 @@
 		"form": {
 			"addTitle": "添加邮箱",
 			"editTitle": "编辑邮箱",
+			"batchAddTitle": "批量添加",
+			"exportTitle": "导出邮箱",
+			"importTitle": "导入邮箱",
 			"emailAddress": "邮箱地址",
 			"password": "密码",
 			"passwordPlaceholder": "请输入您的邮箱密码",
 			"quota": "配额",
 			"userType": "用户类型",
-			"status": "状态"
+			"status": "状态",
+			"domain": "域名",
+			"prefix": "邮箱前缀",
+			"count": "邮箱数量"
 		},
 		"validation": {
 			"emailRequired": "请输入邮箱地址",
 			"passwordLength": "密码长度少于8位，请重新输入",
-			"passwordFormat": "密码必须包含至少一个大写字母、一个小写字母和数字，请重新输入"
+			"passwordFormat": "密码必须包含至少一个大写字母、一个小写字母和数字，请重新输入",
+			"domainRequired": "请选择域名",
+			"prefixRequired": "请输入邮箱前缀",
+			"countRequired": "请输入邮箱数量",
+			"fileRequired": "请选择上传文件"
 		},
 		"delete": {
 			"title": "删除邮箱",
-			"confirm": "确定要删除邮箱【{name}】吗？"
+			"confirm": "确定要删除邮箱【{name}】吗？",
+			"batchConfirm": "确定删除{count}个邮箱？"
 		},
 		"loginInfo": {
 			"template": "WebMail: {webmail}\n用户名: {username}\n密码: {password}\nPOP service [ Address: {mx} Port: 110/995 ]\nIMAP service [ Address: {mx} Port: 143/993 ]\nSMTP service [ Address: {mx} Port: 25/465/587 ]"
@@ -954,7 +967,9 @@
 			"loading": {
 				"creating": "正在创建邮箱，请稍候...",
 				"updating": "正在更新邮箱，请稍候...",
-				"deleting": "正在删除邮箱，请稍候..."
+				"deleting": "正在删除邮箱，请稍候...",
+				"exporting": "正在导出邮箱，请稍候...",
+				"importing": "正在导入邮箱，请稍候..."
 			}
 		}
 	},

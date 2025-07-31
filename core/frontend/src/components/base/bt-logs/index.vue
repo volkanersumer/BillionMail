@@ -338,6 +338,7 @@ watch(
 	top: 0;
 	left: 0;
 	width: 3rem;
+	min-height: 100%;
 	background-color: #1e1e1e;
 	border-right: 1px solid #404040;
 	text-align: right;

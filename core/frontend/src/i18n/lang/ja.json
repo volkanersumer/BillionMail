@@ -632,7 +632,9 @@
 	"mailbox": {
 		"title": "メールボックス管理",
 		"actions": {
-			"add": "メールボックス追加"
+			"add": "メールボックス追加",
+			"batchAdd": "一括追加",
+			"batchDelete": "一括削除"
 		},
 		"search": {
 			"usernamePlaceholder": "ユーザー名検索"
@@ -643,7 +645,7 @@
 		"columns": {
 			"username": "ユーザー名",
 			"password": "パスワード",
-			"loginInfo": "ログイン情報",
+			"loginInfo": "ログイン情報（WebMail / SMTP）",
 			"quota": "クォータ",
 			"type": "タイプ",
 			"status": "ステータス"
@@ -655,21 +657,31 @@
 		"form": {
 			"addTitle": "メールボックス追加",
 			"editTitle": "メールボックス編集",
+			"batchAddTitle": "一括追加",
+			"exportTitle": "メールボックスエクスポート",
 			"emailAddress": "メールアドレス",
 			"password": "パスワード",
 			"passwordPlaceholder": "メールボックスのパスワードを入力",
 			"quota": "クォータ",
 			"userType": "ユーザータイプ",
-			"status": "ステータス"
+			"status": "ステータス",
+			"domain": "ドメイン",
+			"prefix": "メールプレフィックス",
+			"count": "メール数"
 		},
 		"validation": {
 			"emailRequired": "メールアドレスを入力してください",
 			"passwordLength": "パスワードは8文字以上である必要があります",
-			"passwordFormat": "パスワードは大文字・小文字・数字をそれぞれ1文字以上含む必要があります"
+			"passwordFormat": "パスワードは大文字・小文字・数字をそれぞれ1文字以上含む必要があります",
+			"domainRequired": "ドメインを選択してください",
+			"prefixRequired": "メールプレフィックスを入力してください",
+			"countRequired": "メール数を入力してください",
+			"fileRequired": "アップロードファイルを選択してください"
 		},
 		"delete": {
 			"title": "メールボックス削除",
-			"confirm": "メールボックス [{name}] を削除してもよろしいですか？"
+			"confirm": "メールボックス【{name}】を削除してもよろしいですか？",
+			"batchConfirm": "{count}個のメールボックスを削除してもよろしいですか？"
 		},
 		"loginInfo": {
 			"template": "WebMail: {webmail}\nユーザー名: {username}\nパスワード: {password}\nPOP サービス [ アドレス: {mx} ポート: 110/995 ]\nIMAP サービス [ アドレス: {mx} ポート: 143/993 ]\nSMTP サービス [ アドレス: {mx} ポート: 25/465/587 ]"
@@ -678,7 +690,9 @@
 			"loading": {
 				"creating": "メールボックスを作成中... お待ちください",
 				"updating": "メールボックスを更新中... お待ちください",
-				"deleting": "メールボックスを削除中... お待ちください"
+				"deleting": "メールボックスを削除中... お待ちください",
+				"exporting": "メールボックスをエクスポート中... お待ちください",
+				"importing": "メールボックスをインポート中... お待ちください"
 			}
 		}
 	},

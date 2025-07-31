@@ -40,6 +40,8 @@ declare module 'vue' {
     NButtonGroup: typeof import('naive-ui')['NButtonGroup']
     NCard: typeof import('naive-ui')['NCard']
     NCheckbox: typeof import('naive-ui')['NCheckbox']
+    NCollapse: typeof import('naive-ui')['NCollapse']
+    NCollapseItem: typeof import('naive-ui')['NCollapseItem']
     NColorPicker: typeof import('naive-ui')['NColorPicker']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
     NDataTable: typeof import('naive-ui')['NDataTable']
@@ -54,11 +56,13 @@ declare module 'vue' {
     NForm: typeof import('naive-ui')['NForm']
     NFormItem: typeof import('naive-ui')['NFormItem']
     NFormItemGi: typeof import('naive-ui')['NFormItemGi']
+    NGi: typeof import('naive-ui')['NGi']
     NGrid: typeof import('naive-ui')['NGrid']
     NIcon: typeof import('naive-ui')['NIcon']
     NImage: typeof import('naive-ui')['NImage']
     NInput: typeof import('naive-ui')['NInput']
     NInputGroup: typeof import('naive-ui')['NInputGroup']
+    NInputGroupLabel: typeof import('naive-ui')['NInputGroupLabel']
     NInputNumber: typeof import('naive-ui')['NInputNumber']
     NLayout: typeof import('naive-ui')['NLayout']
     NLayoutHeader: typeof import('naive-ui')['NLayoutHeader']
@@ -76,6 +80,7 @@ declare module 'vue' {
     NScrollbar: typeof import('naive-ui')['NScrollbar']
     NSelect: typeof import('naive-ui')['NSelect']
     NSkeleton: typeof import('naive-ui')['NSkeleton']
+    NSlider: typeof import('naive-ui')['NSlider']
     NSpin: typeof import('naive-ui')['NSpin']
     NSwitch: typeof import('naive-ui')['NSwitch']
     NTable: typeof import('naive-ui')['NTable']
@@ -89,4 +94,6 @@ declare module 'vue' {
     UploadError: typeof import('./../src/components/base/bt-file-upload/UploadError.vue')['default']
     UploadProgress: typeof import('./../src/components/base/bt-file-upload/UploadProgress.vue')['default']
     UploadPrompt: typeof import('./../src/components/base/bt-file-upload/UploadPrompt.vue')['default']
-    UploadSuccess: typeof import('./../src/components/bas
+    UploadSuccess: typeof import('./../src/components/base/bt-file-upload/UploadSuccess.vue')['default']
+  }
+}

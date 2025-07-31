@@ -397,6 +397,7 @@
 		}
 	},
 	"template": {
+		"template": "Template",
 		"createTpl": {
 			"sourceUrl": "Source Url",
 			"useAiTools": "Use AI tools to help you automatically generate email content and improve your work efficiency.",

@@ -401,6 +401,7 @@
 		}
 	},
 	"template": {
+		"template": "模板",
 		"createTpl": {
 			"sourceUrl": "引用域名",
 			"useAiTools": "使用人工智能工具帮您自动生成邮件内容，提升工作您的效率",

@@ -214,13 +214,16 @@
 			"paramConfig": {
 				"title": "队列参数配置",
 				"fields": {
-					"bounceQueueLifetime": "Bounce Queue Lifetime",
-					"maximalQueueLifetime": "Maximal Queue Lifetime",
-					"minimalBackoffTime": "Minimal Backoff Time",
-					"maximalBackoffTime": "Maximal Backoff Time",
-					"queueRunDelay": "Queue Run Delay",
-					"triggerTimeout": "Trigger Timeout"
+					"bounceQueueLifetime": "退回队列生存时间",
+					"maximalQueueLifetime": "最大队列生存时间",
+					"minimalBackoffTime": "最小退避时间",
+					"maximalBackoffTime": "最大退避时间",
+					"queueRunDelay": "队列运行延迟",
+					"triggerTimeout": "触发超时"
 				}
+			},
+			"queueLogs": {
+				"title": "队列日志"
 			}
 		},
 		"api": {

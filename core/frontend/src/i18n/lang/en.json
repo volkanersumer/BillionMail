@@ -219,6 +219,9 @@
 					"queueRunDelay": "Queue Run Delay",
 					"triggerTimeout": "Trigger Timeout"
 				}
+			},
+			"queueLogs": {
+				"title": "Queue Logs"
 			}
 		},
 		"api": {

@@ -1,5 +1,5 @@
 <template>
-	<bt-modal v-model:show="show" title="队列日志" :width="800" :footer="false">
+	<bt-modal v-model:show="show" :title="$t('overview.sendQueue.queueLogs.title')" :width="800" :footer="false">
 		<n-spin :show="loading">
 			<bt-logs height="520px" :code="content"></bt-logs>
 		</n-spin>

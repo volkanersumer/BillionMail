@@ -2,25 +2,25 @@
 	<bt-modal
 		v-model:show="show"
 		:width="520"
-		:title="$t('overview.sendQueue.buttons.paramConfig')"
+		:title="$t('overview.sendQueue.paramConfig.title')"
 		@confirm="onConfirm">
 		<bt-form class="pt-8px">
-			<n-form-item label="Bounce Queue Lifetime">
+			<n-form-item :label="$t('overview.sendQueue.paramConfig.fields.bounceQueueLifetime')">
 				<n-input v-model:value="form.bounce_queue_lifetime" />
 			</n-form-item>
-			<n-form-item label="Maximal Queue Lifetime">
+			<n-form-item :label="$t('overview.sendQueue.paramConfig.fields.maximalQueueLifetime')">
 				<n-input v-model:value="form.maximal_queue_lifetime" />
 			</n-form-item>
-			<n-form-item label="Minimal Backoff Time">
+			<n-form-item :label="$t('overview.sendQueue.paramConfig.fields.minimalBackoffTime')">
 				<n-input v-model:value="form.minimal_backoff_time" />
 			</n-form-item>
-			<n-form-item label="Maximal Backoff Time">
+			<n-form-item :label="$t('overview.sendQueue.paramConfig.fields.maximalBackoffTime')">
 				<n-input v-model:value="form.maximal_backoff_time" />
 			</n-form-item>
-			<n-form-item label="Queue Run Delay">
+			<n-form-item :label="$t('overview.sendQueue.paramConfig.fields.queueRunDelay')">
 				<n-input v-model:value="form.queue_run_delay" />
 			</n-form-item>
-			<n-form-item label="Trigger Timeout">
+			<n-form-item :label="$t('overview.sendQueue.paramConfig.fields.triggerTimeout')">
 				<n-input v-model:value="form.trigger_timeout" />
 			</n-form-item>
 		</bt-form>

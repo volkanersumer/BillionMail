@@ -209,6 +209,9 @@
 					"queueRunDelay": "キュー実行遅延",
 					"triggerTimeout": "トリガータイムアウト"
 				}
+			},
+			"queueLogs": {
+				"title": "キューログ"
 			}
 		},
 		"api": {

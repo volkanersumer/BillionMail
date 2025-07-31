@@ -5,7 +5,11 @@
 		:class="{ 'with-line-numbers': showLineNumbers, 'word-wrap': wordWrap }"
 		:style="{ height: height }"
 		@scroll="onScroll">
-		<div v-if="showLineNumbers" ref="lineNumbersContainer" class="line-numbers-container">
+		<div
+			v-if="showLineNumbers"
+			ref="lineNumbersContainer"
+			class="line-numbers-container"
+			:style="{ width: lineNumberWidth }">
 			<div
 				v-for="(line, index) in displayLines"
 				:key="index"
@@ -17,7 +21,10 @@
 				{{ line.isOriginalLine ? line.lineNumber : '' }}
 			</div>
 		</div>
-		<div ref="codeContent" class="code-content">
+		<div
+			ref="codeContent"
+			class="code-content"
+			:style="{ marginLeft: showLineNumbers ? lineNumberWidth : '0' }">
 			<pre
 				ref="codePre"
 				class="code-pre"
@@ -222,6 +229,17 @@ watch(
 	},
 	{ deep: true }
 )
+
+// 计算行号容器宽度
+const lineNumberWidth = computed(() => {
+	const maxLineNumber = codeLines.value.length
+	const digits = maxLineNumber.toString().length
+	// 基础宽度 + 每个数字的宽度 + 内边距
+	const baseWidth = 1.5 // rem
+	const digitWidth = 0.6 // rem per digit
+	const padding = 1.5 // rem for padding
+	return `${baseWidth + digits * digitWidth + padding}em`
+})
 </script>
 
 <style lang="scss" scoped>
@@ -232,12 +250,6 @@ watch(
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	background: #2d2d2d;
 	border: 1px solid #404040;
-
-	&.with-line-numbers {
-		.code-content {
-			margin-left: 3rem;
-		}
-	}
 
 	&.word-wrap {
 		.code-content {
@@ -337,7 +349,8 @@ watch(
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 3rem;
+	// 移除固定宽度，改为动态设置
+	// width: 3rem;
 	min-height: 100%;
 	background-color: #1e1e1e;
 	border-right: 1px solid #404040;

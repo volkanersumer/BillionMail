@@ -108,7 +108,7 @@ const noticeShowFlag = computed(() => {
  * @description Calculate the list of domain names for dropdown options
  */
 const domainListHasBrandInfo = computed(() => {
-	return domainList.value //.filter((item: any) => item.hasbrandinfo == 1)
+	return [...domainList.value].sort((a,b)=>b.hasbrandinfo - a.hasbrandinfo)
 })
 
 /**

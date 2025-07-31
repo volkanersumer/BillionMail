@@ -15,10 +15,22 @@
 						</div>
 					</n-card>
 				</div> -->
+				
 
 				<div ref="answerRef" class="answer" @wheel="handleScroll">
 					<n-card class="h-100%">
-						<n-scrollbar ref="chatScrollRef" style="height: calc(100vh - 452px)">
+						<n-scrollbar ref="chatScrollRef" style="height: calc(100vh - 415px)">
+							<div class="answer-container" v-if="chatRecord.size == 0">
+								<div class="ask-content">
+									<div class="pic">
+										<i
+											class="i-material-symbols:account-circle text-6 text-[var(--color-primary-hover-1)]"></i>
+									</div>
+									<div class="text">
+										Let's create a beautiful email template.
+									</div>
+								</div>
+							</div>
 							<div ref="scrollWrapperRef">
 								<template v-for="item in chatRecord" :key="item[0]">
 									<div class="answer-container">

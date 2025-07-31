@@ -1,7 +1,10 @@
 <template>
 	<div
+		ref="codeContainer"
 		class="code-container"
-		:class="{ 'with-line-numbers': showLineNumbers, 'word-wrap': wordWrap }">
+		:class="{ 'with-line-numbers': showLineNumbers, 'word-wrap': wordWrap }"
+		:style="{ height: height }"
+		@scroll="onScroll">
 		<div v-if="showLineNumbers" ref="lineNumbersContainer" class="line-numbers-container">
 			<div
 				v-for="(line, index) in displayLines"
@@ -18,9 +21,7 @@
 			<pre
 				ref="codePre"
 				class="code-pre"
-				:class="[`language-${language}`, { 'word-wrap': wordWrap }]"
-				:style="{ height: height }"
-				@scroll="onScroll">
+				:class="[`language-${language}`, { 'word-wrap': wordWrap }]">
 				<code ref="codeElement" :class="`language-${language}`">{{ processedCode }}</code>
 			</pre>
 		</div>
@@ -60,6 +61,7 @@ const codePre = ref<HTMLElement | null>(null)
 const codeElement = ref<HTMLElement | null>(null)
 const lineNumbersContainer = ref<HTMLElement | null>(null)
 const codeContent = ref<HTMLElement | null>(null)
+const codeContainer = ref<HTMLElement | null>(null)
 
 // 处理后的代码内容
 const processedCode = computed(() => {
@@ -76,8 +78,40 @@ const processedCode = computed(() => {
 // 计算属性：将代码按行分割
 const codeLines = computed(() => processedCode.value.split('\n'))
 
+// 计算单行文本在当前容器宽度下会换成几行
+const calculateWrappedLines = (text: string): number => {
+	if (!codePre.value || !props.wordWrap) return 1
+
+	// 获取容器的实际宽度
+	const containerWidth = codePre.value.clientWidth - 32 // 减去 padding
+	if (containerWidth <= 0) return 1
+
+	// 创建临时元素来测量文本宽度
+	const tempElement = document.createElement('span')
+	tempElement.style.font = getComputedStyle(codePre.value).font
+	tempElement.style.visibility = 'hidden'
+	tempElement.style.position = 'absolute'
+	tempElement.style.whiteSpace = 'nowrap'
+	document.body.appendChild(tempElement)
+
+	tempElement.textContent = text
+	const textWidth = tempElement.offsetWidth
+	document.body.removeChild(tempElement)
+
+	return Math.max(1, Math.ceil(textWidth / containerWidth))
+}
+
+// 监听容器大小变化，重新计算换行
+const resizeObserver = ref<ResizeObserver | null>(null)
+
+// 强制重新计算的触发器
+const forceRecalculate = ref(0)
+
 // 计算显示的行号（包括换行后的虚拟行）
 const displayLines = computed(() => {
+	// 添加 forceRecalculate 作为依赖，确保容器大小变化时重新计算
+	forceRecalculate.value
+
 	if (!props.wordWrap) {
 		return codeLines.value.map((_, index) => ({
 			lineNumber: index + 1,
@@ -109,29 +143,6 @@ const displayLines = computed(() => {
 	return result
 })
 
-// 计算单行文本在当前容器宽度下会换成几行
-const calculateWrappedLines = (text: string): number => {
-	if (!codePre.value || !props.wordWrap) return 1
-
-	// 获取容器的实际宽度
-	const containerWidth = codePre.value.clientWidth - 32 // 减去 padding
-	if (containerWidth <= 0) return 1
-
-	// 创建临时元素来测量文本宽度
-	const tempElement = document.createElement('span')
-	tempElement.style.font = getComputedStyle(codePre.value).font
-	tempElement.style.visibility = 'hidden'
-	tempElement.style.position = 'absolute'
-	tempElement.style.whiteSpace = 'nowrap'
-	document.body.appendChild(tempElement)
-
-	tempElement.textContent = text
-	const textWidth = tempElement.offsetWidth
-	document.body.removeChild(tempElement)
-
-	return Math.max(1, Math.ceil(textWidth / containerWidth))
-}
-
 // 获取原始行号
 const getOriginalLineNumber = (displayIndex: number): number => {
 	return displayLines.value[displayIndex]?.lineNumber || 1
@@ -139,13 +150,10 @@ const getOriginalLineNumber = (displayIndex: number): number => {
 
 // 同步滚动
 const onScroll = () => {
-	if (lineNumbersContainer.value && codePre.value) {
-		lineNumbersContainer.value.scrollTop = codePre.value.scrollTop
+	if (lineNumbersContainer.value && codeContainer.value) {
+		lineNumbersContainer.value.scrollTop = codeContainer.value.scrollTop
 	}
 }
-
-// 监听容器大小变化，重新计算换行
-const resizeObserver = ref<ResizeObserver | null>(null)
 
 // 高亮代码函数
 const highlightCode = () => {
@@ -174,6 +182,11 @@ const debounce = (func: Function, wait: number) => {
 // 防抖的高亮函数
 const debouncedHighlight = debounce(highlightCode, 100)
 
+// 防抖的重新计算函数
+const debouncedRecalculate = debounce(() => {
+	forceRecalculate.value++
+}, 100)
+
 // 初始化和更新时高亮代码
 onMounted(() => {
 	nextTick(() => {
@@ -185,6 +198,7 @@ onMounted(() => {
 				// 触发重新计算
 				nextTick(() => {
 					// 强制重新计算 displayLines
+					debouncedRecalculate()
 				})
 			})
 			resizeObserver.value.observe(codePre.value)
@@ -213,7 +227,7 @@ watch(
 <style lang="scss" scoped>
 .code-container {
 	position: relative;
-	overflow: hidden;
+	overflow: auto;
 	border-radius: 4px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	background: #2d2d2d;
@@ -277,6 +291,7 @@ watch(
 
 .code-content {
 	position: relative;
+	height: 100%;
 	overflow: auto;
 
 	.word-wrap & {
@@ -288,11 +303,13 @@ watch(
 	display: flex;
 	margin: 0;
 	padding: 1rem;
-	overflow-x: auto;
+	height: 100%;
+	overflow: visible;
 	background: transparent !important;
 	font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
+	box-sizing: border-box;
 
 	&.word-wrap {
 		overflow-x: visible;
@@ -320,7 +337,6 @@ watch(
 	position: absolute;
 	top: 0;
 	left: 0;
-	height: 100%;
 	width: 3rem;
 	background-color: #1e1e1e;
 	border-right: 1px solid #404040;
@@ -365,6 +381,24 @@ watch(
 }
 
 // 滚动条样式
+.code-container::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+.code-container::-webkit-scrollbar-track {
+	background: #1e1e1e;
+}
+
+.code-container::-webkit-scrollbar-thumb {
+	background: #404040;
+	border-radius: 4px;
+}
+
+.code-container::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
+
 .code-pre::-webkit-scrollbar {
 	height: 8px;
 }

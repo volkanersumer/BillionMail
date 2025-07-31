@@ -1,11 +1,10 @@
 import { RouteRecordRaw } from 'vue-router'
-import { isDev } from '@/utils'
 import { Layout } from '@/router/constant'
 
 const route: RouteRecordRaw = {
 	path: '/logs',
 	component: Layout,
-	meta: { key: 'logs', title: 'Logs', hidden: !isDev, titleKey: '' },
+	meta: { key: 'logs', title: 'Logs', titleKey: '' },
 	children: [
 		{
 			path: '/logs',

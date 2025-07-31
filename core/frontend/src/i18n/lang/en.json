@@ -1251,6 +1251,9 @@
 		},
 		"filter": {
 			"all": "All"
+		},
+		"search": {
+			"placeholder": "Please enter details/IP to search"
 		}
 	},
 	"api": {

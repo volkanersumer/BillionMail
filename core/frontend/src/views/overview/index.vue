@@ -22,6 +22,7 @@
 				class="cursor-pointer"
 				:title="$t('overview.delayedQueue')"
 				:value="delayedQueue"
+				:text-color="delayedQueue > 0 ? theme.warningColor : ''"
 				@click="onClickDelayedQueue">
 			</metric-card>
 		</div>
@@ -50,6 +51,7 @@
 
 <script lang="ts" setup>
 import { useDebounceFn } from '@vueuse/core'
+import { useThemeVars } from 'naive-ui'
 import { getDayTimeRange, isArray, isObject } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
 import { getOverviewInfo } from '@/api/modules/overview'
@@ -63,6 +65,8 @@ import RateChartPanel from './components/RateChartPanel.vue'
 import SendFailDetails from './components/SendFailDetails.vue'
 
 const { t } = useI18n()
+
+const theme = useThemeVars()
 
 const domain = ref('')
 

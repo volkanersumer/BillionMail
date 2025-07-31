@@ -1,7 +1,7 @@
 <template>
 	<n-card class="metric-card" :bordered="false">
 		<div class="title">{{ title }}</div>
-		<div class="value">{{ value }}{{ unit }}</div>
+		<div class="value" :style="{ color: textColor }">{{ value }}{{ unit }}</div>
 	</n-card>
 </template>
 
@@ -18,6 +18,9 @@ defineProps({
 	unit: {
 		type: String,
 		default: '',
+	},
+	textColor: {
+		type: String,
 	},
 })
 </script>
@@ -37,6 +40,5 @@ defineProps({
 
 .value {
 	font-size: 20px;
-	font-weight: 300;
 }
 </style>

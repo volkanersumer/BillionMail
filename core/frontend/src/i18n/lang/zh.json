@@ -1245,6 +1245,9 @@
 		},
 		"filter": {
 			"all": "全部"
+		},
+		"search": {
+			"placeholder": "请输入详情/IP搜索"
 		}
 	},
 	"api": {

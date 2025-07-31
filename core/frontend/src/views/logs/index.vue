@@ -10,6 +10,11 @@
 						@update:value="() => resetTable()">
 					</n-select>
 				</div>
+				<bt-search
+					v-model:value="tableParams.keyword"
+					:placeholder="$t('logs.search.placeholder')"
+					@search="() => resetTable()">
+				</bt-search>
 			</template>
 			<template #table>
 				<n-data-table v-bind="tableProps" :columns="columns"></n-data-table>
@@ -45,6 +50,12 @@ const columns = ref<DataTableColumns<Logs>>([
 		title: t('logs.table.columns.type'),
 		width: '12%',
 		minWidth: '140px',
+	},
+	{
+		key: 'ip',
+		title: 'IP',
+		width: '10%',
+		minWidth: '120px',
 	},
 	{
 		key: 'addtime',

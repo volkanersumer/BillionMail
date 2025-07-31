@@ -903,6 +903,9 @@
 		},
 		"filter": {
 			"all": "すべて"
+		},
+		"search": {
+			"placeholder": "詳細/IPを入力して検索"
 		}
 	}
 }

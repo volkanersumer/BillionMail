@@ -198,7 +198,17 @@ func PasswdMD5Crypt(ctx context.Context, password string) (string, error) {
 	return result, nil
 }
 
-func BatchAdd(ctx context.Context, domain, password string, quota int, count int, prefix string) ([]string, error) {
+func generateRandomPassword(charset string, length int) string {
+	if charset == "" {
+		charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	}
+	password := make([]byte, length)
+	for i := range password {
+		password[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(password)
+}
+func BatchAdd(ctx context.Context, domain string, quota int, count int, prefix string) ([]string, error) {
 
 	if prefix == "" {
 		randomPre := make([]byte, 4)
@@ -223,8 +233,8 @@ func BatchAdd(ctx context.Context, domain, password string, quota int, count int
 
 	timestamp := time.Now().Unix()
 
-	passwordEncoded := PasswdEncode(ctx, password)
-	passwordCrypted, err := PasswdMD5Crypt(ctx, password)
+	//passwordEncoded := PasswdEncode(ctx, password)
+	//passwordCrypted, err := PasswdMD5Crypt(ctx, password)
 	if err != nil {
 		return nil, fmt.Errorf("Generate password md5-crypt failed: %w", err)
 	}
@@ -241,6 +251,11 @@ func BatchAdd(ctx context.Context, domain, password string, quota int, count int
 
 		localPart := fmt.Sprintf("%s%d%s", prefix, i, string(randomChars))
 		username := localPart + "@" + domain
+
+		password := generateRandomPassword("", 8) // todo
+
+		passwordEncoded := PasswdEncode(ctx, password)
+		passwordCrypted, _ := PasswdMD5Crypt(ctx, password)
 
 		mailbox := v1.Mailbox{
 			Username:       username,

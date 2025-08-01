@@ -563,8 +563,6 @@ func (o *Overview) FailedList(campaignID int64, domain string, startTime, endTim
 
 	query := o.buildBaseQuery(campaignID, domain, startTime, endTime)
 
-	query.LeftJoin("mailstat_deferred_mails d", "sm.postfix_message_id=d.postfix_message_id")
-
 	query.LeftJoin(`LATERAL(
 	SELECT id
 	FROM mailstat_deferred_mails

@@ -15,7 +15,6 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/panjf2000/ants/v2"
-	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"

@@ -38,8 +38,17 @@ type GetOutputLogReq struct {
 	StartDate string `json:"start_date" v:"required" dc:"Start date(YYYY-MM-DD)"`
 	EndDate   string `json:"end_date" v:"required" dc:"End date(YYYY-MM-DD)"`
 	Keyword   string `json:"keyword" dc:"keyword"`
+	Page      int    `json:"page" v:"min:1" dc:"Page Number" d:"1"`
+	PageSize  int    `json:"page_size" dc:"page size"`
 }
 
 type GetOutputLogRes struct {
+	api_v1.StandardRes
+}
+
+type GetLatestOutputLogReq struct {
+	g.Meta `path:"/operation_log/output/latest" method:"get" tags:"Output Log" summary:"Get latest output log"`
+}
+type GetLatestOutputLogRes struct {
 	api_v1.StandardRes
 }

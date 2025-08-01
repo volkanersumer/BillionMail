@@ -144,8 +144,8 @@ func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content
 		"API":            apiAttribs,
 	}
 
-	// use template engine to render with error recovery
-	result, err := e.renderWithErrorRecovery(ctx, content, templateData)
+	// use template engine to render
+	result, err := e.view.ParseContent(ctx, content, templateData)
 	if err != nil {
 		return "", err
 	}

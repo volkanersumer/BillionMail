@@ -995,17 +995,17 @@ func (e *TaskExecutor) personalizeEmail(ctx context.Context, content string, tas
 	}
 
 	// Restore the erroneous variable
-	renderedContent = e.restoreErrorVariables(renderedContent)
-	renderedSubject = e.restoreErrorVariables(renderedSubject)
+	//renderedContent = e.restoreErrorVariables(renderedContent)
+	//renderedSubject = e.restoreErrorVariables(renderedSubject)
 
 	return renderedContent, renderedSubject
 }
 
-// restoreErrorVariables 恢复 [__变量__] 为 {{变量}}
-func (e *TaskExecutor) restoreErrorVariables(content string) string {
-	re := regexp.MustCompile(`\[__([^_]+)__\]`)
-	return re.ReplaceAllString(content, "{{$1}}")
-}
+//// restoreErrorVariables 恢复 [__变量__] 为 {{变量}}
+//func (e *TaskExecutor) restoreErrorVariables(content string) string {
+//	re := regexp.MustCompile(`\[__([^_]+)__\]`)
+//	return re.ReplaceAllString(content, "{{$1}}")
+//}
 
 // sendEmail send email
 func (e *TaskExecutor) sendEmail(ctx context.Context, task *entity.EmailTask, recipient *entity.RecipientInfo, content string) *SendResult {

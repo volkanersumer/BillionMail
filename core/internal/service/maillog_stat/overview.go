@@ -564,7 +564,7 @@ func (o *Overview) FailedList(campaignID int64, domain string, startTime, endTim
 	query := o.buildBaseQuery(campaignID, domain, startTime, endTime)
 
 	query.LeftJoin(`LATERAL(
-	SELECT id
+	SELECT id, dsn, delay, delays, relay, description
 	FROM mailstat_deferred_mails
 	WHERE sm.postfix_message_id = postfix_message_id
 	ORDER BY id DESC

@@ -47,9 +47,9 @@ type GetPostfixQueueInfoRes struct {
 }
 
 type DeletePostfixQueueByIdReq struct {
-	g.Meta        `path:"/postfix_queue/delete_by_id" method:"post" summary:"Delete specified queue mail"`
-	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	QueueID       string `json:"queue_id" v:"required" dc:"Queue ID"`
+	g.Meta        `path:"/postfix_queue/delete_by_id" method:"post" summary:"Delete specified queue mails (batch supported)"`
+	Authorization string   `json:"authorization" dc:"Authorization" in:"header"`
+	QueueIDs      []string `json:"queue_ids" v:"required" dc:"Queue ID list"`
 }
 
 type DeletePostfixQueueByIdRes struct {
@@ -76,9 +76,9 @@ type FlushPostfixQueueRes struct {
 }
 
 type FlushPostfixQueueByIdReq struct {
-	g.Meta        `path:"/postfix_queue/flush_by_id" method:"post" summary:"Resend specified queue mail"`
-	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	QueueID       string `json:"queue_id" v:"required" dc:"Queue ID"`
+	g.Meta        `path:"/postfix_queue/flush_by_id" method:"post" summary:"Flush specified queue mails (batch supported)"`
+	Authorization string   `json:"authorization" dc:"Authorization" in:"header"`
+	QueueIDs      []string `json:"queue_ids" v:"required" dc:"Queue ID list"`
 }
 
 type FlushPostfixQueueByIdRes struct {
@@ -93,6 +93,21 @@ type SetPostfixConfigReq struct {
 }
 
 type SetPostfixConfigRes struct {
+	api_v1.StandardRes
+}
+
+type SetAllPostfixConfigReq struct {
+	g.Meta               `path:"/postfix_queue/set_all_config" method:"post" summary:"批量设置Postfix队列相关配置项"`
+	Authorization        string `json:"authorization" dc:"Authorization" in:"header"`
+	BounceQueueLifetime  string `json:"bounce_queue_lifetime" dc:"Bounce queue lifetime"`
+	MaximalBackoffTime   string `json:"maximal_backoff_time" dc:"Maximal backoff time"`
+	MaximalQueueLifetime string `json:"maximal_queue_lifetime" dc:"Maximal queue lifetime"`
+	MinimalBackoffTime   string `json:"minimal_backoff_time" dc:"Minimal backoff time"`
+	QueueRunDelay        string `json:"queue_run_delay" dc:"Queue run delay"`
+	TriggerTimeout       string `json:"trigger_timeout" dc:"Trigger timeout"`
+}
+
+type SetAllPostfixConfigRes struct {
 	api_v1.StandardRes
 }
 

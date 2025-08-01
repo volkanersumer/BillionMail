@@ -54,24 +54,24 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 		data["active"] = 1
 	}
 
-	// Authentication method: Default is NONE
-	//if req.AuthMethod == "" {
-	//	data["auth_method"] = "NONE"
-	//} else {
-	//	data["auth_method"] = req.AuthMethod
-	//}
-	// TLS protocol: Default is STARTTLS
-	//if req.TlsProtocol == "" {
-	//	data["tls_protocol"] = "STARTTLS"
-	//} else {
-	//	data["tls_protocol"] = req.TlsProtocol
-	//}
-	// Whether to skip TLS verification: Default is to skip (1)
-	//if req.SkipTlsVerify == 0 {
-	//	data["skip_tls_verify"] = 0
-	//} else {
-	//	data["skip_tls_verify"] = 1
-	//}
+	// Authentication method: Default is NONE      LOGIN, PLAIN, CRAM-MD5, NONE
+	if req.AuthMethod == "" {
+		data["auth_method"] = "NONE"
+	} else {
+		data["auth_method"] = req.AuthMethod
+	}
+	// TLS protocol: Default is STARTTLS           STARTTLS, SSL/TLS, NONE
+	if req.TlsProtocol == "" {
+		data["tls_protocol"] = "STARTTLS"
+	} else {
+		data["tls_protocol"] = req.TlsProtocol
+	}
+	//Whether to skip TLS verification: Default is to skip (1)
+	if req.SkipTlsVerify == 0 {
+		data["skip_tls_verify"] = 0
+	} else {
+		data["skip_tls_verify"] = 1
+	}
 	// HELO hostname: Default is mail.SenderDomain
 	if req.HeloName == "" {
 		data["helo_name"] = "mail." + req.SenderDomain
@@ -81,7 +81,8 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 	// SMTP service name: Can be empty, will be auto-generated
 	data["smtp_name"] = req.SmtpName
 	// Email header JSON: Can be empty
-	data["header_json"] = req.HeaderJson
+	//data["header_json"] = req.HeaderJson
+
 	// Maximum concurrent connections: Use default configuration if not set
 	if req.MaxConcurrency <= 0 {
 		data["max_concurrency"] = 0
@@ -114,14 +115,13 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 		return res, nil
 	}
 
-	spfRecord := relay.GenerateSPFRecord(req.IP, req.Host, req.SenderDomain)
-
 	if err := relay.SyncRelayConfigsToPostfix(ctx); err != nil {
 		errMsg := err.Error()
 		res.SetError(gerror.New(public.LangCtx(ctx, "Creation was successful but synchronous configuration failed: {}", errMsg)))
 		return res, nil
 	}
 
+	spfRecord := relay.GenerateSPFRecord(req.IP, req.Host, req.SenderDomain)
 	if spfRecord != "" {
 		res.SPFRecord = v1.DNSRecord{
 			Type:  "TXT",

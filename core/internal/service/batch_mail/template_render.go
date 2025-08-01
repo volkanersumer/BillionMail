@@ -165,13 +165,13 @@ func (e *TemplateEngine) renderWithErrorRecovery(ctx context.Context, content st
 		return result, nil
 	}
 
-	// Rendering failed. Uninitialized variables were encountered during cleanup.
-	cleanedContent := e.cleanUndefinedVariables(content)
-	result, err = e.view.ParseContent(ctx, cleanedContent, templateData)
-	if err != nil {
-
-		return content, nil
-	}
+	//// Rendering failed. Uninitialized variables were encountered during cleanup.
+	//cleanedContent := e.cleanUndefinedVariables(content)
+	//result, err = e.view.ParseContent(ctx, cleanedContent, templateData)
+	//if err != nil {
+	//
+	//	return content, nil
+	//}
 
 	return result, nil
 }

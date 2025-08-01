@@ -198,7 +198,17 @@ func PasswdMD5Crypt(ctx context.Context, password string) (string, error) {
 	return result, nil
 }
 
-func BatchAdd(ctx context.Context, domain, password string, quota int, count int, prefix string) ([]string, error) {
+func generateRandomPassword(charset string, length int) string {
+	if charset == "" {
+		charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	}
+	password := make([]byte, length)
+	for i := range password {
+		password[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(password)
+}
+func BatchAdd(ctx context.Context, domain string, quota int, count int, prefix string) ([]string, error) {
 
 	if prefix == "" {
 		randomPre := make([]byte, 4)
@@ -223,8 +233,8 @@ func BatchAdd(ctx context.Context, domain, password string, quota int, count int
 
 	timestamp := time.Now().Unix()
 
-	passwordEncoded := PasswdEncode(ctx, password)
-	passwordCrypted, err := PasswdMD5Crypt(ctx, password)
+	//passwordEncoded := PasswdEncode(ctx, password)
+	//passwordCrypted, err := PasswdMD5Crypt(ctx, password)
 	if err != nil {
 		return nil, fmt.Errorf("Generate password md5-crypt failed: %w", err)
 	}
@@ -241,6 +251,11 @@ func BatchAdd(ctx context.Context, domain, password string, quota int, count int
 
 		localPart := fmt.Sprintf("%s%d%s", prefix, i, string(randomChars))
 		username := localPart + "@" + domain
+
+		password := generateRandomPassword("", 8) // todo
+
+		passwordEncoded := PasswdEncode(ctx, password)
+		passwordCrypted, _ := PasswdMD5Crypt(ctx, password)
 
 		mailbox := v1.Mailbox{
 			Username:       username,
@@ -317,13 +332,14 @@ func AddImport(ctx context.Context, mailbox *v1.Mailbox) (err error) {
 				err = fmt.Errorf("Decode password failed: %w", err)
 				return
 			}
+
+			mailbox.Password, err = PasswdMD5Crypt(ctx, mailbox.Password)
+			if err != nil {
+				err = fmt.Errorf("Generate password md5-crypt failed: %w", err)
+				return
+			}
 		}
 
-		mailbox.Password, err = PasswdMD5Crypt(ctx, mailbox.Password)
-		if err != nil {
-			err = fmt.Errorf("Generate password md5-crypt failed: %w", err)
-			return
-		}
 	} else {
 
 		mailbox.PasswordEncode = PasswdEncode(ctx, mailbox.Password)
@@ -359,4 +375,33 @@ func NormalizeMailboxes() (err error) {
 	})
 
 	return
+}
+
+// TestPasswordHandling 测试密码处理逻辑
+func TestPasswordHandling(ctx context.Context, email string) error {
+	// 查询邮箱信息
+	var mailbox v1.Mailbox
+	err := g.DB().Model("mailbox").Where("username", email).Scan(&mailbox)
+	if err != nil {
+		return fmt.Errorf("Failed to query mailbox: %w", err)
+	}
+
+	// 尝试解密密码
+	decodedPassword, err := PasswdDecode(ctx, mailbox.PasswordEncode)
+	if err != nil {
+		return fmt.Errorf("Failed to decode password: %w", err)
+	}
+
+	// 重新加密
+	reEncryptedPassword, err := PasswdMD5Crypt(ctx, decodedPassword)
+	if err != nil {
+		return fmt.Errorf("Failed to re-encrypt password: %w", err)
+	}
+
+	// 比较是否一致
+	if mailbox.Password != reEncryptedPassword {
+		return fmt.Errorf("Password mismatch: stored=%s, re-encrypted=%s", mailbox.Password, reEncryptedPassword)
+	}
+
+	return nil
 }

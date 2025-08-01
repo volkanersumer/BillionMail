@@ -156,8 +156,8 @@ func ValidateMXRecord(record DNSRecord, domain string, aRecordHosts ...string) b
 		if err == nil {
 			break
 		}
-		if i < 2 { // 非最后一次，等待后再试
-			time.Sleep(500 * time.Millisecond)
+		if i < 1 { // 不到2次,重试
+			time.Sleep(200 * time.Millisecond)
 		}
 	}
 

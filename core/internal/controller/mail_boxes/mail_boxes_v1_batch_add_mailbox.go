@@ -18,7 +18,7 @@ func (c *ControllerV1) BatchAddMailbox(ctx context.Context, req *v1.BatchAddMail
 		return nil, fmt.Errorf("You cannot create more than 5000 batches")
 	}
 
-	createdEmails, err := mail_boxes.BatchAdd(ctx, req.Domain, req.Password, req.Quota, req.Count, req.Prefix)
+	createdEmails, err := mail_boxes.BatchAdd(ctx, req.Domain, req.Quota, req.Count, req.Prefix)
 	if err != nil {
 		return nil, err
 	}

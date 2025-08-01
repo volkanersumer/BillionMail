@@ -5,6 +5,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gview"
+	"regexp"
 	"strings"
 )
 
@@ -54,7 +55,7 @@ func (e *TemplateEngine) RenderEmailTemplate(ctx context.Context, content string
 	return e.RenderEmailTemplateWithAPI(ctx, content, contact, task, unsubscribeURL, nil)
 }
 
-// RenderEmailTemplate Render email template
+// RenderEmailTemplateWithAPI Render email template with error recovery
 func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content string, contact *entity.Contact, task *entity.EmailTask, unsubscribeURL string, apiAttribs map[string]interface{}) (string, error) {
 	// handle escape characters
 	content = strings.NewReplacer(
@@ -76,7 +77,6 @@ func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content
 		subscriberData["Email"] = contact.Email
 		subscriberData["Active"] = contact.Active
 		subscriberData["Status"] = contact.Status
-
 	}
 
 	// prepare api data
@@ -88,7 +88,6 @@ func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content
 				apiData[k] = v
 			}
 		}
-
 	}
 
 	// prepare task data
@@ -145,8 +144,8 @@ func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content
 		"API":            apiAttribs,
 	}
 
-	// use template engine to render
-	result, err := e.view.ParseContent(ctx, content, templateData)
+	// use template engine to render with error recovery
+	result, err := e.renderWithErrorRecovery(ctx, content, templateData)
 	if err != nil {
 		return "", err
 	}
@@ -156,6 +155,67 @@ func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content
 	result = spintaxParser.ParseSpintax(result)
 
 	return result, nil
+}
+
+// renderWithErrorRecovery
+func (e *TemplateEngine) renderWithErrorRecovery(ctx context.Context, content string, templateData g.Map) (string, error) {
+	// Start with normal rendering
+	result, err := e.view.ParseContent(ctx, content, templateData)
+	if err == nil {
+		return result, nil
+	}
+
+	// Rendering failed. Uninitialized variables were encountered during cleanup.
+	cleanedContent := e.cleanUndefinedVariables(content)
+	result, err = e.view.ParseContent(ctx, cleanedContent, templateData)
+	if err != nil {
+
+		return content, nil
+	}
+
+	return result, nil
+}
+
+// cleanUndefinedVariables
+func (e *TemplateEngine) cleanUndefinedVariables(content string) string {
+	// Allowed retained function names
+	knownFunctions := []string{"UnsubscribeURL"}
+	knownVariablePatterns := []string{
+		`\{\{\s*\.\s*Subscriber\s*\.\s*[^\s{}]+[^}]*\}\}`,
+		`\{\{\s*\.\s*Task\s*\.\s*[^\s{}]+[^}]*\}\}`,
+	}
+
+	allVarRegex := regexp.MustCompile(`\{\{.*?\}\}`)
+
+	content = allVarRegex.ReplaceAllStringFunc(content, func(match string) string {
+		inner := strings.TrimSpace(match[2 : len(match)-2])
+
+		for _, pattern := range knownVariablePatterns {
+			if regexp.MustCompile(pattern).MatchString(match) {
+				return match
+			}
+		}
+
+		for _, fn := range knownFunctions {
+			fnRegex := regexp.MustCompile(`\s*` + regexp.QuoteMeta(fn) + `\s+[^}]*`)
+			if fnRegex.MatchString(inner) {
+				return match
+			}
+		}
+
+		// If no match is found with any of the known items, replace with [__ __] format
+		return "[__" + inner + "__]"
+	})
+
+	lines := strings.Split(content, "\n")
+	var cleanedLines []string
+	for _, line := range lines {
+		if strings.TrimSpace(line) != "" {
+			cleanedLines = append(cleanedLines, line)
+		}
+	}
+
+	return strings.Join(cleanedLines, "\n")
 }
 
 // global template engine instance

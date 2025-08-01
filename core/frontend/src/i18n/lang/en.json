@@ -92,7 +92,10 @@
 			"bcc": "BCC",
 			"forward": "Mail Forward",
 			"logout": "Logout",
-			"service": "Service"
+			"service": "Service",
+			"logs": "Logs",
+			"operation_logs": "Operation Logs",
+			"error_logs": "Error Logs"
 		}
 	},
 	"login": {
@@ -931,7 +934,8 @@
 		"actions": {
 			"add": "Add Mailbox",
 			"batchAdd": "Batch Add",
-			"batchDelete": "Batch Delete"
+			"batchDelete": "Batch Delete",
+			"exportAll": "Export All"
 		},
 		"search": {
 			"usernamePlaceholder": "Search username"

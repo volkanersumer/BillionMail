@@ -5,5 +5,5 @@ export const getLogsList = async (params: { page: number; page_size: number; key
 }
 
 export const getLogsType = async () => {
-	return await instance.get('/operation_log//type_list')
+	return await instance.get('/operation_log/type_list')
 }

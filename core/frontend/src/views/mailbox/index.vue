@@ -6,7 +6,7 @@
 				<n-button type="primary" @click="handleAdd">{{ t('mailbox.actions.add') }}</n-button>
 				<n-button @click="handleBatchAdd">{{ $t('mailbox.actions.batchAdd') }}</n-button>
 				<n-button @click="handleImport">{{ $t('common.actions.import') }}</n-button>
-				<n-button @click="handleExport">{{ $t('common.actions.export') }}</n-button>
+				<n-button @click="handleExport">{{ t('mailbox.actions.exportAll') }}</n-button>
 			</template>
 			<template #toolsRight>
 				<div class="w-220px">
@@ -15,7 +15,7 @@
 				</div>
 				<bt-search
 					v-model:value="tableParams.keyword"
-					width="280"
+					:width="280"
 					:placeholder="t('mailbox.search.usernamePlaceholder')"
 					@search="() => resetTable()">
 				</bt-search>

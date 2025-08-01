@@ -113,7 +113,7 @@ const openRate = ref<MailOverview['open_rate_chart']>({
 const router = useRouter()
 
 const onClickDelayedQueue = () => {
-	router.push('/overview/send-queue')
+	router.push('/settings/send-queue')
 }
 
 const [FailModal, failModalApi] = useModal({

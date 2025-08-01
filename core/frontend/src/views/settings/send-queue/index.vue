@@ -1,34 +1,26 @@
 <template>
-	<div class="p-20px">
-		<n-breadcrumb class="mb-16px">
-			<n-breadcrumb-item>
-				<router-link to="/overview">{{ $t('layout.menu.overview') }}</router-link>
-			</n-breadcrumb-item>
-			<n-breadcrumb-item>{{ $t('overview.sendQueue.title') }}</n-breadcrumb-item>
-		</n-breadcrumb>
-		<bt-table-layout>
-			<template #toolsLeft>
-				<n-button type="primary" @click="fetchTable()">{{
-					$t('overview.sendQueue.buttons.refresh')
-				}}</n-button>
-				<n-button @click="onClear">{{ $t('overview.sendQueue.buttons.quickClear') }}</n-button>
-				<n-button @click="onShowConfig">
-					{{ $t('overview.sendQueue.buttons.paramConfig') }}
-				</n-button>
-			</template>
-			<template #table>
-				<n-data-table v-bind="tableProps" :columns="columns"></n-data-table>
-			</template>
-			<template #pageLeft>
-				<bt-table-batch v-bind="batchProps" :options="batchOptions" @select="onSelectBatch">
-				</bt-table-batch>
-			</template>
-			<template #modal>
-				<param-config-modal ref="configModalRef"></param-config-modal>
-				<queue-logs-modal ref="logsModalRef"></queue-logs-modal>
-			</template>
-		</bt-table-layout>
-	</div>
+	<bt-table-layout>
+		<template #toolsLeft>
+			<n-button type="primary" @click="fetchTable()">
+				{{ $t('overview.sendQueue.buttons.refresh') }}
+			</n-button>
+			<n-button @click="onClear">{{ $t('overview.sendQueue.buttons.quickClear') }}</n-button>
+			<n-button @click="onShowConfig">
+				{{ $t('overview.sendQueue.buttons.paramConfig') }}
+			</n-button>
+		</template>
+		<template #table>
+			<n-data-table v-bind="tableProps" max-height="540px" :columns="columns"></n-data-table>
+		</template>
+		<template #pageLeft>
+			<bt-table-batch v-bind="batchProps" :options="batchOptions" @select="onSelectBatch">
+			</bt-table-batch>
+		</template>
+		<template #modal>
+			<param-config-modal ref="configModalRef"></param-config-modal>
+			<queue-logs-modal ref="logsModalRef"></queue-logs-modal>
+		</template>
+	</bt-table-layout>
 </template>
 
 <script lang="tsx" setup>

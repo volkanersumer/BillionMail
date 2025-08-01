@@ -92,7 +92,10 @@
 			"bcc": "BCC",
 			"forward": "邮件转发",
 			"logout": "退出",
-			"service": "服务"
+			"service": "服务",
+			"logs": "日志",
+			"operation_logs": "操作日志",
+			"error_logs": "错误日志"
 		}
 	},
 	"login": {
@@ -932,7 +935,8 @@
 		"actions": {
 			"add": "添加邮箱",
 			"batchAdd": "批量添加",
-			"batchDelete": "批量删除"
+			"batchDelete": "批量删除",
+			"exportAll": "导出全部"
 		},
 		"search": {
 			"usernamePlaceholder": "搜索用户名"

@@ -18,16 +18,13 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var (
-	postfixConfigDir = public.AbsPath("../conf/postfix")
-
-	senderRelayFile     = "/conf/sender_relay"
-	saslPasswdFile      = "/conf/sasl_passwd"
-	senderTransportFile = "/conf/sender_transport_relay"
-	mainCfFile          = "main.cf"
-	//mainCfFileExtra      = "/conf/extra.cf"
+	postfixConfigDir     = public.AbsPath("../conf/postfix")
+	saslPasswdFile       = "/conf/sasl_passwd"
+	mainCfFile           = "main.cf"
 	postfixContainerName = consts.SERVICES.Postfix
 )
 
@@ -211,108 +208,88 @@ func GenerateSPFRecord(ip string, host string, domain string) string {
 	return strings.Join(newSpfParts, " ")
 }
 
+// 检查中继服务首次同步
+func CheckRelayFirstSync(ctx context.Context) {
+
+	markPath := public.AbsPath("../core/data/SMTP_relay_sync_config_mark.pl")
+	if gfile.Exists(markPath) {
+		return
+	}
+	//// 先删除main.cf中的中继配置块 确保旧的配置被清除
+	//beginMarker := "# BEGIN RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
+	//endMarker := "# END RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
+	//mainCfPath := path.Join(postfixConfigDir, "main.cf")
+
+	// 不存在，执行同步方法SyncRelayConfigsToPostfix 并创建标记
+	err := SyncRelayConfigsToPostfix(ctx)
+	if err != nil {
+		g.Log().Errorf(ctx, "首次同步中继配置失败: %v", err)
+		return
+	}
+
+	if err := gfile.PutContents(markPath, fmt.Sprintf("First sync completed at %s", time.Now().Format("2006-01-02 15:04:05"))); err != nil {
+		g.Log().Warningf(ctx, "创建同步标记文件失败: %v", err)
+	}
+	return
+}
+
 // SyncRelayConfigsToPostfix
 func SyncRelayConfigsToPostfix(ctx context.Context) error {
-	// 1. Retrieve all active relay configurations
-	var activeConfigs []*entity.BmRelay
-	err := g.DB().Model("bm_relay").Where("active", 1).Scan(&activeConfigs)
+
+	activeConfigCount, err := g.DB().Model("bm_relay_config").Where("active", 1).Count()
 	if err != nil {
-		//g.Log().Errorf(ctx, "Failed to query active relay configurations: %v", err)
-		return gerror.Wrap(err, "Failed to query relay configurations")
+		return gerror.Wrap(err, "Failed to query active relay configurations count")
 	}
-	// Check the total number of configurations (including inactive ones)
-	totalCount, err := g.DB().Model("bm_relay").Count()
+
+	activeMappingCount, err := g.DB().Model("bm_relay_domain_mapping").Count()
 	if err != nil {
-		//g.Log().Errorf(ctx, "Failed to query total relay configuration count: %v", err)
-		return gerror.Wrap(err, "Failed to query total relay configuration count")
+		return gerror.Wrap(err, "Failed to query active relay domain mappings count")
 	}
-	// 2. Generate configuration files
-	if err := generateRelayConfigFiles(ctx, activeConfigs); err != nil {
+
+	isActiveRelaySystem := activeConfigCount > 0 && activeMappingCount > 0
+	g.Log().Infof(ctx, "Relay system status: Active config count=%d, Active domain mapping count=%d, System enabled=%v",
+		activeConfigCount, activeMappingCount, isActiveRelaySystem)
+
+	var activeConfigs []*entity.BmRelayConfig
+	if isActiveRelaySystem {
+		err = g.DB().Model("bm_relay_config").Where("active", 1).Scan(&activeConfigs)
+		if err != nil {
+
+			return gerror.Wrap(err, "Failed to query active relay configurations")
+		}
+
+		// Update SMTP service name mapping
+		if err := updateSmtpServiceMappings(ctx, activeConfigs); err != nil {
+
+			return err
+		}
+
+	} else {
+
+		activeConfigs = []*entity.BmRelayConfig{}
+		g.Log().Info(ctx, "No active relay to domain mappings, relay functionality will be disabled")
+	}
+
+	// 1. Generate configuration files-pwd
+	if err := generateRelayPwdFiles(ctx, activeConfigs); err != nil {
 		return err
 	}
-	// 3. Update master.cf
+
+	// 2. update master.cf
 	if err := updatePostfixMasterCf(ctx, activeConfigs); err != nil {
 		return err
 	}
-	// 4. Update markers in main.cf and extra.cf; if no configurations exist, disable relay functionality
-	mainCfPath := path.Join(postfixConfigDir, mainCfFile)
-	if err := ensurePostfixRelayConfig(mainCfPath, totalCount > 0); err != nil {
+
+	// 3. Check whether to enable relay functionality and update pgsql query file
+	if err := ensurePostfixRelayConfig(path.Join(postfixConfigDir, mainCfFile), isActiveRelaySystem); err != nil {
 		return err
 	}
-	// 5. Execute Postfix commands
+
 	return reloadPostfixConfigs(ctx)
 }
 
-// generateRelayConfigFiles Generates relay configuration files
-func generateRelayConfigFiles(ctx context.Context, configs []*entity.BmRelay) error {
-	// Ensure the configuration directory exists
-	senderRelayPath := path.Join(postfixConfigDir, senderRelayFile)
-	saslPasswdPath := path.Join(postfixConfigDir, saslPasswdFile)
-	senderTransportPath := path.Join(postfixConfigDir, senderTransportFile)
-
-	if !gfile.Exists(postfixConfigDir) {
-		return gerror.New("Postfix configuration directory does not exist : " + postfixConfigDir)
-	}
-	// Generate configuration file content
-	var senderRelayContent strings.Builder
-	var saslPasswdContent strings.Builder
-	var senderTransportContent strings.Builder
-	if len(configs) == 0 {
-		senderRelayContent.WriteString("# No active relay configurations\n")
-		saslPasswdContent.WriteString("# No active relay configurations\n")
-		senderTransportContent.WriteString("# No active relay configurations\n")
-	} else {
-		for _, config := range configs {
-			// Process sender_relay content
-			// Ensure SenderDomain starts with @
-			senderDomain := config.SenderDomain
-			if !strings.HasPrefix(senderDomain, "@") {
-				senderDomain = "@" + senderDomain
-			}
-
-			senderRelayContent.WriteString(fmt.Sprintf("%s [%s]:%s\n",
-				senderDomain, config.RelayHost, config.RelayPort))
-			// Process sasl_passwd content
-			// Decrypt password
-			decryptedPass, err := DecryptPassword(ctx, config.AuthPassword)
-			if err != nil {
-				g.Log().Warningf(ctx, "Decryption of password for configuration ID %d failed, skipping this configuration: %v", config.Id, err)
-				continue
-			}
-
-			saslPasswdContent.WriteString(fmt.Sprintf("[%s]:%s %s:%s\n",
-				config.RelayHost, config.RelayPort, config.AuthUser, decryptedPass))
-			// Create sender_transport configuration
-			smtpName := "smtp_default"
-			if config.SmtpName != "" {
-
-				cleanedSmtpName := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.SmtpName, "_")
-				smtpName = fmt.Sprintf("smtp_%s", cleanedSmtpName)
-			}
-
-			senderTransportContent.WriteString(fmt.Sprintf("%s %s:[%s]:%s\n",
-				strings.TrimPrefix(senderDomain, "@"), smtpName, config.RelayHost, config.RelayPort))
-		}
-	}
-
-	// 写入配置文件
-	if err := gfile.PutContents(senderRelayPath, senderRelayContent.String()); err != nil {
-		return gerror.Newf("Failed to write sender_relay file: %v", err)
-	}
-
-	if err := gfile.PutContents(saslPasswdPath, saslPasswdContent.String()); err != nil {
-		return gerror.Newf("Failed to write sasl_passwd file: %v", err)
-	}
-
-	if err := gfile.PutContents(senderTransportPath, senderTransportContent.String()); err != nil {
-		return gerror.Newf("Failed to write sender_transport file: %v", err)
-	}
-
-	return nil
-}
-
 // updatePostfixMasterCf Updates the Postfix master configuration file
-func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error {
+func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelayConfig) error {
 	masterCfPath := path.Join(postfixConfigDir, "master.cf")
 	if !gfile.Exists(masterCfPath) {
 		g.Log().Warning(ctx, "master.cf file not found, skipping configuration update")
@@ -321,6 +298,19 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error
 
 	// Read existing content
 	masterContent := gfile.GetContents(masterCfPath)
+
+	// Define the smtps configuration to add
+	smtpsConfig := `smtps     unix  -       -       n       -       -       smtp
+    -o smtp_tls_wrappermode=yes
+    -o smtp_tls_security_level=encrypt`
+
+	// Check if smtps service definition already exists
+	smtpsExistsRegex := regexp.MustCompile(`(?m)^\s*smtps\s+unix\s+`)
+	if !smtpsExistsRegex.MatchString(masterContent) {
+		g.Log().Info(ctx, "Adding missing smtps configuration to master.cf")
+		// Safely insert using line-by-line parsing
+		masterContent = insertSmtpsConfigSafely(masterContent, smtpsConfig)
+	}
 
 	beginMarker := "# BEGIN BILLIONMAIL RELAY CONFIG - DO NOT EDIT THIS MARKER"
 	endMarker := "# END BILLIONMAIL RELAY CONFIG - DO NOT EDIT THIS MARKER"
@@ -331,54 +321,29 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error
 	//  If there are active configurations, create service lines for each configuration
 	if len(configs) > 0 {
 		for _, config := range configs {
-			// Generate SMTP service name
-			smtpName := "smtp"
-			if config.SmtpName != "" {
-
-				cleanedSmtpName := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.SmtpName, "_")
-				smtpName = fmt.Sprintf("smtp_%s", cleanedSmtpName)
-			} else {
-				// Generate a unique name based on the domain
-				domain := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.SenderDomain, "_")
-				smtpName = fmt.Sprintf("smtp_%s", domain)
-			}
+			smtpName := generateSmtpServiceName(config)
 
 			// Configure HELO name
 			heloName := config.HeloName
-			if heloName == "" {
-				heloName = config.Host
-				if heloName == "" {
-					heloName = config.SenderDomain
-				}
-			}
-
 			serviceLine := fmt.Sprintf("%s unix - - n - - smtp", smtpName)
-
 			var params []string
-
 			if heloName != "" {
 				params = append(params, fmt.Sprintf("-o smtp_helo_name=%s", heloName))
 			}
 
-			// TLS parameters - configure based on settings
-			if config.TlsProtocol != "" {
-				switch config.TlsProtocol {
-				case "STARTTLS":
-					params = append(params, "-o smtp_use_tls=yes")
-					params = append(params, "-o smtp_tls_security_level=may")
-				case "SSL/TLS":
-					params = append(params, "-o smtp_use_tls=yes")
-					params = append(params, "-o smtp_tls_wrappermode=yes")
-				case "NONE":
-					params = append(params, "-o smtp_use_tls=no")
-				}
-			} else {
-
-				params = append(params, "-o smtp_use_tls=yes")
-				params = append(params, "-o smtp_tls_security_level=may")
+			// Add corresponding TLS settings for different ports
+			if config.RelayPort == "465" {
+				params = append(params, "-o smtp_tls_wrappermode=yes")
+				params = append(params, "-o smtp_tls_security_level=encrypt")
+			} else if config.RelayPort == "587" {
+				params = append(params, "-o smtp_tls_security_level=encrypt")
+				params = append(params, "-o smtp_tls_wrappermode=no")
+			} else if config.RelayPort == "25" {
+				params = append(params, "-o smtp_tls_wrappermode=no")
+				params = append(params, "-o smtp_tls_security_level=none")
+				//params = append(params, "-o smtp_tls_security_level=may")
 			}
 
-			// TLS
 			if config.SkipTlsVerify == 1 {
 				params = append(params, "-o smtp_tls_verify_cert_match=no")
 			}
@@ -397,36 +362,13 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error
 				}
 			}
 
-			// Connection and concurrency settings
-			maxConcurrency := 10
-			if config.MaxConcurrency > 0 {
-				maxConcurrency = config.MaxConcurrency
-				params = append(params, fmt.Sprintf("-o smtp_destination_concurrency_limit=%d", maxConcurrency))
-			}
-
-			//maxRetries := 2
-			//if config.MaxRetries > 0 {
-			//	maxRetries = config.MaxRetries
-			//
-			//}
-
-			if config.MaxWaitTime != "" {
-				params = append(params, fmt.Sprintf("-o smtp_connect_timeout=%s", config.MaxWaitTime))
-			}
-
-			if config.MaxIdleTime != "" {
-				params = append(params, fmt.Sprintf("-o smtp_connection_cache_time_limit=%s", config.MaxIdleTime))
-			}
-
 			if len(params) > 0 {
-
 				serviceLine += "\n  " + strings.Join(params, "\n  ")
 			}
 
 			customConfigBlock.WriteString(serviceLine + "\n")
 		}
 	} else {
-
 		customConfigBlock.WriteString("# No active relay configurations\n")
 	}
 
@@ -440,8 +382,12 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error
 	if hasConfigBlock {
 
 		blockEnd := endIndex + len(endMarker)
-		if blockEnd < len(masterContent) && masterContent[blockEnd] == '\n' {
+		if blockEnd < len(masterContent) && (masterContent[blockEnd] == '\n' || masterContent[blockEnd] == '\r') {
 			blockEnd++
+			// 处理 \r\n
+			if blockEnd < len(masterContent) && masterContent[blockEnd] == '\n' {
+				blockEnd++
+			}
 		}
 		newContent = masterContent[:beginIndex] + customConfigBlock.String()
 		if blockEnd < len(masterContent) {
@@ -462,7 +408,42 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error
 	return nil
 }
 
-// reloadPostfixConfigs Reloads Postfix configurations
+func generateRelayPwdFiles(ctx context.Context, configs []*entity.BmRelayConfig) error {
+	// Ensure the configuration directory exists
+	saslPasswdPath := path.Join(postfixConfigDir, saslPasswdFile)
+
+	if !gfile.Exists(postfixConfigDir) {
+		return gerror.New("Postfix configuration directory does not exist : " + postfixConfigDir)
+	}
+
+	var saslPasswdContent strings.Builder
+
+	if len(configs) == 0 {
+
+		saslPasswdContent.WriteString("# No active relay configurations\n")
+
+	} else {
+		for _, config := range configs {
+			// Decrypt password
+			decryptedPass, err := DecryptPassword(ctx, config.AuthPassword)
+			if err != nil {
+				g.Log().Warningf(ctx, "Decryption of password for configuration ID %d failed, skipping this configuration: %v", config.Id, err)
+				continue
+			}
+
+			saslPasswdContent.WriteString(fmt.Sprintf("[%s]:%s %s:%s\n",
+				config.RelayHost, config.RelayPort, config.AuthUser, decryptedPass))
+
+		}
+	}
+
+	if err := gfile.PutContents(saslPasswdPath, saslPasswdContent.String()); err != nil {
+		return gerror.Newf("Failed to write sasl_passwd file: %v", err)
+	}
+
+	return nil
+}
+
 func reloadPostfixConfigs(ctx context.Context) error {
 	// Connect to the Docker API
 	dk, err := docker.NewDockerAPI()
@@ -473,9 +454,7 @@ func reloadPostfixConfigs(ctx context.Context) error {
 	defer dk.Close()
 	// List of commands to run
 	cmdsToRun := [][]string{
-		{"postmap", "/etc/postfix/conf/sender_relay"},
 		{"postmap", "/etc/postfix/conf/sasl_passwd"},
-		{"postmap", "/etc/postfix/conf/sender_transport_relay"},
 		{"postfix", "reload"},
 	}
 	// Execute commands
@@ -507,18 +486,76 @@ func reloadPostfixConfigs(ctx context.Context) error {
 
 // ensurePostfixRelayConfig
 func ensurePostfixRelayConfig(mainCfPath string, enableRelay bool) error {
-	//  main.cf
+
+	sqlConfigDir := path.Join(postfixConfigDir, "sql")
+	if !gfile.Exists(sqlConfigDir) {
+		if err := gfile.Mkdir(sqlConfigDir); err != nil {
+			return gerror.Newf("Failed to create PostgreSQL configuration directory: %v", err)
+		}
+		g.Log().Info(context.Background(), "Created PostgreSQL configuration directory:", sqlConfigDir)
+	}
+
+	if err := createPostfixSqlConfigFile(); err != nil {
+		return gerror.Newf("Failed to create SQL configuration files: %v", err)
+	}
+
+	// 3. update main.cf
 	if err := writePostfixRelayConfig(mainCfPath, enableRelay); err != nil {
 		return err
 	}
 
-	////  extra.cf
-	//extraCfPath := path.Join(postfixConfigDir, mainCfFileExtra)
-	//return writePostfixRelayConfig(extraCfPath, enableRelay)
 	return nil
 }
 
-// writePostfixRelayConfig
+// createPostfixSqlConfigFile
+func createPostfixSqlConfigFile() error {
+
+	sqlConfigFiles := map[string]string{
+		"pgsql_sender_relay_maps.cf": `user = billionmail
+password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
+hosts = pgsql
+dbname = billionmail
+
+query = SELECT CONCAT('[', rc.relay_host, ']:', rc.relay_port) FROM bm_relay_config rc JOIN bm_relay_domain_mapping rdm ON rc.id = rdm.relay_id WHERE rdm.sender_domain = REPLACE('%s', '@', '') AND rc.active = 1 LIMIT 1`,
+
+		"pgsql_sasl_password_maps.cf": `user = billionmail
+password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
+hosts = pgsql
+dbname = billionmail
+
+query = SELECT CONCAT(rc.auth_user, ':', rc.auth_password) FROM bm_relay_config rc WHERE CONCAT('[', rc.relay_host, ']:', rc.relay_port) = '%s' AND rc.active = 1 LIMIT 1`,
+
+		"pgsql_sender_transport_maps.cf": `user = billionmail
+password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
+hosts = pgsql
+dbname = billionmail
+
+query = SELECT CONCAT(relay_type, ':') FROM bm_relay_domain_transport WHERE domain = '%s' LIMIT 1`,
+	}
+
+	sqlDir := path.Join(postfixConfigDir, "sql")
+	if !gfile.Exists(sqlDir) {
+		if err := gfile.Mkdir(sqlDir); err != nil {
+			return gerror.Newf("Failed to create SQL directory: %v", err)
+		}
+		g.Log().Info(context.Background(), "Created SQL directory:", sqlDir)
+	}
+
+	for fileName, fileContent := range sqlConfigFiles {
+		filePath := path.Join(sqlDir, fileName)
+		if !gfile.Exists(filePath) {
+			if err := gfile.PutContents(filePath, fileContent); err != nil {
+				return gerror.Newf("Failed to create SQL configuration file %s: %v", fileName, err)
+			}
+			g.Log().Infof(context.Background(), "Created SQL configuration file: %s", filePath)
+		} else {
+			g.Log().Debugf(context.Background(), "SQL configuration file already exists: %s", filePath)
+		}
+	}
+
+	return nil
+}
+
 func writePostfixRelayConfig(cfPath string, enableRelay bool) error {
 
 	if !gfile.Exists(cfPath) {
@@ -532,12 +569,15 @@ func writePostfixRelayConfig(cfPath string, enableRelay bool) error {
 	beginMarker := "# BEGIN RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
 	endMarker := "# END RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
 
-	configBlock := fmt.Sprintf(`%s
+	var configBlock string
+
+	configBlock = fmt.Sprintf(`%s
 smtp_sasl_auth_enable = yes
 smtp_sasl_security_options = noanonymous
-sender_dependent_relayhost_maps = hash:/etc/postfix/conf/sender_relay
+sender_dependent_relayhost_maps = pgsql:/etc/postfix/sql/pgsql_sender_relay_maps.cf
+# smtp_sasl_password_maps = pgsql:/etc/postfix/sql/pgsql_sasl_password_maps.cf
 smtp_sasl_password_maps = hash:/etc/postfix/conf/sasl_passwd
-sender_dependent_default_transport_maps = hash:/etc/postfix/conf/sender_transport_relay
+sender_dependent_default_transport_maps = pgsql:/etc/postfix/sql/pgsql_sender_transport_maps.cf
 smtp_sasl_mechanism_filter = login, plain, cram-md5
 %s`, beginMarker, endMarker)
 
@@ -589,4 +629,158 @@ smtp_sasl_mechanism_filter = login, plain, cram-md5
 	}
 
 	return nil
+}
+
+// updateSmtpServiceMappings updates the SMTP service name mapping table
+func updateSmtpServiceMappings(ctx context.Context, configs []*entity.BmRelayConfig) error {
+	// Query active configuration and domain mappings
+	type RelayDomainMapping struct {
+		RelayId      int64  `json:"relay_id"`
+		SenderDomain string `json:"sender_domain"`
+	}
+
+	var mappings []RelayDomainMapping
+	err := g.DB().Model("bm_relay_domain_mapping").
+		Fields("relay_id, sender_domain").
+		Scan(&mappings)
+
+	if err != nil {
+		return gerror.Wrap(err, "failed to query relay domain mappings")
+	}
+
+	if len(mappings) == 0 {
+		g.Log().Info(ctx, "No domain mappings, skip updating SMTP service name mappings")
+		return nil
+	}
+
+	// Build map from relay_id to config for lookup
+	configMap := make(map[int64]*entity.BmRelayConfig)
+	for _, config := range configs {
+		configMap[int64(config.Id)] = config
+	}
+
+	// Clear existing mapping table (avoid stale data)
+	_, err = g.DB().Model("bm_relay_domain_transport").Where("1=1").Delete()
+	if err != nil {
+		return gerror.Wrap(err, "failed to clear SMTP service name mapping table")
+	}
+
+	// Batch insert new mappings
+	var transportMappings []g.Map
+
+	for _, mapping := range mappings {
+		config, exists := configMap[mapping.RelayId]
+		if !exists || config.Active != 1 {
+			continue // Skip inactive configs
+		}
+
+		// Generate SMTP service name
+		smtpName := generateSmtpServiceName(config)
+
+		// Ensure domain starts with @
+		senderDomain := mapping.SenderDomain
+		if !strings.HasPrefix(senderDomain, "@") {
+			senderDomain = "@" + senderDomain
+		}
+
+		// Add to batch insert list
+		transportMappings = append(transportMappings, g.Map{
+			"domain":     senderDomain,
+			"relay_type": smtpName,
+		})
+	}
+
+	if len(transportMappings) == 0 {
+		g.Log().Info(ctx, "No valid SMTP service name mappings to update")
+		return nil
+	}
+
+	// Batch insert new mappings
+	_, err = g.DB().Model("bm_relay_domain_transport").
+		Data(transportMappings).
+		Batch(100).
+		Insert()
+
+	if err != nil {
+		return gerror.Wrap(err, "failed to batch insert SMTP service name mappings")
+	}
+
+	g.Log().Infof(ctx, "Updated %d SMTP service name mappings", len(transportMappings))
+	return nil
+}
+
+// generateSmtpServiceName generates SMTP service name based on relay configuration
+func generateSmtpServiceName(config *entity.BmRelayConfig) string {
+	if config.SmtpName != "Custom SMTP Relay" {
+		// Prefer user-defined SMTP name
+		cleanedSmtpName := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.SmtpName, "_")
+		return fmt.Sprintf("smtp_Custom_%s", cleanedSmtpName)
+	}
+
+	// Extract relay_host as base name
+	relayDomain := config.RelayHost
+	cleanedRelayDomain := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(relayDomain, "_")
+
+	// Extract username part from auth_user if exists
+	userName := ""
+	if config.AuthUser != "" {
+		// Handle cases with and without @ symbol
+		if strings.Contains(config.AuthUser, "@") {
+			parts := strings.Split(config.AuthUser, "@")
+			userName = regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(parts[0], "_")
+		} else {
+			// If no @ symbol, use first 5 characters (if available)
+			authUserLen := len(config.AuthUser)
+			if authUserLen > 5 {
+				userName = regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.AuthUser[:5], "_")
+			} else {
+				userName = regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(config.AuthUser, "_")
+			}
+		}
+	}
+
+	// Combine SMTP service name
+	if userName != "" {
+		return fmt.Sprintf("smtp_Relay_%s_%s_%d", cleanedRelayDomain, userName, config.Id)
+	}
+
+	return fmt.Sprintf("smtp_Relay_%s_%d", cleanedRelayDomain, config.Id)
+}
+
+func insertSmtpsConfigSafely(content, smtpsConfig string) string {
+	lines := strings.Split(content, "\n")
+	var result []string
+	inserted := false
+	inServiceBlock := false
+
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			result = append(result, line)
+			continue
+		}
+
+		// Match service definition: service_name inet/unix ...
+		isServiceDef := regexp.MustCompile(`^\s*[\w-]+\s+(inet|unix)\s+`).MatchString(trimmed)
+
+		if isServiceDef && !inserted {
+			// Insert smtps before the first service definition
+			if i == 0 || !inServiceBlock {
+				result = append(result, smtpsConfig)
+				result = append(result, "")
+				inserted = true
+			}
+		}
+
+		result = append(result, line)
+		inServiceBlock = true
+	}
+
+	if !inserted {
+		result = append(result, "")
+		result = append(result, smtpsConfig)
+	}
+
+	return strings.Join(result, "\n")
 }

@@ -141,6 +141,11 @@ func Start(ctx context.Context) (err error) {
 		batch_mail.UpdateTaskJoinMailstat(ctx)
 	})
 
+	// First sync of SMTP relay configurations to Postfix after refactoring
+	gtimer.AddOnce(30*time.Second, func() {
+		relay.CheckRelayFirstSync(ctx)
+	})
+
 	g.Log().Debug(ctx, "All timers started successfully")
 	return nil
 }

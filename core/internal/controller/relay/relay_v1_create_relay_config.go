@@ -6,25 +6,37 @@ import (
 	"billionmail-core/internal/service/public"
 	"billionmail-core/internal/service/relay"
 	"context"
+	"strings"
+	"time"
+
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"time"
 )
 
 func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRelayConfigReq) (res *v1.CreateRelayConfigRes, err error) {
-
 	res = &v1.CreateRelayConfigRes{}
-	// Check if the domain already exists
-	count, err := g.DB().Model("bm_relay").Where("sender_domain", req.SenderDomain).Count()
-	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to check relay configuration: {}", err.Error())))
-		return res, nil
+
+	if len(req.SenderDomains) > 0 {
+
+		var domains []string
+		for _, domain := range req.SenderDomains {
+			if !strings.HasPrefix(domain, "@") {
+				domain = "@" + domain
+			}
+			domains = append(domains, domain)
+		}
+
+		count, err := g.DB().Model("bm_relay_domain_mapping").WhereIn("sender_domain", domains).Count()
+		if err != nil {
+			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to check domain mapping: {}", err.Error())))
+			return res, nil
+		}
+		if count > 0 {
+			res.SetError(gerror.New(public.LangCtx(ctx, "One or more sender domains already exist")))
+			return res, nil
+		}
 	}
-	if count > 0 {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Sender domain already exists")))
-		return res, nil
-	}
-	// Encrypt the password
+
 	encryptedPass, err := relay.EncryptPassword(ctx, req.AuthPassword)
 	if err != nil {
 		res.SetError(err)
@@ -34,113 +46,99 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 	now := time.Now()
 	unixTime := int(now.Unix())
 
-	data := g.Map{}
-
-	data["sender_domain"] = req.SenderDomain
-	data["relay_host"] = req.RelayHost
-	data["relay_port"] = req.RelayPort
-	data["auth_user"] = req.AuthUser
-	data["auth_password"] = encryptedPass
-	data["ip"] = req.IP
-	data["host"] = req.Host
-	data["remark"] = req.Remark
-	data["create_time"] = unixTime
-	data["update_time"] = unixTime
-	data["rtype"] = req.Rtype
-
-	if req.Active == 0 {
-		data["active"] = 0
-	} else {
-		data["active"] = 1
-	}
-
-	// Authentication method: Default is NONE      LOGIN, PLAIN, CRAM-MD5, NONE
 	if req.AuthMethod == "" {
-		data["auth_method"] = "NONE"
-	} else {
-		data["auth_method"] = req.AuthMethod
-	}
-	// TLS protocol: Default is STARTTLS           STARTTLS, SSL/TLS, NONE
-	if req.TlsProtocol == "" {
-		data["tls_protocol"] = "STARTTLS"
-	} else {
-		data["tls_protocol"] = req.TlsProtocol
-	}
-	//Whether to skip TLS verification: Default is to skip (1)
-	if req.SkipTlsVerify == 0 {
-		data["skip_tls_verify"] = 0
-	} else {
-		data["skip_tls_verify"] = 1
-	}
-	// HELO hostname: Default is mail.SenderDomain
-	if req.HeloName == "" {
-		data["helo_name"] = "mail." + req.SenderDomain
-	} else {
-		data["helo_name"] = req.HeloName
-	}
-	// SMTP service name: Can be empty, will be auto-generated
-	data["smtp_name"] = req.SmtpName
-	// Email header JSON: Can be empty
-	//data["header_json"] = req.HeaderJson
-
-	// Maximum concurrent connections: Use default configuration if not set
-	if req.MaxConcurrency <= 0 {
-		data["max_concurrency"] = 0
-	} else {
-		data["max_concurrency"] = req.MaxConcurrency
-	}
-	// Maximum retry attempts
-	if req.MaxRetries <= 0 {
-		data["max_retries"] = 0
-	} else {
-		data["max_retries"] = req.MaxRetries
-	}
-	// Maximum idle time:
-	if req.MaxIdleTime == "" {
-		data["max_idle_time"] = ""
-	} else {
-		data["max_idle_time"] = req.MaxIdleTime
+		req.AuthMethod = "NONE"
 	}
 
-	// Maximum wait time:
-	if req.MaxWaitTime == "" {
-		data["max_wait_time"] = ""
-	} else {
-		data["max_wait_time"] = req.MaxWaitTime
+	configData := g.Map{
+		"remark":          req.Remark,
+		"rtype":           req.Rtype,
+		"relay_host":      req.RelayHost,
+		"relay_port":      req.RelayPort,
+		"auth_user":       req.AuthUser,
+		"auth_password":   encryptedPass,
+		"ip":              req.IP,
+		"host":            req.Host,
+		"active":          req.Active,
+		"auth_method":     req.AuthMethod,
+		"tls_protocol":    req.TlsProtocol,
+		"skip_tls_verify": req.SkipTlsVerify,
+		"helo_name":       req.HeloName,
+		"smtp_name":       req.SmtpName,
+		"create_time":     unixTime,
+		"update_time":     unixTime,
 	}
 
-	_, err = g.DB().Insert(ctx, "bm_relay", data)
+	tx, err := g.DB().Begin(ctx)
 	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to insert relay configuration: {}", err.Error())))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to start transaction: {}", err.Error())))
 		return res, nil
 	}
 
-	if err := relay.SyncRelayConfigsToPostfix(ctx); err != nil {
-		errMsg := err.Error()
-		res.SetError(gerror.New(public.LangCtx(ctx, "Creation was successful but synchronous configuration failed: {}", errMsg)))
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	result, err := tx.Model("bm_relay_config").Data(configData).Insert()
+	if err != nil {
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to create relay configuration: {}", err.Error())))
 		return res, nil
 	}
 
-	spfRecord := relay.GenerateSPFRecord(req.IP, req.Host, req.SenderDomain)
-	if spfRecord != "" {
+	relayId, err := result.LastInsertId()
+	if err != nil {
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to get inserted ID: {}", err.Error())))
+		return res, nil
+	}
+
+	for _, domain := range req.SenderDomains {
+		if !strings.HasPrefix(domain, "@") {
+			domain = "@" + domain
+		}
+
+		mappingData := g.Map{
+			"relay_id":      relayId,
+			"sender_domain": domain,
+			"create_time":   unixTime,
+		}
+
+		_, err = tx.Model("bm_relay_domain_mapping").Data(mappingData).Insert()
+		if err != nil {
+			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to create domain mapping: {}", err.Error())))
+			return res, nil
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to commit transaction: {}", err.Error())))
+		return res, nil
+	}
+
+	if err = relay.SyncRelayConfigsToPostfix(ctx); err != nil {
+		g.Log().Error(ctx, "Failed to sync relay configs to Postfix:", err)
+	}
+
+	if len(req.SenderDomains) > 0 {
+		domain := req.SenderDomains[0]
+		if strings.HasPrefix(domain, "@") {
+			domain = domain[1:]
+		}
+		spfValue := relay.GenerateSPFRecord(req.IP, req.Host, domain)
 		res.SPFRecord = v1.DNSRecord{
 			Type:  "TXT",
-			Host:  "@",
-			Value: spfRecord,
+			Host:  domain,
+			Value: spfValue,
 		}
 	}
 
 	_ = public.WriteLog(ctx, public.LogParams{
 		Type: consts.LOGTYPE.SMTP,
-		Log:  "Relay configuration created successfully :" + req.SmtpName + "--" + req.SenderDomain,
-		Data: req,
+		Log:  "Created relay configuration: " + req.SmtpName + " for domains: " + strings.Join(req.SenderDomains, ", "),
 	})
 
-	if req.Active == 1 {
-		res.SetSuccess(public.LangCtx(ctx, "Relay configuration created and enabled successfully"))
-	} else {
-		res.SetSuccess(public.LangCtx(ctx, "Relay configuration created successfully but not enabled"))
-	}
-
+	res.SetSuccess(public.LangCtx(ctx, "Relay configuration created successfully"))
 	return res, nil
 }

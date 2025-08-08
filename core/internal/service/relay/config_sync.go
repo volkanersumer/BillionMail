@@ -290,8 +290,11 @@ func generateRelayConfigFiles(ctx context.Context, configs []*entity.BmRelay) er
 				smtpName = fmt.Sprintf("smtp_%s", cleanedSmtpName)
 			}
 
-			senderTransportContent.WriteString(fmt.Sprintf("%s %s:[%s]:%s\n",
-				strings.TrimPrefix(senderDomain, "@"), smtpName, config.RelayHost, config.RelayPort))
+			//senderTransportContent.WriteString(fmt.Sprintf("%s %s:[%s]:%s\n",
+			//	strings.TrimPrefix(senderDomain, "@"), smtpName, config.RelayHost, config.RelayPort))
+
+			senderTransportContent.WriteString(fmt.Sprintf("%s %s:\n",
+				senderDomain, smtpName))
 		}
 	}
 
@@ -321,6 +324,12 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelay) error
 
 	// Read existing content
 	masterContent := gfile.GetContents(masterCfPath)
+
+	// Define the smtps configuration to add
+	masterContent, smtpsChanged := ensureSmtpsConfigInMasterCf(masterContent)
+	if smtpsChanged {
+		g.Log().Info(ctx, "smtps configuration block updated in master.cf")
+	}
 
 	beginMarker := "# BEGIN BILLIONMAIL RELAY CONFIG - DO NOT EDIT THIS MARKER"
 	endMarker := "# END BILLIONMAIL RELAY CONFIG - DO NOT EDIT THIS MARKER"
@@ -589,4 +598,53 @@ smtp_sasl_mechanism_filter = login, plain, cram-md5
 	}
 
 	return nil
+}
+
+func ensureSmtpsConfigInMasterCf(content string) (string, bool) {
+	const (
+		markerBegin = "# BEGIN BILLIONMAIL SMTPS CONFIG - DO NOT EDIT THIS MARKER"
+		markerEnd   = "# END BILLIONMAIL SMTPS CONFIG - DO NOT EDIT THIS MARKER"
+	)
+	smtpsService := `smtps     unix  -       -       n       -       -       smtp
+    -o smtp_tls_wrappermode=yes
+    -o smtp_tls_security_level=encrypt`
+
+	var block strings.Builder
+	block.WriteString(markerBegin + "\n")
+	block.WriteString(smtpsService + "\n")
+	block.WriteString(markerEnd + "\n")
+	smtpsBlock := block.String()
+
+	beginIndex := strings.Index(content, markerBegin)
+	endIndex := strings.Index(content, markerEnd)
+	hasBlock := beginIndex != -1 && endIndex != -1 && beginIndex < endIndex
+
+	if hasBlock {
+		blockEnd := endIndex + len(markerEnd)
+
+		for blockEnd < len(content) && (content[blockEnd] == '\n' || content[blockEnd] == '\r') {
+			blockEnd++
+		}
+
+		existingBlock := content[beginIndex:blockEnd]
+		if strings.Contains(existingBlock, smtpsService) {
+
+			return content, false
+		}
+
+		newContent := content[:beginIndex] + smtpsBlock
+		if blockEnd < len(content) {
+			newContent += content[blockEnd:]
+		}
+		return newContent, true
+	}
+
+	var updated string
+	if !strings.HasSuffix(content, "\n") {
+		updated = content + "\n"
+	} else {
+		updated = content
+	}
+	updated += "\n" + smtpsBlock
+	return updated, true
 }

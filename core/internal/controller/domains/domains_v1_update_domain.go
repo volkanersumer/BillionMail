@@ -23,6 +23,10 @@ func (c *ControllerV1) UpdateDomain(ctx context.Context, req *v1.UpdateDomainReq
 	domainName := req.Domain
 	updateData["domain"] = domainName
 
+	if req.Hostname != "" {
+		updateData["a_record"] = req.Hostname
+	}
+
 	if req.Catchall != "" {
 		updateData["catchall"] = req.Catchall
 	}

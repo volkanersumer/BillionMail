@@ -55,6 +55,7 @@ type AddDomainReq struct {
 	g.Meta        `path:"/domains/create" tags:"Domain" method:"post" sm:"Add domain" in:"body"`
 	Authorization string   `json:"authorization" dc:"Authorization" in:"header"`
 	Domain        string   `json:"domain" v:"required|domain" dc:"Domain"`
+	Hostname      string   `json:"hostname" v:"domain" dc:"Hostname, used for A record"`
 	Mailboxes     int      `json:"mailboxes" v:"min:1" dc:"Mailboxes" d:"50"`
 	MailboxQuota  int      `json:"mailboxQuota" v:"min:1" dc:"MailboxQuota" d:"5242880"`
 	Quota         int      `json:"quota" v:"required" dc:"Quota" d:"10485760"`
@@ -72,6 +73,7 @@ type UpdateDomainReq struct {
 	g.Meta        `path:"/domains/update" tags:"Domain" method:"post" sm:"Update domain" in:"body"`
 	Authorization string   `json:"authorization" dc:"Authorization" in:"header"`
 	Domain        string   `json:"domain" v:"required|domain" dc:"Domain"`
+	Hostname      string   `json:"hostname" v:"domain" dc:"Hostname, used for A record"`
 	Mailboxes     int      `json:"mailboxes" v:"min:1" dc:"Mailboxes" d:"50"`
 	MailboxQuota  int      `json:"mailboxQuota" v:"min:1" dc:"MailboxQuota" d:"5242880"`
 	Quota         int      `json:"quota" dc:"Quota" d:"10485760"`

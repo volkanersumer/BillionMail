@@ -299,7 +299,7 @@ func (c *Certificate) updatePostfixVMailConfig(domain, csrPem, keyPem string) er
 	}
 
 	// Create SNI mapping table
-	if err := c.updatePostfixSNIMap("mail."+strings.TrimPrefix(domain, "mail."), vmailCert, vmailKey); err != nil {
+	if err := c.updatePostfixSNIMap(public.FormatMX(domain), vmailCert, vmailKey); err != nil {
 		return fmt.Errorf("failed to update SNI map: %v", err)
 	}
 

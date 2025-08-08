@@ -16,9 +16,13 @@ import (
 func (c *ControllerV1) AddDomain(ctx context.Context, req *v1.AddDomainReq) (res *v1.AddDomainRes, err error) {
 	res = &v1.AddDomainRes{}
 
+	if req.Hostname == "" {
+		req.Hostname = public.FormatMX(req.Domain)
+	}
+
 	domain := &v1.Domain{
 		Domain:       req.Domain,
-		ARecord:      "mail." + req.Domain,
+		ARecord:      req.Hostname,
 		Mailboxes:    req.Mailboxes,
 		MailboxQuota: int64(req.MailboxQuota),
 		Quota:        int64(req.Quota),

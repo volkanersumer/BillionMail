@@ -74,7 +74,7 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 	}
 	// HELO hostname: Default is mail.SenderDomain
 	if req.HeloName == "" {
-		data["helo_name"] = "mail." + req.SenderDomain
+		data["helo_name"] = public.FormatMX(req.SenderDomain)
 	} else {
 		data["helo_name"] = req.HeloName
 	}

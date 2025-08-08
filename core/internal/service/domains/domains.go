@@ -614,7 +614,7 @@ func GetMXRecord(domain string, validateImmediate bool) (record v1.DNSRecord, er
 	record = v1.DNSRecord{
 		Type:  "MX",
 		Host:  "@",
-		Value: "mail." + domain,
+		Value: public.FormatMX(domain),
 	}
 
 	if validateImmediate {
@@ -642,7 +642,7 @@ func GetARecord(domain string, validateImmediate bool) (record v1.DNSRecord, err
 
 	record = v1.DNSRecord{
 		Type:  recordType,
-		Host:  "mail." + domain,
+		Host:  public.FormatMX(domain),
 		Value: serverIP,
 	}
 
@@ -666,7 +666,7 @@ func GetPTRRecord(domain string, validateImmediate bool) (record v1.DNSRecord, e
 	record = v1.DNSRecord{
 		Type:  "PTR",
 		Host:  serverIP,
-		Value: "mail." + domain,
+		Value: public.FormatMX(domain),
 	}
 
 	if validateImmediate {

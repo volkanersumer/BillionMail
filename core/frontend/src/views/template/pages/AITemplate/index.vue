@@ -50,13 +50,9 @@
 												}}</span>
 											</div>
 											<div class="text">
-												<MarkdownRender
-													v-for="(_item, _index) in item[1]"
-													:key="_index"
-													:content="removeSignCode(_item)"
-													:chat-record-key="item[0]"
-													class="mb-4"
-													@code-render="handleCodeRender">
+												<MarkdownRender v-for="(_item, _index) in item[1]" :key="_index"
+													:content="removeSignCode(_item)" :chat-record-key="item[0]"
+													class="mb-4" @code-render="handleCodeRender">
 												</MarkdownRender>
 											</div>
 											<div class="answer-tool">
@@ -71,11 +67,9 @@
 															<span>{{ $t('template.ai.buttons.info') }}</span>
 														</div>
 													</template>
-													<div
-														v-if="usageRecord.get(item[0])"
+													<div v-if="usageRecord.get(item[0])"
 														class="flex justify-start items-center gap-2.5">
-														<div
-															v-for="(info, info_key) in usageRecord.get(item[0])"
+														<div v-for="(info, info_key) in usageRecord.get(item[0])"
 															:key="info_key">
 															<span class="fw-bold">{{ info_key }}: </span>
 															<span>{{ info }}</span>
@@ -93,30 +87,21 @@
 				</div>
 				<div class="question">
 					<n-card style="height: 100%">
-						<n-input
-							v-model:value="questionContent"
-							type="textarea"
+						<n-input v-model:value="questionContent" type="textarea"
 							:placeholder="$t('template.ai.welcomeMessage', { domain: chatInfo.domain })"
-							class="question-input"
-							@keydown.enter="e => sendChat(store, e)"></n-input>
+							class="question-input" @keydown.enter="e => sendChat(store, e)"></n-input>
 						<div class="question-tools">
-							<n-select
-								v-model:value="currentModelTitle"
-								:options="modelList"
-								label-field="title"
-								value-field="title"
-								@update:value="changeModel">
+							<n-select v-model:value="currentModelTitle" :options="modelList" label-field="title"
+								value-field="title" @update:value="changeModel">
 							</n-select>
 
 							<div class="send-btn">
 								<!-- <i
                                 class="i-icon-park-twotone:new-picture text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"></i> -->
-								<i
-									v-if="!isChat"
+								<i v-if="!isChat"
 									class="i-icon-park-twotone:arrow-circle-up text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"
 									@click="sendChat(store)"></i>
-								<i
-									v-else
+								<i v-else
 									class="i-svg-spinners:pulse-2 text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"
 									@click="stopChat(store)"></i>
 							</div>
@@ -130,16 +115,14 @@
 						<div class="h-10 flex justify-between items-center gap-2.5 mb-5">
 							<div class="flex justify-start items-center gap-2.5">
 								<n-button-group size="small">
-									<n-button
-										:type="previewStatus == 'view' ? 'primary' : 'default'"
+									<n-button :type="previewStatus == 'view' ? 'primary' : 'default'"
 										@click="previewStatus = 'view'">
 										<template #icon>
 											<i class="i-mingcute:eye-2-fill text-5"></i>
 										</template>
 										{{ $t('template.ai.buttons.view') }}
 									</n-button>
-									<n-button
-										:type="previewStatus == 'edit' ? 'primary' : 'default'"
+									<n-button :type="previewStatus == 'edit' ? 'primary' : 'default'"
 										@click="previewStatus = 'edit'">
 										<template #icon>
 											<i class="i-tdesign:code text-5"></i>
@@ -152,10 +135,7 @@
 								}}</span>
 							</div>
 							<span class="text-4 fw-bold">{{ previewTit }}</span>
-							<n-button
-								style="width: 134px"
-								type="primary"
-								:disabled="!previewCode"
+							<n-button style="width: 134px" type="primary" :disabled="!previewCode"
 								@click="goToSendEmail">
 								<template #icon>
 									<i class="i-mingcute:mail-send-fill"></i>
@@ -165,16 +145,9 @@
 						</div>
 						<n-scrollbar style="height: calc(100% - 40px)">
 							<div v-if="previewStatus == 'view' && isChat" v-html="previewCode"></div>
-							<iframe
-								v-else-if="previewStatus == 'view' && !isChat"
-								:srcdoc="previewCode"
-								frameborder="0"
-								class="w-100%"
-								style="height: calc(100vh - 224px)"></iframe>
-							<BtEditor
-								v-else
-								v-model:value="previewCode"
-								style="height: calc(100vh - 217px)"
+							<iframe v-else-if="previewStatus == 'view' && !isChat" :srcdoc="previewCode" frameborder="0"
+								class="w-100%" style="height: calc(100vh - 224px)"></iframe>
+							<BtEditor v-else v-model:value="previewCode" style="height: calc(100vh - 217px)"
 								@save="saveCodeChange(store)">
 							</BtEditor>
 						</n-scrollbar>
@@ -320,6 +293,7 @@ onMounted(() => {
 @use '../../mixin.scss';
 
 .wrapper {
+	width:100% !important;
 	@mixin content-card {
 		border-radius: 5px;
 		padding: 20px;
@@ -332,6 +306,7 @@ onMounted(() => {
 	}
 
 	.ai-container {
+		width: 100%;
 		display: grid;
 		grid-template-columns: minmax(400px, 2fr) 5fr;
 		gap: 15px;

@@ -41,7 +41,7 @@ services:
             - redis
 
     rspamd-billionmail:
-      image: billionmail/rspamd:1.1
+      image: billionmail/rspamd:1.2
       hostname: rspamd
       depends_on:
         - redis-billionmail
@@ -61,7 +61,7 @@ services:
             - rspamd
 
     dovecot-billionmail:
-      image: billionmail/dovecot:1.4
+      image: billionmail/dovecot:1.5
       hostname: dovecot
       depends_on:
         - pgsql-billionmail
@@ -102,7 +102,7 @@ services:
             - dovecot
 
     postfix-billionmail:
-      image: billionmail/postfix:1.5
+      image: billionmail/postfix:1.6
       hostname: postfix
       depends_on:
         pgsql-billionmail:

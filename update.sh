@@ -283,7 +283,7 @@ Update_BillionMail(){
 
 Update_config() { 
 
-    if ! grep "^RETENTION_DAYS=" .env; then
+    if ! grep -q "^RETENTION_DAYS=" .env; then
         echo "" >> .env
         echo "# Number of days to keep log backup" >> .env
         echo "RETENTION_DAYS=7" >> .env

@@ -48,6 +48,7 @@ services:
       environment:
         - TZ=${TZ}
         - REDISPASS=${REDISPASS}
+        - RETENTION_DAYS=${RETENTION_DAYS:-7}
       volumes:
         - ./conf/rspamd/local.d:/etc/rspamd/local.d
         - ./conf/rspamd/statistic.conf:/etc/rspamd/statistic.conf
@@ -85,6 +86,7 @@ services:
         - TZ=${TZ}
         - BILLIONMAIL_HOSTNAME=${BILLIONMAIL_HOSTNAME}
         - REDISPASS=${REDISPASS}
+        - RETENTION_DAYS=${RETENTION_DAYS:-7}
       ports:
         - "${IMAP_PORT:-143}:143"
         - "${IMAPS_PORT:-993}:993"
@@ -125,6 +127,7 @@ services:
         - DBPASS=${DBPASS}
         - REDISPASS=${REDISPASS}
         - BILLIONMAIL_HOSTNAME=${BILLIONMAIL_HOSTNAME}
+        - RETENTION_DAYS=${RETENTION_DAYS:-7}
       cap_add:
         - NET_BIND_SERVICE
       ports:

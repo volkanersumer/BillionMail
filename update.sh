@@ -281,6 +281,17 @@ Update_BillionMail(){
 
 }
 
+Update_config() { 
+
+    if ! grep "^RETENTION_DAYS=" .env; then
+        echo "" >> .env
+        echo "# Number of days to keep log backup" >> .env
+        echo "RETENTION_DAYS=7" >> .env
+    fi
+
+}
+
+
 echo "
 +-----------------------------------------------------------------------------
 | You are updating BillionMail. This operation will pull the latest code from 
@@ -304,3 +315,5 @@ Docker_Compose_Check
 Docker_Status_Check
 
 Update_BillionMail
+
+Update_config

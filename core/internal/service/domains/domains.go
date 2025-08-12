@@ -619,7 +619,7 @@ func GetMXRecord(domain string, validateImmediate bool) (record v1.DNSRecord, er
 
 	if validateImmediate {
 		// Validate the MX record
-		record.Valid = ValidateMXRecord(record, domain)
+		record.Valid = ValidateMXRecord(record, domain, public.FormatMX(domain))
 	}
 
 	return

@@ -2656,7 +2656,7 @@ func AddUnsubscribeButton(content string) string {
 
 // FormatMX format the email domain
 func FormatMX(domain string) string {
-	val, err := g.DB().Model("domain").Where("domain", domain).Value("a_record")
+	val, err := g.DB().Model("domain").Where("domain", domain).WhereOr("a_record", domain).Value("a_record")
 
 	if err == nil && !val.IsEmpty() {
 		return val.String()

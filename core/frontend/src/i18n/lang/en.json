@@ -1212,6 +1212,17 @@
 					"clearTitle": "Clear IP Whitelist",
 					"clearContent": "Confirm to clear IP whitelist, all IP addresses can access after clearing"
 				}
+			},
+			"proxy": {
+				"title": "Reverse Proxy",
+				"description": "Reverse proxy address, used for external exposure, such as: subscription lists, unsubscribe emails, etc.",
+				"placeholder": "Please enter reverse proxy address",
+				"formatTip": "Format: https://example.com",
+				"reset": "Reset",
+				"resetConfirm": {
+					"title": "Reset Reverse Proxy",
+					"content": "Confirm to reset reverse proxy?"
+				}
 			}
 		},
 		"api": {

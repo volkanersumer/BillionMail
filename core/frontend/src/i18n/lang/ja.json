@@ -892,6 +892,20 @@
 				"deleting": "メール転送を削除中... お待ちください"
 			}
 		},
+		"common": {
+			"confirm": "更新",
+			"proxy": {
+				"title": "リバースプロキシ",
+				"description": "リバースプロキシアドレス、外部公開時に使用します。例：購読リスト、配信停止メールなど",
+				"placeholder": "リバースプロキシアドレスを入力してください",
+				"formatTip": "形式：https://example.com",
+				"reset": "リセット",
+				"resetConfirm": {
+					"title": "リバースプロキシをリセット",
+					"content": "リバースプロキシをリセットしてもよろしいですか？"
+				}
+			}
+		},
 		"api": {
 			"loading": {
 				"restarting": "サービスを再起動中... お待ちください",

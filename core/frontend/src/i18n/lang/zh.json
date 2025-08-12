@@ -1206,6 +1206,17 @@
 					"clearTitle": "清空IP白名单",
 					"clearContent": "确认清空IP白名单, 清空后所有IP地址都可以访问"
 				}
+			},
+			"proxy": {
+				"title": "反向代理",
+				"description": "反向代理地址，用于对外暴露地址时使用，例如：订阅列表、退订邮件等",
+				"placeholder": "请输入反向代理地址",
+				"formatTip": "格式为：https://example.com",
+				"reset": "重置",
+				"resetConfirm": {
+					"title": "重置反向代理",
+					"content": "确认重置反向代理吗？"
+				}
 			}
 		},
 		"api": {

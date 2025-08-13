@@ -38,7 +38,6 @@
 </template>
 
 <script lang="tsx" setup>
-
 import { DataTableColumns, NButton, NFlex, NProgress, NTag } from 'naive-ui'
 import { useModal } from '@/hooks/modal/useModal'
 import { useTableData } from '@/hooks/useTableData'
@@ -199,7 +198,7 @@ const columns = ref<DataTableColumns<Task>>([
 		title: t('common.columns.actions'),
 		key: 'actions',
 		align: 'right',
-		width: 220,
+		width: 250,
 		render: row => (
 			<NFlex inline={true}>
 				{row.task_process !== 2 && (
@@ -214,6 +213,7 @@ const columns = ref<DataTableColumns<Task>>([
 							: t('market.task.actions.pause')}
 					</NButton>
 				)}
+
 				<NButton
 					type="primary"
 					text={true}
@@ -221,6 +221,14 @@ const columns = ref<DataTableColumns<Task>>([
 						handleGoAnalytics(row)
 					}}>
 					{t('market.task.actions.analytics')}
+				</NButton>
+				<NButton
+					type="primary"
+					text={true}
+					onClick={() => {
+						handleCopy(row)
+					}}>
+					{t('common.actions.copy')}
 				</NButton>
 				<NButton
 					type="primary"
@@ -253,6 +261,11 @@ const handleAdd = () => {
 // 前往分析
 const handleGoAnalytics = (row: Task) => {
 	router.push(`/market/task/analytics/${row.id}`)
+}
+
+// 复制任务
+const handleCopy = (row: Task) => {
+	router.push(`/market/task/edit/${row.id}`)
 }
 
 // 暂停/发送任务

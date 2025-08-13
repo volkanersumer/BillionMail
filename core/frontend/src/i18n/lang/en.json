@@ -1017,7 +1017,8 @@
 			"domain": "Bound Domain",
 			"server": "Server",
 			"port": "Port",
-			"username": "Username"
+			"username": "Username",
+			"dnsUpdateRequired": "DNS records need updating"
 		},
 		"form": {
 			"addTitle": "Add SMTP",
@@ -1028,8 +1029,15 @@
 			"port": "SMTP Port",
 			"username": "Username",
 			"password": "Password",
+			"authMethod": "Authentication Method",
+			"advancedFeatures": "Advanced Options",
 			"testConnection": "Test Connection",
 			"bind": " [Bound]",
+			"skipTlsVerify": "Skip TLS Verification",
+			"tlsOptions": {
+				"skip": "Skip",
+				"noSkip": "Don't Skip"
+			},
 			"validation": {
 				"nameRequired": "Please enter a relay name",
 				"domainRequired": "Please select a bound domain",

@@ -777,7 +777,8 @@
 			"domain": "紐付けドメイン",
 			"server": "サーバー",
 			"port": "ポート",
-			"username": "ユーザー名"
+			"username": "ユーザー名",
+			"dnsUpdateRequired": "DNSレコードの更新が必要"
 		},
 		"form": {
 			"addTitle": "SMTP 追加",
@@ -788,8 +789,15 @@
 			"port": "SMTP ポート",
 			"username": "ユーザー名",
 			"password": "パスワード",
+			"authMethod": "認証方式",
+			"advancedFeatures": "高度なオプション",
 			"testConnection": "接続テスト",
 			"bind": " [紐付け済み]",
+			"skipTlsVerify": "TLS検証をスキップ",
+			"tlsOptions": {
+				"skip": "スキップ",
+				"noSkip": "スキップしない"
+			},
 			"validation": {
 				"nameRequired": "リレー名を入力してください",
 				"domainRequired": "紐付けドメインを選択してください",

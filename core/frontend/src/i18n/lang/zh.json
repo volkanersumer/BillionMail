@@ -1014,7 +1014,8 @@
 			"domain": "绑定域名",
 			"server": "服务器",
 			"port": "端口",
-			"username": "用户名"
+			"username": "用户名",
+			"dnsUpdateRequired": "DNS记录需要更新"
 		},
 		"form": {
 			"addTitle": "添加SMTP",
@@ -1025,8 +1026,16 @@
 			"port": "SMTP端口",
 			"username": "用户名",
 			"password": "密码",
+			"authMethod": "身份验证",
+			"advancedFeatures": "高级选项",
+
 			"testConnection": "测试链接",
 			"bind": "【已绑定】",
+			"skipTlsVerify": "是否跳过TLS验证",
+			"tlsOptions": {
+				"skip": "跳过",
+				"noSkip": "不跳过"
+			},
 			"validation": {
 				"nameRequired": "请输入中继名称",
 				"domainRequired": "请选择绑定域名",

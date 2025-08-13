@@ -86,6 +86,17 @@ type UpdateDomainRes struct {
 	api_v1.StandardRes
 }
 
+type UpdateDomainBrandinfoReq struct {
+	g.Meta        `path:"/domains/update_brandinfo" tags:"Domain" method:"post" sm:"Update domain brandinfo" in:"body"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	Domain        string `json:"domain" v:"required|domain" dc:"Domain"`
+	HasBrandInfo  int    `json:"hasbrandinfo"        dc:"Brand information : 1-exist, 0-not exist"`
+}
+
+type UpdateDomainBrandinfoRes struct {
+	api_v1.StandardRes
+}
+
 type DeleteDomainReq struct {
 	g.Meta        `path:"/domains/delete" tags:"Domain" method:"post" sm:"Delete domain" in:"body"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`

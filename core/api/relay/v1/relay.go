@@ -57,8 +57,14 @@ type SmtpStatus struct {
 // BmRelayWithSPF
 type BmRelayWithSPF struct {
 	*BmRelay
-	SPFRecord  DNSRecord  `json:"spf_record"`
-	SmtpStatus SmtpStatus `json:"smtp_status"`
+	SPFRecords []*SPFStatus `json:"spf_records"`
+	SmtpStatus SmtpStatus   `json:"smtp_status"`
+	CheckSPF   int          `json:"check_spf"` // Whether to check SPF record: 1-check, 0-do not check
+}
+
+type SPFStatus struct {
+	DNSRecord DNSRecord `json:"dns_record"` // SPF
+	Check     int       `json:"check"`      // Verification status (0: Correct, 1: Incorrect/Needs modification)
 }
 
 // CreateRelayConfigReq Request to add a relay configuration
@@ -67,7 +73,7 @@ type CreateRelayConfigReq struct {
 	Authorization string    `json:"authorization" in:"header" dc:"Authorization" v:"required"`
 	Remark        string    `json:"remark" v:"max-length:255" dc:"Remark, e.g., AWS SES Japan Region"`
 	Rtype         string    `json:"rtype" v:"max-length:30" dc:"Relay type: gmail, sendgrid, custom, aws, mailgun, local"`
-	SenderDomains []string  `json:"sender_domains" v:"required" dc:"Array of sender domains, e.g., [\"example.com\", \"example.org\"]"`
+	SenderDomains []string  `json:"sender_domains" v:"required" dc:"Array of sender domains"`
 	RelayHost     string    `json:"relay_host" v:"required|max-length:255" dc:"Relay server address"`
 	RelayPort     string    `json:"relay_port" v:"required|max-length:10" dc:"Relay server port, e.g., 587"`
 	AuthUser      string    `json:"auth_user" v:"required|max-length:255" dc:"SMTP authentication username"`
@@ -118,7 +124,7 @@ type UpdateRelayConfigReq struct {
 	Host          string `json:"host,omitempty" v:"max-length:255" dc:"Host for reminding users to update SPF record, e.g., include:lootk.cn"`
 	Active        int    `json:"active,omitempty" v:"in:0,1" dc:"Whether enabled: 1-enabled, 0-disabled"`
 
-	SenderDomains []string `json:"add_domains,omitempty" dc:"Domains to add to this relay configuration"`
+	SenderDomains []string `json:"sender_domains,omitempty" dc:"Domains to add to this relay configuration"`
 
 	// Advanced options
 	AuthMethod    string `json:"auth_method,omitempty" v:"max-length:20" dc:"Authentication method: LOGIN, PLAIN, CRAM-MD5, NONE"`
@@ -163,12 +169,10 @@ type GetUnboundDomainsRes struct {
 type TestSmtpConnectionReq struct {
 	g.Meta        `path:"/relay/test_connection" method:"post" tags:"Relay Configs" summary:"Test if the SMTP relay connection is normal"`
 	Authorization string `json:"authorization" in:"header" dc:"Authorization" v:"required"`
-	SenderDomain  string `json:"sender_domain" v:"required|max-length:255" dc:"Sender domain, e.g., example.com"`
 	RelayHost     string `json:"relay_host" v:"required|max-length:255" dc:"Relay server address"`
 	RelayPort     string `json:"relay_port" v:"required|max-length:10" dc:"Relay server port, e.g., 587"`
 	AuthUser      string `json:"auth_user" v:"max-length:255" dc:"SMTP authentication username"`
 	AuthPassword  string `json:"auth_password" v:"max-length:255" dc:"SMTP authentication password"`
-	HeloName      string `json:"helo_name" v:"max-length:255" dc:"HELO hostname"`
 }
 
 // TestSmtpConnectionRes Test SMTP connection response

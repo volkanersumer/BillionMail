@@ -79,6 +79,12 @@ type SystemConfig struct {
 	// IP whitelist configuration
 	IPWhitelist        []g.Map `json:"ip_whitelist" dc:"ip whitelist"`
 	IPWhitelistEnabled bool    `json:"ip_whitelist_enable" dc:"ip whitelist enabled"`
+	// Reverse proxy domain configuration
+
+	ReverseProxyDomain struct {
+		CurrentUrl   string `json:"current_url" dc:"current url"`
+		ReverseProxy string `json:"reverse_proxy" dc:"reverse proxy"`
+	} `json:"reverse_proxy_domain" dc:"reverse proxy domain"`
 }
 
 type GetVersionReq struct {
@@ -184,11 +190,10 @@ type SetReverseProxyDomainRes struct {
 	api_v1.StandardRes
 }
 
-type GetReverseProxyDomainReq struct {
-	g.Meta        `path:"/settings/get_reverse_proxy_domain" tags:"Settings" method:"get" summary:"Get reverse proxy domain"`
+type DeleteReverseProxyDomainReq struct {
+	g.Meta        `path:"/settings/delete_reverse_proxy_domain" tags:"Settings" method:"post" summary:"Delete reverse proxy domain"`
 	Authorization string `json:"authorization" in:"header" dc:"Authorization" v:"required"`
 }
-
-type GetReverseProxyDomainRes struct {
+type DeleteReverseProxyDomainRes struct {
 	api_v1.StandardRes
 }

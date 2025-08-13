@@ -95,18 +95,23 @@ func (c *ControllerV1) UpdateRelayConfig(ctx context.Context, req *v1.UpdateRela
 		}
 	}
 
-	if len(req.SenderDomains) > 0 {
-
-		var domains []string
+	if len(req.SenderDomains) == 0 {
+		_, err = tx.Model("bm_relay_domain_mapping").
+			Where("relay_id", req.ID).
+			Delete()
+		if err != nil {
+			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to delete sender domains: {}", err.Error())))
+			return res, nil
+		}
+	} else {
+		var domains_ []string
 		for _, domain := range req.SenderDomains {
-			if !strings.HasPrefix(domain, "@") {
-				domain = "@" + domain
-			}
-			domains = append(domains, domain)
+
+			domains_ = append(domains_, domain)
 		}
 
 		existingDomainsCount, err := tx.Model("bm_relay_domain_mapping").
-			WhereIn("sender_domain", domains).
+			WhereIn("sender_domain", domains_).
 			WhereNot("relay_id", req.ID).
 			Count()
 		if err != nil {
@@ -134,7 +139,7 @@ func (c *ControllerV1) UpdateRelayConfig(ctx context.Context, req *v1.UpdateRela
 		}
 
 		newDomainsMap := make(map[string]bool)
-		for _, domain := range domains {
+		for _, domain := range domains_ {
 			newDomainsMap[domain] = true
 		}
 
@@ -151,7 +156,7 @@ func (c *ControllerV1) UpdateRelayConfig(ctx context.Context, req *v1.UpdateRela
 			}
 		}
 
-		for _, newDomain := range domains {
+		for _, newDomain := range domains_ {
 			if !currentDomainsMap[newDomain] {
 				_, err = tx.Model("bm_relay_domain_mapping").
 					Data(g.Map{

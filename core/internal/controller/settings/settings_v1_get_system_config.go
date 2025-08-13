@@ -2,6 +2,7 @@ package settings
 
 import (
 	"billionmail-core/api/settings/v1"
+	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -35,7 +36,17 @@ func (c *ControllerV1) GetSystemConfig(ctx context.Context, req *v1.GetSystemCon
 	}
 	config.IPWhitelist = whitelist
 
+	var reverseProxyDomain string
+	err = public.OptionsMgrInstance.GetOption(ctx, "reverse_proxy_domain", &reverseProxyDomain)
+	if err != nil {
+		reverseProxyDomain = ""
+	}
+
+	config.ReverseProxyDomain.ReverseProxy = reverseProxyDomain
+	config.ReverseProxyDomain.CurrentUrl = domains.GetBaseURL()
+
 	res.Data = config
+
 	res.SetSuccess(public.LangCtx(ctx, "Successfully retrieved system configuration"))
 	return res, nil
 }

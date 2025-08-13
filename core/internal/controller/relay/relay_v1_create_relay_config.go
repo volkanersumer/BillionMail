@@ -20,9 +20,7 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 
 		var domains []string
 		for _, domain := range req.SenderDomains {
-			if !strings.HasPrefix(domain, "@") {
-				domain = "@" + domain
-			}
+
 			domains = append(domains, domain)
 		}
 
@@ -94,9 +92,6 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 	}
 
 	for _, domain := range req.SenderDomains {
-		if !strings.HasPrefix(domain, "@") {
-			domain = "@" + domain
-		}
 
 		mappingData := g.Map{
 			"relay_id":      relayId,

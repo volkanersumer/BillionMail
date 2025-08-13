@@ -2,6 +2,8 @@ package database_initialization
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"strings"
 	"time"
@@ -9,6 +11,9 @@ import (
 
 func init() {
 	registerHandler(func() {
+
+		ctx := context.Background()
+
 		sqlList := []string{
 
 			`-- Relay configuration 
@@ -53,44 +58,53 @@ func init() {
 		}
 
 		for _, sql := range sqlList {
-			_, err := g.DB().Exec(context.Background(), sql)
+			_, err := g.DB().Exec(ctx, sql)
 			if err != nil {
-				g.Log().Error(context.Background(), "Failed to create mail server tables:", err)
+				g.Log().Error(ctx, "Failed to create mail server tables:", err)
 				return
 			}
 		}
 
-		migrateRelayData()
+		//  Migrate the old data to the new structure
+		if err := migrateRelayData(ctx); err != nil {
+			g.Log().Error(ctx, "Failed to migrate relay data:", err)
+			return
+		}
+
+		// Rename the old table (only after the migration is successful)
+		if err := RenameRelayTable(ctx); err != nil {
+			g.Log().Error(ctx, "Failed to rename old table bm_relay:", err)
+			return
+		}
+		g.Log().Info(ctx, "Relay configuration migration completed successfully.")
+		//migrateRelayData()
 
 	})
 }
 
-func migrateRelayData() {
-	ctx := context.Background()
+func migrateRelayData(ctx context.Context) error {
 
 	existsOld := checkTableExists(ctx, "bm_relay")
 	if !existsOld {
 		g.Log().Info(ctx, "Old table bm_relay does not exist, skip migration")
-		return
+		return nil
 	}
 
 	existsNew := checkTableExists(ctx, "bm_relay_config")
 	if !existsNew {
-		g.Log().Error(ctx, "New table bm_relay_config does not exist, please create the table first")
-		return
+		return gerror.New("New table bm_relay_config does not exist, please create tables first")
 	}
 
 	newCount, err := g.DB().Model("bm_relay_config").Count()
 	if err != nil {
-		g.Log().Error(ctx, "Failed to query record count of new table:", err)
-		return
+		return gerror.Wrap(err, "Failed to query record count of new table")
 	}
 	if newCount > 0 {
 		g.Log().Warning(ctx, "bm_relay_config already has data (%d records), skip migration to prevent duplication", newCount)
-		return
+		return nil
 	}
 
-	// 查询旧表数据（显式指定字段，避免多余字段干扰）
+	// 查询旧表数据
 	var oldRelays []struct {
 		Id            int64   `json:"id"`
 		Remark        *string `json:"remark"`
@@ -110,36 +124,35 @@ func migrateRelayData() {
 		CreateTime    int     `json:"create_time"`
 		UpdateTime    int     `json:"update_time"`
 	}
+
 	err = g.DB().Model("bm_relay").
 		Fields("id, remark, rtype, sender_domain, relay_host, relay_port, auth_user, auth_password, ip, host, helo_name, skip_tls_verify, smtp_name, active, auth_method, create_time, update_time").
 		Scan(&oldRelays)
 	if err != nil {
-		g.Log().Error(ctx, "Failed to query old table  bm_relay:", err)
-		return
+		return gerror.Wrap(err, "Failed to query old table bm_relay")
 	}
 
 	if len(oldRelays) == 0 {
 		g.Log().Info(ctx, "No data in old table bm_relay, no migration needed")
-		return
+		return nil
 	}
 
 	g.Log().Infof(ctx, "Start migrating %d relay configurations", len(oldRelays))
 
 	tx, err := g.DB().Begin(ctx)
 	if err != nil {
-		g.Log().Error(ctx, "Failed to begin transaction:", err)
-		return
+		return gerror.Wrap(err, "Failed to begin transaction")
 	}
 	defer func() {
 		if err != nil {
-			tx.Rollback()
-			g.Log().Error(ctx, "Transaction rolled back")
+			_ = tx.Rollback()
+			g.Log().Error(ctx, "Transaction rolled back during data migration")
 		}
 	}()
 
 	for _, r := range oldRelays {
-		// Build configData, skip nil fields
-		configData := g.Map{}
+
+		configData := make(gdb.Map)
 
 		if r.Remark != nil {
 			configData["remark"] = *r.Remark
@@ -147,6 +160,7 @@ func migrateRelayData() {
 		if r.Rtype != nil {
 			configData["rtype"] = *r.Rtype
 		}
+
 		if r.RelayHost == nil || *r.RelayHost == "" {
 			g.Log().Errorf(ctx, "Skip record ID=%d: relay_host is empty", r.Id)
 			continue
@@ -154,7 +168,7 @@ func migrateRelayData() {
 		configData["relay_host"] = *r.RelayHost
 
 		if r.RelayPort == nil || *r.RelayPort == "" {
-			configData["relay_port"] = "25" // Default port
+			configData["relay_port"] = "25"
 		} else {
 			configData["relay_port"] = *r.RelayPort
 		}
@@ -179,19 +193,24 @@ func migrateRelayData() {
 		} else {
 			configData["skip_tls_verify"] = 0
 		}
-		if r.SmtpName != nil {
+
+		if r.SmtpName != nil && *r.SmtpName != "" {
 			configData["smtp_name"] = *r.SmtpName
 		} else {
 			// Generate unique name
 			configData["smtp_name"] = "MigratedRelay_" + time.Now().Format("20060102_150405") + "_" + strings.ReplaceAll(*r.RelayHost, ".", "_")
 		}
+
 		if r.Active != nil {
 			configData["active"] = *r.Active
 		} else {
 			configData["active"] = 1
 		}
+
 		if r.AuthMethod != nil {
 			configData["auth_method"] = *r.AuthMethod
+		} else {
+			configData["auth_method"] = "LOGIN"
 		}
 
 		configData["create_time"] = r.CreateTime
@@ -200,40 +219,34 @@ func migrateRelayData() {
 		// Insert into bm_relay_config
 		result, err := tx.Model("bm_relay_config").Data(configData).Insert()
 		if err != nil {
-			g.Log().Errorf(ctx, "Failed to insert into bm_relay_config (ID=%d): %v", r.Id, err)
-			err = err
-			return
+			return gerror.Wrapf(err, "Failed to insert bm_relay_config (ID=%d)", r.Id)
 		}
 
 		relayConfigId, err := result.LastInsertId()
 		if err != nil {
-			g.Log().Errorf(ctx, "Failed to get inserted ID (ID=%d): %v", r.Id, err)
-			err = err
-			return
+			return gerror.Wrapf(err, "Failed to get last insert ID (ID=%d)", r.Id)
 		}
 
 		// Insert domain mapping
 		if r.SenderDomain != nil && *r.SenderDomain != "" {
-			mappingData := g.Map{
+			mappingData := gdb.Map{
 				"relay_id":      relayConfigId,
 				"sender_domain": *r.SenderDomain,
 				"create_time":   r.CreateTime,
 			}
 			_, err = tx.Model("bm_relay_domain_mapping").Data(mappingData).Insert()
 			if err != nil {
-				g.Log().Errorf(ctx, "Failed to insert into bm_relay_domain_mapping (ID=%d): %v", r.Id, err)
-				err = err
-				return
+				return gerror.Wrapf(err, "Failed to insert bm_relay_domain_mapping (ID=%d)", r.Id)
 			}
 		}
 	}
 
 	if err = tx.Commit(); err != nil {
-		g.Log().Error(ctx, "Failed to commit transaction:", err)
-		return
+		return gerror.Wrap(err, "Failed to commit transaction after data migration")
 	}
 
 	g.Log().Infof(ctx, "Data migration succeeded! Migrated %d relay configurations", len(oldRelays))
+	return nil
 }
 
 func checkTableExists(ctx context.Context, tableName string) bool {
@@ -250,4 +263,42 @@ func checkTableExists(ctx context.Context, tableName string) bool {
 	}
 
 	return result["exists"].Bool()
+}
+
+// RenameRelayTable Rename the old relay table
+func RenameRelayTable(ctx context.Context) error {
+
+	existsNew := checkTableExists(ctx, "bm_relay")
+	if !existsNew {
+		return gerror.New("Table bm_relay does not exist, no need to rename")
+	}
+
+	existsOld := checkTableExists(ctx, "bm_relay_old")
+	if !existsOld {
+		return gerror.New("Table bm_relay_old already exists, skipping rename operation")
+	}
+
+	tx, err := g.DB().Begin(ctx)
+	if err != nil {
+		return gerror.Wrap(err, "Failed to begin transaction for renaming table")
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+			g.Log().Error(ctx, "Transaction rolled back during table rename")
+		}
+	}()
+
+	_, err = tx.Exec("ALTER TABLE bm_relay RENAME TO bm_relay_old")
+
+	if err != nil {
+		return gerror.Wrap(err, "Failed to rename bm_relay to bm_relay_old")
+	}
+
+	if err = tx.Commit(); err != nil {
+		return gerror.Wrap(err, "Failed to commit transaction after renaming table")
+	}
+
+	g.Log().Info(ctx, "Successfully renamed table bm_relay to bm_relay_old")
+	return nil
 }

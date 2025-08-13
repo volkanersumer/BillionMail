@@ -175,9 +175,11 @@ func GenerateSPFRecord(ip string, host string, domain string) string {
 			allMechanism = part
 			continue
 		}
-		newSpfParts = append(newSpfParts, part)
-	}
 
+		if !strings.HasPrefix(part, "include:") && !strings.HasPrefix(part, "ip4:") && !strings.HasPrefix(part, "ip6:") {
+			newSpfParts = append(newSpfParts, part)
+		}
+	}
 	// Add IP if provided and not duplicated
 	if ip != "" {
 		var ipPart string
@@ -208,27 +210,58 @@ func GenerateSPFRecord(ip string, host string, domain string) string {
 	return strings.Join(newSpfParts, " ")
 }
 
-// 检查中继服务首次同步
 func CheckRelayFirstSync(ctx context.Context) {
-
 	markPath := public.AbsPath("../core/data/SMTP_relay_sync_config_mark.pl")
 	if gfile.Exists(markPath) {
 		return
 	}
-	//// 先删除main.cf中的中继配置块 确保旧的配置被清除
-	//beginMarker := "# BEGIN RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
-	//endMarker := "# END RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
-	//mainCfPath := path.Join(postfixConfigDir, "main.cf")
 
-	// 不存在，执行同步方法SyncRelayConfigsToPostfix 并创建标记
+	// Remove the old configuration
+	beginMarker := "# BEGIN RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
+	endMarker := "# END RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
+	mainCfPath := path.Join(postfixConfigDir, mainCfFile)
+
+	if gfile.Exists(mainCfPath) {
+		content := gfile.GetContents(mainCfPath)
+		beginIndex := strings.Index(content, beginMarker)
+		endIndex := strings.Index(content, endMarker)
+
+		// Check if the configuration block exists
+		if beginIndex != -1 && endIndex != -1 && beginIndex < endIndex {
+			// Find configuration block and delete
+			blockStart := beginIndex
+			blockEnd := endIndex + len(endMarker)
+
+			if blockEnd < len(content) && content[blockEnd] == '\n' {
+				blockEnd++
+			}
+
+			// Delete the configuration block
+			newContent := content[:blockStart]
+			if blockEnd < len(content) {
+				newContent += content[blockEnd:]
+			}
+
+			if err := gfile.PutContents(mainCfPath, newContent); err != nil {
+				g.Log().Errorf(ctx, "Failed to delete the old relay configuration block in main.cf: %v", err)
+			} else {
+				g.Log().Info(ctx, "Successfully deleted the old relay configuration block in the main.cf file")
+			}
+		} else {
+			g.Log().Debug(ctx, "No need to delete.")
+		}
+	} else {
+		g.Log().Warning(ctx, "The main.cf file does not exist")
+	}
+
 	err := SyncRelayConfigsToPostfix(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "首次同步中继配置失败: %v", err)
+		g.Log().Errorf(ctx, "The initial synchronization of the relay configuration failed: %v", err)
 		return
 	}
 
 	if err := gfile.PutContents(markPath, fmt.Sprintf("First sync completed at %s", time.Now().Format("2006-01-02 15:04:05"))); err != nil {
-		g.Log().Warningf(ctx, "创建同步标记文件失败: %v", err)
+		g.Log().Warningf(ctx, "Failed to create the synchronization marker file: %v", err)
 	}
 	return
 }
@@ -300,16 +333,9 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelayConfig)
 	masterContent := gfile.GetContents(masterCfPath)
 
 	// Define the smtps configuration to add
-	smtpsConfig := `smtps     unix  -       -       n       -       -       smtp
-    -o smtp_tls_wrappermode=yes
-    -o smtp_tls_security_level=encrypt`
-
-	// Check if smtps service definition already exists
-	smtpsExistsRegex := regexp.MustCompile(`(?m)^\s*smtps\s+unix\s+`)
-	if !smtpsExistsRegex.MatchString(masterContent) {
-		g.Log().Info(ctx, "Adding missing smtps configuration to master.cf")
-		// Safely insert using line-by-line parsing
-		masterContent = insertSmtpsConfigSafely(masterContent, smtpsConfig)
+	masterContent, smtpsChanged := ensureSmtpsConfigInMasterCf(masterContent)
+	if smtpsChanged {
+		g.Log().Info(ctx, "smtps configuration block updated in master.cf")
 	}
 
 	beginMarker := "# BEGIN BILLIONMAIL RELAY CONFIG - DO NOT EDIT THIS MARKER"
@@ -359,6 +385,7 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelayConfig)
 					params = append(params, "-o smtp_sasl_mechanism_filter=cram-md5")
 				case "NONE":
 					params = append(params, "-o smtp_sasl_auth_enable=no")
+					//params = append(params, "-o smtp_sasl_mechanism_filter=login")
 				}
 			}
 
@@ -518,12 +545,12 @@ dbname = billionmail
 
 query = SELECT CONCAT('[', rc.relay_host, ']:', rc.relay_port) FROM bm_relay_config rc JOIN bm_relay_domain_mapping rdm ON rc.id = rdm.relay_id WHERE rdm.sender_domain = REPLACE('%s', '@', '') AND rc.active = 1 LIMIT 1`,
 
-		"pgsql_sasl_password_maps.cf": `user = billionmail
-password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
-hosts = pgsql
-dbname = billionmail
-
-query = SELECT CONCAT(rc.auth_user, ':', rc.auth_password) FROM bm_relay_config rc WHERE CONCAT('[', rc.relay_host, ']:', rc.relay_port) = '%s' AND rc.active = 1 LIMIT 1`,
+		//		"pgsql_sasl_password_maps.cf": `user = billionmail
+		//password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
+		//hosts = pgsql
+		//dbname = billionmail
+		//
+		//query = SELECT CONCAT(rc.auth_user, ':', rc.auth_password) FROM bm_relay_config rc WHERE CONCAT('[', rc.relay_host, ']:', rc.relay_port) = '%s' AND rc.active = 1 LIMIT 1`,
 
 		"pgsql_sender_transport_maps.cf": `user = billionmail
 password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
@@ -571,11 +598,11 @@ func writePostfixRelayConfig(cfPath string, enableRelay bool) error {
 
 	var configBlock string
 
+	//  sender_dependent_default_transport_maps = pgsql:/etc/postfix/sql/pgsql_multi_ip_domain_transport_maps.cf, pgsql:/etc/postfix/sql/pgsql_sender_transport_maps.cf
 	configBlock = fmt.Sprintf(`%s
 smtp_sasl_auth_enable = yes
 smtp_sasl_security_options = noanonymous
 sender_dependent_relayhost_maps = pgsql:/etc/postfix/sql/pgsql_sender_relay_maps.cf
-# smtp_sasl_password_maps = pgsql:/etc/postfix/sql/pgsql_sasl_password_maps.cf
 smtp_sasl_password_maps = hash:/etc/postfix/conf/sasl_passwd
 sender_dependent_default_transport_maps = pgsql:/etc/postfix/sql/pgsql_sender_transport_maps.cf
 smtp_sasl_mechanism_filter = login, plain, cram-md5
@@ -747,40 +774,51 @@ func generateSmtpServiceName(config *entity.BmRelayConfig) string {
 	return fmt.Sprintf("smtp_Relay_%s_%d", cleanedRelayDomain, config.Id)
 }
 
-func insertSmtpsConfigSafely(content, smtpsConfig string) string {
-	lines := strings.Split(content, "\n")
-	var result []string
-	inserted := false
-	inServiceBlock := false
+func ensureSmtpsConfigInMasterCf(content string) (string, bool) {
+	const (
+		markerBegin = "# BEGIN BILLIONMAIL SMTPS CONFIG - DO NOT EDIT THIS MARKER"
+		markerEnd   = "# END BILLIONMAIL SMTPS CONFIG - DO NOT EDIT THIS MARKER"
+	)
+	smtpsService := `smtps     unix  -       -       n       -       -       smtp
+    -o smtp_tls_wrappermode=yes
+    -o smtp_tls_security_level=encrypt`
 
-	for i, line := range lines {
-		trimmed := strings.TrimSpace(line)
+	var block strings.Builder
+	block.WriteString(markerBegin + "\n")
+	block.WriteString(smtpsService + "\n")
+	block.WriteString(markerEnd + "\n")
+	smtpsBlock := block.String()
 
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			result = append(result, line)
-			continue
+	beginIndex := strings.Index(content, markerBegin)
+	endIndex := strings.Index(content, markerEnd)
+	hasBlock := beginIndex != -1 && endIndex != -1 && beginIndex < endIndex
+
+	if hasBlock {
+		blockEnd := endIndex + len(markerEnd)
+
+		for blockEnd < len(content) && (content[blockEnd] == '\n' || content[blockEnd] == '\r') {
+			blockEnd++
 		}
 
-		// Match service definition: service_name inet/unix ...
-		isServiceDef := regexp.MustCompile(`^\s*[\w-]+\s+(inet|unix)\s+`).MatchString(trimmed)
+		existingBlock := content[beginIndex:blockEnd]
+		if strings.Contains(existingBlock, smtpsService) {
 
-		if isServiceDef && !inserted {
-			// Insert smtps before the first service definition
-			if i == 0 || !inServiceBlock {
-				result = append(result, smtpsConfig)
-				result = append(result, "")
-				inserted = true
-			}
+			return content, false
 		}
 
-		result = append(result, line)
-		inServiceBlock = true
+		newContent := content[:beginIndex] + smtpsBlock
+		if blockEnd < len(content) {
+			newContent += content[blockEnd:]
+		}
+		return newContent, true
 	}
 
-	if !inserted {
-		result = append(result, "")
-		result = append(result, smtpsConfig)
+	var updated string
+	if !strings.HasSuffix(content, "\n") {
+		updated = content + "\n"
+	} else {
+		updated = content
 	}
-
-	return strings.Join(result, "\n")
+	updated += "\n" + smtpsBlock
+	return updated, true
 }

@@ -21,5 +21,5 @@ type ISettingsV1 interface {
 	DeleteIPWhitelist(ctx context.Context, req *v1.DeleteIPWhitelistReq) (res *v1.DeleteIPWhitelistRes, err error)
 	AddIPWhitelist(ctx context.Context, req *v1.AddIPWhitelistReq) (res *v1.AddIPWhitelistRes, err error)
 	SetReverseProxyDomain(ctx context.Context, req *v1.SetReverseProxyDomainReq) (res *v1.SetReverseProxyDomainRes, err error)
-	GetReverseProxyDomain(ctx context.Context, req *v1.GetReverseProxyDomainReq) (res *v1.GetReverseProxyDomainRes, err error)
+	DeleteReverseProxyDomain(ctx context.Context, req *v1.DeleteReverseProxyDomainReq) (res *v1.DeleteReverseProxyDomainRes, err error)
 }

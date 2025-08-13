@@ -28,7 +28,7 @@ func (c *ControllerV1) SetSSL(ctx context.Context, req *v1.SetSSLReq) (res *v1.S
 
 	defer crt.Close()
 
-	err = crt.SetSNI(req.Domain, req.Certificate, req.Key)
+	err = crt.SetSNI(public.FormatMX(req.Domain), req.Certificate, req.Key)
 
 	if err != nil {
 		res.SetError(fmt.Errorf("fail to set ssl: %w", err))

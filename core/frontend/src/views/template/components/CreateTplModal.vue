@@ -1,33 +1,18 @@
 <template>
-	<n-modal
-		v-model:show="show"
-		preset="card"
-		draggable
-		:close-on-esc="false"
-		:mask-closable="false"
-		segmented
-		class="w-110"
-		title="">
+	<n-modal v-model:show="show" preset="card" draggable :close-on-esc="false" :mask-closable="false" segmented
+		class="w-110" title="">
 		<div class="wrapper">
 			<div class="creation-methods">
-				<div
-					v-for="(item, index) in computedMethodsList"
-					:key="index"
-					:class="['choose-item', { active: choosedMethod == item }]"
-					@click="choosedMethod = item">
+				<div v-for="(item, index) in computedMethodsList" :key="index"
+					:class="['choose-item', { active: choosedMethod == item }]" @click="choosedMethod = item">
 					<span class="item-label">{{ item }}</span>
 				</div>
 			</div>
 			<div :class="['url-source', { hidden: choosedMethod !== 'AI' }]">
 				<span class="label">{{ $t('template.createTpl.sourceUrl') }}</span>
-				<n-select
-					v-model:value="sourceDomain"
-					class="flex-1"
-					label-field="domain"
-					value-field="domain"
-					:options="domainListHasBrandInfo"
-					:disabled="canNotUse"
-					:render-label="renderLabel">
+				<n-select v-model:value="sourceDomain" class="flex-1" label-field="domain" value-field="domain"
+					:options="domainListHasBrandInfo" :disabled="canNotUse" :render-label="renderLabel">
+
 				</n-select>
 			</div>
 			<div v-if="noticeShowFlag == 'normal'" class="desc">
@@ -65,17 +50,12 @@
 
 		<template #footer>
 			<div class="flex justify-end">
-				<n-button
-					type="primary"
-					:disabled="
-						canNotUse ||
-						['domain-list-empty', 'ai-configuration-invalid', 'invalid-brand-domain'].includes(
-							noticeShowFlag
-						)
-					"
-					@click="createTemplate"
-					>{{ $t('template.createTpl.create') }}</n-button
-				>
+				<n-button type="primary" v-if="choosedMethod == 'AI'" :disabled="canNotUse ||
+					['domain-list-empty', 'ai-configuration-invalid',].includes(
+						noticeShowFlag
+					)
+					" @click="createTemplate">{{ $t('template.createTpl.create') }}</n-button>
+				<n-button v-else type="primary" @click="createTemplate">{{ $t('template.createTpl.create') }}</n-button>
 			</div>
 		</template>
 	</n-modal>
@@ -85,10 +65,12 @@
 import { instance } from '@/api'
 import { createAiTemplate } from '../pages/AITemplate/controller'
 import { useGlobalStore } from '@/store'
-import { checkAiConfiguration } from '@/api/modules/domain'
+import { checkAiConfiguration, initAiConfiguration } from '@/api/modules/domain'
 import aiModelNotice from '@/assets/images/template/model-notice.png'
 import brandInfoNotice from '@/assets/images/template/create-brand-info.png'
 import { SelectOption } from 'naive-ui'
+import { Message } from '@/utils'
+import { updateHasBrandInfo } from '@/views/domain/pages/editDomain/controller/domainConfiguration.controller'
 // import { TemplateStore } from '../pages/AITemplate/dto'
 
 // const store = inject<TemplateStore>('modelStore')!
@@ -100,6 +82,7 @@ const router = useRouter()
 const methodsList = ref(['Drag', 'AI', 'HTML'])
 const choosedMethod = ref('AI')
 const sourceDomain = ref('')
+const currentDomainOption = ref<SelectOption | null>(null)
 const show = ref(false)
 const emits = defineEmits(['confirmType', 'hasCreateTpl'])
 const domainList = ref<any>([])
@@ -176,11 +159,25 @@ function close() {
  */
 async function createTemplate() {
 	if (choosedMethod.value == 'AI') {
+		if (noticeShowFlag.value == "invalid-brand-domain") {
+			const currentDomain = domainList.value.find((item: any) => item.domain === sourceDomain.value)
+			try {
+				await initAiConfiguration({
+					domain: sourceDomain.value,
+					urls: currentDomain.urls,
+				})
+				updateHasBrandInfo(sourceDomain.value, 1)
+			} catch (error) {
+				Message.error('Failed to initialize AI configuration, please try again later.')
+				console.warn(error);
+			}
+		}
 		const chatId = await createAiTemplate(sourceDomain.value)
 		if (chatId) {
 			globalStore.domainSource = sourceDomain.value
 			router.push({ name: 'ai-template', params: { chatId } })
 		}
+
 	} else {
 		emits('confirmType', choosedMethod.value)
 	}
@@ -234,6 +231,7 @@ function renderLabel(option: SelectOption) {
 	}
 }
 
+
 defineExpose({
 	open,
 	close,
@@ -250,6 +248,7 @@ async function getDomainList() {
 		},
 	})) as Record<string, any>
 	domainList.value = res.list
+	currentDomainOption.value = domainList.value.find((item: SelectOption) => item.domain === sourceDomain.value) || null
 	if (domainList.value.length == 0) {
 		globalStore.domainSource = ''
 		sourceDomain.value = ''

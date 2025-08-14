@@ -21,7 +21,7 @@
 			</n-scrollbar>
 		</div>
 
-		<div v-if="activeTab !== 'Sitemap'" class="footer-tool">
+		<div v-if="!['Domain Configuration','Sitemap'].includes(activeTab)" class="footer-tool">
 			<n-button type="primary" @click="switchHanldeSave">
 				<template #icon>
 					<i class="i-mingcute:save-2-line text-5"></i>
@@ -89,6 +89,7 @@ const contentMap = new Map([
 ])
 
 const route = useRoute()
+const router = useRouter()
 const domain = route.params.domain as string
 
 /**

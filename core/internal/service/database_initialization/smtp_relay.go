@@ -43,16 +43,19 @@ func init() {
 			sender_domain varchar(255) NOT NULL, -- Sender domain, e.g. "example.com"
 			create_time int NOT NULL default 0
 			) `,
-
-			`-- Domain to SMTP service name mapping table, used for Postfix sender_dependent_default_transport_maps
-			CREATE TABLE IF NOT EXISTS bm_relay_domain_transport (
+			// 域名唯一约束
+			`-- Domain to SMTP service name mapping table
+			CREATE TABLE IF NOT EXISTS  bm_domain_smtp_transport(
 			id BIGSERIAL PRIMARY KEY,
+			atype varchar(50) NOT NULL DEFAULT 'relay', -- Transport type,  "relay"   "dedicated_ip"
 			domain varchar(255) NOT NULL,  -- Sender domain, e.g. "@example.com"
-			relay_type varchar(255) NOT NULL -- SMTP service name, e.g. "smtp_Relay_mail_xxxx_cn_gwt3_6_pvz_6"
+			smtp_name varchar(255) NOT NULL, -- SMTP service name, e.g. "smtp_Relay_mail_xxxx_cn_gwt3_6_pvz_6"
+			unique(domain)
 			) `,
 
-			`CREATE INDEX IF NOT EXISTS idx_relay_domain_transport_domain ON bm_relay_domain_transport(domain);`,
-			`CREATE INDEX IF NOT EXISTS idx_relay_domain_transport_domain_relay ON bm_relay_domain_transport(domain,relay_type);`,
+			`CREATE INDEX IF NOT EXISTS idx_domain_smtp_transport_domain ON bm_domain_smtp_transport(domain);`,
+			`CREATE INDEX IF NOT EXISTS idx_domain_smtp_transport_atype ON bm_domain_smtp_transport(atype);`,
+			`CREATE INDEX IF NOT EXISTS idx_domain_smtp_transport_domain_smtpName ON bm_domain_smtp_transport(domain,smtp_name);`,
 			`CREATE INDEX IF NOT EXISTS idx_relay_domain_mapping_domain ON bm_relay_domain_mapping(sender_domain);`,
 			`CREATE INDEX IF NOT EXISTS idx_relay_domain_mapping_relay_id ON bm_relay_domain_mapping(relay_id);`,
 		}

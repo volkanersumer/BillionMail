@@ -557,7 +557,7 @@ password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
 hosts = pgsql
 dbname = billionmail
 
-query = SELECT CONCAT(relay_type, ':') FROM bm_relay_domain_transport WHERE domain = '%s' LIMIT 1`,
+query = SELECT CONCAT(smtp_name, ':') FROM bm_domain_smtp_transport WHERE domain = '%s' LIMIT 1`,
 	}
 
 	sqlDir := path.Join(postfixConfigDir, "sql")
@@ -687,7 +687,7 @@ func updateSmtpServiceMappings(ctx context.Context, configs []*entity.BmRelayCon
 	}
 
 	// Clear existing mapping table (avoid stale data)
-	_, err = g.DB().Model("bm_relay_domain_transport").Where("1=1").Delete()
+	_, err = g.DB().Model("bm_domain_smtp_transport").Where("atype", "relay").Delete()
 	if err != nil {
 		return gerror.Wrap(err, "failed to clear SMTP service name mapping table")
 	}
@@ -712,8 +712,9 @@ func updateSmtpServiceMappings(ctx context.Context, configs []*entity.BmRelayCon
 
 		// Add to batch insert list
 		transportMappings = append(transportMappings, g.Map{
-			"domain":     senderDomain,
-			"relay_type": smtpName,
+			"domain":    senderDomain,
+			"smtp_name": smtpName,
+			"atype":     "relay",
 		})
 	}
 
@@ -723,7 +724,7 @@ func updateSmtpServiceMappings(ctx context.Context, configs []*entity.BmRelayCon
 	}
 
 	// Batch insert new mappings
-	_, err = g.DB().Model("bm_relay_domain_transport").
+	_, err = g.DB().Model("bm_domain_smtp_transport").
 		Data(transportMappings).
 		Batch(100).
 		Insert()

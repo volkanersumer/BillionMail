@@ -58,7 +58,7 @@ func (c *ControllerV1) ListRelayConfigs(ctx context.Context, req *v1.ListRelayCo
 				RelayHost:     config.RelayHost,
 				RelayPort:     config.RelayPort,
 				AuthUser:      config.AuthUser,
-				AuthPassword:  "", // 不返回密码
+				AuthPassword:  "",
 				Ip:            config.Ip,
 				Host:          config.Host,
 				Active:        config.Active,

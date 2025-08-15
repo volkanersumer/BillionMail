@@ -536,28 +536,24 @@ func ensurePostfixRelayConfig(mainCfPath string, enableRelay bool) error {
 
 // createPostfixSqlConfigFile
 func createPostfixSqlConfigFile() error {
+	dbpass, _ := public.DockerEnv("DBPASS")
+	dbname, _ := public.DockerEnv("DBNAME")
+	dbuser, _ := public.DockerEnv("DBUSER")
 
 	sqlConfigFiles := map[string]string{
-		"pgsql_sender_relay_maps.cf": `user = billionmail
-password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
+		"pgsql_sender_relay_maps.cf": fmt.Sprintf(`user = %s
+password = %s
 hosts = pgsql
-dbname = billionmail
+dbname = %s
 
-query = SELECT CONCAT('[', rc.relay_host, ']:', rc.relay_port) FROM bm_relay_config rc JOIN bm_relay_domain_mapping rdm ON rc.id = rdm.relay_id WHERE rdm.sender_domain = REPLACE('%s', '@', '') AND rc.active = 1 LIMIT 1`,
+query = SELECT CONCAT('[', rc.relay_host, ']:', rc.relay_port) FROM bm_relay_config rc JOIN bm_relay_domain_mapping rdm ON rc.id = rdm.relay_id WHERE rdm.sender_domain = REPLACE('%%s', '@', '') AND rc.active = 1 LIMIT 1`, dbuser, dbpass, dbname),
 
-		//		"pgsql_sasl_password_maps.cf": `user = billionmail
-		//password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
-		//hosts = pgsql
-		//dbname = billionmail
-		//
-		//query = SELECT CONCAT(rc.auth_user, ':', rc.auth_password) FROM bm_relay_config rc WHERE CONCAT('[', rc.relay_host, ']:', rc.relay_port) = '%s' AND rc.active = 1 LIMIT 1`,
-
-		"pgsql_sender_transport_maps.cf": `user = billionmail
-password = 5khrHLc9zxTHZPJzxWkpe2ZQpTGHgH7q
+		"pgsql_sender_transport_maps.cf": fmt.Sprintf(`user = %s
+password = %s
 hosts = pgsql
-dbname = billionmail
+dbname = %s
 
-query = SELECT CONCAT(smtp_name, ':') FROM bm_domain_smtp_transport WHERE domain = '%s' LIMIT 1`,
+query = SELECT CONCAT(smtp_name, ':') FROM bm_domain_smtp_transport WHERE domain = '%%s' LIMIT 1`, dbuser, dbpass, dbname),
 	}
 
 	sqlDir := path.Join(postfixConfigDir, "sql")
@@ -598,7 +594,6 @@ func writePostfixRelayConfig(cfPath string, enableRelay bool) error {
 
 	var configBlock string
 
-	//  sender_dependent_default_transport_maps = pgsql:/etc/postfix/sql/pgsql_multi_ip_domain_transport_maps.cf, pgsql:/etc/postfix/sql/pgsql_sender_transport_maps.cf
 	configBlock = fmt.Sprintf(`%s
 smtp_sasl_auth_enable = yes
 smtp_sasl_security_options = noanonymous

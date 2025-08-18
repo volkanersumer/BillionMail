@@ -17,6 +17,12 @@
       "google": "ja",
       "title": "日本語",
       "cn": "日本語"
+    },
+    {
+      "name": "de",
+      "google": "de",
+      "title": "Deutsch",
+      "cn": "German"
     }
   ]
 }

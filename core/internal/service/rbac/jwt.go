@@ -21,6 +21,7 @@ type JWTCustomClaims struct {
 	AccountId int64    `json:"accountId"`
 	Username  string   `json:"username"`
 	Roles     []string `json:"roles"`
+	ApiToken  bool     `json:"apiToken"`
 	jwt.RegisteredClaims
 }
 
@@ -105,6 +106,32 @@ func (s *JWTService) GenerateRefreshToken(accountId int64, username string) (str
 	return signedToken, nil
 }
 
+// GenerateApiToken generates a JWT token for API access
+func (s *JWTService) GenerateApiToken(accountId int64, username string, roles []string) (string, int64, error) {
+	claims := &JWTCustomClaims{
+		AccountId: accountId,
+		Username:  username,
+		Roles:     roles,
+		ApiToken:  true,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: nil,
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    consts.DEFAULT_SERVER_NAME,
+			Subject:   "api_token",
+			ID:        guid.S() + guid.S(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString([]byte(s.Secret))
+	if err != nil {
+		return "", 0, err
+	}
+
+	return signedToken, 0, nil
+}
+
 // ParseToken parses and validates a JWT token
 func (s *JWTService) ParseToken(tokenString string) (*JWTCustomClaims, error) {
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
@@ -122,6 +149,16 @@ func (s *JWTService) ParseToken(tokenString string) (*JWTCustomClaims, error) {
 	}
 
 	return nil, gerror.New("invalid token")
+}
+
+// ParseTokenByRequest parses a JWT token from the request context
+func (s *JWTService) ParseTokenByRequest(r *ghttp.Request) (*JWTCustomClaims, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return nil, gerror.New("no authorization header found")
+	}
+	// Parse token from Authorization header
+	return s.ParseToken(strings.TrimPrefix(authHeader, "Bearer "))
 }
 
 // InvalidateToken invalidates a JWT token

@@ -790,7 +790,7 @@ func NewMallogEventHandler(maillogPath string, delay time.Duration) *MallogEvent
 
 // Start starts the mail log event handler
 func (handler *MallogEventHandler) Start() {
-	_, err := gfsnotify.Add(handler.maillogStat.maillogPath, func(event *gfsnotify.Event) {
+	_, err := gfsnotify.Add(filepath.Dir(handler.maillogStat.maillogPath), func(event *gfsnotify.Event) {
 		// g.Log().Debug(context.Background(), "MallogEventHandler: catch event", event)
 
 		if event.IsWrite() {

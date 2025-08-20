@@ -178,6 +178,10 @@ var (
 
 						if !r.Session.MustGet("safe_path_pass", false).Bool() {
 							if strings.HasPrefix(r.URL.Path, "/api/") {
+								// Check if the request is an API token request
+								if claims, err := rbac2.JWT().ParseTokenByRequest(r); err == nil && claims != nil && claims.ApiToken {
+									return
+								}
 								resp := public.CodeMap[404]
 								resp.Msg = "access denied"
 								r.Response.WriteJson(resp)

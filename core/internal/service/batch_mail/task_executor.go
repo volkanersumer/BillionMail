@@ -803,7 +803,7 @@ func (e *TaskExecutor) processSendResults(ctx context.Context, resultChan <-chan
 		if len(successResults) > 0 {
 			// prepare batch update
 			now := time.Now().Unix()
-
+			e.lastActivity = time.Now()
 			// batch update recipient status
 			// prepare batch update SQL
 			if len(successResults) > 0 {
@@ -852,6 +852,22 @@ func (e *TaskExecutor) processSendResults(ctx context.Context, resultChan <-chan
 
 		// clear failed records
 		if len(failedIDs) > 0 {
+			now := time.Now().Unix()
+			// 失败的也更新 is_sent 和 sent_time 避免卡住发送状态
+			_, err := g.DB().Model("recipient_info").
+				WhereIn("id", failedIDs).
+				Data(g.Map{
+					"is_sent":   1,
+					"sent_time": now,
+				}).
+				Update()
+
+			if err != nil {
+				g.Log().Error(ctx, "batch update failed recipients status failed: %v", err)
+			} else {
+				g.Log().Debug(ctx, "marked %d failed recipients as sent", len(failedIDs))
+			}
+
 			failedIDs = failedIDs[:0]
 		}
 	}

@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gvalid"
 	"io"
 	"strings"
 )
@@ -134,7 +135,13 @@ func parseCSVContent(ctx context.Context, content string) ([]*entity.Contact, er
 			continue
 		}
 
-		contact := &entity.Contact{
+		// Validate email format
+		if err := gvalid.New().Rules("email").Data(email).Run(ctx); err != nil {
+			g.Log().Warning(ctx, "Invalid email format in CSV, skipping: %s", email)
+			continue
+		}
+
+		contact_s := &entity.Contact{
 			Email:   email,
 			Active:  -1,
 			Attribs: make(map[string]string),
@@ -144,9 +151,9 @@ func parseCSVContent(ctx context.Context, content string) ([]*entity.Contact, er
 		if activeIdx, ok := columnIndexes["active"]; ok && len(record) > activeIdx {
 			activeStr := strings.TrimSpace(record[activeIdx])
 			if activeStr == "0" {
-				contact.Active = 0
+				contact_s.Active = 0
 			} else if activeStr == "1" {
-				contact.Active = 1
+				contact_s.Active = 1
 			}
 		}
 
@@ -158,12 +165,12 @@ func parseCSVContent(ctx context.Context, content string) ([]*entity.Contact, er
 				if err != nil {
 					g.Log().Warning(ctx, "Failed to parse attributes for email %s: %v", email, err)
 				} else {
-					contact.Attribs = attribs
+					contact_s.Attribs = attribs
 				}
 			}
 		}
 
-		contacts = append(contacts, contact)
+		contacts = append(contacts, contact_s)
 	}
 
 	return contacts, nil
@@ -281,6 +288,11 @@ func (c *ControllerV1) ImportContacts(ctx context.Context, req *v1.ImportContact
 		for _, c := range contactList {
 			contactInfo := *c
 			contactInfo.GroupId = groupId
+
+			if err := gvalid.New().Rules("email").Data(contactInfo.Email).Run(ctx); err != nil {
+				g.Log().Warning(ctx, "Invalid email format in CSV, skipping: %s", contactInfo.Email)
+				continue
+			}
 
 			if contactInfo.Active == -1 {
 				contactInfo.Active = req.DefaultActive

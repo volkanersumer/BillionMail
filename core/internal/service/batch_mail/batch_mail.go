@@ -12,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gogf/gf/v2/util/gvalid"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -235,8 +236,6 @@ func ImportRecipients(ctx context.Context, taskId int, contacts []*entity.Contac
 			g.Log().Warning(ctx, "Could not get affected rows for batch %d/%d: %v", i+1, totalBatches, err)
 		} else {
 			totalImported += int(affected)
-			g.Log().Debug(ctx, "Task %d: Batch %d/%d imported %d recipients successfully",
-				taskId, i+1, totalBatches, affected)
 		}
 	}
 
@@ -346,21 +345,29 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 				continue
 			}
 
-			// abnormal skip
+			// abnormal skip and email format validation
 			filteredContacts := make([]*entity.Contact, 0, len(contacts))
 			skippedInGroup := 0
 
 			for _, contact := range contacts {
+				// Check if email is in abnormal list
 				if _, exists := abnormalMap[contact.Email]; exists {
 					skippedInGroup++
 					continue
 				}
+
+				// Validate email format
+				if err := gvalid.New().Rules("email").Data(contact.Email).Run(ctx); err != nil {
+					skippedInGroup++
+					g.Log().Debug(ctx, "Skip erroneous email addresses:", contact.Email, " Error:", err)
+					continue
+				}
+
 				filteredContacts = append(filteredContacts, contact)
 			}
 
 			if skippedInGroup > 0 {
 				totalSkipped += skippedInGroup
-
 			}
 
 			if len(filteredContacts) == 0 {

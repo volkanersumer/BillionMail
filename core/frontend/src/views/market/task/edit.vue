@@ -358,7 +358,7 @@ function findTemplateId(list: Template[]) {
 }
 
 const initForm = async () => {
-	const { id } = route.params
+	const { task_id: id } = route.query
 	if (!id) return
 	const res = await getTaskDetails({ id: Number(id) })
 	if (isObject<Task>(res)) {

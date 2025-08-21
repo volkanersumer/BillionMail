@@ -33,6 +33,11 @@ func (o *Overview) filterAndPrepareTimeSection(startTime, endTime int64) (int64,
 		panic(public.Lang("end_time must greater than start_time"))
 	}
 
+	// Maximum time range is 1 year
+	if endTime-startTime > 31622400 {
+		startTime = endTime - 31622400 // 1 year
+	}
+
 	return startTime, endTime
 }
 
@@ -63,7 +68,7 @@ func (o *Overview) buildBaseQuery(campaignID int64, domain string, startTime, en
 	return query
 }
 
-// Overview overview the maillog
+// Overview the maillog
 func (o *Overview) Overview(campaignID int64, domain string, startTime, endTime int64) map[string]interface{} {
 	startTime, endTime = o.filterAndPrepareTimeSection(startTime, endTime)
 
@@ -145,7 +150,7 @@ func (o *Overview) overviewDashboard(campaignID int64, domain string, startTime,
 	return aggregate
 }
 
-// overviewDashboard dashboard data
+// OverviewDashboard dashboard data
 func (o *Overview) OverviewDashboard(campaignID int64, domain string, startTime, endTime int64) map[string]interface{} {
 	aggregate := o.overviewDashboard(campaignID, domain, startTime, endTime)
 	return aggregate
@@ -282,6 +287,8 @@ func (o *Overview) overviewProviders(campaignID int64, domain string, startTime,
 
 func (o *Overview) fillChartData(data []map[string]interface{}, fillItem map[string]interface{}, fillType, fillKey string, startTime, endTime int64) []map[string]interface{} {
 	switch fillType {
+	case "monthly":
+		return o.fillChartDataMonthly(data, fillItem, fillKey, startTime, endTime)
 	case "daily":
 		return o.fillChartDataDaily(data, fillItem, fillKey, startTime, endTime)
 	case "hourly":
@@ -360,6 +367,43 @@ func (o *Overview) fillChartDataDaily(data []map[string]interface{}, fillItem ma
 	return lst
 }
 
+func (o *Overview) fillChartDataMonthly(data []map[string]interface{}, fillItem map[string]interface{}, fillKey string, startTime, endTime int64) []map[string]interface{} {
+	if startTime < 0 || endTime < 0 {
+		return data
+	}
+
+	if startTime > endTime {
+		return data
+	}
+
+	m := make(map[string]map[string]interface{}, len(data))
+	for _, item := range data {
+		m[gconv.String(item[fillKey])] = item
+	}
+
+	lst := make([]map[string]interface{}, 0, (endTime-startTime)/2592000+1)
+	for i := startTime; i <= endTime; i += 2592000 {
+		monthDateObj := time.Unix(i, 0)
+		monthDate := monthDateObj.Format("2006-01")
+		monthTime := time.Date(monthDateObj.Year(), monthDateObj.Month(), 1, 0, 0, 0, 0, time.Local).Unix()
+
+		if item, ok := m[monthDate]; ok {
+			item[fillKey] = monthTime
+			lst = append(lst, item)
+			continue
+		}
+
+		item := make(map[string]interface{}, len(fillItem))
+		for k, v := range fillItem {
+			item[k] = v
+		}
+		item[fillKey] = monthTime
+		lst = append(lst, item)
+	}
+
+	return lst
+}
+
 // sendMailDashboard dashboard data for send mail
 func (o *Overview) sendMailDashboard(campaignID int64, domain string, startTime, endTime int64) map[string]interface{} {
 	startTime, endTime = o.filterAndPrepareTimeSection(startTime, endTime)
@@ -405,6 +449,11 @@ func (o *Overview) prepareChartData(startTime, endTime int64) (string, string) {
 	if secs < 86400 {
 		columnType = "hourly"
 		xAxisField = "TO_CHAR(TO_TIMESTAMP(sm.log_time_millis / 1000), 'HH24')::integer as x"
+	}
+
+	if secs >= 2592000 {
+		columnType = "monthly"
+		xAxisField = "TO_CHAR(TO_TIMESTAMP(sm.log_time_millis / 1000), 'YYYY-MM') as x"
 	}
 
 	return columnType, xAxisField

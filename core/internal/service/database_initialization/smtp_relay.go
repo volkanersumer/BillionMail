@@ -67,6 +67,11 @@ func init() {
 				return
 			}
 		}
+		// There is a rename table that has been synchronized. Skip.
+		existsOld := checkTableExists(ctx, "bm_relay_old")
+		if existsOld {
+			return
+		}
 
 		//  Migrate the old data to the new structure
 		if err := migrateRelayData(ctx); err != nil {
@@ -80,7 +85,6 @@ func init() {
 			return
 		}
 		g.Log().Info(ctx, "Relay configuration migration completed successfully.")
-		//migrateRelayData()
 
 	})
 }

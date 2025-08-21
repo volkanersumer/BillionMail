@@ -8,7 +8,6 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"sort"
 	"strings"
@@ -151,12 +150,16 @@ func (o *Overview) OverviewDashboard(campaignID int64, domain string, startTime,
 	return aggregate
 }
 
-// Obtain the number of deferred queues with a 1-minute cache
+// Obtain the number of deferred queues with cache
 func (o *Overview) getPostfixDeferredQueueCount(ctx context.Context) (int, error) {
-	cache := gcache.New()
 	cacheKey := "postfix_deferred_queue_count"
-	if v, err := cache.Get(ctx, cacheKey); err == nil && v != nil {
-		return v.Int(), nil
+	v := public.GetCache(cacheKey)
+	if v != nil {
+		if num, ok := v.(int); ok {
+			return num, nil
+		} else {
+			return 0, nil
+		}
 	}
 
 	dk, err := docker.NewDockerAPI()
@@ -188,7 +191,7 @@ func (o *Overview) getPostfixDeferredQueueCount(ctx context.Context) (int, error
 		}
 	}
 
-	_ = cache.Set(ctx, cacheKey, count, time.Minute)
+	public.SetCache(cacheKey, count, 120)
 	return count, nil
 }
 

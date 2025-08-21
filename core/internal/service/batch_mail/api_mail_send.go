@@ -150,15 +150,15 @@ func (p *WorkerPool) processMail(ctx context.Context, log ApiMailLog) {
 // Queue processing with distributed lock
 func ProcessApiMailQueueWithLock(ctx context.Context) {
 	// Attempt to acquire the distributed lock
-	locked, err := g.Redis().SetNX(ctx, LockKey, "1")
+	err := g.Redis().SetEX(ctx, LockKey, "1", LockTimeout)
 	if err != nil {
 		g.Log().Error(ctx, "Failed to acquire lock:", err)
 		return
 	}
-	if !locked {
-		g.Log().Warning(ctx, "Another instance is processing the mail queue")
-		return
-	}
+	//if !locked {
+	//	g.Log().Warning(ctx, "Another instance is processing the mail queue")
+	//	return
+	//}
 
 	// // Set expiration time
 	// g.Redis().Expire(ctx, LockKey, int64(LockTimeout))

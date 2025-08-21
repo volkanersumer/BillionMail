@@ -113,7 +113,7 @@ func readTemplateFiles(baseFilename string) (htmlContent string, txtContent stri
 	txtBytes, err := os.ReadFile(txtPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			g.Log().Warningf(context.Background(),
+			g.Log().Debugf(context.Background(),
 				"failed to read TXT template: %v, path: %s", err, txtPath)
 		}
 		txtBytes = []byte("") // Return empty content if file does not exist

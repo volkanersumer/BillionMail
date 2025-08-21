@@ -385,7 +385,7 @@ func (ms *MaillogStat) Analysis(ctx context.Context) (<-chan MailRecorfContract,
 		g.Log().Debug(ctx, "Total scanned lines:", n)
 
 		if err != nil {
-			g.Log().Warning(ctx, "Error reading maillog: %v\n", err)
+			g.Log().Debugf(ctx, "Error reading maillog: %v\n", err)
 		}
 	}()
 

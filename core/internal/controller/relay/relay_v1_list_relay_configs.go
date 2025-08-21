@@ -83,7 +83,7 @@ func (c *ControllerV1) ListRelayConfigs(ctx context.Context, req *v1.ListRelayCo
 			Scan(&mappings)
 
 		if err != nil {
-			g.Log().Warning(ctx, "Failed to query domain mappings for relay ID", config.Id, ":", err)
+			g.Log().Debug(ctx, "Failed to query domain mappings for relay ID", config.Id, ":", err)
 		} else {
 
 			for _, mapping := range mappings {
@@ -196,7 +196,7 @@ func GetRealSPFRecord(ctx context.Context, domain string) (string, error) {
 	var finalErr error
 	txts, err := net.LookupTXT(domain)
 	if err != nil {
-		g.Log().Warning(ctx, "DNS TXT query failed:", domain, "Error:", err)
+		g.Log().Debug(ctx, "DNS TXT query failed:", domain, "Error:", err)
 		finalErr = err
 	} else {
 		found := false

@@ -200,6 +200,6 @@ func setLastStatTime(ctx context.Context, t int64) {
 		OnConflict("name").
 		Save()
 	if err != nil {
-		g.Log().Warningf(ctx, "[abnormal Recipient] Error occurred in the last statistics time recording: %v", err)
+		g.Log().Debugf(ctx, "[abnormal Recipient] Error occurred in the last statistics time recording: %v", err)
 	}
 }

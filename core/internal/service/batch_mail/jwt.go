@@ -77,7 +77,7 @@ func getOrGenerateSecret(ctx context.Context) string {
 		Insert()
 
 	if err != nil {
-		g.Log().Warning(ctx, "Failed to persist JWT secret to database:", err)
+		g.Log().Debug(ctx, "Failed to persist JWT secret to database:", err)
 
 		val, err := g.DB().Model("bm_options").
 			Where("name", JWT_SECRET_KEY).
@@ -233,7 +233,7 @@ func getOrGenerateSubscribeConfirmSecret(ctx context.Context) string {
 		WhereNull("value").
 		Insert()
 	if err != nil {
-		g.Log().Warning(ctx, "Failed to persist subscribe confirm JWT secret to database:", err)
+		g.Log().Debug(ctx, "Failed to persist subscribe confirm JWT secret to database:", err)
 		val, err := g.DB().Model("bm_options").
 			Where("name", SUBSCRIBE_CONFIRM_JWT_SECRET).
 			Value("value")

@@ -42,10 +42,10 @@ func (c *ControllerV1) AddDomain(ctx context.Context, req *v1.AddDomainReq) (res
 		if accErr == nil {
 			certErr := domains.ApplyLetsEncryptCertWithHttp(ctx, req.Domain, acc)
 			if certErr != nil {
-				g.Log().Warningf(ctx, "Domain name [%s] added successfully, but auto-request certificate failed: %v", req.Domain, certErr)
+				g.Log().Debugf(ctx, "Domain name [%s] added successfully, but auto-request certificate failed: %v", req.Domain, certErr)
 			}
 		} else {
-			g.Log().Warningf(ctx, "The domain name [%s] was added successfully, but the current account failed to obtain the certificate automatically: %v", req.Domain, accErr)
+			g.Log().Debugf(ctx, "The domain name [%s] was added successfully, but the current account failed to obtain the certificate automatically: %v", req.Domain, accErr)
 		}
 
 	})

@@ -124,7 +124,7 @@ func BatchCreateContactsIgnoreDuplicate(ctx context.Context, contacts []*entity.
 		// Count affected rows
 		affected, err := result.RowsAffected()
 		if err != nil {
-			g.Log().Warning(ctx, "Could not get affected rows for batch %d/%d: %v", i+1, totalBatches, err)
+			g.Log().Debugf(ctx, "Could not get affected rows for batch %d/%d: %v", i+1, totalBatches, err)
 		} else {
 			totalAffected += int(affected)
 			g.Log().Debug(ctx, "Batch %d/%d inserted %d records successfully", i+1, totalBatches, affected)

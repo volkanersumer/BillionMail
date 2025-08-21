@@ -45,7 +45,7 @@ func (c *ControllerV1) SaveConfigFile(ctx context.Context, req *v1.SaveConfigFil
 	if gfile.Exists(configPath) {
 		backupPath = configPath + ".bak." + time.Now().Format("20060102150405")
 		if err := gfile.Copy(configPath, backupPath); err != nil {
-			g.Log().Warningf(ctx, "Failed to back up configuration file %s: %v", configPath, err)
+			g.Log().Debugf(ctx, "Failed to back up configuration file %s: %v", configPath, err)
 		} else {
 			g.Log().Infof(ctx, "A configuration file backup has been created: %s", backupPath)
 			backupMade = true

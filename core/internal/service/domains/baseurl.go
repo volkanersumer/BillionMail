@@ -33,7 +33,7 @@ func GetBaseURLBySender(sender string) string {
 	err := g.Validator().Data(sender).Rules("email").Run(context.Background())
 
 	if err != nil {
-		g.Log().Warning(context.Background(), "GetBaseURLBySender --> Invalid email address", sender, err)
+		g.Log().Debug(context.Background(), "GetBaseURLBySender --> Invalid email address", sender, err)
 		return GetBaseURL()
 	}
 

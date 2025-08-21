@@ -140,7 +140,7 @@ func CreateTask(ctx context.Context, args CreateTaskArgs) (int, error) {
 		"add_type":        args.AddType,
 	})
 	if err != nil {
-		g.Log().Warning(ctx, "Failed to create campaign:", err.Error())
+		g.Log().Debug(ctx, "Failed to create campaign:", err.Error())
 		return 0, err
 	}
 
@@ -233,7 +233,7 @@ func ImportRecipients(ctx context.Context, taskId int, contacts []*entity.Contac
 		// Count affected rows
 		affected, err := result.RowsAffected()
 		if err != nil {
-			g.Log().Warning(ctx, "Could not get affected rows for batch %d/%d: %v", i+1, totalBatches, err)
+			g.Log().Debugf(ctx, "Could not get affected rows for batch %d/%d: %v", i+1, totalBatches, err)
 		} else {
 			totalImported += int(affected)
 		}
@@ -322,7 +322,7 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 			Scan(&abnormalRecipients)
 
 		if err != nil {
-			g.Log().Warning(ctx, "Failed to get the exception recipient list: %v", err)
+			g.Log().Debugf(ctx, "Failed to get the exception recipient list: %v", err)
 		}
 
 		abnormalMap := make(map[string]int)

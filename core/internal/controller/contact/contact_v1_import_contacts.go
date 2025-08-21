@@ -126,7 +126,7 @@ func parseCSVContent(ctx context.Context, content string) ([]*entity.Contact, er
 			break
 		}
 		if err != nil {
-			g.Log().Warning(ctx, "Error reading CSV record: %v", err)
+			g.Log().Debugf(ctx, "Error reading CSV record: %v", err)
 			continue
 		}
 
@@ -137,7 +137,7 @@ func parseCSVContent(ctx context.Context, content string) ([]*entity.Contact, er
 
 		// Validate email format
 		if err := gvalid.New().Rules("email").Data(email).Run(ctx); err != nil {
-			g.Log().Warning(ctx, "Invalid email format in CSV, skipping: %s", email)
+			g.Log().Debugf(ctx, "Invalid email format in CSV, skipping: %s", email)
 			continue
 		}
 
@@ -163,7 +163,7 @@ func parseCSVContent(ctx context.Context, content string) ([]*entity.Contact, er
 			if attribsStr != "" {
 				attribs, err := parseJSONAttributes(ctx, attribsStr)
 				if err != nil {
-					g.Log().Warning(ctx, "Failed to parse attributes for email %s: %v", email, err)
+					g.Log().Debugf(ctx, "Failed to parse attributes for email %s: %v", email, err)
 				} else {
 					contact_s.Attribs = attribs
 				}
@@ -290,7 +290,7 @@ func (c *ControllerV1) ImportContacts(ctx context.Context, req *v1.ImportContact
 			contactInfo.GroupId = groupId
 
 			if err := gvalid.New().Rules("email").Data(contactInfo.Email).Run(ctx); err != nil {
-				g.Log().Warning(ctx, "Invalid email format in CSV, skipping: %s", contactInfo.Email)
+				g.Log().Debugf(ctx, "Invalid email format in CSV, skipping: %s", contactInfo.Email)
 				continue
 			}
 

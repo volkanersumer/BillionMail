@@ -50,7 +50,7 @@ func (c *ControllerV1) ListTasks(ctx context.Context, req *v1.ListTasksReq) (res
 		} else {
 			// If still inconsistent, set unsent count to 0
 			detail.UnsentCount = 0
-			g.Log().Warning(ctx, "Task %d has inconsistent data: recipient_count(%d) < sent_count(%d)",
+			g.Log().Infof(ctx, "Task %d has inconsistent data: recipient_count(%d) < sent_count(%d)",
 				task.Id, task.RecipientCount, sentCount)
 		}
 

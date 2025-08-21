@@ -51,7 +51,7 @@ func (c *ControllerV1) ListContactsNDP(ctx context.Context, req *v1.ListContacts
 	for email, contactInfo := range list {
 		groups, err := contact.GetGroup(ctx, contactInfo.GroupId)
 		if err != nil {
-			g.Log().Warningf(ctx, "Failed to get groups for contact %s: %v", email, err)
+			g.Log().Debugf(ctx, "Failed to get groups for contact %s: %v", email, err)
 			continue
 		}
 

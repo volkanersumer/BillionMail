@@ -654,7 +654,7 @@ func (e *TaskExecutor) processRecipientBatch(ctx context.Context, task *entity.E
 				return err
 			}
 			// record error but continue
-			g.Log().Warning(ctx, "Rate limit wait error: %v", err)
+			g.Log().Debugf(ctx, "Rate limit wait error: %v", err)
 
 		}
 
@@ -887,7 +887,7 @@ func (e *TaskExecutor) processSendResults(ctx context.Context, resultChan <-chan
 			} else {
 				failedIDs = append(failedIDs, result.RecipientID)
 
-				g.Log().Warning(ctx, "send email to recipient %d failed: %v",
+				g.Log().Debugf(ctx, "send email to recipient %d failed: %v",
 					result.RecipientID, result.Error)
 			}
 
@@ -1152,7 +1152,7 @@ func (e *TaskExecutor) sendEmailMock(ctx context.Context, task *entity.EmailTask
 	}
 	_, err = g.DB().Model("mailstat_senders").InsertIgnore(senderRecord)
 	if err != nil {
-		g.Log().Warningf(ctx, "sendEmailMock: failed to insert mailstat_senders: %v", err)
+		g.Log().Debugf(ctx, "sendEmailMock: failed to insert mailstat_senders: %v", err)
 	}
 
 	// 2. Create MailMessageID record
@@ -1165,7 +1165,7 @@ func (e *TaskExecutor) sendEmailMock(ctx context.Context, task *entity.EmailTask
 	}
 	_, err = g.DB().Model("mailstat_message_ids").InsertIgnore(messageIDRecord)
 	if err != nil {
-		g.Log().Warningf(ctx, "sendEmailMock: failed to insert mailstat_message_ids: %v", err)
+		g.Log().Debugf(ctx, "sendEmailMock: failed to insert mailstat_message_ids: %v", err)
 	}
 
 	// 3. Create MailSendRecord record
@@ -1206,7 +1206,7 @@ func (e *TaskExecutor) sendEmailMock(ctx context.Context, task *entity.EmailTask
 			"postfix_message_id": postfixMessageID,
 		})
 		if err != nil {
-			g.Log().Warningf(ctx, "sendEmailMock: failed to insert mailstat_opened: %v", err)
+			g.Log().Debugf(ctx, "sendEmailMock: failed to insert mailstat_opened: %v", err)
 		}
 
 		// If opened, simulate a 20% click rate
@@ -1220,7 +1220,7 @@ func (e *TaskExecutor) sendEmailMock(ctx context.Context, task *entity.EmailTask
 				"postfix_message_id": postfixMessageID,
 			})
 			if err != nil {
-				g.Log().Warningf(ctx, "sendEmailMock: failed to insert mailstat_clicked: %v", err)
+				g.Log().Debugf(ctx, "sendEmailMock: failed to insert mailstat_clicked: %v", err)
 			}
 		}
 	}

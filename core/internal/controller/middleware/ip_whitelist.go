@@ -36,7 +36,7 @@ func isExcludedPath(path string) bool {
 	if strings.HasPrefix(path, "/.well-known/acme-challenge") ||
 		strings.HasPrefix(path, "/pmta/") ||
 		strings.HasPrefix(path, "/roundcube") {
-		g.Log().Warning(context.Background(), "[IP Whitelist 2] Excluded path: ", path, " allowed")
+		g.Log().Debug(context.Background(), "[IP Whitelist 2] Excluded path: ", path, " allowed")
 		return true
 	}
 
@@ -106,7 +106,7 @@ func IPWhitelist(r *ghttp.Request) {
 	// 1. If the whitelist feature is not enabled, allow access directly
 	if !isIPWhitelistEnabled(envMap) {
 		r.Middleware.Next()
-		// g.Log().Warningf(r.Context(), "[IP Whitelist] Not enabled, allowing access directly")
+		// g.Log().Debug(r.Context(), "[IP Whitelist] Not enabled, allowing access directly")
 		return
 	}
 	// 2. Check if the path is in the exclusion list
@@ -120,12 +120,12 @@ func IPWhitelist(r *ghttp.Request) {
 	// 3. Check if the client IP is in the whitelist
 	clientIP := r.GetClientIp()
 	if isIPAllowed(clientIP) {
-		g.Log().Warningf(r.Context(), "[IP Whitelist] Access allowed: %s", clientIP)
+		g.Log().Infof(r.Context(), "[IP Whitelist] Access allowed: %s", clientIP)
 		r.Middleware.Next()
 		return
 	}
 
-	g.Log().Warningf(r.Context(), "[IP Whitelist] Blocked non-whitelisted IP: %s, UA: %s, Path: %s", clientIP, r.Request.UserAgent(), r.Request.URL.Path)
+	g.Log().Infof(r.Context(), "[IP Whitelist] Blocked non-whitelisted IP: %s, UA: %s, Path: %s", clientIP, r.Request.UserAgent(), r.Request.URL.Path)
 	r.Response.WriteStatus(403, "IP not allowed")
 	r.Exit()
 }

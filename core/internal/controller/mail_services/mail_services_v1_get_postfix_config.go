@@ -27,7 +27,7 @@ func (c *ControllerV1) GetPostfixConfig(ctx context.Context, req *v1.GetPostfixC
 	mainCfPath := v1.ServiceType_Postfix
 	file, err := os.Open(mainCfPath)
 	if err != nil {
-		g.Log().Warning(ctx, "Failed to open main.cf, use default values:", err)
+		g.Log().Debug(ctx, "Failed to open main.cf, use default values:", err)
 		for _, key := range params {
 			config[key] = defaultConfig[key]
 		}

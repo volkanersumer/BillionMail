@@ -103,7 +103,7 @@ func migrateRelayData(ctx context.Context) error {
 		return gerror.Wrap(err, "Failed to query record count of new table")
 	}
 	if newCount > 0 {
-		g.Log().Warning(ctx, "bm_relay_config already has data (%d records), skip migration to prevent duplication", newCount)
+		g.Log().Debugf(ctx, "bm_relay_config already has data (%d records), skip migration to prevent duplication", newCount)
 		return nil
 	}
 

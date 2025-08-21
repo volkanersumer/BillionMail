@@ -777,7 +777,8 @@
 			"domain": "紐付けドメイン",
 			"server": "サーバー",
 			"port": "ポート",
-			"username": "ユーザー名"
+			"username": "ユーザー名",
+			"dnsUpdateRequired": "DNSレコードの更新が必要"
 		},
 		"form": {
 			"addTitle": "SMTP 追加",
@@ -788,8 +789,15 @@
 			"port": "SMTP ポート",
 			"username": "ユーザー名",
 			"password": "パスワード",
+			"authMethod": "認証方式",
+			"advancedFeatures": "高度なオプション",
 			"testConnection": "接続テスト",
 			"bind": " [紐付け済み]",
+			"skipTlsVerify": "TLS検証をスキップ",
+			"tlsOptions": {
+				"skip": "スキップ",
+				"noSkip": "スキップしない"
+			},
 			"validation": {
 				"nameRequired": "リレー名を入力してください",
 				"domainRequired": "紐付けドメインを選択してください",
@@ -890,6 +898,20 @@
 				"adding": "メール転送を追加中... お待ちください",
 				"editing": "メール転送を編集中... お待ちください",
 				"deleting": "メール転送を削除中... お待ちください"
+			}
+		},
+		"common": {
+			"confirm": "更新",
+			"proxy": {
+				"title": "リバースプロキシ",
+				"description": "リバースプロキシアドレス、外部公開時に使用します。例：購読リスト、配信停止メールなど",
+				"placeholder": "リバースプロキシアドレスを入力してください",
+				"formatTip": "形式：https://example.com",
+				"reset": "リセット",
+				"resetConfirm": {
+					"title": "リバースプロキシをリセット",
+					"content": "リバースプロキシをリセットしてもよろしいですか？"
+				}
 			}
 		},
 		"api": {

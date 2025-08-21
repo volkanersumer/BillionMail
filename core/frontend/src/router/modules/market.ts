@@ -33,7 +33,7 @@ const route: RouteRecordRaw = {
 			],
 		},
 		{
-			path: 'task/edit',
+			path: 'task/edit/:id',
 			name: 'MarketTaskEdit',
 			meta: { title: 'Task', hidden: true },
 			component: () => import('@/views/market/task/edit.vue'),

@@ -13,30 +13,38 @@
 				<!-- form data -->
 				<n-form>
 					<n-form-item>
-						<template #label><span class="form-label">{{
-							$t('domain.edit.domainConfiguration.domain')
-						}}</span></template>
-						<n-input v-model:value="domainTit" @input="syncToUrl" :disabled="true"></n-input>
+						<template #label
+							><span class="form-label">{{
+								$t('domain.edit.domainConfiguration.domain')
+							}}</span></template
+						>
+						<n-input v-model:value="domainTit" :disabled="true" @input="syncToUrl"></n-input>
 					</n-form-item>
 					<n-form-item label="">
-						<template #label><span class="form-label">{{
-							$t('domain.edit.domainConfiguration.domainQuota')
-						}}</span></template>
+						<template #label
+							><span class="form-label">{{
+								$t('domain.edit.domainConfiguration.domainQuota')
+							}}</span></template
+						>
 						<div class="flex justify-between gap-5 items-center w-100%">
 							<n-input v-model:value="quota"></n-input>
 							<n-select v-model:value="unit" :options="uinitOptions" class="w-20"></n-select>
 						</div>
 					</n-form-item>
 					<n-form-item>
-						<template #label><span class="form-label">{{
-							$t('domain.edit.domainConfiguration.mailboxCount')
-						}}</span></template>
+						<template #label
+							><span class="form-label">{{
+								$t('domain.edit.domainConfiguration.mailboxCount')
+							}}</span></template
+						>
 						<n-input-number v-model:value="mailboxes" :show-button="false"></n-input-number>
 					</n-form-item>
 					<n-form-item>
-						<template #label><span class="form-label">{{
-							$t('domain.edit.domainConfiguration.catchAll')
-						}}</span></template>
+						<template #label
+							><span class="form-label">{{
+								$t('domain.edit.domainConfiguration.catchAll')
+							}}</span></template
+						>
 						<n-input v-model:value="catch_email"></n-input>
 					</n-form-item>
 				</n-form>
@@ -48,7 +56,7 @@
 						<div class="back-tool">
 							<i class="i-cuida:mail-outline text-7"></i>
 						</div>
-						<span class="tit-content">{{ $t("domain.edit.domainConfiguration.brandInfo") }}</span>
+						<span class="tit-content">{{ $t('domain.edit.domainConfiguration.brandInfo') }}</span>
 					</div>
 					<div class="right-tit">
 						<n-switch v-model:value="brandInfo" @update:value="switchBrandInfo"></n-switch>
@@ -56,9 +64,15 @@
 				</div>
 
 				<div class="w-100% flex flex-col gap-2.5">
-					<div v-for="(_, index) in urls" :key="index" class="flex justify-start items-center gap-2.5">
-						<n-input v-model:value="urls[index]" :placeholder="$t('domain.form.urlsPlacement')"
-							:disabled="!supplierStatus" readonly>
+					<div
+						v-for="(_, index) in urls"
+						:key="index"
+						class="flex justify-start items-center gap-2.5">
+						<n-input
+							v-model:value="urls[index]"
+							:placeholder="$t('domain.form.urlsPlacement')"
+							:disabled="!supplierStatus"
+							readonly>
 						</n-input>
 						<div v-if="index != 0" class="close" @click="removeUrl(index)">
 							<i class="i-material-symbols:close-rounded text-5"></i>
@@ -69,8 +83,7 @@
 
 			<n-card v-else class="mt-5">
 				<div class="fw-bold text-4 mb-5 text-[#777] flex justify-between items-center">
-					<span>{{ $t("domain.edit.domainConfiguration.noBrandInfo") }}</span>
-					
+					<span>{{ $t('domain.edit.domainConfiguration.noBrandInfo') }}</span>
 				</div>
 				<n-alert v-if="!supplierStatus" type="warning" class="mb-15px" :show-icon="false">
 					<div class="w-100% flex justify-between items-center">
@@ -93,8 +106,13 @@
 				</bt-tips>
 				<n-form-item :label="$t('domain.edit.domainConfiguration.specifyDomain')">
 					<div class="w-100% flex flex-col gap-2.5">
-						<div v-for="(_, index) in urls" :key="index" class="flex justify-start items-center gap-2.5">
-							<n-input v-model:value="urls[index]" :placeholder="$t('domain.form.urlsPlacement')"
+						<div
+							v-for="(_, index) in urls"
+							:key="index"
+							class="flex justify-start items-center gap-2.5">
+							<n-input
+								v-model:value="urls[index]"
+								:placeholder="$t('domain.form.urlsPlacement')"
 								:disabled="!supplierStatus">
 							</n-input>
 							<div v-if="index != 0" class="close" @click="removeUrl(index)">
@@ -110,16 +128,16 @@
 						</n-button> -->
 					</div>
 				</n-form-item>
-				<n-button type="primary" @click="createBrandInfo">{{
-					$t("domain.edit.domainConfiguration.createNow")
-					}}</n-button>
-			</n-card>
-			<n-button type="primary" @click="updateDomain" class="w-100% mt-5">
-					<template #icon>
-						<i class="i-mingcute:save-2-line text-5"></i>
-					</template>
-					{{ $t('domain.edit.save') }}
+				<n-button type="primary" @click="createBrandInfo">
+					{{ $t('domain.edit.domainConfiguration.createNow') }}
 				</n-button>
+			</n-card>
+			<n-button type="primary" class="w-100% mt-5" @click="updateDomain">
+				<template #icon>
+					<i class="i-mingcute:save-2-line text-5"></i>
+				</template>
+				{{ $t('domain.edit.save') }}
+			</n-button>
 		</div>
 	</div>
 
@@ -129,14 +147,29 @@
 
 <script setup lang="ts">
 import WaitAndCheckDomainStatus from '@/views/domain/components/WaitAndCheckDomainStatus.vue'
+import { checkAiConfiguration } from '@/api/modules/domain'
 import {
-	checkAiConfiguration,
-} from '@/api/modules/domain'
-import { getDomainDetail, syncToUrl, removeUrl, createBrandInfo, switchBrandInfo,updateDomain } from '../controller/domainConfiguration.controller'
+	getDomainDetail,
+	syncToUrl,
+	removeUrl,
+	createBrandInfo,
+	switchBrandInfo,
+	updateDomain,
+} from '../controller/domainConfiguration.controller'
 import { getEditDomainStoreData } from '../store'
 const router = useRouter()
 const supplierStatus = ref(false)
-const { domainTit, quota, unit, mailboxes, catch_email, urls, brandInfo, createdBrandInfo, waitAndCheckDomainStatusRef } = getEditDomainStoreData()
+const {
+	domainTit,
+	quota,
+	unit,
+	mailboxes,
+	catch_email,
+	urls,
+	brandInfo,
+	createdBrandInfo,
+	waitAndCheckDomainStatusRef,
+} = getEditDomainStoreData()
 const route = useRoute()
 const domain = route.params.domain as any
 const uinitOptions = ref([
@@ -167,7 +200,7 @@ getDomainDetail(domain)
  * @description Check AI configuration
  */
 async function checkAiConfig() {
-	const res = await checkAiConfiguration() as Record<string, any>
+	const res = (await checkAiConfiguration()) as Record<string, any>
 	if (res) {
 		supplierStatus.value = res.is_configured
 	}
@@ -186,7 +219,7 @@ checkAiConfig()
  */
 function jumpToAiSettings() {
 	router.push({
-		name: "AiModel"
+		name: 'AiModel',
 	})
 }
 </script>

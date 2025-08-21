@@ -265,7 +265,7 @@ const handleGoAnalytics = (row: Task) => {
 
 // 复制任务
 const handleCopy = (row: Task) => {
-	router.push(`/market/task/edit/${row.id}`)
+	router.push(`/market/task/edit?task_id=${row.id}`)
 }
 
 // 暂停/发送任务

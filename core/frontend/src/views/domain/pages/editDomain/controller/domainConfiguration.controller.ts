@@ -1,10 +1,11 @@
 import { instance } from '@/api'
 import { instanceOptions } from './companyProfile.controller'
 import { getEditDomainStoreData } from '../store'
-import { getByteUnit, Message,isUrl } from '@/utils'
+import { getByteUnit, Message, isUrl } from '@/utils'
 import { initAiConfiguration } from '@/api/modules/domain'
 import { useGlobalStore } from '@/store'
 import i18n from '@/i18n'
+
 
 /**
  * @description Check if this domain has brand info
@@ -116,9 +117,8 @@ export async function createBrandInfo() {
 	hasGotDomainConfiguration.value = false
 	if (urls.value.length == 0 || urls.value[0] == '') {
 		Message.error(i18n.global.t('domain.edit.domainConfiguration.fillDomain'))
-	}else if(!isUrl(urls.value[0])) {
+	} else if (!isUrl(urls.value[0])) {
 		Message.error(i18n.global.t('domain.edit.domainConfiguration.fillValidDomain'))
-
 	} else {
 		try {
 			await initAiConfiguration({
@@ -126,12 +126,27 @@ export async function createBrandInfo() {
 				urls: urls.value,
 			})
 			globalStore.domainSource = domainTit.value
-			waitAndCheckDomainStatusRef.value.open(domainTit.value, () =>
+			waitAndCheckDomainStatusRef.value.open(domainTit.value, () => {
+				updateHasBrandInfo(domainTit.value, 1)
 				getDomainDetail(domainTit.value)
-			)
+			})
 		} catch (error) {
 			console.warn(error)
 		}
+	}
+}
+
+/**
+ * @description Update field names hasbrandinfo
+ */
+export async function updateHasBrandInfo(domain: string, hasbrandinfo: number) {
+	try {
+		await instance.post('/domains/update', {
+			domain,
+			hasbrandinfo,
+		})
+	} catch (error) {
+		console.warn(error)
 	}
 }
 

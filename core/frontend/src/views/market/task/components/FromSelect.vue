@@ -96,6 +96,8 @@ const initData = async () => {
 		await nextTick()
 		if (sender.value === null) {
 			handleUpdateDomain()
+		} else if (sender.value) {
+			domain.value = sender.value.split('@')[1]
 		}
 	} finally {
 		loading.value = false

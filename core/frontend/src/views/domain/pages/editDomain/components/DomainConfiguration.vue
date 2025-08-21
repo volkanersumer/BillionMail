@@ -16,7 +16,7 @@
 						<template #label><span class="form-label">{{
 							$t('domain.edit.domainConfiguration.domain')
 						}}</span></template>
-						<n-input v-model:value="domainTit" @input="syncToUrl"></n-input>
+						<n-input v-model:value="domainTit" @input="syncToUrl" :disabled="true"></n-input>
 					</n-form-item>
 					<n-form-item label="">
 						<template #label><span class="form-label">{{
@@ -68,13 +68,16 @@
 			</n-card>
 
 			<n-card v-else class="mt-5">
-				<div class="fw-bold text-4 mb-5 text-[#777]">{{ $t("domain.edit.domainConfiguration.noBrandInfo") }}</div>
+				<div class="fw-bold text-4 mb-5 text-[#777] flex justify-between items-center">
+					<span>{{ $t("domain.edit.domainConfiguration.noBrandInfo") }}</span>
+					
+				</div>
 				<n-alert v-if="!supplierStatus" type="warning" class="mb-15px" :show-icon="false">
 					<div class="w-100% flex justify-between items-center">
 						<span class="mr-5">{{
 							$t('domain.edit.domainConfiguration.aiIntegrationWarning')
 						}}</span>
-						<n-button type="primary" @click="jumpToAiSettings">{{
+						<n-button ghost type="primary" @click="jumpToAiSettings">{{
 							$t('domain.edit.domainConfiguration.integrateImmediately')
 						}}</n-button>
 					</div>
@@ -107,8 +110,16 @@
 						</n-button> -->
 					</div>
 				</n-form-item>
-				<n-button type="primary" class="w-100%" @click="createBrandInfo">{{ $t("domain.edit.domainConfiguration.createNow") }}</n-button>
+				<n-button type="primary" @click="createBrandInfo">{{
+					$t("domain.edit.domainConfiguration.createNow")
+					}}</n-button>
 			</n-card>
+			<n-button type="primary" @click="updateDomain" class="w-100% mt-5">
+					<template #icon>
+						<i class="i-mingcute:save-2-line text-5"></i>
+					</template>
+					{{ $t('domain.edit.save') }}
+				</n-button>
 		</div>
 	</div>
 
@@ -121,7 +132,7 @@ import WaitAndCheckDomainStatus from '@/views/domain/components/WaitAndCheckDoma
 import {
 	checkAiConfiguration,
 } from '@/api/modules/domain'
-import { getDomainDetail, syncToUrl, removeUrl, createBrandInfo,switchBrandInfo } from '../controller/domainConfiguration.controller'
+import { getDomainDetail, syncToUrl, removeUrl, createBrandInfo, switchBrandInfo,updateDomain } from '../controller/domainConfiguration.controller'
 import { getEditDomainStoreData } from '../store'
 const router = useRouter()
 const supplierStatus = ref(false)
@@ -150,8 +161,8 @@ const uinitOptions = ref([
 		value: 'TB',
 	},
 ])
-
 getDomainDetail(domain)
+
 /**
  * @description Check AI configuration
  */
@@ -173,7 +184,7 @@ checkAiConfig()
 /**
  * @description Jump to AI settings page
  */
-function jumpToAiSettings(){
+function jumpToAiSettings() {
 	router.push({
 		name: "AiModel"
 	})

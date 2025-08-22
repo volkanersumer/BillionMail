@@ -5,6 +5,7 @@ import (
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/public"
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
@@ -42,27 +43,37 @@ func (o *Overview) filterAndPrepareTimeSection(startTime, endTime int64) (int64,
 
 // buildBaseQuery build basic query
 func (o *Overview) buildBaseQuery(campaignID int64, domain string, startTime, endTime int64) *gdb.Model {
-	query := g.DB().Model("mailstat_send_mails sm")
+	subQuery := "SELECT * FROM mailstat_send_mails WHERE true"
+
+	if startTime > 0 {
+		subQuery += fmt.Sprintf(" AND log_time_millis > %d", startTime*1000)
+	}
+
+	if endTime > 0 {
+		subQuery += fmt.Sprintf(" AND log_time_millis < %d", endTime*1000)
+	}
+
+	query := g.DB().Model("(" + subQuery + ") sm")
 	query.LeftJoin("mailstat_senders s", "sm.postfix_message_id=s.postfix_message_id")
 	query.Where("s.postfix_message_id is not null")
 
 	if campaignID > 0 {
 		query.InnerJoin("mailstat_message_ids mi", "sm.postfix_message_id=mi.postfix_message_id")
-		query.InnerJoin("recipient_info r", "mi.message_id=r.message_id")
-		query.Where("r.task_id = ?", campaignID)
+		query.InnerJoin(fmt.Sprintf("(SELECT message_id FROM recipient_info WHERE task_id = %d) r", campaignID), "mi.message_id=r.message_id")
+		// query.Where("r.task_id = ?", campaignID)
 	}
 
 	if domain != "" {
 		query.Where("s.sender LIKE ?", "%@"+domain)
 	}
 
-	if startTime > 0 {
-		query.Where("sm.log_time_millis > ?", startTime*1000-1)
-	}
-
-	if endTime > 0 {
-		query.Where("sm.log_time_millis < ?", endTime*1000+1)
-	}
+	//if startTime > 0 {
+	//	query.Where("sm.log_time_millis > ?", startTime*1000-1)
+	//}
+	//
+	//if endTime > 0 {
+	//	query.Where("sm.log_time_millis < ?", endTime*1000+1)
+	//}
 
 	return query
 }

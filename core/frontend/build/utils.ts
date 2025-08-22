@@ -17,6 +17,5 @@ export function getEnv(key: string) {
  */
 export function getServer() {
 	const name = getEnv('SERVER_NAME') || '192.168.66.124'
-	console.log(`当前服务器: ${name}`)
 	return serverConfig[name]
 }

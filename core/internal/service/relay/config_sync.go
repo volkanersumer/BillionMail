@@ -211,7 +211,8 @@ func GenerateSPFRecord(ip string, host string, domain string) string {
 }
 
 func CheckRelayFirstSync(ctx context.Context) {
-	markPath := public.AbsPath("../core/data/SMTP_relay_sync_config_mark.pl")
+	// Change the marker file and ensure the latest synchronization
+	markPath := public.AbsPath("../core/data/SMTP_relay_sync_config_mark2.pl")
 	if gfile.Exists(markPath) {
 		return
 	}
@@ -258,6 +259,38 @@ func CheckRelayFirstSync(ctx context.Context) {
 	if err != nil {
 		g.Log().Errorf(ctx, "The initial synchronization of the relay configuration failed: %v", err)
 		return
+	}
+
+	// Check if there are beginMarker and endMarker after synchronization. If not, add them forcibly
+	if gfile.Exists(mainCfPath) {
+		content := gfile.GetContents(mainCfPath)
+		beginIndex := strings.Index(content, beginMarker)
+		endIndex := strings.Index(content, endMarker)
+		hasConfigBlock := beginIndex != -1 && endIndex != -1 && beginIndex < endIndex
+
+		if !hasConfigBlock {
+			g.Log().Warning(ctx, "Relay configuration block not found after sync, adding it forcefully")
+
+			configBlock := fmt.Sprintf(`%s
+sender_dependent_relayhost_maps = hash:/etc/postfix/conf/sender_relay_maps_primary, pgsql:/etc/postfix/sql/pgsql_sender_relay_maps.cf
+smtp_sasl_password_maps = hash:/etc/postfix/conf/sasl_passwd_primary, hash:/etc/postfix/conf/sasl_passwd
+sender_dependent_default_transport_maps = pgsql:/etc/postfix/sql/pgsql_sender_transport_maps.cf
+%s`, beginMarker, endMarker)
+
+			// Add the configuration block
+			if !strings.HasSuffix(content, "\n") {
+				content += "\n"
+			}
+			content += "\n" + configBlock + "\n"
+
+			if err := gfile.PutContents(mainCfPath, content); err != nil {
+				g.Log().Errorf(ctx, "Failed to add relay configuration block to main.cf: %v", err)
+			} else {
+				g.Log().Info(ctx, "Successfully added relay configuration block to main.cf")
+			}
+		} else {
+			g.Log().Debug(ctx, "Relay configuration block exists after sync")
+		}
 	}
 
 	if err := gfile.PutContents(markPath, fmt.Sprintf("First sync completed at %s", time.Now().Format("2006-01-02 15:04:05"))); err != nil {
@@ -370,6 +403,13 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelayConfig)
 				//params = append(params, "-o smtp_tls_security_level=may")
 			}
 
+			// Add SASL authentication settings if auth user is provided
+			if config.AuthUser != "" {
+				params = append(params, "-o smtp_sasl_auth_enable=yes")
+				params = append(params, "-o smtp_sasl_security_options=noanonymous")
+				params = append(params, "-o smtp_sasl_mechanism_filter=login,plain,cram-md5")
+			}
+
 			if config.SkipTlsVerify == 1 {
 				params = append(params, "-o smtp_tls_verify_cert_match=no")
 			}
@@ -385,7 +425,6 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelayConfig)
 					params = append(params, "-o smtp_sasl_mechanism_filter=cram-md5")
 				case "NONE":
 					params = append(params, "-o smtp_sasl_auth_enable=no")
-					//params = append(params, "-o smtp_sasl_mechanism_filter=login")
 				}
 			}
 
@@ -595,12 +634,9 @@ func writePostfixRelayConfig(cfPath string, enableRelay bool) error {
 	var configBlock string
 
 	configBlock = fmt.Sprintf(`%s
-smtp_sasl_auth_enable = yes
-smtp_sasl_security_options = noanonymous
-sender_dependent_relayhost_maps = pgsql:/etc/postfix/sql/pgsql_sender_relay_maps.cf
-smtp_sasl_password_maps = hash:/etc/postfix/conf/sasl_passwd
+sender_dependent_relayhost_maps = hash:/etc/postfix/conf/sender_relay_maps_primary, pgsql:/etc/postfix/sql/pgsql_sender_relay_maps.cf
+smtp_sasl_password_maps = hash:/etc/postfix/conf/sasl_passwd_primary, hash:/etc/postfix/conf/sasl_passwd
 sender_dependent_default_transport_maps = pgsql:/etc/postfix/sql/pgsql_sender_transport_maps.cf
-smtp_sasl_mechanism_filter = login, plain, cram-md5
 %s`, beginMarker, endMarker)
 
 	// Find the existing configuration block
@@ -623,23 +659,6 @@ smtp_sasl_mechanism_filter = login, plain, cram-md5
 			} else {
 				content = content + "\n" + configBlock + "\n"
 			}
-			modified = true
-		}
-	} else {
-		if hasConfigBlock {
-			// Need to remove the configuration block
-			blockStart := beginIndex
-			blockEnd := endIndex + len(endMarker)
-
-			if blockEnd < len(content) && content[blockEnd] == '\n' {
-				blockEnd++
-			}
-
-			newContent := content[:blockStart]
-			if blockEnd < len(content) {
-				newContent += content[blockEnd:]
-			}
-			content = newContent
 			modified = true
 		}
 	}

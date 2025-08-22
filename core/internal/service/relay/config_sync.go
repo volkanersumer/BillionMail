@@ -22,10 +22,12 @@ import (
 )
 
 var (
-	postfixConfigDir     = public.AbsPath("../conf/postfix")
-	saslPasswdFile       = "/conf/sasl_passwd"
-	mainCfFile           = "main.cf"
-	postfixContainerName = consts.SERVICES.Postfix
+	postfixConfigDir           = public.AbsPath("../conf/postfix")
+	saslPasswdFile             = "/conf/sasl_passwd"
+	mainCfFile                 = "main.cf"
+	postfixContainerName       = consts.SERVICES.Postfix
+	senderRelayMapsPrimaryFile = "/conf/sender_relay_maps_primary"
+	saslPasswdPrimaryFile      = "/conf/sasl_passwd_primary"
 )
 
 func GetRelayEncryptionKey() (string, error) {
@@ -257,7 +259,7 @@ func CheckRelayFirstSync(ctx context.Context) {
 
 	err := SyncRelayConfigsToPostfix(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "The initial synchronization of the relay configuration failed: %v", err)
+		g.Log().Errorf(ctx, "Failed to sync relay configurations on first sync:  %v", err)
 		return
 	}
 
@@ -291,12 +293,71 @@ sender_dependent_default_transport_maps = pgsql:/etc/postfix/sql/pgsql_sender_tr
 		} else {
 			g.Log().Debug(ctx, "Relay configuration block exists after sync")
 		}
+
+		// check hash
+		senderRelayMapsPrimaryPath := path.Join(postfixConfigDir, senderRelayMapsPrimaryFile)
+		saslPasswdPrimaryPath := path.Join(postfixConfigDir, saslPasswdPrimaryFile)
+		needReload := false
+		if !gfile.Exists(senderRelayMapsPrimaryPath) {
+			needReload = true
+			if err := gfile.PutContents(senderRelayMapsPrimaryPath, ""); err != nil {
+				g.Log().Errorf(ctx, "Failed to create %s: %v", senderRelayMapsPrimaryPath, err)
+			}
+		}
+		if !gfile.Exists(saslPasswdPrimaryPath) {
+			needReload = true
+			if err := gfile.PutContents(saslPasswdPrimaryPath, ""); err != nil {
+				g.Log().Errorf(ctx, "Failed to create %s: %v", saslPasswdPrimaryPath, err)
+			}
+		}
+		if needReload {
+			err = reloadPostfixConfigs2(ctx)
+		}
 	}
 
 	if err := gfile.PutContents(markPath, fmt.Sprintf("First sync completed at %s", time.Now().Format("2006-01-02 15:04:05"))); err != nil {
 		g.Log().Warningf(ctx, "Failed to create the synchronization marker file: %v", err)
 	}
 	return
+}
+
+func reloadPostfixConfigs2(ctx context.Context) error {
+
+	dk, err := docker.NewDockerAPI()
+	if err != nil {
+		g.Log().Error(ctx, "Failed to connect to Docker API:", err)
+		return gerror.Wrap(err, "Failed to connect to Docker service")
+	}
+	defer dk.Close()
+	// List of commands to run
+	cmdsToRun := [][]string{
+		{"postmap", "/etc/postfix/conf/sender_relay_maps_primary"},
+		{"postmap", "/etc/postfix/conf/sasl_passwd_primary"},
+		{"postfix", "reload"},
+	}
+	// Execute commands
+	for _, cmd := range cmdsToRun {
+		cmdStr := strings.Join(cmd, " ")
+
+		result, err := dk.ExecCommandByName(ctx, postfixContainerName, cmd, "root")
+
+		if err != nil {
+			return gerror.Newf("Failed to execute command: %v, Command: %s", err, cmdStr)
+		}
+
+		if result == nil {
+			return gerror.Newf("Command execution result is empty: %s", cmdStr)
+		}
+
+		if result.ExitCode != 0 {
+
+			return gerror.Newf("Command execution failed, Exit code: %d, Output: %s, Command: %s",
+				result.ExitCode, result.Output, cmdStr)
+		}
+
+	}
+
+	return nil
 }
 
 // SyncRelayConfigsToPostfix

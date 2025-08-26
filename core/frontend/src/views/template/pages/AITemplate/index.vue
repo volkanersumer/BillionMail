@@ -91,10 +91,16 @@
 							:placeholder="$t('template.ai.welcomeMessage', { domain: chatInfo.domain })"
 							class="question-input" @keydown.enter="e => sendChat(store, e)"></n-input>
 						<div class="question-tools">
-							<n-select v-model:value="currentModelTitle" :options="modelList" label-field="title"
-								value-field="title" @update:value="changeModel">
-							</n-select>
-
+							<div class="flex justify-start gap-10px">
+								<n-select v-model:value="currentModelTitle" :options="modelList" label-field="title"
+									value-field="title" @update:value="changeModel">
+								</n-select>
+								<div class="flex justify-start items-center">
+									<n-checkbox style="flex-shrink: 0;" v-model:checked="useSpinTax">Spintax</n-checkbox>
+									<n-input-number placeholder="" class="w-50px"
+										:show-button="false"  style="flex-shrink: 0;" v-model:value="spinTaxLength" :disabled="!useSpinTax"></n-input-number>
+								</div>
+							</div>
 							<div class="send-btn">
 								<!-- <i
                                 class="i-icon-park-twotone:new-picture text-8 text-[var(--color-primary-1)] hover-text-[var(--color-primary-hover-1)]"></i> -->
@@ -194,6 +200,8 @@ const {
 	chatInfo,
 	previewTit,
 	usageRecord,
+	useSpinTax,
+	spinTaxLength
 } = store
 const route = useRoute()
 
@@ -293,7 +301,8 @@ onMounted(() => {
 @use '../../mixin.scss';
 
 .wrapper {
-	width:100% !important;
+	width: 100% !important;
+
 	@mixin content-card {
 		border-radius: 5px;
 		padding: 20px;

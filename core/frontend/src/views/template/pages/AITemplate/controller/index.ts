@@ -165,7 +165,9 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 		scrollWrapperRef,
 		chatScrollRef,
 		isChat,
-		usageRecord
+		usageRecord,
+		useSpinTax,
+		spinTaxLength
 	} = store
 	if (isChat.value) return
 	if (!questionContent.value) return
@@ -173,7 +175,7 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 	const chatRecordKey = `${questionContent.value}_+_${chatRecord.value.size}`
 	chatRecord.value.set(chatRecordKey, [])
 	currentChatRecordKey.value = chatRecordKey
-	const chatContent = questionContent.value
+	let chatContent = questionContent.value
 	questionContent.value = ''
 	// Split string array
 	let resultArray: string[] = []
@@ -181,6 +183,11 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 	let answerText = ''
 	// Character pointer position
 	let strPos = 0
+
+	// Check Whether use spinTax
+	if(useSpinTax.value){
+		chatContent+=`  Use Spintax syntax, with a requirement to include ${spinTaxLength.value} variations`
+	}
 
 	/**
 	 * @description spliced content

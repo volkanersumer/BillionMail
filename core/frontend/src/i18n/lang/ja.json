@@ -691,7 +691,8 @@
     },
     "edit": {
       "domainConfiguration": {
-        "createNow": "Create Immediately"
+        "createNow": "Create Immediately",
+        "catchAll": "Catch all"
       }
     }
   },

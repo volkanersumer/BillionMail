@@ -42,9 +42,9 @@
 				</n-form-item>
 				<n-form-item :label="$t('domain.form.dedicatedIp')">
 					<div class="flex-1 mr-16px">
-						<n-input v-model:value="form.outbound_ip" placeholder="未设置"> </n-input>
+						<n-input v-model:value="form.outbound_ip" :placeholder="$t('domain.form.notSet')">
+						</n-input>
 					</div>
-					<span v-if="!form.outbound_ip" class="text-[#999]">{{ $t('domain.form.notSet') }}</span>
 					<n-button type="primary" ghost @click="onTestConnection">
 						{{ $t('domain.form.testConnection') }}
 					</n-button>

@@ -841,7 +841,9 @@
         "addMoreUrls": "添加更多URL",
         "createNow": "Create Immediately",
         "brandInfo": "Brand information",
-        "noBrandInfo": "No brand information available."
+        "noBrandInfo": "No brand information available.",
+        "fillDomain": "请填写域名",
+        "fillValidDomain": "请填写有效的域名"
       },
       "projectDetails": {
         "title": "项目详情",

@@ -692,7 +692,9 @@
     "edit": {
       "domainConfiguration": {
         "createNow": "Create Immediately",
-        "catchAll": "Catch all"
+        "catchAll": "Catch all",
+        "fillDomain": "Please fill in the domain name",
+        "fillValidDomain": "Please fill in a valid domain name"
       }
     }
   },

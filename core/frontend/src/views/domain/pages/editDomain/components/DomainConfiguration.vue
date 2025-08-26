@@ -15,31 +15,30 @@
 					<n-form-item :label="$t('domain.edit.domainConfiguration.domain')">
 						<n-input v-model:value="domainTit" :disabled="true" @input="syncToUrl"></n-input>
 					</n-form-item>
-					<n-form-item label="域名专用IP">
+					<n-form-item :label="$t('domain.edit.domainConfiguration.dedicatedIp')">
 						<div class="flex-1">
 							<div class="mb-12px text-desc">
-								* 域名 aapanel.com
-								发送和接受邮件时会在iptables处指定此专属IP，如果你的服务器只有一个IP的话不需要设置此功能
+								* {{ $t('domain.edit.domainConfiguration.dedicatedIpDesc', { domain: 'aapanel.com' }) }}
 							</div>
 							<div class="flex gap-16px">
 								<div class="flex-1">
-									<n-input v-model:value="domainIp" placeholder="未设置"></n-input>
+									<n-input v-model:value="domainIp" :placeholder="$t('domain.edit.domainConfiguration.notSet')"></n-input>
 								</div>
-								<n-button type="primary" ghost @click="testConnection">连接测试</n-button>
+								<n-button type="primary" ghost @click="testConnection">{{ $t('domain.edit.domainConfiguration.testConnection') }}</n-button>
 							</div>
 						</div>
 					</n-form-item>
 					<n-form-item :label="$t('domain.edit.domainConfiguration.catchAll')">
 						<div class="flex-1">
 							<div class="mb-12px text-desc">
-								* 在您这里填写邮箱后，这个域名下所有未知的邮箱收到邮件将会转发到这个邮箱里面
+								* {{ $t('domain.edit.domainConfiguration.catchAllDesc') }}
 							</div>
 							<n-input v-model:value="catch_email"></n-input>
 						</div>
 					</n-form-item>
 					<n-form-item :label="$t('domain.edit.domainConfiguration.domainQuota')">
 						<div class="flex-1">
-							<div class="mb-12px text-desc">* 设置此域名的可用空间</div>
+							<div class="mb-12px text-desc">* {{ $t('domain.edit.domainConfiguration.domainQuotaDesc') }}</div>
 							<div class="flex gap-16px">
 								<div class="flex-1">
 									<n-input v-model:value="quota"></n-input>
@@ -52,7 +51,7 @@
 					</n-form-item>
 					<n-form-item :label="$t('domain.edit.domainConfiguration.mailboxCount')">
 						<div class="flex-1">
-							<div class="mb-12px text-desc">* 设置此域名可以创建多少个邮箱</div>
+							<div class="mb-12px text-desc">* {{ $t('domain.edit.domainConfiguration.mailboxCountDesc') }}</div>
 							<n-input-number v-model:value="mailboxes" class="w-full" :show-button="false">
 							</n-input-number>
 						</div>

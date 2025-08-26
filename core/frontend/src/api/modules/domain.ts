@@ -86,7 +86,7 @@ export const applyCert = (params: { domain: string }) => {
 export const setDefaultDomain = (params: { domain: string }) => {
 	return instance.post('/domains/set_default_domain', params, {
 		fetchOptions: {
-			loading: 'Setting Default Domain, please wait...',
+			loading: t('domain.api.loading.settingDefault'),
 			successMessage: true,
 		},
 	})
@@ -95,7 +95,16 @@ export const setDefaultDomain = (params: { domain: string }) => {
 export const initAiConfiguration = (params: { domain: string; urls: string[] }) => {
 	return instance.post('/askai/project/create', params, {
 		fetchOptions: {
-			loading: 'Setting domain brand info , please wait...',
+			loading: t('domain.api.loading.settingBrandInfo'),
+			successMessage: true,
+		},
+	})
+}
+
+export const testConnection = (params: { domain: string; outbound_ip: string }) => {
+	return instance.post('/multi_ip_domain/test', params, {
+		fetchOptions: {
+			loading: t('domain.api.loading.testingConnection'),
 			successMessage: true,
 		},
 	})
@@ -103,13 +112,4 @@ export const initAiConfiguration = (params: { domain: string; urls: string[] }) 
 
 export const checkAiConfiguration = () => {
 	return instance.post('/askai/supplier/status')
-}
-
-export const testConnection = (params: { domain: string; outbound_ip: string }) => {
-	return instance.post('/multi_ip_domain/test', params, {
-		fetchOptions: {
-			loading: 'Testing connection, please wait...',
-			successMessage: true,
-		},
-	})
 }

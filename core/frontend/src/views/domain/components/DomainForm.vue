@@ -40,11 +40,14 @@
 						:show-button="false">
 					</n-input-number>
 				</n-form-item>
-				<n-form-item label="域名专用IP">
+				<n-form-item :label="$t('domain.form.dedicatedIp')">
 					<div class="flex-1 mr-16px">
 						<n-input v-model:value="form.outbound_ip" placeholder="未设置"> </n-input>
 					</div>
-					<n-button type="primary" ghost @click="onTestConnection">连接测试</n-button>
+					<span v-if="!form.outbound_ip" class="text-[#999]">{{ $t('domain.form.notSet') }}</span>
+					<n-button type="primary" ghost @click="onTestConnection">
+						{{ $t('domain.form.testConnection') }}
+					</n-button>
 				</n-form-item>
 				<n-form-item :label="t('domain.form.globalCatch')">
 					<n-input
@@ -229,11 +232,11 @@ const removeUrl = (index: number) => {
  */
 const onTestConnection = async () => {
 	if (form.domain == '') {
-		Message.error('请先输入域名')
+		Message.error(t('domain.form.validation.domainInputRequired'))
 		return
 	}
 	if (form.outbound_ip == '') {
-		Message.error('请先输入域名专用IP')
+		Message.error(t('domain.form.validation.dedicatedIpRequired'))
 		return
 	}
 	await testConnection({

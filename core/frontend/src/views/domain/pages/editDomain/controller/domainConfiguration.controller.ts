@@ -88,7 +88,7 @@ export async function configurationStatus(domain: string) {
 export async function testConnection() {
 	const { domainTit, domainIp } = getEditDomainStoreData()
 	if (domainIp.value == '') {
-		Message.error('请先设置域名专用IP')
+		Message.error(i18n.global.t('domain.edit.domainConfiguration.validation.setDedicatedIpFirst'))
 		return
 	}
 
@@ -101,7 +101,7 @@ export async function testConnection() {
 			},
 			{
 				fetchOptions: {
-					loading: '正在测试连接中，请稍候...',
+					loading: i18n.global.t('domain.edit.domainConfiguration.api.testingConnection'),
 					successMessage: true,
 				},
 			}

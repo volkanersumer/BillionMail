@@ -82,7 +82,7 @@ const columns = ref<DataTableColumns<MailDomain>>([
 					</NButton>
 					{row.default === 1 && (
 						<NTag size="small" class="ml-8px" bordered={false}>
-							Default
+							{t('domain.status.default')}
 						</NTag>
 					)}
 				</div>
@@ -122,7 +122,7 @@ const columns = ref<DataTableColumns<MailDomain>>([
 	// },
 	{
 		key: 'multi_ip_domains',
-		title: '专用IP',
+		title: t('domain.columns.dedicatedIp'),
 		render: row => {
 			if (row.multi_ip_domains) {
 				return (
@@ -199,7 +199,7 @@ const columns = ref<DataTableColumns<MailDomain>>([
 					onClick={() => {
 						handleSetDefault(row)
 					}}>
-					Set Default
+					{t('domain.actions.setDefault')}
 				</NButton>
 				<NButton
 					type="error"
@@ -270,8 +270,8 @@ const handleDNSRecord = (row: MailDomain) => {
 
 const handleSetDefault = (row: MailDomain) => {
 	confirm({
-		title: `Set Default [${row.domain}]`,
-		content: 'Are you sure to set this domain as default?',
+		title: t('domain.setDefault.title', { domain: row.domain }),
+		content: t('domain.setDefault.confirm'),
 		onConfirm: async () => {
 			await setDefaultDomain({ domain: row.domain })
 			getTableData()

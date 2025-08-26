@@ -1,15 +1,11 @@
 <template>
 	<div class="wrapper">
-		<!-- Page tit -->
-		<!-- <div class="page-tit">
-			<span class="tit-content">{{ $t('domain.edit.pageTitle') }}</span>
-		</div> -->
 		<n-breadcrumb class="mb-20px">
 			<n-breadcrumb-item>
-				<router-link to="/domain">域名</router-link>
+				<router-link to="/domain">{{ $t('domain.edit.breadcrumb.domain') }}</router-link>
 			</n-breadcrumb-item>
 			<n-breadcrumb-item>{{ domain }}</n-breadcrumb-item>
-			<n-breadcrumb-item>编辑域名</n-breadcrumb-item>
+			<n-breadcrumb-item>{{ $t('domain.edit.breadcrumb.editDomain') }}</n-breadcrumb-item>
 		</n-breadcrumb>
 
 		<!-- Content tabs -->

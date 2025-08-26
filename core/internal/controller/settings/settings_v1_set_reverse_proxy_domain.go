@@ -11,6 +11,14 @@ import (
 )
 
 func (c *ControllerV1) SetReverseProxyDomain(ctx context.Context, req *v1.SetReverseProxyDomainReq) (res *v1.SetReverseProxyDomainRes, err error) {
+	// Add defer to catch panics
+	defer func() {
+		if r := recover(); r != nil {
+			res = &v1.SetReverseProxyDomainRes{}
+			res.SetError(gerror.New(public.LangCtx(ctx, "Internal error occurred while testing reverse proxy domain")))
+		}
+	}()
+
 	res = &v1.SetReverseProxyDomainRes{}
 
 	domain := req.Domain
@@ -24,10 +32,20 @@ func (c *ControllerV1) SetReverseProxyDomain(ctx context.Context, req *v1.SetRev
 		return res, nil
 	}
 
+	if respData == nil {
+		res.SetError(gerror.New(public.LangCtx(ctx, "Reverse proxy domain test failed: received empty response")))
+		return res, nil
+	}
+
 	// Check code==0 in response
 	code, ok := respData["code"].(float64)
-	if !ok || int(code) != 0 {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Reverse proxy domain test failed, unexpected response: {}", err.Error())))
+	if !ok {
+		res.SetError(gerror.New(public.LangCtx(ctx, "Reverse proxy domain test failed: invalid response format, missing code field")))
+		return res, nil
+	}
+
+	if int(code) != 0 {
+		res.SetError(gerror.New(public.LangCtx(ctx, "Reverse proxy domain test failed: response code is {}, expected 0", int(code))))
 		return res, nil
 	}
 

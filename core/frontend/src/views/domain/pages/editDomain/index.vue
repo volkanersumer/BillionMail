@@ -1,9 +1,16 @@
 <template>
 	<div class="wrapper">
 		<!-- Page tit -->
-		<div class="page-tit">
+		<!-- <div class="page-tit">
 			<span class="tit-content">{{ $t('domain.edit.pageTitle') }}</span>
-		</div>
+		</div> -->
+		<n-breadcrumb class="mb-20px">
+			<n-breadcrumb-item>
+				<router-link to="/domain">域名</router-link>
+			</n-breadcrumb-item>
+			<n-breadcrumb-item>{{ domain }}</n-breadcrumb-item>
+			<n-breadcrumb-item>编辑域名</n-breadcrumb-item>
+		</n-breadcrumb>
 
 		<!-- Content tabs -->
 		<div class="content-tabs">
@@ -22,7 +29,7 @@
 		</div>
 
 		<div v-if="!['Domain Configuration', 'Sitemap'].includes(activeTab)" class="footer-tool">
-			<n-button type="primary" @click="switchHanldeSave">
+			<n-button type="primary" @click="handleSwitchSave">
 				<template #icon>
 					<i class="i-mingcute:save-2-line text-5"></i>
 				</template>
@@ -110,7 +117,7 @@ function getTabLabel(tabKey: string): string {
 /**
  * @description Switch for handle save
  */
-function switchHanldeSave() {
+function handleSwitchSave() {
 	switch (activeTab.value) {
 		case 'Domain Configuration':
 			updateDomain()
@@ -232,6 +239,7 @@ function switchToTab(tab: string) {
 		}
 
 		&.active {
+			color: var(--color-primary-1);
 			border-bottom: 2px solid var(--color-primary-1);
 			margin-bottom: -2px;
 		}

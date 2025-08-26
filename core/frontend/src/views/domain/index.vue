@@ -26,6 +26,7 @@
 				<form-modal />
 				<ssl-modal />
 				<dns-modal />
+				<domain-ip-set-modal />
 			</template>
 		</bt-table-layout>
 	</div>
@@ -42,6 +43,8 @@ import type { MailDomain, MailDomainParams } from './interface'
 import DomainForm from './components/DomainForm.vue'
 import DomainSsl from './components/DomainSsl/index.vue'
 import DomainDns from './components/DomainDns.vue'
+import DomainIpSet from './components/DomainIpSet.vue'
+import IpStatus from './components/IpStatus.vue'
 
 const { t } = useI18n()
 
@@ -58,8 +61,8 @@ const { tableParams, tableList, loading, tableTotal, getTableData } = useTableDa
 	fetchFn: getDomainList,
 })
 
-const router = useRouter()
 const route = useRoute()
+const router = useRouter()
 
 // Table columns
 const columns = ref<DataTableColumns<MailDomain>>([
@@ -71,23 +74,18 @@ const columns = ref<DataTableColumns<MailDomain>>([
 			tooltip: true,
 		},
 		render: row => {
-			// <i class="i-domain:brand-info w-5 h-5 mr-1.25"></i>
 			return (
-				<>
-					<div class="inline-flex items-center">
-						{row.hasbrandinfo == 1 && <i class="i-domain:brand-info w-4 h-4 mr-1.25"></i>}
-						<NButton text type="primary" onClick={() => handleEdit(row)}>
-							{row.domain}
-						</NButton>
-					</div>
-					{row.default ? (
+				<div class="inline-flex items-center">
+					{row.hasbrandinfo == 1 && <i class="i-domain:brand-info w-4 h-4 mr-4px"></i>}
+					<NButton text type="primary" onClick={() => handleEdit(row)}>
+						{row.domain}
+					</NButton>
+					{row.default === 1 && (
 						<NTag size="small" class="ml-8px" bordered={false}>
 							Default
 						</NTag>
-					) : (
-						''
 					)}
-				</>
+				</div>
 			)
 		},
 	},
@@ -122,6 +120,25 @@ const columns = ref<DataTableColumns<MailDomain>>([
 	// 		/>
 	// 	),
 	// },
+	{
+		key: 'multi_ip_domains',
+		title: '专用IP',
+		render: row => {
+			if (row.multi_ip_domains) {
+				return (
+					<div
+						class="flex items-center cursor-pointer"
+						onClick={() => {
+							handleMultiIpDomains(row)
+						}}>
+						<span class="leading-14px mr-6px">{row.multi_ip_domains.outbound_ip}</span>
+						<IpStatus status={row.multi_ip_domains.status}></IpStatus>
+					</div>
+				)
+			}
+			return '--'
+		},
+	},
 	{
 		key: 'ssl',
 		title: 'SSL',
@@ -264,18 +281,22 @@ const handleSetDefault = (row: MailDomain) => {
 
 // Handle edit
 const handleEdit = (row: MailDomain) => {
-	/* formModalApi.setState({
-		row,
-		isEdit: true,
-	})
-	formModalApi.open() */
-
 	router.push({
 		name: 'EditDomain',
 		params: {
 			domain: row.domain,
 		},
 	})
+}
+
+const [DomainIpSetModal, domainIpSetModalApi] = useModal({
+	component: DomainIpSet,
+})
+
+// Handle multi ip domains
+const handleMultiIpDomains = (row: MailDomain) => {
+	domainIpSetModalApi.setState({ row })
+	domainIpSetModalApi.open()
 }
 
 // Handle delete

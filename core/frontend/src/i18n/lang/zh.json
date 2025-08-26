@@ -826,7 +826,7 @@
         "domain": "域名",
         "domainQuota": "域名配额",
         "mailboxCount": "邮箱数量",
-        "catchAll": "全部接收",
+        "catchAll": "Catch all",
         "autoCreateBrand": "自动创建品牌信息",
         "aiIntegrationWarning": "要使用此功能，您需要先集成AI模型。",
         "integrateImmediately": "立即集成",
@@ -839,7 +839,9 @@
         },
         "specifyDomain": "指定域名",
         "addMoreUrls": "添加更多URL",
-        "createNow": "Create Immediately"
+        "createNow": "Create Immediately",
+        "brandInfo": "Brand information",
+        "noBrandInfo": "No brand information available."
       },
       "projectDetails": {
         "title": "项目详情",

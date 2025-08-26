@@ -11,12 +11,17 @@ export const getDomainAll = () => {
 	return instance.get('/domains/all')
 }
 
+export const getDomainIpCommand = () => {
+	return instance.post('/multi_ip_domain/apply')
+}
+
 type DomainParams = {
 	domain: string
 	quota: number
 	mailboxes: number
 	email: string
 	urls: string[]
+	outbound_ip: string
 	hasbrandinfo?: number
 }
 
@@ -87,16 +92,24 @@ export const setDefaultDomain = (params: { domain: string }) => {
 	})
 }
 
-
-export const initAiConfiguration = (params: { domain: string, urls: string[] }) => {
-	return instance.post("/askai/project/create", params, {
+export const initAiConfiguration = (params: { domain: string; urls: string[] }) => {
+	return instance.post('/askai/project/create', params, {
 		fetchOptions: {
 			loading: 'Setting domain brand info , please wait...',
 			successMessage: true,
-		}
+		},
 	})
 }
 
 export const checkAiConfiguration = () => {
-	return instance.post("/askai/supplier/status")
+	return instance.post('/askai/supplier/status')
+}
+
+export const testConnection = (params: { domain: string; outbound_ip: string }) => {
+	return instance.post('/multi_ip_domain/test', params, {
+		fetchOptions: {
+			loading: 'Testing connection, please wait...',
+			successMessage: true,
+		},
+	})
 }

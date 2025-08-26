@@ -143,6 +143,7 @@ var (
 				"/api/batch_mail/api/batch_send": {},
 				"/api/subscribe/confirm":         {},
 				"/api/subscribe/submit":          {},
+				"/api/languages/get":             {},
 				"/already_subscribed.html":       {},
 				"/subscribe_confirm.html":        {},
 				"/subscribe_form.html":           {},

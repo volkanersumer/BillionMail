@@ -3,10 +3,12 @@ package domains
 import (
 	"billionmail-core/internal/consts"
 	"billionmail-core/internal/service/domains"
+	"billionmail-core/internal/service/multi_ip_domain"
 	"billionmail-core/internal/service/public"
 	"billionmail-core/internal/service/rbac"
 	"context"
 	"github.com/gogf/gf/os/gtimer"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"time"
 
@@ -54,6 +56,21 @@ func (c *ControllerV1) AddDomain(ctx context.Context, req *v1.AddDomainReq) (res
 		Log:  "Add domain :" + req.Domain + " successfully",
 		Data: domain,
 	})
+
+	// If there is a dedicated IP, add the dedicated IP
+	if req.OutboundIp != "" {
+		err = multi_ip_domain.MultiIPDomainServiceInstance.AddConfig(ctx, req.Domain, req.OutboundIp)
+		if err != nil {
+			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to add dedicated IP: {}", err.Error())))
+			return res, nil
+		}
+
+		_ = public.WriteLog(ctx, public.LogParams{
+			Type: consts.LOGTYPE.Domain,
+			Log:  "Added dedicated sending IP for domain: " + req.Domain + " -> " + req.OutboundIp,
+			Data: req,
+		})
+	}
 
 	res.SetSuccess("Domain added successfully")
 	return

@@ -21,6 +21,8 @@ type IDomainsV1 interface {
 	SetSSL(ctx context.Context, req *v1.SetSSLReq) (res *v1.SetSSLRes, err error)
 	GetSSL(ctx context.Context, req *v1.GetSSLReq) (res *v1.GetSSLRes, err error)
 	SetDefaultDomain(ctx context.Context, req *v1.SetDefaultDomainReq) (res *v1.SetDefaultDomainRes, err error)
+	ApplyMultiIPDomainConfig(ctx context.Context, req *v1.ApplyMultiIPDomainConfigReq) (res *v1.ApplyMultiIPDomainConfigRes, err error)
+	TestMultiIPDomainConfig(ctx context.Context, req *v1.TestMultiIPDomainConfigReq) (res *v1.TestMultiIPDomainConfigRes, err error)
 	ApplyCert(ctx context.Context, req *v1.ApplyCertReq) (res *v1.ApplyCertRes, err error)
 	GetCertList(ctx context.Context, req *v1.GetCertListReq) (res *v1.GetCertListRes, err error)
 	ConsoleApplyCert(ctx context.Context, req *v1.ConsoleApplyCertReq) (res *v1.ConsoleApplyCertRes, err error)

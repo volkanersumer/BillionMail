@@ -49,6 +49,8 @@ type Domain struct {
 	Default      int        `json:"default"      dc:"Default sender domain, 1-yes, 0-no"`
 	Urls         []string   `json:"urls" dc:"Additional URLs associated with the domain"`
 	HasBrandInfo int        `json:"hasbrandinfo"        dc:"Brand information : 1-exist, 0-not exist"`
+	// 补充专属ip
+	MultiIPDomains *MultiIPDomain `json:"multi_ip_domains" dc:"Multiple IP domains"`
 }
 
 type AddDomainReq struct {
@@ -63,6 +65,7 @@ type AddDomainReq struct {
 	Catchall      string   `json:"email" v:"email" dc:"Catch all email address, used for domain verification"`
 	Urls          []string `json:"urls" dc:"Additional URLs associated with the domain"`
 	HasBrandInfo  int      `json:"hasbrandinfo"        dc:"Brand information : 1-exist, 0-not exist"`
+	OutboundIp   string   `json:"outbound_ip" v:"ipv4" dc:"Exclusive IP address for the domain, used for sending emails"`
 }
 
 type AddDomainRes struct {
@@ -82,6 +85,7 @@ type UpdateDomainReq struct {
 	Catchall      string   `json:"email" v:"email" dc:"Catch all email address, used for domain verification"`
 	Urls          []string `json:"urls" dc:"Additional URLs associated with the domain"`
 	HasBrandInfo  int      `json:"hasbrandinfo"        dc:"Brand information : 1-exist, 0-not exist"`
+	OutboundIp   string   `json:"outbound_ip" v:"ipv4" dc:"Exclusive IP address for the domain, used for sending emails"`
 }
 
 type UpdateDomainRes struct {
@@ -107,6 +111,20 @@ type DeleteDomainReq struct {
 
 type DeleteDomainRes struct {
 	api_v1.StandardRes
+}
+type MultiIPDomain struct {
+	ID             int    `json:"id"`
+	Domain         string `json:"domain"`
+	OutboundIP     string `json:"outbound_ip"`
+	NetworkName    string `json:"network_name"`
+	Subnet         string `json:"subnet"`
+	PostfixIP      string `json:"postfix_ip"`
+	Aliases        string `json:"aliases"`
+	SMTPServerName string `json:"smtp_server_name"`
+	Active         int    `json:"active"`
+	CreateTime     int    `json:"create_time"`
+	UpdateTime     int    `json:"update_time"`
+	Status         string `json:"status"`
 }
 
 type GetDomainReq struct {

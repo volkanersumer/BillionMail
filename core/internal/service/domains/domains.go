@@ -8,6 +8,7 @@ import (
 	docker "billionmail-core/internal/service/dockerapi"
 	"billionmail-core/internal/service/mail_boxes"
 	"billionmail-core/internal/service/mail_service"
+	"billionmail-core/internal/service/multi_ip_domain"
 	"billionmail-core/internal/service/public"
 	"context"
 	"database/sql"
@@ -200,6 +201,27 @@ func Get(ctx context.Context, keyword string, page, pageSize int) ([]v1.Domain, 
 	if err == nil && val != nil {
 		defaultDomain = val.String()
 	}
+	MultiIPDomainConfigs, err := multi_ip_domain.MultiIPDomainServiceInstance.GetConfigs(ctx)
+	g.Log().Debug(ctx, "多域名专属ip  Multi IP Domain Configs:", MultiIPDomainConfigs)
+
+	// 创建域名到专属IP配置的映射
+	multiIPMap := make(map[string][]v1.MultiIPDomain)
+	for _, config := range MultiIPDomainConfigs {
+		multiIPMap[config.Domain] = append(multiIPMap[config.Domain], v1.MultiIPDomain{
+			ID:             config.ID,
+			Domain:         config.Domain,
+			OutboundIP:     config.OutboundIP,
+			NetworkName:    config.NetworkName,
+			Subnet:         config.Subnet,
+			PostfixIP:      config.PostfixIP,
+			Aliases:        config.Aliases,
+			SMTPServerName: config.SMTPServerName,
+			Active:         config.Active,
+			CreateTime:     config.CreateTime,
+			UpdateTime:     config.UpdateTime,
+			Status:         config.Status,
+		})
+	}
 
 	crt := mail_service.NewCertificate()
 
@@ -212,6 +234,12 @@ func Get(ctx context.Context, keyword string, page, pageSize int) ([]v1.Domain, 
 			domains[i].Default = 1
 		} else {
 			domains[i].Default = 0
+		}
+		// 补充专属ip信息
+		if multiIPConfigs, exists := multiIPMap[domain.Domain]; exists && len(multiIPMap) > 0 {
+			domains[i].MultiIPDomains = &multiIPConfigs[0]
+		} else {
+			domains[i].MultiIPDomains = nil
 		}
 
 		wg.Add(1)

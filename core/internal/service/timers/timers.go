@@ -10,6 +10,7 @@ import (
 	"billionmail-core/internal/service/mail_boxes"
 	"billionmail-core/internal/service/mail_service"
 	"billionmail-core/internal/service/maillog_stat"
+	"billionmail-core/internal/service/multi_ip_domain"
 	"billionmail-core/internal/service/relay"
 	"billionmail-core/internal/service/warmup"
 	"context"
@@ -142,8 +143,13 @@ func Start(ctx context.Context) (err error) {
 	})
 
 	// First sync of SMTP relay configurations to Postfix after refactoring
-	gtimer.AddOnce(30*time.Second, func() {
+	gtimer.AddOnce(3*time.Second, func() {
 		relay.CheckRelayFirstSync(ctx)
+	})
+
+	// update iptable
+	gtimer.AddOnce(3*time.Second, func() {
+		multi_ip_domain.ReapplyAllIptablesRules(ctx)
 	})
 
 	g.Log().Debug(ctx, "All timers started successfully")

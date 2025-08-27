@@ -6,6 +6,7 @@ const editDomainStore = defineStore('editDomainStore', () => {
 	const hasGotDomainConfiguration = ref(false)
 	const domainTit = ref('')
 	const domainIp = ref('')
+	const hostname = ref('')
 	const quota = ref('0')
 	const unit = ref('B')
 	const mailboxes = ref(0)
@@ -81,6 +82,7 @@ const editDomainStore = defineStore('editDomainStore', () => {
 		hasGotDomainConfiguration,
 		domainTit,
 		domainIp,
+		hostname,
 		quota,
 		unit,
 		mailboxes,

@@ -34,6 +34,7 @@ export async function getDomainDetail(domain: string) {
 	const {
 		domainTit,
 		domainIp,
+		hostname,
 		quota,
 		unit,
 		mailboxes,
@@ -51,6 +52,7 @@ export async function getDomainDetail(domain: string) {
 			const quotaAndUnit = getByteUnit(list[0].quota, true, 2).split(' ')
 			domainTit.value = list[0].domain
 			domainIp.value = list[0].multi_ip_domains?.outbound_ip || ''
+			hostname.value = list[0].a_record
 			quota.value = quotaAndUnit[0]
 			unit.value = quotaAndUnit[1]
 			mailboxes.value = list[0].mailboxes
@@ -118,6 +120,7 @@ export async function updateDomain() {
 	const {
 		domainTit,
 		domainIp,
+		hostname,
 		quota,
 		unit,
 		urls,
@@ -142,6 +145,7 @@ export async function updateDomain() {
 				email: catch_email.value,
 				urls: urls.value,
 				outbound_ip: domainIp.value,
+				hostname: hostname.value,
 			},
 			instanceOptions
 		)

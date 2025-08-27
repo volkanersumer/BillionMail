@@ -1,6 +1,6 @@
 <template>
 	<modal :title="title" :width="600">
-		<div class="pt-16px">
+		<div class="max-h-640px pt-16px overflow-auto">
 			<bt-form ref="formRef" :model="form" :rules="rules">
 				<n-form-item path="domain">
 					<template #label>
@@ -49,72 +49,76 @@
 						{{ $t('domain.form.testConnection') }}
 					</n-button>
 				</n-form-item>
+				<n-form-item label="Hostname" path="hostname">
+					<n-input v-model:value="form.hostname" :placeholder="$t('domain.form.notSet')"> </n-input>
+				</n-form-item>
 				<n-form-item :label="t('domain.form.globalCatch')">
 					<n-input
 						v-model:value="form.email"
 						:placeholder="t('domain.form.globalCatchPlaceholder')">
 					</n-input>
 				</n-form-item>
-
-				<n-form-item>
-					<template #label>
-						<div class="flex justify-start items-center">
-							<i class="i-domain:brand-info w-5 h-5 mr-1.25"></i>
+				<bt-more>
+					<template #title>
+						<div class="flex items-center">
+							<i class="i-domain:brand-info w-20px h-20px mr-6px"></i>
 							<span>{{ $t('domain.form.createBrandInfo') }}</span>
 						</div>
 					</template>
-					<n-switch v-model:value="initAi" :disabled="!aiConfigurationStatus"></n-switch>
-				</n-form-item>
-				<n-alert
-					v-if="!aiConfigurationStatus"
-					class="mb-16px"
-					size="small"
-					type="warning"
-					:show-icon="false">
-					<div class="w-100% flex justify-between items-center">
-						<span class="mr-5">{{ $t('domain.form.modelNotice') }}</span>
-						<n-button type="primary" size="small" @click="goIntegrate">
-							{{ $t('domain.form.integrateImmediately') }}
-						</n-button>
-					</div>
-				</n-alert>
-				<div class="text-[#777] flex justify-start">
-					<span><i class="i-domain:brand-info w-5 h-5 mr-1.25"></i></span>
-					<span>{{ $t('domain.form.modelDescription') }}</span>
-				</div>
-				<bt-tips style="margin-bottom: 15px">
-					<li>{{ $t('domain.form.extractBrand') }}</li>
-					<li>{{ $t('domain.form.analyzeStructure') }}</li>
-					<li>{{ $t('domain.form.importContent') }}</li>
-					<li>{{ $t('domain.form.customLogo') }}</li>
-				</bt-tips>
-				<n-form-item :label="$t('domain.form.specifyDomain')">
-					<div class="w-100% flex flex-col gap-2.5">
-						<!-- <n-input v-for="(item, index) in urls" :key="index" v-model:value="urls[index]" placeholder="">
-						</n-input> -->
-						<div
-							v-for="(_, index) in urls"
-							:key="index"
-							class="flex justify-start items-center gap-2.5">
-							<n-input
-								v-model:value="urls[index]"
-								:placeholder="t('domain.form.urlsPlacement')"
-								:disabled="!aiConfigurationStatus"></n-input>
-							<div v-if="index != 0" class="close" @click="removeUrl(index)">
-								<i class="i-material-symbols:close-rounded text-5"></i>
-							</div>
-							<!-- <div v-else class="w-34px h-34px"></div> -->
+					<n-form-item :show-label="false">
+						<n-switch v-model:value="initAi" :disabled="!aiConfigurationStatus"></n-switch>
+					</n-form-item>
+					<n-alert
+						v-if="!aiConfigurationStatus"
+						class="mb-16px"
+						size="small"
+						type="warning"
+						:show-icon="false">
+						<div class="w-100% flex justify-between items-center">
+							<span class="mr-5">{{ $t('domain.form.modelNotice') }}</span>
+							<n-button type="primary" size="small" @click="goIntegrate">
+								{{ $t('domain.form.integrateImmediately') }}
+							</n-button>
 						</div>
-						<!-- <div class="text-[#777]">{{ $t("domain.form.maxUrl") }}</div> -->
+					</n-alert>
+					<div class="mb-8px text-default flex justify-start">
+						<span><i class="i-domain:brand-info w-5 h-5 mr-4px"></i></span>
+						<span>{{ $t('domain.form.modelDescription') }}</span>
+					</div>
+					<bt-tips style="margin-bottom: 15px">
+						<li>{{ $t('domain.form.extractBrand') }}</li>
+						<li>{{ $t('domain.form.analyzeStructure') }}</li>
+						<li>{{ $t('domain.form.importContent') }}</li>
+						<li>{{ $t('domain.form.customLogo') }}</li>
+					</bt-tips>
+					<n-form-item :label="$t('domain.form.specifyDomain')">
+						<div class="w-100% flex flex-col gap-2.5">
+							<!-- <n-input v-for="(item, index) in urls" :key="index" v-model:value="urls[index]" placeholder="">
+						</n-input> -->
+							<div
+								v-for="(_, index) in urls"
+								:key="index"
+								class="flex justify-start items-center gap-2.5">
+								<n-input
+									v-model:value="urls[index]"
+									:placeholder="t('domain.form.urlsPlacement')"
+									:disabled="!aiConfigurationStatus"></n-input>
+								<div v-if="index != 0" class="close" @click="removeUrl(index)">
+									<i class="i-material-symbols:close-rounded text-5"></i>
+								</div>
+								<!-- <div v-else class="w-34px h-34px"></div> -->
+							</div>
+							<!-- <div class="text-[#777]">{{ $t("domain.form.maxUrl") }}</div> -->
 
-						<!-- <n-button type="primary" :disabled="!aiConfigurationStatus || urls.length == 3" ghost @click="addUrl">
+							<!-- <n-button type="primary" :disabled="!aiConfigurationStatus || urls.length == 3" ghost @click="addUrl">
 							<template #icon>
 								<i class="i-material-symbols:add-circle-outline"></i>
 							</template>
 							{{ $t("domain.form.addMoreUrls") }}
 						</n-button> -->
-					</div>
-				</n-form-item>
+						</div>
+					</n-form-item>
+				</bt-more>
 			</bt-form>
 		</div>
 	</modal>
@@ -126,6 +130,7 @@
 <script lang="ts" setup>
 import WaitAndCheckDomainStatus from './WaitAndCheckDomainStatus.vue'
 import { FormRules } from 'naive-ui'
+import { useGlobalStore } from '@/store'
 import { getByteUnit, getNumber, Message } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
 import {
@@ -137,7 +142,6 @@ import {
 } from '@/api/modules/domain'
 import type { MailDomain } from '../interface'
 import router from '@/router'
-import { useGlobalStore } from '@/store'
 
 const { t } = useI18n()
 
@@ -160,6 +164,7 @@ const urls = ref(['https://'])
 
 const form = reactive({
 	domain: '',
+	hostname: '',
 	a_record: '',
 	quota: 5,
 	quota_unit: 'GB',
@@ -175,6 +180,7 @@ const unitOptions = [
 
 const rules: FormRules = {
 	domain: {
+		required: true,
 		trigger: ['blur', 'input'],
 		validator: () => {
 			if (form.domain.trim() === '') {
@@ -256,6 +262,7 @@ const [Modal, modalApi] = useModal({
 				const { row } = state
 				form.domain = row.domain
 				form.a_record = row.a_record
+				form.hostname = row.a_record
 				const quota = getByteUnit(row.quota)
 				form.quota = getNumber(quota.split(' ')[0])
 				form.quota_unit = quota.split(' ')[1]
@@ -265,6 +272,7 @@ const [Modal, modalApi] = useModal({
 		} else {
 			form.domain = ''
 			form.a_record = ''
+			form.hostname = ''
 			form.quota = 5
 			form.quota_unit = 'GB'
 			form.mailboxes = 50
@@ -283,6 +291,7 @@ const [Modal, modalApi] = useModal({
 				email: form.email,
 				urls: urls.value,
 				outbound_ip: form.outbound_ip,
+				hostname: form.hostname,
 			})
 		} else {
 			await createDomain({
@@ -293,6 +302,7 @@ const [Modal, modalApi] = useModal({
 				urls: urls.value,
 				hasbrandinfo: Number(initAi.value),
 				outbound_ip: form.outbound_ip,
+				hostname: form.hostname,
 			})
 
 			// Init Ai configuration (via. src\api\modules\domain.ts)

@@ -21,6 +21,7 @@ type DomainParams = {
 	mailboxes: number
 	email: string
 	urls: string[]
+	hostname: string
 	outbound_ip: string
 	hasbrandinfo?: number
 }

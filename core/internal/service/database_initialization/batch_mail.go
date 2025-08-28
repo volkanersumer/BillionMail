@@ -84,8 +84,7 @@ func init() {
 				delivered_count INTEGER NOT NULL DEFAULT 0,
 				bounced_count INTEGER NOT NULL DEFAULT 0,
 				deferred_count INTEGER NOT NULL DEFAULT 0,
-				stats_update_time INTEGER NOT NULL DEFAULT 0,
-                FOREIGN KEY (template_id) REFERENCES email_templates(id)
+				stats_update_time INTEGER NOT NULL DEFAULT 0
             )`,
 
 			`CREATE TABLE IF NOT EXISTS recipient_info (
@@ -222,6 +221,8 @@ func init() {
 		_ = DropForeignKeyIfExists("unsubscribe_records", "group_id")
 		_ = DropForeignKeyIfExists("unsubscribe_records", "template_id")
 		_ = DropForeignKeyIfExists("unsubscribe_records", "task_id")
+
+		_ = DropForeignKeyIfExists("email_tasks", "template_id")
 
 		g.Log().Info(context.Background(), "Batch mail tables initialized successfully")
 	})

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>You're Unsubscribed</title>
+    <style>
+        body {
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 30px 30px;
+            background: linear-gradient(135deg, #fef3f2, #fdf2f8);
+        }
+        .unsubscribe-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+        .content {
+            padding: 30px 40px;
+            text-align: center;
+        }
+        .content h2 {
+            margin: 0 0 16px 0;
+            color: #1f2937;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content p {
+            margin: 0 0 24px 0;
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .button {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background: #2563eb;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 30px 30px;
+            color: #9ca3af;
+            font-size: 12px;
+            background: #f9fafb;
+            border-top: 1px solid #f3f4f6;
+        }
+        .footer a {
+            color: #9ca3af;
+            text-decoration: underline;
+        }
+        .footer a:hover {
+            color: #6b7280;
+        }
+        .sad-face {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .highlight {
+            background: #fef3f2;
+            border-left: 4px solid #dc2626;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="unsubscribe-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6L5 4M21 6L19 4M5 4L12 11L19 4M5 4H19M5 20H19M5 20V4M19 20V4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 9L15 15M15 9L9 15" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+    </div>
+    <div class="content">
+        <div class="sad-face">😔</div>
+        <h2>You're Unsubscribed</h2>
+        <p>We're sorry to see you go! You have been successfully unsubscribed from our mailing list.</p>
+
+        <div class="highlight">
+            <p><strong>What this means:</strong></p>
+            <p style="margin: 0;">You will no longer receive emails from us. If you change your mind, you can always resubscribe using the button below.</p>
+        </div>
+
+        <p>We respect your decision and appreciate the time you spent with us. If you have any feedback on how we can improve, we'd love to hear from you.</p>
+
+        <a href="{{ ResubscribeLink . }}" class="button">Resubscribe</a>
+
+        <p style="font-size: 14px; color: #9ca3af; margin-top: 30px;">
+            If you unsubscribed by mistake, click the resubscribe button above to rejoin our mailing list.
+        </p>
+    </div>
+    <div class="footer">
+        <div>
+            <span>Powered by </span>
+            <a href="https://www.billionmail.com/" target="_blank">BillionMail</a>
+        </div>
+        <div style="margin-top: 10px;">
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

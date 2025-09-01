@@ -64,6 +64,16 @@ func (c *ControllerV1) GetGroupInfo(ctx context.Context, req *v1.GetGroupInfoReq
 	if group.ConfirmSubject == "" {
 		group.ConfirmSubject = "Confirm Your Subscription"
 	}
+	if group.UnsubscribeMailHtml == "" {
+		html, drag := subscribe_list.GetDefaultTemplate(3)
+		group.UnsubscribeMailHtml = html
+		group.UnsubscribeMailDrag = drag
+	}
+	if group.UnsubscribeSubject == "" {
+		group.UnsubscribeSubject = "You're unsubscribed"
+	}
+
+
 
 	DefaultDomain, err := subscribe_list.GetDefaultDomain()
 	noreplyEmail := "noreply@" + DefaultDomain
@@ -86,6 +96,11 @@ func (c *ControllerV1) GetGroupInfo(ctx context.Context, req *v1.GetGroupInfoReq
 		ConfirmSubject:   group.ConfirmSubject,
 		WelcomeSubject:   group.WelcomeSubject,
 		SendWelcomeEmail: group.SendWelcomeEmail,
+		UnsubscribeMailHtml:    group.UnsubscribeMailHtml,
+		UnsubscribeMailDrag:    group.UnsubscribeMailDrag,
+		UnsubscribeSubject:     group.UnsubscribeSubject,
+		UnsubscribeRedirectUrl: group.UnsubscribeRedirectUrl,
+		SendUnsubscribeEmail:   group.SendUnsubscribeEmail,
 	}
 
 	groupInfo := &v1.ContactGroupInfo{

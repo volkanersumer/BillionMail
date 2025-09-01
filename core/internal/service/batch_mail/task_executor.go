@@ -964,22 +964,34 @@ func (e *TaskExecutor) personalizeEmail(ctx context.Context, content string, tas
 	if task.Unsubscribe == 1 {
 		//domain := domains.GetBaseURLBySender(task.Addresser)
 		domain := domains.GetBaseURL()
-		unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
-		groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)
+
+		var contactGroupId int
+		contactGroupId = task.GroupId
 
 		jwtToken, err := GenerateUnsubscribeJWT(
 			recipient.Recipient,
 			task.TemplateId,
 			task.Id,
+			contactGroupId,
 		)
 		if err != nil {
 			g.Log().Error(ctx, "generate unsubscribe JWT failed: %v", err)
 			jwtToken = ""
 		}
 
-		// generate unsubscribe URL
-		unsubscribeJumpURL := fmt.Sprintf("%s/unsubscribe.html?jwt=%s&email=%s&url_type=%s&url_unsubscribe=%s",
-			domain, jwtToken, recipient.Recipient, groupURL, unsubscribeURL)
+		var unsubscribeJumpURL string
+		if contactGroupId > 0 {
+
+			unsubscribeJumpURL = fmt.Sprintf("%s/unsubscribe_new.html?jwt=%s",
+				domain, jwtToken)
+
+		} else {
+
+			unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
+			groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)
+			unsubscribeJumpURL = fmt.Sprintf("%s/unsubscribe.html?jwt=%s&email=%s&url_type=%s&url_unsubscribe=%s",
+				domain, jwtToken, recipient.Recipient, groupURL, unsubscribeURL)
+		}
 
 		// render email content
 		renderedContent, err = engine.RenderEmailTemplate(ctx, content, &contact, &emailtask, unsubscribeJumpURL)

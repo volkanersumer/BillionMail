@@ -138,6 +138,10 @@ func GetDefaultTemplate(emailType int) (html string, txt string) {
 		basePath = "default_confirm_email/confirm_email"
 		defaultHtml = "<p>Please confirm your subscription.</p>"
 		defaultTxt = ""
+	case 3: // Unsubscribe email
+		basePath = "default_unsubscribe_email/unsubscribe_email"
+		defaultHtml = "<p>You have been unsubscribed.</p>"
+		defaultTxt = ""
 	default:
 		return "<p>Welcome to subscribe!</p>", ""
 	}
@@ -154,10 +158,10 @@ func GetDefaultTemplate(emailType int) (html string, txt string) {
 }
 
 // Send email
-func sendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string) error {
+func SendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string) error {
 	// 1. Load template
 	if emailHtml == "" {
-		return gerror.New(public.LangCtx(ctx, "邮件模板ID不能为空"))
+		return gerror.New(public.LangCtx(ctx, "The email template is empty"))
 	}
 
 	// If {{ ConfirmURL . }} variable exists, replace it with confirmation link
@@ -192,7 +196,7 @@ func sendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string)
 	if err != nil {
 		return gerror.New(public.LangCtx(ctx, "Failed to get default sending domain: {}", err))
 	}
-	address, err := createNoreplyEmail(DefaultDomain)
+	address, err := CreateNoreplyEmail(DefaultDomain)
 	if err != nil {
 		return gerror.New(public.LangCtx(ctx, "Failed to find noreply email: {}", err))
 	}
@@ -220,7 +224,7 @@ func sendMail(ctx context.Context, emailHtml, email, subject, confirmUrl string)
 }
 
 // Generate token
-func generateConfirmToken(email, groupToken string) string {
+func GenerateConfirmToken(email, groupToken string) string {
 	token, err := batch_mail.GenerateSubscribeConfirmJWT(email, groupToken)
 	if err != nil {
 		g.Log().Errorf(context.Background(), "Failed to generate subscription confirmation token: %v", err)
@@ -245,7 +249,7 @@ func buildConfirmUrl(token string) string {
 }
 
 // Query whether the sender email exists, create if not
-func createNoreplyEmail(domain string) (string, error) {
+func CreateNoreplyEmail(domain string) (string, error) {
 	noreplyEmail := "noreply@" + domain
 	count, err := g.DB().Model("mailbox").Where("username", noreplyEmail).Count()
 	if err != nil {

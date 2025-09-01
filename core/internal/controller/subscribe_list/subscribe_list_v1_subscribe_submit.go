@@ -62,7 +62,7 @@ func (c *ControllerV1) SubscribeSubmit(ctx context.Context, req *v1.SubscribeSub
 		}
 
 		// 3.2 Send confirmation email
-		confirmToken := generateConfirmToken(req.Email, group.Token)
+		confirmToken := GenerateConfirmToken(req.Email, group.Token)
 		confirmUrl := buildConfirmUrl(confirmToken)
 		if group.ConfirmHtml == "" {
 			group.ConfirmHtml, _ = GetDefaultTemplate(2)
@@ -71,7 +71,7 @@ func (c *ControllerV1) SubscribeSubmit(ctx context.Context, req *v1.SubscribeSub
 			group.ConfirmSubject = "Confirm Your Subscription"
 		}
 		gtimer.AddOnce(500*time.Millisecond, func() {
-			err = sendMail(ctx, group.ConfirmHtml, req.Email, group.ConfirmSubject, confirmUrl)
+			err = SendMail(ctx, group.ConfirmHtml, req.Email, group.ConfirmSubject, confirmUrl)
 			if err != nil {
 				g.Log().Error(ctx, "Failed to send confirm email: {}", err)
 				return
@@ -104,7 +104,7 @@ func (c *ControllerV1) SubscribeSubmit(ctx context.Context, req *v1.SubscribeSub
 				group.WelcomeSubject = "Welcome Aboard!"
 			}
 			gtimer.AddOnce(500*time.Millisecond, func() {
-				err = sendMail(ctx, group.WelcomeHtml, req.Email, group.WelcomeSubject, "")
+				err = SendMail(ctx, group.WelcomeHtml, req.Email, group.WelcomeSubject, "")
 				if err != nil {
 					g.Log().Error(ctx, "Failed to send welcome email: {}", err)
 					return

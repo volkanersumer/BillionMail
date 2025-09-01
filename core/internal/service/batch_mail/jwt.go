@@ -21,6 +21,7 @@ type UnsubscribeClaims struct {
 	Email      string `json:"email"`
 	TemplateId int    `json:"template_id"`
 	TaskId     int    `json:"task_id"`
+	GroupId    int    `json:"group_id"`
 	jwt.RegisteredClaims
 }
 
@@ -122,13 +123,13 @@ func generateSecret(ctx context.Context) string {
 }
 
 // GenerateUnsubscribeJWT generate unsubscribe JWT
-func GenerateUnsubscribeJWT(email string, templateId, taskId int) (string, error) {
+func GenerateUnsubscribeJWT(email string, templateId, taskId, GroupId int) (string, error) {
 	cfg := getConfig()
-
 	claims := UnsubscribeClaims{
 		Email:      email,
 		TemplateId: templateId,
 		TaskId:     taskId,
+		GroupId:    GroupId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(cfg.expiry)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -186,6 +187,10 @@ func ParseUnsubscribeJWT(tokenString string) (*UnsubscribeClaims, error) {
 				return nil, errors.New("JWT has expired")
 			}
 			result.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Unix(int64(exp), 0))
+		}
+		// Extract group ID
+		if groupID, ok := claims["group_id"].(float64); ok {
+			result.GroupId = int(groupID)
 		}
 
 		g.Log().Debug(context.Background(), "JWT parsed successfully: %+v", result)

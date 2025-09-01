@@ -16,6 +16,7 @@ var ExcludedPaths = map[string]struct{}{
 	"/unsubscribe.html":              {},
 	"/api/unsubscribe/user_group":    {},
 	"/api/unsubscribe":               {},
+	"api/unsubscribe_new":               {},
 	"/api/batch_mail/api/send":       {},
 	"/api/batch_mail/api/batch_send": {},
 	"/api/subscribe/submit":          {},

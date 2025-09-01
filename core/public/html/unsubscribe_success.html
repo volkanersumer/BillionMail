@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unsubscribe Successful</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .success-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #28a745;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+        .email-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #28a745;
+        }
+        .email-info strong {
+            color: #28a745;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #666;
+        }
+        .message-box {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+            margin: 20px 0;
+        }
+        .actions {
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .footer-text {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #999;
+        }
+        .countdown {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <h1>Successfully Unsubscribed</h1>
+
+        <div class="email-info" id="email-info" style="display: none;">
+            <p><strong>Email:</strong> <span id="user-email"></span></p>
+            <p><strong>Group:</strong> <span id="group-name"></span></p>
+        </div>
+
+        <div class="message-box" id="success-message">
+            You have been successfully unsubscribed from our mailing list.
+        </div>
+
+        <p>We're sorry to see you go! You will no longer receive emails from this mailing list.</p>
+
+        <p>If you have any questions or if this was done in error, please don't hesitate to contact our support team.</p>
+
+        <div class="actions">
+            <a href="#" class="btn" id="resubscribe-btn" style="display: none;">Resubscribe</a>
+            <button class="btn btn-secondary" onclick="window.close()">Close</button>
+        </div>
+
+        <div class="footer-text">
+            <p>Thank you for being part of our community.</p>
+            <p id="redirect-message" style="display: none;">
+                You will be redirected in <span class="countdown" id="countdown">5</span> seconds...
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 获取URL参数
+        function getQueryParams() {
+            const urlParams = {};
+            const queryString = window.location.search.substring(1);
+            const regex = /([^&=]+)=([^&]*)/g;
+            let m;
+            while ((m = regex.exec(queryString))) {
+                urlParams[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+            }
+            return urlParams;
+        }
+
+        // 显示用户信息
+        function displayUserInfo(email, groupName) {
+            if (email) {
+                document.getElementById('user-email').textContent = email;
+                document.getElementById('email-info').style.display = 'block';
+            }
+            if (groupName) {
+                document.getElementById('group-name').textContent = groupName;
+            }
+        }
+
+        // 显示重新订阅按钮
+        function showResubscribeButton(resubscribeUrl) {
+            if (resubscribeUrl) {
+                const btn = document.getElementById('resubscribe-btn');
+                btn.href = resubscribeUrl;
+                btn.style.display = 'inline-block';
+            }
+        }
+
+        // 自动重定向
+        function startRedirect(redirectUrl, delay = 5) {
+            if (!redirectUrl) return;
+
+            const redirectMessage = document.getElementById('redirect-message');
+            const countdownElement = document.getElementById('countdown');
+
+            redirectMessage.style.display = 'block';
+
+            let countdown = delay;
+            const timer = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    window.location.href = redirectUrl;
+                }
+            }, 1000);
+        }
+
+        // 初始化页面
+        window.onload = function() {
+            const params = getQueryParams();
+
+            // 显示用户信息
+            if (params.email) {
+                displayUserInfo(params.email, params.group_name);
+            }
+
+            // 显示重新订阅按钮
+            if (params.resubscribe_url) {
+                showResubscribeButton(params.resubscribe_url);
+            }
+
+            // 显示自定义消息
+            if (params.message) {
+                document.getElementById('success-message').textContent = decodeURIComponent(params.message);
+            }
+
+            // 自动重定向
+            if (params.redirect_url) {
+                const delay = params.redirect_delay ? parseInt(params.redirect_delay) : 5;
+                startRedirect(decodeURIComponent(params.redirect_url), delay);
+            }
+        };
+    </script>
+</body>
+</html>
+

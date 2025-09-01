@@ -7,19 +7,19 @@ import (
 )
 
 type EmailTask struct {
-	Id                      int    `json:"id"              dc:"task id"`
-	TaskName                string `json:"task_name"       dc:"task name"`
-	Addresser               string `json:"addresser"       dc:"addresser"`
-	Subject                 string `json:"subject"         dc:"subject"`
-	FullName                string `json:"full_name"       dc:"full name"`
-	RecipientCount          int    `json:"recipient_count" dc:"recipient count"`
-	TaskProcess             int    `json:"task_process"    dc:"task process"`
-	Pause                   int    `json:"pause"           dc:"pause"`
-	TemplateId              int    `json:"template_id"     dc:"template id"`
-	IsRecord                int    `json:"is_record"       dc:"is record"`
-	Unsubscribe             int    `json:"unsubscribe"     dc:"unsubscribe"`
-	Threads                 int    `json:"threads"         dc:"threads"`
-	Etypes                  string `json:"etypes"          dc:"etypes"`
+	Id             int    `json:"id"              dc:"task id"`
+	TaskName       string `json:"task_name"       dc:"task name"`
+	Addresser      string `json:"addresser"       dc:"addresser"`
+	Subject        string `json:"subject"         dc:"subject"`
+	FullName       string `json:"full_name"       dc:"full name"`
+	RecipientCount int    `json:"recipient_count" dc:"recipient count"`
+	TaskProcess    int    `json:"task_process"    dc:"task process"`
+	Pause          int    `json:"pause"           dc:"pause"`
+	TemplateId     int    `json:"template_id"     dc:"template id"`
+	IsRecord       int    `json:"is_record"       dc:"is record"`
+	Unsubscribe    int    `json:"unsubscribe"     dc:"unsubscribe"`
+	Threads        int    `json:"threads"         dc:"threads"`
+	//Etypes                  string `json:"etypes"          dc:"etypes"`
 	TrackOpen               int    `json:"track_open"      dc:"track open"`
 	TrackClick              int    `json:"track_click"     dc:"track click"`
 	StartTime               int    `json:"start_time"      dc:"start time"`
@@ -34,6 +34,7 @@ type EmailTask struct {
 	BouncedCount            int    `json:"bouncedCount"     description:""`
 	DeferredCount           int    `json:"deferredCount"    description:""`
 	StatsUpdateTime         int    `json:"statsUpdateTime"  description:""`
+	GroupId                 int    `json:"group_id"        dc:"Group ID"`
 }
 
 type GroupInfo struct {
@@ -45,14 +46,14 @@ type GroupInfo struct {
 
 type TaskDetail struct {
 	EmailTask
-	Groups       []*GroupInfo `json:"groups"         dc:"groups"`
-	SentCount    int          `json:"sent_count"     dc:"sent count"`
-	UnsentCount  int          `json:"unsent_count"   dc:"unsent count"`
-	Progress     int          `json:"progress"      dc:"progress"`
-	TemplateName string       `json:"template_name"  dc:"template name"`
-	SuccessCount int          `json:"success_count"  dc:"success count"`
-	ErrorCount   int          `json:"error_count"    dc:"error count"`
-	Deferred     int          `json:"deferred"       dc:"deferred count"`
+	Groups       GroupInfo `json:"groups"         dc:"groups"`
+	SentCount    int       `json:"sent_count"     dc:"sent count"`
+	UnsentCount  int       `json:"unsent_count"   dc:"unsent count"`
+	Progress     int       `json:"progress"      dc:"progress"`
+	TemplateName string    `json:"template_name"  dc:"template name"`
+	SuccessCount int       `json:"success_count"  dc:"success count"`
+	ErrorCount   int       `json:"error_count"    dc:"error count"`
+	Deferred     int       `json:"deferred"       dc:"deferred count"`
 	//Opened       int          `json:"opened"        dc:"opened count"`
 	//Clicked      int          `json:"clicked"       dc:"clicked count"`
 	//DeliveryRate float64      `json:"delivery_rate" dc:"delivery rate"`
@@ -130,7 +131,7 @@ type CreateTaskReq struct {
 	Subject       string `json:"subject" v:"required" dc:"subject"`
 	FullName      string `json:"full_name" dc:"full name"`
 	TemplateId    int    `json:"template_id" v:"required" dc:"template id"`
-	GroupIds      []int  `json:"group_ids" v:"required" dc:"group ids"`
+	GroupId       int    `json:"group_id" v:"required" dc:"group id"`
 	IsRecord      int    `json:"is_record" v:"in:0,1" dc:"is record" default:"1"`
 	Unsubscribe   int    `json:"unsubscribe" v:"in:0,1" dc:"unsubscribe" default:"1"`
 	Threads       int    `json:"threads" v:"min:0" dc:"threads" default:"5"`

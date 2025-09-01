@@ -126,7 +126,6 @@ func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content
 		taskData["IsRecord"] = task.IsRecord
 		taskData["Unsubscribe"] = task.Unsubscribe
 		taskData["Threads"] = task.Threads
-		taskData["Etypes"] = task.Etypes
 		taskData["TrackOpen"] = task.TrackOpen
 		taskData["TrackClick"] = task.TrackClick
 		taskData["StartTime"] = task.StartTime

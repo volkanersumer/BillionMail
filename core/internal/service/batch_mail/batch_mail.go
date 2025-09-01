@@ -13,7 +13,6 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/gvalid"
-	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -32,11 +31,12 @@ type CreateTaskArgs struct {
 	Threads     int    `json:"threads"`     // Number of threads to use
 	TrackOpen   int    `json:"track_open"`  // Track email opens
 	TrackClick  int    `json:"track_click"` // Track email clicks
-	Etypes      string `json:"etypes"`      // Email types (e.g., group IDs)
-	Remark      string `json:"remark"`      // Task remark
-	StartTime   int    `json:"start_time"`  // Scheduled start time
-	Warmup      int    `json:"warmup"`      // Warmup campaign association
-	AddType     int    `json:"add_type"`    // Add type (0: normal)
+	//Etypes      string `json:"etypes"`      // Email types (e.g., group IDs)
+	Remark    string `json:"remark"`     // Task remark
+	StartTime int    `json:"start_time"` // Scheduled start time
+	Warmup    int    `json:"warmup"`     // Warmup campaign association
+	AddType   int    `json:"add_type"`   // Add type (0: normal)
+	GroupId   int    `json:"group_id"`   // Groups to unsubscribe from
 }
 
 // ============= task related operations =============
@@ -129,15 +129,16 @@ func CreateTask(ctx context.Context, args CreateTaskArgs) (int, error) {
 		"is_record":       args.IsRecord,
 		"unsubscribe":     args.Unsubscribe,
 		"threads":         args.Threads,
-		"etypes":          args.Etypes,
-		"track_open":      args.TrackOpen,
-		"track_click":     args.TrackClick,
-		"start_time":      args.StartTime,
-		"create_time":     now,
-		"update_time":     now,
-		"active":          1,
-		"remark":          args.Remark,
-		"add_type":        args.AddType,
+		//"etypes":          args.Etypes,
+		"track_open":  args.TrackOpen,
+		"track_click": args.TrackClick,
+		"start_time":  args.StartTime,
+		"create_time": now,
+		"update_time": now,
+		"active":      1,
+		"remark":      args.Remark,
+		"add_type":    args.AddType,
+		"group_id":    args.GroupId,
 	})
 	if err != nil {
 		g.Log().Debug(ctx, "Failed to create campaign:", err.Error())
@@ -284,12 +285,130 @@ func GetActiveContacts(ctx context.Context, groupId int) ([]*entity.Contact, err
 }
 
 // ============= business logic combination =============
-// add type parameter add_type default 0
+// add type parameter add_type default 0  todo 改用单个组
+//
+//	func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addType int) (int, error) {
+//		var taskId int
+//		var err error
+//		err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+//			etype := strings.Join(gconv.SliceStr(req.GroupIds), ",")
+//
+//			taskId, err = CreateTask(ctx, CreateTaskArgs{
+//				Addresser:   req.Addresser,
+//				Subject:     req.Subject,
+//				FullName:    req.FullName,
+//				TemplateId:  req.TemplateId,
+//				IsRecord:    req.IsRecord,
+//				Unsubscribe: req.Unsubscribe,
+//				Threads:     req.Threads,
+//				TrackOpen:   req.TrackOpen,
+//				TrackClick:  req.TrackClick,
+//				Etypes:      etype,
+//				Remark:      req.Remark,
+//				StartTime:   req.StartTime,
+//				Warmup:      req.Warmup,
+//				AddType:     addType,
+//			})
+//			if err != nil {
+//				return gerror.New(public.LangCtx(ctx, "Failed to create task {}", err.Error()))
+//			}
+//
+//			var abnormalRecipients []struct {
+//				Recipient string `json:"recipient"`
+//				Count     int    `json:"count"`
+//			}
+//
+//			err = tx.Model("abnormal_recipient").
+//				Where("count >= ?", 3).
+//				Fields("recipient, count").
+//				Scan(&abnormalRecipients)
+//
+//			if err != nil {
+//				g.Log().Debugf(ctx, "Failed to get the exception recipient list: %v", err)
+//			}
+//
+//			abnormalMap := make(map[string]int)
+//			if len(abnormalRecipients) > 0 {
+//				for _, ar := range abnormalRecipients {
+//					abnormalMap[ar.Recipient] = ar.Count
+//				}
+//			}
+//
+//			// import recipient information
+//			totalRecipients := 0
+//			totalSkipped := 0
+//
+//			for _, groupId := range req.GroupIds {
+//				contacts, err := GetActiveContacts(ctx, groupId)
+//				if err != nil {
+//					return gerror.New(public.LangCtx(ctx, "Failed to get contacts for group {}: {}", groupId, err.Error()))
+//				}
+//				if len(contacts) == 0 {
+//					continue
+//				}
+//
+//				// abnormal skip and email format validation
+//				filteredContacts := make([]*entity.Contact, 0, len(contacts))
+//				skippedInGroup := 0
+//
+//				for _, contact := range contacts {
+//					// Check if email is in abnormal list
+//					if _, exists := abnormalMap[contact.Email]; exists {
+//						skippedInGroup++
+//						continue
+//					}
+//
+//					// Validate email format
+//					if err := gvalid.New().Rules("email").Data(contact.Email).Run(ctx); err != nil {
+//						skippedInGroup++
+//						g.Log().Debug(ctx, "Skip erroneous email addresses:", contact.Email, " Error:", err)
+//						continue
+//					}
+//
+//					filteredContacts = append(filteredContacts, contact)
+//				}
+//
+//				if skippedInGroup > 0 {
+//					totalSkipped += skippedInGroup
+//				}
+//
+//				if len(filteredContacts) == 0 {
+//					continue
+//				}
+//
+//				err = ImportRecipients(ctx, taskId, filteredContacts)
+//				if err != nil {
+//					return gerror.New(public.LangCtx(ctx, "Failed to import recipients for group {}: {}", groupId, err.Error()))
+//				}
+//
+//				totalRecipients += len(filteredContacts)
+//			}
+//
+//			// update recipient count
+//			actualCount, err := GetActualRecipientCount(ctx, taskId)
+//			if err == nil && actualCount > 0 {
+//				err = UpdateRecipientCount(ctx, taskId, actualCount)
+//				if err != nil {
+//					return gerror.New(public.LangCtx(ctx, "Failed to update recipient count for task {}: {}", taskId, err.Error()))
+//				}
+//			}
+//
+//			if totalRecipients == 0 {
+//				return gerror.New(public.LangCtx(ctx, "No recipients found, task creation is not allowed"))
+//			}
+//			return nil
+//		})
+//
+//		if err != nil {
+//			return 0, err
+//		}
+//
+//		return taskId, nil
+//	}
 func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addType int) (int, error) {
 	var taskId int
 	var err error
 	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		etype := strings.Join(gconv.SliceStr(req.GroupIds), ",")
 
 		taskId, err = CreateTask(ctx, CreateTaskArgs{
 			Addresser:   req.Addresser,
@@ -301,11 +420,12 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 			Threads:     req.Threads,
 			TrackOpen:   req.TrackOpen,
 			TrackClick:  req.TrackClick,
-			Etypes:      etype,
-			Remark:      req.Remark,
-			StartTime:   req.StartTime,
-			Warmup:      req.Warmup,
-			AddType:     addType,
+			//Etypes:      etype,
+			Remark:    req.Remark,
+			StartTime: req.StartTime,
+			Warmup:    req.Warmup,
+			AddType:   addType,
+			GroupId:   req.GroupId,
 		})
 		if err != nil {
 			return gerror.New(public.LangCtx(ctx, "Failed to create task {}", err.Error()))
@@ -333,53 +453,48 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 		}
 
 		// import recipient information
-		totalRecipients := 0
 		totalSkipped := 0
 
-		for _, groupId := range req.GroupIds {
-			contacts, err := GetActiveContacts(ctx, groupId)
-			if err != nil {
-				return gerror.New(public.LangCtx(ctx, "Failed to get contacts for group {}: {}", groupId, err.Error()))
-			}
-			if len(contacts) == 0 {
+		contacts, err := GetActiveContacts(ctx, req.GroupId)
+		if err != nil {
+			return gerror.New(public.LangCtx(ctx, "Failed to get contacts for group {}: {}", req.GroupId, err.Error()))
+		}
+		if len(contacts) == 0 {
+			return gerror.New(public.LangCtx(ctx, "No contacts found in group {}: {}", req.GroupId))
+		}
+
+		// abnormal skip and email format validation
+		filteredContacts := make([]*entity.Contact, 0, len(contacts))
+		skippedInGroup := 0
+
+		for _, contact := range contacts {
+			// Check if email is in abnormal list
+			if _, exists := abnormalMap[contact.Email]; exists {
+				skippedInGroup++
 				continue
 			}
 
-			// abnormal skip and email format validation
-			filteredContacts := make([]*entity.Contact, 0, len(contacts))
-			skippedInGroup := 0
-
-			for _, contact := range contacts {
-				// Check if email is in abnormal list
-				if _, exists := abnormalMap[contact.Email]; exists {
-					skippedInGroup++
-					continue
-				}
-
-				// Validate email format
-				if err := gvalid.New().Rules("email").Data(contact.Email).Run(ctx); err != nil {
-					skippedInGroup++
-					g.Log().Debug(ctx, "Skip erroneous email addresses:", contact.Email, " Error:", err)
-					continue
-				}
-
-				filteredContacts = append(filteredContacts, contact)
-			}
-
-			if skippedInGroup > 0 {
-				totalSkipped += skippedInGroup
-			}
-
-			if len(filteredContacts) == 0 {
+			// Validate email format
+			if err := gvalid.New().Rules("email").Data(contact.Email).Run(ctx); err != nil {
+				skippedInGroup++
+				g.Log().Debug(ctx, "Skip erroneous email addresses:", contact.Email, " Error:", err)
 				continue
 			}
 
-			err = ImportRecipients(ctx, taskId, filteredContacts)
-			if err != nil {
-				return gerror.New(public.LangCtx(ctx, "Failed to import recipients for group {}: {}", groupId, err.Error()))
-			}
+			filteredContacts = append(filteredContacts, contact)
+		}
 
-			totalRecipients += len(filteredContacts)
+		if skippedInGroup > 0 {
+			totalSkipped += skippedInGroup
+		}
+
+		if len(filteredContacts) == 0 {
+			return gerror.New(public.LangCtx(ctx, "No valid contacts found in group {}: {}", req.GroupId))
+		}
+
+		err = ImportRecipients(ctx, taskId, filteredContacts)
+		if err != nil {
+			return gerror.New(public.LangCtx(ctx, "Failed to import recipients for group {}: {}", req.GroupId, err.Error()))
 		}
 
 		// update recipient count
@@ -391,9 +506,6 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 			}
 		}
 
-		if totalRecipients == 0 {
-			return gerror.New(public.LangCtx(ctx, "No recipients found, task creation is not allowed"))
-		}
 		return nil
 	})
 

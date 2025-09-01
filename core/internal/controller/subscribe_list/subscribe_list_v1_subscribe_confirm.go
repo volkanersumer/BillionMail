@@ -40,7 +40,7 @@ func (c *ControllerV1) SubscribeConfirm(ctx context.Context, req *v1.SubscribeCo
 		return
 	}
 	hostUrl := domains.GetBaseURL()
-	if contact.Status == 1 {
+	if contact.Status == 1 && contact.Active == 1 {
 		if group.AlreadyUrl != "" {
 			g.RequestFromCtx(ctx).Response.RedirectTo(group.AlreadyUrl, 302)
 		} else {
@@ -50,7 +50,7 @@ func (c *ControllerV1) SubscribeConfirm(ctx context.Context, req *v1.SubscribeCo
 	}
 
 	// 4. Update contact status to confirmed
-	err = updateContactStatus(req.Email, group.Id, 1)
+	err = updateContactStatus(email, group.Id, 1)
 	if err != nil {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to update contact status")))
 		return
@@ -65,7 +65,7 @@ func (c *ControllerV1) SubscribeConfirm(ctx context.Context, req *v1.SubscribeCo
 			group.WelcomeSubject = "Welcome Aboard!"
 		}
 		gtimer.AddOnce(500*time.Millisecond, func() {
-			err = sendMail(ctx, group.WelcomeHtml, email, group.WelcomeSubject, "")
+			err = SendMail(ctx, group.WelcomeHtml, email, group.WelcomeSubject, "")
 			if err != nil {
 				g.Log().Error(ctx, "Failed to send welcome email: {}", err)
 				return

@@ -29,7 +29,11 @@ func init() {
     			confirm_subject TEXT DEFAULT '', -- Confirmation Email Subject
     			welcome_subject TEXT DEFAULT '', -- Welcome Email Subject
     			send_welcome_email SMALLINT NOT NULL DEFAULT 0,--  0: No need to send email, 1: send email
-
+    			unsubscribe_mail_html TEXT DEFAULT '', -- HTML content for unsubscribe email
+				unsubscribe_mail_drag TEXT DEFAULT '', -- Drag-and-drop content for unsubscribe email
+    			unsubscribe_subject TEXT DEFAULT 'You''re unsubscribed', -- Unsubscribe Email Subject
+				unsubscribe_redirect_url TEXT DEFAULT '', -- URL to redirect after successful unsubscription
+    			send_unsubscribe_email SMALLINT NOT NULL DEFAULT 0,
                 UNIQUE(name)
             )`,
 
@@ -84,6 +88,7 @@ func init() {
 				delivered_count INTEGER NOT NULL DEFAULT 0,
 				bounced_count INTEGER NOT NULL DEFAULT 0,
 				deferred_count INTEGER NOT NULL DEFAULT 0,
+				group_id INTEGER NOT NULL DEFAULT 0,   
 				stats_update_time INTEGER NOT NULL DEFAULT 0
             )`,
 
@@ -207,6 +212,12 @@ func init() {
 		_ = AddColumnIfNotExists("bm_contact_groups", "welcome_subject", "TEXT", "''", false)
 		_ = AddColumnIfNotExists("bm_contact_groups", "send_welcome_email", "SMALLINT", "0", true)
 
+		_ = AddColumnIfNotExists("bm_contact_groups", "unsubscribe_mail_html", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "unsubscribe_mail_drag", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "unsubscribe_subject", "TEXT", "'You''re unsubscribed'", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "unsubscribe_redirect_url", "TEXT", "''", false)
+		_ = AddColumnIfNotExists("bm_contact_groups", "send_unsubscribe_email", "SMALLINT", "0", true)
+
 		//email_templates
 		_ = AddColumnIfNotExists("email_templates", "chat_id", "VARCHAR(255)", "''", false)
 
@@ -216,6 +227,7 @@ func init() {
 		_ = AddColumnIfNotExists("email_tasks", "bounced_count", "INTEGER", "0", true)
 		_ = AddColumnIfNotExists("email_tasks", "deferred_count", "INTEGER", "0", true)
 		_ = AddColumnIfNotExists("email_tasks", "stats_update_time", "INTEGER", "0", true)
+		_ = AddColumnIfNotExists("email_tasks", "group_id", "INTEGER", "0", true)
 
 		// unsubscribe_records
 		_ = DropForeignKeyIfExists("unsubscribe_records", "group_id")

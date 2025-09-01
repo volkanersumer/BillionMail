@@ -24,6 +24,7 @@ func (c *ControllerV1) UpdateGroup(ctx context.Context, req *v1.UpdateGroupReq) 
 	}
 	updateData["double_optin"] = req.DoubleOptin
 	updateData["send_welcome_email"] = req.SendWelcomeEmail
+	updateData["send_unsubscribe_email"] = req.SendUnsubscribeEmail // 新增是否发退订成功邮件
 
 	if req.WelcomeHtml != "" {
 		updateData["welcome_mail_html"] = req.WelcomeHtml
@@ -55,6 +56,18 @@ func (c *ControllerV1) UpdateGroup(ctx context.Context, req *v1.UpdateGroupReq) 
 	}
 	if req.ConfirmSubject != "" {
 		updateData["confirm_subject"] = req.ConfirmSubject
+	}
+	if req.UnsubscribeSubject != "" {
+		updateData["unsubscribe_subject"] = req.UnsubscribeSubject
+	}
+	if req.UnsubscribeMailHtml != "" {
+		updateData["unsubscribe_mail_html"] = req.UnsubscribeMailHtml
+	}
+	if req.UnsubscribeMailDrag != "" {
+		updateData["unsubscribe_mail_drag"] = req.UnsubscribeMailDrag
+	}
+	if req.UnsubscribeRedirectUrl != "" {
+		updateData["unsubscribe_redirect_url"] = req.UnsubscribeRedirectUrl
 	}
 
 	if len(updateData) == 0 {

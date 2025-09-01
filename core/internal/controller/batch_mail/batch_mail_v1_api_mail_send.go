@@ -3,10 +3,7 @@ package batch_mail
 import (
 	"billionmail-core/api/batch_mail/v1"
 	"billionmail-core/internal/model/entity"
-	"billionmail-core/internal/service/batch_mail"
-	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/mail_service"
-	"billionmail-core/internal/service/maillog_stat"
 	"billionmail-core/internal/service/public"
 	"context"
 	"database/sql"
@@ -230,90 +227,90 @@ func ensureContactAndGroup(ctx context.Context, email string, apiId int) (entity
 	return contact, nil
 }
 
-// process mail content and subject
-func processMailContentAndSubject(ctx context.Context, content, subject string, apiTemplate *entity.ApiTemplates, contact entity.Contact, req *v1.ApiMailSendReq) (string, string) {
-	// unsubscribe link processing
-	if apiTemplate.Unsubscribe == 1 {
-		if !strings.Contains(content, "__UNSUBSCRIBE_URL__") && !strings.Contains(content, "{{ UnsubscribeURL . }}") {
-			content = public.AddUnsubscribeButton(content)
-		}
-		//domain := domains.GetBaseURLBySender(req.Addresser)
-		domain := domains.GetBaseURL()
-		unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
-		groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)
-		jwtToken, _ := batch_mail.GenerateUnsubscribeJWT(req.Recipient, apiTemplate.TemplateId, apiTemplate.Id)
-		unsubscribeJumpURL := fmt.Sprintf("%s/unsubscribe.html?jwt=%s&email=%s&url_type=%s&url_unsubscribe=%s", domain, jwtToken, req.Recipient, groupURL, unsubscribeURL)
-
-		if contact.Id > 0 {
-			engine := batch_mail.GetTemplateEngine()
-			renderedContent, err := engine.RenderEmailTemplate(ctx, content, &contact, nil, unsubscribeJumpURL)
-			if err == nil {
-				content = renderedContent
-			}
-			renderedSubject, err := engine.RenderEmailTemplate(ctx, subject, &contact, nil, unsubscribeJumpURL)
-			if err == nil {
-				subject = renderedSubject
-			}
-		} else {
-			content = strings.ReplaceAll(content, "{{ UnsubscribeURL . }}", unsubscribeJumpURL)
-		}
-	} else if contact.Id > 0 {
-		engine := batch_mail.GetTemplateEngine()
-		renderedContent, err := engine.RenderEmailTemplate(ctx, content, &contact, nil, "")
-		if err == nil {
-			content = renderedContent
-		}
-		renderedSubject, err := engine.RenderEmailTemplate(ctx, subject, &contact, nil, "")
-		if err == nil {
-			subject = renderedSubject
-		}
-	}
-	return content, subject
-}
-
-// send email
-func sendApiMail(ctx context.Context, apiTemplate *entity.ApiTemplates, subject, content, recipient, addresser string) error {
-
-	// create email sender
-	sender, err := mail_service.NewEmailSenderWithLocal(addresser)
-	if err != nil {
-		return gerror.New(public.LangCtx(ctx, "Failed to create email sender: {}", err))
-	}
-	defer sender.Close()
-
-	// generate message ID
-	messageId := sender.GenerateMessageID()
-	// add 1 billion to prevent conflict with marketing task id
-	//baseURL := domains.GetBaseURLBySender(addresser)
-	baseURL := domains.GetBaseURL()
-	apiTemplate_id := apiTemplate.Id + 1000000000
-	mailTracker := maillog_stat.NewMailTracker(content, apiTemplate_id, messageId, recipient, baseURL)
-	mailTracker.TrackLinks()
-	mailTracker.AppendTrackingPixel()
-	content = mailTracker.GetHTML()
-
-	// create email message
-	message := mail_service.NewMessage(subject, content)
-	message.SetMessageID(messageId)
-	// set sender display name
-	if apiTemplate.FullName != "" {
-		message.SetRealName(apiTemplate.FullName)
-	}
-	// send email
-	err = sender.Send(message, []string{recipient})
-	if err != nil {
-		return err
-	}
-	// record email log
-	messageId = strings.Trim(messageId, "<>")
-	_, err = g.DB().Model("api_mail_logs").Insert(g.Map{
-		"api_id":     apiTemplate.Id,
-		"recipient":  recipient,
-		"message_id": messageId,
-		"addresser":  addresser,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
+//// process mail content and subject
+//func processMailContentAndSubject(ctx context.Context, content, subject string, apiTemplate *entity.ApiTemplates, contact entity.Contact, req *v1.ApiMailSendReq) (string, string) {
+//	// unsubscribe link processing
+//	if apiTemplate.Unsubscribe == 1 {
+//		if !strings.Contains(content, "__UNSUBSCRIBE_URL__") && !strings.Contains(content, "{{ UnsubscribeURL . }}") {
+//			content = public.AddUnsubscribeButton(content)
+//		}
+//		//domain := domains.GetBaseURLBySender(req.Addresser)
+//		domain := domains.GetBaseURL()
+//		unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
+//		groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)
+//		jwtToken, _ := batch_mail.GenerateUnsubscribeJWT(req.Recipient, apiTemplate.TemplateId, apiTemplate.Id, contact.GroupId)
+//		unsubscribeJumpURL := fmt.Sprintf("%s/unsubscribe.html?jwt=%s&email=%s&url_type=%s&url_unsubscribe=%s", domain, jwtToken, req.Recipient, groupURL, unsubscribeURL)
+//
+//		if contact.Id > 0 {
+//			engine := batch_mail.GetTemplateEngine()
+//			renderedContent, err := engine.RenderEmailTemplate(ctx, content, &contact, nil, unsubscribeJumpURL)
+//			if err == nil {
+//				content = renderedContent
+//			}
+//			renderedSubject, err := engine.RenderEmailTemplate(ctx, subject, &contact, nil, unsubscribeJumpURL)
+//			if err == nil {
+//				subject = renderedSubject
+//			}
+//		} else {
+//			content = strings.ReplaceAll(content, "{{ UnsubscribeURL . }}", unsubscribeJumpURL)
+//		}
+//	} else if contact.Id > 0 {
+//		engine := batch_mail.GetTemplateEngine()
+//		renderedContent, err := engine.RenderEmailTemplate(ctx, content, &contact, nil, "")
+//		if err == nil {
+//			content = renderedContent
+//		}
+//		renderedSubject, err := engine.RenderEmailTemplate(ctx, subject, &contact, nil, "")
+//		if err == nil {
+//			subject = renderedSubject
+//		}
+//	}
+//	return content, subject
+//}
+//
+//// send email
+//func sendApiMail(ctx context.Context, apiTemplate *entity.ApiTemplates, subject, content, recipient, addresser string) error {
+//
+//	// create email sender
+//	sender, err := mail_service.NewEmailSenderWithLocal(addresser)
+//	if err != nil {
+//		return gerror.New(public.LangCtx(ctx, "Failed to create email sender: {}", err))
+//	}
+//	defer sender.Close()
+//
+//	// generate message ID
+//	messageId := sender.GenerateMessageID()
+//	// add 1 billion to prevent conflict with marketing task id
+//	//baseURL := domains.GetBaseURLBySender(addresser)
+//	baseURL := domains.GetBaseURL()
+//	apiTemplate_id := apiTemplate.Id + 1000000000
+//	mailTracker := maillog_stat.NewMailTracker(content, apiTemplate_id, messageId, recipient, baseURL)
+//	mailTracker.TrackLinks()
+//	mailTracker.AppendTrackingPixel()
+//	content = mailTracker.GetHTML()
+//
+//	// create email message
+//	message := mail_service.NewMessage(subject, content)
+//	message.SetMessageID(messageId)
+//	// set sender display name
+//	if apiTemplate.FullName != "" {
+//		message.SetRealName(apiTemplate.FullName)
+//	}
+//	// send email
+//	err = sender.Send(message, []string{recipient})
+//	if err != nil {
+//		return err
+//	}
+//	// record email log
+//	messageId = strings.Trim(messageId, "<>")
+//	_, err = g.DB().Model("api_mail_logs").Insert(g.Map{
+//		"api_id":     apiTemplate.Id,
+//		"recipient":  recipient,
+//		"message_id": messageId,
+//		"addresser":  addresser,
+//	})
+//	if err != nil {
+//		return err
+//	}
+//	return nil
+//}

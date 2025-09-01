@@ -47,7 +47,7 @@ func (c *ControllerV1) SendTestEmail(ctx context.Context, req *v1.SendTestEmailR
 
 	content := strings.ReplaceAll(template.Content, "__UNSUBSCRIBE_URL__", "{{ UnsubscribeURL . }}")
 
-	jwtToken, _ := batch_mail.GenerateUnsubscribeJWT(req.Recipient, req.TemplateId, 0)
+	jwtToken, _ := batch_mail.GenerateUnsubscribeJWT(req.Recipient, req.TemplateId, 0, 0)
 	domain := domains.GetBaseURL()
 	unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
 	groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)

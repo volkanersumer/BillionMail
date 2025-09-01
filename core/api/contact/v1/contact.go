@@ -28,6 +28,12 @@ type ContactGroup struct {
 	ConfirmUrl    string `json:"confirm_url" dc:"Confirmation URL"`
 	AlreadyUrl    string `json:"already_url" dc:"Already Subscribed URL"`
 	SubscribeForm string `json:"subscribe_form" dc:"Subscription Form HTML"`
+	// New unsubscribe related fields
+	UnsubscribeMailHtml    string `json:"unsubscribe_mail_html" dc:"Unsubscribe Email Html"`
+	UnsubscribeMailDrag    string `json:"unsubscribe_mail_drag" dc:"Unsubscribe EmailDrag"`
+	UnsubscribeSubject     string `json:"unsubscribe_subject" dc:"Unsubscribe Email Subject"`
+	UnsubscribeRedirectUrl string `json:"unsubscribe_redirect_url" dc:"Unsubscribe Success RedirectURL"`
+	SendUnsubscribeEmail   int    `json:"send_unsubscribe_email" dc:"Whether to send unsubscribe email"`
 }
 
 type ContactGroupInfo struct {
@@ -144,6 +150,13 @@ type UpdateGroupReq struct {
 	WelcomeSubject   string `json:"welcome_subject" dc:"Welcome Email Subject"`
 	SendWelcomeEmail int    `json:"send_welcome_email" dc:"Whether to send a welcome email"`
 	ConfirmSubject   string `json:"confirm_subject" dc:"Confirmation Email Subject"`
+	// New unsubscribe related fields
+	UnsubscribeMailHtml    string `json:"unsubscribe_mail_html" dc:"Unsubscribe EmailHtml"`
+	UnsubscribeMailDrag    string `json:"unsubscribe_mail_drag" dc:"Unsubscribe EmailDrag"`
+	UnsubscribeSubject     string `json:"unsubscribe_subject" dc:"Unsubscribe Email Subject"`
+	UnsubscribeRedirectUrl string `json:"unsubscribe_redirect_url" dc:"Unsubscribe Success RedirectURL"`
+	SendUnsubscribeEmail   int    `json:"send_unsubscribe_email" dc:"Whether to send unsubscribe email"`
+
 }
 
 type UpdateGroupRes struct {

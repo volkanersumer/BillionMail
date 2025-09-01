@@ -481,12 +481,20 @@ func processMailContentAndSubject(ctx context.Context, content, subject string, 
 		if !strings.Contains(content, "__UNSUBSCRIBE_URL__") && !strings.Contains(content, "{{ UnsubscribeURL . }}") {
 			content = public.AddUnsubscribeButton(content)
 		}
-		//domain := domains.GetBaseURLBySender(log.Addresser)
+
 		domain := domains.GetBaseURL()
-		unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
-		groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)
-		jwtToken, _ := GenerateUnsubscribeJWT(log.Recipient, apiTemplate.TemplateId, apiTemplate.Id)
-		unsubscribeJumpURL := fmt.Sprintf("%s/unsubscribe.html?jwt=%s&email=%s&url_type=%s&url_unsubscribe=%s", domain, jwtToken, log.Recipient, groupURL, unsubscribeURL)
+
+		jwtToken, _ := GenerateUnsubscribeJWT(log.Recipient, apiTemplate.TemplateId, apiTemplate.Id, contact.GroupId)
+		var unsubscribeJumpURL string
+		if contact.GroupId > 0 {
+			unsubscribeJumpURL = fmt.Sprintf("%s/unsubscribe_new.html?jwt=%s",
+				domain, jwtToken)
+		
+		} else {
+			unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe", domain)
+			groupURL := fmt.Sprintf("%s/api/unsubscribe/user_group", domain)
+			unsubscribeJumpURL = fmt.Sprintf("%s/unsubscribe.html?jwt=%s&email=%s&url_type=%s&url_unsubscribe=%s", domain, jwtToken, log.Recipient, groupURL, unsubscribeURL)
+		}
 
 		if contact.Id > 0 {
 			engine := GetTemplateEngine()

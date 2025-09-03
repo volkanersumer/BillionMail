@@ -24,6 +24,7 @@ var (
 		Language          string
 		Login             string
 		PostfixQueue      string
+		Tag    			  string
 	}{
 		Task:              "Email Marketing Task",
 		Template:          "Email Template",
@@ -42,6 +43,7 @@ var (
 		Language:          "Language",
 		Login:             "Login",
 		PostfixQueue:      "Postfix Queue",
+		Tag:      		   "Contacts-Tag",
 	}
 )
 var (

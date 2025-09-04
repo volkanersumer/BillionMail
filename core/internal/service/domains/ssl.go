@@ -351,6 +351,7 @@ func AutoRenewSSL(ctx context.Context) {
 	}
 
 	for _, domain := range domainList {
+		domain = public.FormatMX(domain)
 		certInfo, err = mail_service.NewCertificate().GetSSLInfo(domain)
 		if err == nil && certInfo.Endtime > 0 {
 			remain := certInfo.Endtime - int(time.Now().Unix())

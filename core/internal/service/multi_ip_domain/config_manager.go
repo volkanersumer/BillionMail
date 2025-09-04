@@ -420,10 +420,11 @@ func (m *ConfigManager) modifyPostfixNetworksText(lines []string, configs []map[
 		return lines, fmt.Errorf("postfix-billionmail networks section not found")
 	}
 
-	// Add default billionmail-network configuration
-	result = append(result, "            billionmail-network:")
-	result = append(result, "                aliases:")
-	result = append(result, "                    - postfix")
+	// Add default billionmail-network configuration with fixed IP
+	result = append(result, "        billionmail-network:")
+	result = append(result, "          aliases:")
+	result = append(result, "            - postfix")
+	result = append(result, "          ipv4_address: 172.66.1.100")
 
 	// Add custom network configurations
 	for _, cfg := range configs {
@@ -439,10 +440,10 @@ func (m *ConfigManager) modifyPostfixNetworksText(lines []string, configs []map[
 			continue
 		}
 
-		result = append(result, fmt.Sprintf("            %s:", networkName))
-		result = append(result, "                aliases:")
-		result = append(result, fmt.Sprintf("                    - %s", aliases))
-		result = append(result, fmt.Sprintf("                ipv4_address: %s", postfixIP))
+		result = append(result, fmt.Sprintf("        %s:", networkName))
+		result = append(result, "          aliases:")
+		result = append(result, fmt.Sprintf("            - %s", aliases))
+		result = append(result, fmt.Sprintf("          ipv4_address: %s", postfixIP))
 
 		g.Log().Debugf(context.Background(), "Added postfix network: %s -> %s (%s)", networkName, postfixIP, aliases)
 	}

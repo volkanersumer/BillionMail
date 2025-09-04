@@ -270,12 +270,16 @@ func (s *MultiIPDomainService) ApplyConfigs(ctx context.Context) (appliedConfigs
 
 	// Get IDs from allActiveConfigs
 	appliedIDs := make([]int, 0, len(allActiveConfigs))
+	toappliedIDs := make([]int, 0, len(allActiveConfigs))
 	for _, config := range allActiveConfigs {
 		appliedIDs = append(appliedIDs, gconv.Int(config["id"]))
+		if config["status"] != "applied" {
+			toappliedIDs = append(toappliedIDs, gconv.Int(config["id"]))
+		}
 	}
 
-	// Update status of all pending configurations to 'applying'
-	if err := s.updateStatusByIDs(ctx, appliedIDs, "applying"); err != nil {
+	// If the state is already "applied", then do not change it to "applying".
+	if err := s.updateStatusByIDs(ctx, toappliedIDs, "applying"); err != nil {
 		return nil, nil, nil, gerror.Wrap(err, "failed to update configuration status to 'applying'")
 	}
 

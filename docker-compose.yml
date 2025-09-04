@@ -173,7 +173,7 @@ services:
             - webmail
 
     core-billionmail:
-      image: billionmail/core:4.3.2
+      image: billionmail/core:4.4.0
       hostname: core-manage
       depends_on:
         - pgsql-billionmail

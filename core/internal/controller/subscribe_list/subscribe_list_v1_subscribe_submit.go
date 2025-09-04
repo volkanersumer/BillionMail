@@ -2,6 +2,7 @@ package subscribe_list
 
 import (
 	"billionmail-core/api/subscribe_list/v1"
+	"billionmail-core/internal/service/contact_activity"
 	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/public"
 	"context"
@@ -35,6 +36,9 @@ func (c *ControllerV1) SubscribeSubmit(ctx context.Context, req *v1.SubscribeSub
 				return
 			}
 
+			// Update contact activity when user resubscribes
+			contact_activity.UpdateActivityByEmailAndGroup(req.Email, group.Id)
+
 			if group.SuccessUrl != "" {
 				g.RequestFromCtx(ctx).Response.RedirectTo(group.SuccessUrl, 302)
 			} else {
@@ -43,6 +47,9 @@ func (c *ControllerV1) SubscribeSubmit(ctx context.Context, req *v1.SubscribeSub
 			return
 		}
 		if contact.Status == 1 {
+			// Update contact activity even when already subscribed (user interaction)
+			contact_activity.UpdateActivityByEmailAndGroup(req.Email, group.Id)
+
 			if group.AlreadyUrl != "" {
 				g.RequestFromCtx(ctx).Response.RedirectTo(group.AlreadyUrl, 302)
 			} else {
@@ -60,6 +67,9 @@ func (c *ControllerV1) SubscribeSubmit(ctx context.Context, req *v1.SubscribeSub
 			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to add contact")))
 			return
 		}
+
+		// Update contact activity when user submits subscription (even if pending confirmation)
+		contact_activity.UpdateActivityByEmailAndGroup(req.Email, group.Id)
 
 		// 3.2 Send confirmation email
 		confirmToken := GenerateConfirmToken(req.Email, group.Token)
@@ -94,6 +104,9 @@ func (c *ControllerV1) SubscribeSubmit(ctx context.Context, req *v1.SubscribeSub
 			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to add contact")))
 			return
 		}
+
+		// Update contact activity when user successfully subscribes
+		contact_activity.UpdateActivityByEmailAndGroup(req.Email, group.Id)
 
 		// 4.2 Send welcome email if enabled for the group
 		if group.SendWelcomeEmail == 1 {

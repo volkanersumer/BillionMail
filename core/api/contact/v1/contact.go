@@ -51,16 +51,17 @@ type GroupInfo struct {
 }
 
 type Contact struct {
-	Id         int               `json:"id"          dc:"Contact ID"`
-	Email      string            `json:"email"       dc:"Email Address"`
-	GroupId    int               `json:"group_id"    dc:"Group ID"`
-	Active     int               `json:"active"      dc:"Status(1:Subscribed 0:Unsubscribed)"`
-	TaskId     int               `json:"task_id"     dc:"Bulk Mail Task ID"`
-	CreateTime int               `json:"create_time" dc:"Create Time"`
-	Groups     []GroupInfo       `json:"groups"      dc:"Contact Groups"`
-	Status     int               `json:"status"      dc:"Status( 1:Confirmed   0:Unconfirmed)"`
-	GroupName  string            `json:"group_name"      dc:"Contact Group Name"`
-	Attribs    map[string]string `json:"attribs"`
+	Id           int               `json:"id"          dc:"Contact ID"`
+	Email        string            `json:"email"       dc:"Email Address"`
+	GroupId      int               `json:"group_id"    dc:"Group ID"`
+	Active       int               `json:"active"      dc:"Status(1:Subscribed 0:Unsubscribed)"`
+	TaskId       int               `json:"task_id"     dc:"Bulk Mail Task ID"`
+	CreateTime   int               `json:"create_time" dc:"Create Time"`
+	Groups       []GroupInfo       `json:"groups"      dc:"Contact Groups"`
+	Status       int               `json:"status"      dc:"Status( 1:Confirmed   0:Unconfirmed)"`
+	GroupName    string            `json:"group_name"      dc:"Contact Group Name"`
+	Attribs      map[string]string `json:"attribs"`
+	LastActiveAt int               `json:"last_active_at" dc:"Last Active At"`
 }
 
 type CreateGroupReq struct {
@@ -156,7 +157,6 @@ type UpdateGroupReq struct {
 	UnsubscribeSubject     string `json:"unsubscribe_subject" dc:"Unsubscribe Email Subject"`
 	UnsubscribeRedirectUrl string `json:"unsubscribe_redirect_url" dc:"Unsubscribe Success RedirectURL"`
 	SendUnsubscribeEmail   int    `json:"send_unsubscribe_email" dc:"Whether to send unsubscribe email"`
-
 }
 
 type UpdateGroupRes struct {

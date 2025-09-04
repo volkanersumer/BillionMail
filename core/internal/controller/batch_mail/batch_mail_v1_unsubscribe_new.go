@@ -5,6 +5,7 @@ import (
 	"billionmail-core/internal/controller/subscribe_list"
 	"billionmail-core/internal/model/entity"
 	"billionmail-core/internal/service/batch_mail"
+	"billionmail-core/internal/service/contact_activity"
 	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/public"
 	"context"
@@ -49,6 +50,9 @@ func (c *ControllerV1) UnsubscribeNew(ctx context.Context, req *v1.UnsubscribeNe
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to get group information")))
 		return
 	}
+
+	// Update contact activity when user accesses unsubscribe page (user interaction)
+	contact_activity.UpdateActivityByEmailAndGroup(claims.Email, claims.GroupId)
 
 	if groupInfo.Id == 0 {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Group not found")))

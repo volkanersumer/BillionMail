@@ -140,7 +140,7 @@ var (
 				"/unsubscribe.html":              {},
 				"/api/unsubscribe/user_group":    {},
 				"/api/unsubscribe":               {},
-				"/api/unsubscribe_new":               {},
+				"/api/unsubscribe_new":           {},
 				"/api/batch_mail/api/send":       {},
 				"/api/batch_mail/api/batch_send": {},
 				"/api/subscribe/confirm":         {},

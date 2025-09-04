@@ -31,14 +31,15 @@ type ContactGroup struct {
 
 // Contact Entity
 type Contact struct {
-	Id         int               `json:"id"          dc:"Contact ID"`
-	Email      string            `json:"email"       dc:"Email Address"`
-	GroupId    int               `json:"group_id"    dc:"Group ID"`
-	Active     int               `json:"active"      dc:"Status(1:Subscribed 0:Unsubscribed)"`
-	TaskId     int               `json:"task_id"     dc:"Bulk Mail Task ID"`
-	CreateTime int               `json:"create_time" dc:"Create Time"`
-	Status     int               `json:"Status" dc:"1:Confirmed   0:Unconfirmed"`
-	Attribs    map[string]string `json:"attribs"`
+	Id           int               `json:"id"          dc:"Contact ID"`
+	Email        string            `json:"email"       dc:"Email Address"`
+	GroupId      int               `json:"group_id"    dc:"Group ID"`
+	Active       int               `json:"active"      dc:"Status(1:Subscribed 0:Unsubscribed)"`
+	TaskId       int               `json:"task_id"     dc:"Bulk Mail Task ID"`
+	CreateTime   int               `json:"create_time" dc:"Create Time"`
+	Status       int               `json:"Status" dc:"1:Confirmed   0:Unconfirmed"`
+	Attribs      map[string]string `json:"attribs"`
+	LastActiveAt int               `json:"last_active_at" dc:"Last Active At"`
 }
 
 // EmailTemplate Entity
@@ -135,4 +136,11 @@ type ApiMailLogs struct {
 	MessageId string `json:"message_id" dc:"message id"`
 	Addresser string `json:"addresser" dc:"addresser"`
 	SendTime  int    `json:"send_time" dc:"send time"`
+}
+
+type Tag struct {
+	Id         int    `json:"id"          dc:"Tag ID"`
+	GroupId    int    `json:"group_id"    dc:"Group ID"`
+	Name       string `json:"name"       dc:"Tag Name"`
+	CreateTime int    `json:"create_time" dc:"Create Time"`
 }

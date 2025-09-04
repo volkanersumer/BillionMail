@@ -46,6 +46,7 @@ func init() {
                 create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
                 status INTEGER DEFAULT 0, -- 0: Unconfirmed, 1: Confirmed
                 attribs   JSONB DEFAULT '{}'::jsonb,
+				last_active_at INTEGER DEFAULT 0,
                 FOREIGN KEY (group_id) REFERENCES bm_contact_groups(id) ON DELETE SET NULL,
                 UNIQUE(group_id, email)
             )`,
@@ -157,12 +158,30 @@ func init() {
             )`,
 
 			`CREATE TABLE IF NOT EXISTS api_ip_whitelist (
-    				id SERIAL PRIMARY KEY,
-    				api_id INTEGER NOT NULL,
-    				ip VARCHAR(45) NOT NULL,
-    				create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
-    				FOREIGN KEY (api_id) REFERENCES api_templates(id) ON DELETE CASCADE
+				id SERIAL PRIMARY KEY,
+				api_id INTEGER NOT NULL,
+				ip VARCHAR(45) NOT NULL,
+				create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+				FOREIGN KEY (api_id) REFERENCES api_templates(id) ON DELETE CASCADE
 			)`,
+
+			`
+			CREATE TABLE IF NOT EXISTS bm_tags (
+				id SERIAL PRIMARY KEY,
+				group_id INTEGER NOT NULL,  --  bm_contact_groups id
+				name VARCHAR(100) NOT NULL,
+				create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+				UNIQUE(group_id, name) 
+		)`,
+
+			`
+			CREATE TABLE IF NOT EXISTS bm_contact_tags (
+				id SERIAL PRIMARY KEY,
+				contact_id INTEGER NOT NULL,  --  bm_contacts id
+				tag_id INTEGER NOT NULL,
+				create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
+				UNIQUE(contact_id, tag_id) 
+		)`,
 
 			`CREATE INDEX IF NOT EXISTS idx_unsubscribe_email ON unsubscribe_records (email)`,
 			`CREATE INDEX IF NOT EXISTS idx_unsubscribe_time ON unsubscribe_records (unsubscribe_time)`,
@@ -178,6 +197,9 @@ func init() {
 			`CREATE INDEX IF NOT EXISTS idx_recipient_info_message_id ON recipient_info(message_id)`,
 			`CREATE INDEX IF NOT EXISTS idx_recipient_info_task_sent ON recipient_info(task_id, is_sent)`,
 			`CREATE INDEX IF NOT EXISTS idx_email_tasks_task_process ON email_tasks(task_process)`,
+			`CREATE INDEX IF NOT EXISTS idx_bm_tags_group_id ON bm_tags(group_id)`,
+			`CREATE INDEX IF NOT EXISTS idx_bm_contact_tags_contact_id ON bm_contact_tags(contact_id)`,
+			`CREATE INDEX IF NOT EXISTS idx_bm_contact_tags_tag_id ON bm_contact_tags(tag_id)`,
 		}
 
 		for _, sql := range batchMailSQLList {
@@ -190,6 +212,7 @@ func init() {
 		// bm_contacts
 		_ = AddColumnIfNotExists("bm_contacts", "attribs", "JSONB", "'{}'::jsonb", false)
 		_ = AddColumnIfNotExists("bm_contacts", "status", "INTEGER", "1", true)
+		_ = AddColumnIfNotExists("bm_contacts", "last_active_at", "INTEGER", "0", true)
 
 		//  api_mail_logs
 		_ = AddColumnIfNotExists("api_mail_logs", "status", "SMALLINT", "0", true)

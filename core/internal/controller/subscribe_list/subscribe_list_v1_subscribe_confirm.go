@@ -1,6 +1,7 @@
 package subscribe_list
 
 import (
+	"billionmail-core/internal/service/contact_activity"
 	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/public"
 	"context"
@@ -41,6 +42,9 @@ func (c *ControllerV1) SubscribeConfirm(ctx context.Context, req *v1.SubscribeCo
 	}
 	hostUrl := domains.GetBaseURL()
 	if contact.Status == 1 && contact.Active == 1 {
+		// Update contact activity even when already confirmed (user interaction)
+		contact_activity.UpdateActivityByEmailAndGroup(req.Email, group.Id)
+
 		if group.AlreadyUrl != "" {
 			g.RequestFromCtx(ctx).Response.RedirectTo(group.AlreadyUrl, 302)
 		} else {
@@ -49,12 +53,15 @@ func (c *ControllerV1) SubscribeConfirm(ctx context.Context, req *v1.SubscribeCo
 		return
 	}
 
-	// 4. Update contact status to confirmed
-	err = updateContactStatus(email, group.Id, 1)
+	// 3. Update contact status to confirmed (status=1, active=1)
+	err = updateContactStatus(req.Email, group.Id, 1)
 	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to update contact status")))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to confirm subscription")))
 		return
 	}
+
+	// Update contact activity when user confirms subscription
+	contact_activity.UpdateActivityByEmailAndGroup(req.Email, group.Id)
 
 	// 5. Send welcome email
 	if group.SendWelcomeEmail == 1 {

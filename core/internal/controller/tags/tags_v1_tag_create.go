@@ -41,8 +41,6 @@ func (c *ControllerV1) TagCreate(ctx context.Context, req *v1.TagCreateReq) (res
 		Insert(g.Map{
 			"group_id":    req.GroupId,
 			"name":        req.Name,
-			"color":       req.Color,
-			"description": req.Description,
 			"create_time": now,
 		})
 	if err != nil {

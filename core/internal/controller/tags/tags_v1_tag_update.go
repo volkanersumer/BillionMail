@@ -51,9 +51,7 @@ func (c *ControllerV1) TagUpdate(ctx context.Context, req *v1.TagUpdateReq) (res
 		Ctx(ctx).
 		Where("id", req.Id).
 		Update(g.Map{
-			"name":        req.Name,
-			"color":       req.Color,
-			"description": req.Description,
+			"name": req.Name,
 		})
 	if err != nil {
 		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to update tag")))

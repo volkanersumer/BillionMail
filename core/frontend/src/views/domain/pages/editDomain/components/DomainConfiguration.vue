@@ -5,47 +5,70 @@
 				<div class="page-tit mb-5">
 					<div class="left-tit">
 						<div class="back-tool">
-							<i class="i-cuida:mail-outline text-7"></i>
+							<i class="i-cuida:mail-outline text-28px"></i>
 						</div>
 						<span class="tit-content">{{ $t('domain.edit.domainConfiguration.title') }}</span>
 					</div>
 				</div>
 				<!-- form data -->
 				<n-form>
-					<n-form-item>
-						<template #label
-							><span class="form-label">{{
-								$t('domain.edit.domainConfiguration.domain')
-							}}</span></template
-						>
+					<n-form-item :label="$t('domain.edit.domainConfiguration.domain')">
 						<n-input v-model:value="domainTit" :disabled="true" @input="syncToUrl"></n-input>
 					</n-form-item>
-					<n-form-item label="">
-						<template #label
-							><span class="form-label">{{
-								$t('domain.edit.domainConfiguration.domainQuota')
-							}}</span></template
-						>
-						<div class="flex justify-between gap-5 items-center w-100%">
-							<n-input v-model:value="quota"></n-input>
-							<n-select v-model:value="unit" :options="uinitOptions" class="w-20"></n-select>
+					<n-form-item :label="$t('domain.edit.domainConfiguration.dedicatedIp')">
+						<div class="flex-1">
+							<div class="mb-12px text-desc">
+								*
+								{{
+									$t('domain.edit.domainConfiguration.dedicatedIpDesc', { domain: 'aapanel.com' })
+								}}
+							</div>
+							<div class="flex gap-16px">
+								<div class="flex-1">
+									<n-input
+										v-model:value="domainIp"
+										:placeholder="$t('domain.edit.domainConfiguration.notSet')"></n-input>
+								</div>
+								<n-button type="primary" ghost @click="testConnection">{{
+									$t('domain.edit.domainConfiguration.testConnection')
+								}}</n-button>
+							</div>
 						</div>
 					</n-form-item>
-					<n-form-item>
-						<template #label
-							><span class="form-label">{{
-								$t('domain.edit.domainConfiguration.mailboxCount')
-							}}</span></template
-						>
-						<n-input-number v-model:value="mailboxes" :show-button="false"></n-input-number>
+					<n-form-item label="Hostname">
+						<n-input v-model:value="hostname"></n-input>
 					</n-form-item>
-					<n-form-item>
-						<template #label
-							><span class="form-label">{{
-								$t('domain.edit.domainConfiguration.catchAll')
-							}}</span></template
-						>
-						<n-input v-model:value="catch_email"></n-input>
+					<n-form-item :label="$t('domain.edit.domainConfiguration.catchAll')">
+						<div class="flex-1">
+							<div class="mb-12px text-desc">
+								* {{ $t('domain.edit.domainConfiguration.catchAllDesc') }}
+							</div>
+							<n-input v-model:value="catch_email"></n-input>
+						</div>
+					</n-form-item>
+					<n-form-item :label="$t('domain.edit.domainConfiguration.domainQuota')">
+						<div class="flex-1">
+							<div class="mb-12px text-desc">
+								* {{ $t('domain.edit.domainConfiguration.domainQuotaDesc') }}
+							</div>
+							<div class="flex gap-16px">
+								<div class="flex-1">
+									<n-input v-model:value="quota"></n-input>
+								</div>
+								<div class="w-80px">
+									<n-select v-model:value="unit" :options="uintOptions"></n-select>
+								</div>
+							</div>
+						</div>
+					</n-form-item>
+					<n-form-item :label="$t('domain.edit.domainConfiguration.mailboxCount')">
+						<div class="flex-1">
+							<div class="mb-12px text-desc">
+								* {{ $t('domain.edit.domainConfiguration.mailboxCountDesc') }}
+							</div>
+							<n-input-number v-model:value="mailboxes" class="w-full" :show-button="false">
+							</n-input-number>
+						</div>
 					</n-form-item>
 				</n-form>
 			</n-card>
@@ -87,15 +110,15 @@
 				</div>
 				<n-alert v-if="!supplierStatus" type="warning" class="mb-15px" :show-icon="false">
 					<div class="w-100% flex justify-between items-center">
-						<span class="mr-5">{{
-							$t('domain.edit.domainConfiguration.aiIntegrationWarning')
-						}}</span>
-						<n-button ghost type="primary" @click="jumpToAiSettings">{{
-							$t('domain.edit.domainConfiguration.integrateImmediately')
-						}}</n-button>
+						<span class="mr-5">
+							{{ $t('domain.edit.domainConfiguration.aiIntegrationWarning') }}
+						</span>
+						<n-button ghost type="primary" @click="jumpToAiSettings">
+							{{ $t('domain.edit.domainConfiguration.integrateImmediately') }}
+						</n-button>
 					</div>
 				</n-alert>
-				<div class="text-[#777]">
+				<div class="mb-8px text-default">
 					{{ $t('domain.edit.domainConfiguration.aiDescription') }}
 				</div>
 				<bt-tips style="margin-bottom: 15px">
@@ -128,7 +151,7 @@
 						</n-button> -->
 					</div>
 				</n-form-item>
-				<n-button type="primary" @click="createBrandInfo">
+				<n-button type="primary" ghost @click="createBrandInfo">
 					{{ $t('domain.edit.domainConfiguration.createNow') }}
 				</n-button>
 			</n-card>
@@ -155,12 +178,18 @@ import {
 	createBrandInfo,
 	switchBrandInfo,
 	updateDomain,
+	testConnection,
 } from '../controller/domainConfiguration.controller'
 import { getEditDomainStoreData } from '../store'
+
 const router = useRouter()
+
 const supplierStatus = ref(false)
+
 const {
 	domainTit,
+	domainIp,
+	hostname,
 	quota,
 	unit,
 	mailboxes,
@@ -170,9 +199,12 @@ const {
 	createdBrandInfo,
 	waitAndCheckDomainStatusRef,
 } = getEditDomainStoreData()
+
 const route = useRoute()
+
 const domain = route.params.domain as any
-const uinitOptions = ref([
+
+const uintOptions = ref([
 	{
 		label: 'B',
 		value: 'B',
@@ -194,6 +226,7 @@ const uinitOptions = ref([
 		value: 'TB',
 	},
 ])
+
 getDomainDetail(domain)
 
 /**
@@ -205,6 +238,7 @@ async function checkAiConfig() {
 		supplierStatus.value = res.is_configured
 	}
 }
+
 checkAiConfig()
 
 /**
@@ -230,6 +264,7 @@ function jumpToAiSettings() {
 
 .content-wrapper {
 	@include mixin.content-wrapper;
+	padding-bottom: 32px;
 
 	// title
 	.page-tit {

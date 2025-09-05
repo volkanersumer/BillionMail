@@ -16,9 +16,10 @@
 			}">
 			<ChevronRightIcon />
 		</n-icon>
-		<span class="ml-8px text-13px text-primary">
-			{{ title }}
-		</span>
+		<div class="ml-8px text-13px text-primary">
+			<slot name="title"></slot>
+			{{ showTitle ? '' : title }}
+		</div>
 	</div>
 	<n-collapse-transition :show="show">
 		<slot></slot>
@@ -42,4 +43,6 @@ const show = defineModel<boolean>('show', {
 const onToggle = () => {
 	show.value = !show.value
 }
+
+const showTitle = !!useSlots().title
 </script>

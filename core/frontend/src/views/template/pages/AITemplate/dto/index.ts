@@ -69,6 +69,8 @@ export type TemplateStore = {
     scrollWrapperRef:Ref<any>
     scrollable:Ref<boolean>
     previewTit:Ref<string>
+    useSpinTax:Ref<boolean>
+    spinTaxLength:Ref<number>
 }
 
 export type UsageInfo = {

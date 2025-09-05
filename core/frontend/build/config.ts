@@ -22,7 +22,7 @@ const serverConfig: Record<string, ServerConfig> = {
 	},
 	'103.179.242.193': {
 		https: true,
-		address: 'https://103.179.242.193',
+		address: 'https://103.179.242.193:4433',
 		host: '103.179.242.193',
 	},
 }

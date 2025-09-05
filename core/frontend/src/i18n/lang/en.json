@@ -442,6 +442,9 @@
 				"copied": "Copied",
 				"apply": "Apply"
 			},
+			"spintax": {
+				"instruction": "Use Spintax syntax, with a requirement to include {count} variations"
+			},
 			"tips": {
 				"saveShortcut": "[Ctrl + s] to save your change"
 			},
@@ -698,10 +701,35 @@
 			"quota": "Quota",
 			"mailboxes": "Mailboxes",
 			"defaultMailboxSize": "Default Mailbox Size",
+			"dedicatedIp": "Dedicated IP",
 			"actions": "Actions"
 		},
+		"ipSet": {
+			"title": "Dedicated IP Settings",
+			"titleWithDomain": "Dedicated IP Settings [{domain}]",
+			"dedicatedIp": "Dedicated IP: ",
+			"configFile": "Config File: ",
+			"connectionStatus": "Connection Status: ",
+			"warning": "You can activate the dedicated IP connection status by manually executing the following command in the SSH terminal\nIf you have multiple domains that need to configure dedicated IPs, we recommend that you configure all domains first and then execute the following command to avoid multiple interruptions to the mail server",
+			"getCommand": "Get Command",
+			"copyCommand": "Copy Command",
+			"operationReminder": "Operation Reminder",
+			"fixCommandTip": "If the command execution fails, you can execute this command to fix it: ",
+			"understood": "Got it",
+			"validation": {
+				"getCommandFirst": "Please get the command first"
+			}
+		},
+		"status": {
+			"default": "Default"
+		},
 		"actions": {
-			"dnsRecord": "DNS Records"
+			"dnsRecord": "DNS Records",
+			"setDefault": "Set Default"
+		},
+		"setDefault": {
+			"title": "Set Default [{domain}]",
+			"confirm": "Are you sure to set this domain as default?"
 		},
 		"delete": {
 			"title": "Delete Domain",
@@ -724,8 +752,13 @@
 			"mailboxCount": "Mailbox Count",
 			"globalCatch": "Catch All",
 			"globalCatchPlaceholder": "Forward non-existent emails to this address",
+			"dedicatedIp": "Dedicated IP",
+			"notSet": "Not Set",
+			"testConnection": "Test Connection",
 			"validation": {
-				"domainRequired": "Domain name cannot be empty!"
+				"domainRequired": "Domain name cannot be empty!",
+				"domainInputRequired": "Please enter domain first",
+				"dedicatedIpRequired": "Please enter dedicated IP first"
 			},
 			"tips": {
 				"aRecordFailed": "A record resolution failed. Please check if the A record domain is resolved to the server IP",
@@ -806,6 +839,10 @@
 		"edit": {
 			"pageTitle": "Domain / Edit domain",
 			"save": "Save",
+			"breadcrumb": {
+				"domain": "Domain",
+				"editDomain": "Edit Domain"
+			},
 			"tabs": {
 				"domainConfiguration": "Domain Configuration",
 				"projectDetails": "Project Details",
@@ -816,11 +853,18 @@
 				"aiSettings": "AI Settings"
 			},
 			"domainConfiguration": {
-				"title": "Mail Domain Configuration",
+				"title": "Email Domain Configuration",
 				"domain": "Domain",
 				"domainQuota": "Domain Quota",
-				"mailboxCount": "MailBox Count",
+				"mailboxCount": "Mailbox Count",
 				"catchAll": "Catch all",
+				"dedicatedIp": "Domain Dedicated IP",
+				"dedicatedIpDesc": "Domain {domain} will specify this dedicated IP in iptables when sending and receiving emails. If your server has only one IP, you don't need to set this feature",
+				"notSet": "Not Set",
+				"testConnection": "Test Connection",
+				"catchAllDesc": "After you fill in the email here, all unknown emails under this domain will be forwarded to this email",
+				"domainQuotaDesc": "Set the available space for this domain",
+				"mailboxCountDesc": "Set how many mailboxes can be created for this domain",
 				"autoCreateBrand": "Automatically create brand information",
 				"aiIntegrationWarning": "To use this feature, you need to integrate an AI model first.",
 				"integrateImmediately": "Integrate immediately",
@@ -837,7 +881,13 @@
 				"brandInfo": "Brand information",
 				"noBrandInfo": "No brand information available.",
 				"fillDomain": "Please fill in the domain name",
-				"fillValidDomain": "Please fill in a valid domain name"
+				"fillValidDomain": "Please fill in a valid domain name",
+				"validation": {
+					"setDedicatedIpFirst": "Please set the domain dedicated IP first"
+				},
+				"api": {
+					"testingConnection": "Testing connection, please wait..."
+				}
 			},
 			"projectDetails": {
 				"title": "Project Details",
@@ -920,12 +970,15 @@
 		},
 		"api": {
 			"loading": {
-				"creating": "Creating Domain, please wait...",
-				"updating": "Updating Domain, please wait...",
-				"deleting": "Deleting Domain, please wait...",
-				"settingSSL": "Setting SSL, please wait...",
-				"applyingCert": "Applying SSL Certificate, please wait...",
-				"refreshingDns": "Refreshing DNS records, please wait..."
+				"creating": "Creating domain, please wait...",
+				"updating": "Updating domain, please wait...",
+				"deleting": "Deleting domain, please wait...",
+				"settingSSL": "Setting SSL certificate, please wait...",
+				"refreshingDns": "Refreshing DNS records, please wait...",
+				"applyingCert": "Applying certificate, please wait...",
+				"settingDefault": "Setting default domain, please wait...",
+				"settingBrandInfo": "Setting domain brand info, please wait...",
+				"testingConnection": "Testing connection, please wait..."
 			}
 		}
 	},

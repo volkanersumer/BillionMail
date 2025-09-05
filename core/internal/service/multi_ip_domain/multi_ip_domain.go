@@ -3,6 +3,7 @@ package multi_ip_domain
 import (
 	v1 "billionmail-core/api/domains/v1"
 	docker "billionmail-core/internal/service/dockerapi"
+	"billionmail-core/internal/service/public"
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
@@ -192,7 +193,7 @@ func isValidIP(ip string) bool {
 func (s *MultiIPDomainService) ValidateDNSRecords(ctx context.Context, domain, outboundIP string) (bool, error) {
 
 	// 1. Validate A record (required)
-	ips, err := net.LookupIP(domain)
+	ips, err := net.LookupIP(public.FormatMX(domain))
 	if err != nil {
 		return false, gerror.Newf("failed to query A record for domain '%s': %v. Please ensure the domain is correctly resolved.", domain, err)
 	}

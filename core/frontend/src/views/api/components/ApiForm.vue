@@ -7,7 +7,11 @@
 					:placeholder="$t('api.form.apiNamePlaceholder')"></n-input>
 			</n-form-item>
 			<n-form-item :label="$t('market.task.edit.from')" path="addresser">
-				<from-select v-model:value="form.addresser" v-model:name="form.full_name"> </from-select>
+				<from-select
+					v-model:value="form.addresser"
+					v-model:domain="form.domain"
+					v-model:name="form.full_name">
+				</from-select>
 			</n-form-item>
 			<n-form-item :label="$t('market.task.edit.displayName')" path="full_name">
 				<n-input
@@ -74,6 +78,7 @@ const form = reactive({
 	template_id: null as number | null,
 	template_content: '',
 	subject: '',
+	domain: null as string | null,
 	addresser: null as string | null,
 	full_name: '',
 	unsubscribe: 1,
@@ -148,6 +153,7 @@ const [Modal, modalApi] = useModal({
 				form.id = row.id
 				form.api_name = row.api_name
 				form.template_id = row.template_id
+				form.domain = row.addresser.split('@')[1]
 				form.subject = row.subject
 				form.addresser = row.addresser
 				form.full_name = row.full_name

@@ -16,6 +16,7 @@ type IContactV1 interface {
 	ExportContacts(ctx context.Context, req *v1.ExportContactsReq) (res *v1.ExportContactsRes, err error)
 	DeleteGroup(ctx context.Context, req *v1.DeleteGroupReq) (res *v1.DeleteGroupRes, err error)
 	UpdateGroup(ctx context.Context, req *v1.UpdateGroupReq) (res *v1.UpdateGroupRes, err error)
+	UpdateGroupUnsubscribe(ctx context.Context, req *v1.UpdateGroupUnsubscribeReq) (res *v1.UpdateGroupUnsubscribeRes, err error)
 	ListGroups(ctx context.Context, req *v1.ListGroupsReq) (res *v1.ListGroupsRes, err error)
 	ListContacts(ctx context.Context, req *v1.ListContactsReq) (res *v1.ListContactsRes, err error)
 	ListContactsGroups(ctx context.Context, req *v1.ListContactsGroupsReq) (res *v1.ListContactsGroupsRes, err error)
@@ -29,4 +30,5 @@ type IContactV1 interface {
 	ListContactsNDP(ctx context.Context, req *v1.ListContactsNDPReq) (res *v1.ListContactsNDPRes, err error)
 	EditContactsNDP(ctx context.Context, req *v1.EditContactsNDPReq) (res *v1.EditContactsNDPRes, err error)
 	DeleteContactsNDP(ctx context.Context, req *v1.DeleteContactsNDPReq) (res *v1.DeleteContactsNDPRes, err error)
+	BatchTagContacts(ctx context.Context, req *v1.BatchTagContactsReq) (res *v1.BatchTagContactsRes, err error)
 }

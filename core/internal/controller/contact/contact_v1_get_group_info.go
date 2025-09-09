@@ -72,6 +72,9 @@ func (c *ControllerV1) GetGroupInfo(ctx context.Context, req *v1.GetGroupInfoReq
 	if group.UnsubscribeSubject == "" {
 		group.UnsubscribeSubject = "You're unsubscribed"
 	}
+	if group.UnsubscribeRedirectUrl == "" {
+		group.UnsubscribeRedirectUrl = hostUrl + "/unsubscribe_success.html"
+	}
 
 
 

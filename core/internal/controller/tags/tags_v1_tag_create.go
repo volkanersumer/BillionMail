@@ -53,5 +53,6 @@ func (c *ControllerV1) TagCreate(ctx context.Context, req *v1.TagCreateReq) (res
 		Data: req,
 	})
 
+	res.SetSuccess(public.LangCtx(ctx, "Tag created successfully"))
 	return
 }

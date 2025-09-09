@@ -50,6 +50,13 @@ type GroupInfo struct {
 	Name string `json:"name" dc:"Group Name"`
 }
 
+type TagInfo struct {
+	Id         int    `json:"id"          dc:"Tag ID"`
+	GroupId    int    `json:"group_id"    dc:"Group ID"`
+	Name       string `json:"name"        dc:"Tag Name"`
+	CreateTime int    `json:"create_time" dc:"Create Time"`
+}
+
 type Contact struct {
 	Id           int               `json:"id"          dc:"Contact ID"`
 	Email        string            `json:"email"       dc:"Email Address"`
@@ -62,6 +69,7 @@ type Contact struct {
 	GroupName    string            `json:"group_name"      dc:"Contact Group Name"`
 	Attribs      map[string]string `json:"attribs"`
 	LastActiveAt int               `json:"last_active_at" dc:"Last Active At"`
+	Tags         []TagInfo         `json:"tags"        dc:"Contact Tags"`
 }
 
 type CreateGroupReq struct {
@@ -151,7 +159,17 @@ type UpdateGroupReq struct {
 	WelcomeSubject   string `json:"welcome_subject" dc:"Welcome Email Subject"`
 	SendWelcomeEmail int    `json:"send_welcome_email" dc:"Whether to send a welcome email"`
 	ConfirmSubject   string `json:"confirm_subject" dc:"Confirmation Email Subject"`
-	// New unsubscribe related fields
+}
+
+type UpdateGroupRes struct {
+	api_v1.StandardRes
+}
+
+type UpdateGroupUnsubscribeReq struct {
+	g.Meta        `path:"/contact/group/update_unsubscribe" method:"post" tags:"Contact" summary:"Update contact group Unsubscribe settings"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	GroupId       int    `json:"group_id" v:"required" dc:"Group ID"`
+
 	UnsubscribeMailHtml    string `json:"unsubscribe_mail_html" dc:"Unsubscribe EmailHtml"`
 	UnsubscribeMailDrag    string `json:"unsubscribe_mail_drag" dc:"Unsubscribe EmailDrag"`
 	UnsubscribeSubject     string `json:"unsubscribe_subject" dc:"Unsubscribe Email Subject"`
@@ -159,10 +177,9 @@ type UpdateGroupReq struct {
 	SendUnsubscribeEmail   int    `json:"send_unsubscribe_email" dc:"Whether to send unsubscribe email"`
 }
 
-type UpdateGroupRes struct {
+type UpdateGroupUnsubscribeRes struct {
 	api_v1.StandardRes
 }
-
 type ListGroupsReq struct {
 	g.Meta        `path:"/contact/group/list" method:"get" tags:"Contact" summary:"List contact groups"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
@@ -251,9 +268,13 @@ type UpdateContactsGroupRes struct {
 }
 
 type GetContactsTrendReq struct {
-	g.Meta        `path:"/contact/trend" method:"get" tags:"Contact" summary:"Get contact trend"`
-	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	GroupId       int    `json:"group_id"  dc:"Group ID"`
+	g.Meta           `path:"/contact/trend" method:"get" tags:"Contact" summary:"Get contact trend"`
+	Authorization    string `json:"authorization" dc:"Authorization" in:"header"`
+	GroupId          int    `json:"group_id" dc:"Group ID"`
+	Active           int    `json:"active" v:"in:0,1,-1" dc:"Active(1:Subscribed 0:Unsubscribed -1:all)" default:"-1"`
+	LastActiveStatus int    `json:"last_active_status" v:"in:0,1,-1" dc:"Status(1:active 0:inactive -1:all)" default:"-1"`
+	TimeInterval     int    `json:"time_interval" dc:"TimeInterval(7 : last 7 days, 30: last 30 days, 90: last 90 days, 180: last half year, 365: last year, 0: all)" default:"0"`
+	Tags             string `json:"tags" dc:"Tags(-1:all or tag IDs, multiple IDs separated by commas)" default:"-1"`
 }
 
 type MonthlyTrend struct {
@@ -262,16 +283,28 @@ type MonthlyTrend struct {
 	UnsubscribeCount int    `json:"unsubscribe_count"  dc:"Unsubscribe Count"`
 }
 
+type DailyTrend struct {
+	Date             string `json:"date"                dc:"Date Format: YYYY-MM-DD"`
+	SubscribeCount   int    `json:"subscribe_count"    dc:"Subscribe Count"`
+	UnsubscribeCount int    `json:"unsubscribe_count"  dc:"Unsubscribe Count"`
+}
+
 type GetContactsTrendRes struct {
 	api_v1.StandardRes
 	Data struct {
-		Subscribe   []*MonthlyCount `json:"subscribe"    dc:"Subscribe Trend"`
-		Unsubscribe []*MonthlyCount `json:"unsubscribe"  dc:"Unsubscribe Trend"`
+		TimeGranularity string          `json:"time_granularity" dc:"Time Granularity (daily/monthly)"`
+		MonthlyData     []*MonthlyCount `json:"monthly_data" dc:"Monthly Trend Data"`
+		DailyData       []*DailyCount   `json:"daily_data" dc:"Daily Trend Data"`
 	} `json:"data"`
 }
 
 type MonthlyCount struct {
 	Month string `json:"month" dc:"Month Format: YYYY-MM"`
+	Count int    `json:"count" dc:"Count"`
+}
+
+type DailyCount struct {
+	Date  string `json:"date" dc:"Date Format: YYYY-MM-DD"`
 	Count int    `json:"count" dc:"Count"`
 }
 
@@ -313,13 +346,18 @@ type EditContactsRes struct {
 }
 
 type ListContactsNDPReq struct {
-	g.Meta        `path:"/contact/list_ndp" method:"get" tags:"Contact" summary:"List all contacts"`
-	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	Page          int    `json:"page" v:"required|min:1" dc:"Page Number"`
-	PageSize      int    `json:"page_size" v:"required|min:1" dc:"Page Size"`
-	GroupId       int    `json:"group_id" dc:"Group ID(Optional)"`
-	Keyword       string `json:"keyword" dc:"Search Email"`
-	Active        int    `json:"active" v:"required|in:0,1,-1" dc:"Active(1:Subscribed 0:Unsubscribed -1:all)" default:"-1"`
+	g.Meta           `path:"/contact/list_ndp" method:"get" tags:"Contact" summary:"List all contacts"`
+	Authorization    string `json:"authorization" dc:"Authorization" in:"header"`
+	Page             int    `json:"page" v:"required|min:1" dc:"Page Number"`
+	PageSize         int    `json:"page_size" v:"required|min:1" dc:"Page Size"`
+	GroupId          int    `json:"group_id" dc:"Group ID(Optional)"`
+	Keyword          string `json:"keyword" dc:"Search Email"`
+	Active           int    `json:"active" v:"required|in:0,1,-1" dc:"Active(1:Subscribed 0:Unsubscribed -1:all)" default:"-1"`
+	LastActiveStatus int    `json:"last_active_status" v:"in:0,1,-1" dc:"Status(1:active 0:inactive -1:all)" default:"-1"`
+	TimeInterval     int    `json:"time_interval" dc:"TimeInterval(7 : last 7 days, 30: last 30 days, 90: last 90 days, 180: last half year, 365: last year, 0: all)" default:"0"`
+	Tags             string `json:"tags" dc:"Tags(-1:all or tag IDs, multiple IDs separated by commas)" default:"-1"`
+	SortBy           string `json:"sort_by" v:"in:create_time,last_active_at" dc:"Sort field (create_time: creation time, last_active_at: last active time)" default:"create_time"`
+	SortOrder        string `json:"sort_order" v:"in:asc,desc" dc:"Sort order (asc: ascending, desc: descending)" default:"desc"`
 }
 
 type ListContactsNDPRes struct {
@@ -350,5 +388,16 @@ type DeleteContactsNDPReq struct {
 }
 
 type DeleteContactsNDPRes struct {
+	api_v1.StandardRes
+}
+
+type BatchTagContactsReq struct {
+	g.Meta        `path:"/contact/batch_tags_opt" method:"post" tags:"Contact" summary:"Tag contacts in bulk"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	Ids           []int  `json:"ids" v:"required" dc:"Contact IDs"`
+	TagIds        []int  `json:"tag_ids" v:"required" dc:"Tag IDs"`
+	Action        int    `json:"action" v:"required|in:1,2" dc:"Action (1: Add Tag, 2: Remove Tag)"`
+}
+type BatchTagContactsRes struct {
 	api_v1.StandardRes
 }

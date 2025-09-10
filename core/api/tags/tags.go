@@ -16,4 +16,5 @@ type ITagsV1 interface {
 	TagUpdate(ctx context.Context, req *v1.TagUpdateReq) (res *v1.TagUpdateRes, err error)
 	TagDelete(ctx context.Context, req *v1.TagDeleteReq) (res *v1.TagDeleteRes, err error)
 	BatchTagContacts(ctx context.Context, req *v1.BatchTagContactsReq) (res *v1.BatchTagContactsRes, err error)
+	TagAll(ctx context.Context, req *v1.TagAllReq) (res *v1.TagAllRes, err error)
 }

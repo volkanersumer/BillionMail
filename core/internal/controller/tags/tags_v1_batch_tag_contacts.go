@@ -26,23 +26,32 @@ func (c *ControllerV1) BatchTagContacts(ctx context.Context, req *v1.BatchTagCon
 		return
 	}
 
-	var tag struct {
+	var tags []struct {
 		Id      int    `json:"id"`
 		Name    string `json:"name"`
 		GroupId int    `json:"group_id"`
 	}
-	err = g.DB().Model("bm_tags").Where("id", req.TagId).Scan(&tag)
+	err = g.DB().Model("bm_tags").WhereIn("id", req.TagIds).Scan(&tags)
 	if err != nil {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to check tag")))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Failed to check tags")))
 		return
 	}
-	if tag.Id == 0 {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Tag not found")))
+	if len(tags) == 0 {
+		res.SetError(gerror.New(public.LangCtx(ctx, "No tags found")))
 		return
 	}
-	if tag.GroupId != req.GroupId {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Tag does not belong to this group")))
+	if len(tags) != len(req.TagIds) {
+		res.SetError(gerror.New(public.LangCtx(ctx, "Some tags not found")))
 		return
+	}
+
+	var tagNames []string
+	for _, tag := range tags {
+		if tag.GroupId != req.GroupId {
+			res.SetError(gerror.New(public.LangCtx(ctx, "Tag '{}' does not belong to this group", tag.Name)))
+			return
+		}
+		tagNames = append(tagNames, tag.Name)
 	}
 
 	emailList := parseEmailList(req.Data)
@@ -51,20 +60,32 @@ func (c *ControllerV1) BatchTagContacts(ctx context.Context, req *v1.BatchTagCon
 		return
 	}
 
-	g.Log().Infof(ctx, "BatchTagContacts: Processing %d emails for tag %s (ID: %d), mode: %d",
-		len(emailList), tag.Name, req.TagId, req.MarkInclude)
+	g.Log().Infof(ctx, "BatchTagContacts: Processing %d emails for tags %v (IDs: %v), mode: %d",
+		len(emailList), tagNames, req.TagIds, req.MarkInclude)
 
-	var processedCount, skippedCount, errorCount int
+	var totalProcessedCount, totalSkippedCount, totalErrorCount int
 
 	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		if req.MarkInclude == 1 {
 
-			processedCount, skippedCount, errorCount, err = c.batchAddTags(ctx, tx, req.GroupId, req.TagId, emailList)
-		} else {
+		for _, tagId := range req.TagIds {
+			var processedCount, skippedCount, errorCount int
+			var err error
 
-			processedCount, skippedCount, errorCount, err = c.batchAddTagsExclude(ctx, tx, req.GroupId, req.TagId, emailList)
+			if req.MarkInclude == 1 {
+				processedCount, skippedCount, errorCount, err = c.batchAddTags(ctx, tx, req.GroupId, tagId, emailList)
+			} else {
+				processedCount, skippedCount, errorCount, err = c.batchAddTagsExclude(ctx, tx, req.GroupId, tagId, emailList)
+			}
+
+			if err != nil {
+				return err
+			}
+
+			totalProcessedCount += processedCount
+			totalSkippedCount += skippedCount
+			totalErrorCount += errorCount
 		}
-		return err
+		return nil
 	})
 
 	if err != nil {
@@ -78,29 +99,29 @@ func (c *ControllerV1) BatchTagContacts(ctx context.Context, req *v1.BatchTagCon
 	}
 	_ = public.WriteLog(ctx, public.LogParams{
 		Type: consts.LOGTYPE.Tag,
-		Log: "Batch add" + " tag: " + tag.Name + operation + " for " +
-			g.NewVar(processedCount).String() + " contacts successfully",
+		Log: "Batch add" + " tags: " + strings.Join(tagNames, ", ") + operation + " for " +
+			g.NewVar(totalProcessedCount).String() + " contact-tag pairs successfully",
 		Data: map[string]interface{}{
-			"tag_id":       req.TagId,
-			"tag_name":     tag.Name,
+			"tag_ids":      req.TagIds,
+			"tag_names":    tagNames,
 			"group_id":     req.GroupId,
 			"operation":    operation,
 			"total_emails": len(emailList),
-			"processed":    processedCount,
-			"skipped":      skippedCount,
-			"errors":       errorCount,
+			"processed":    totalProcessedCount,
+			"skipped":      totalSkippedCount,
+			"errors":       totalErrorCount,
 		},
 	})
 
 	successMsg := public.LangCtx(ctx, "Batch tag operation completed")
 	if req.MarkInclude == 1 {
-		successMsg = public.LangCtx(ctx, "Successfully added tag to {} contacts", processedCount)
+		successMsg = public.LangCtx(ctx, "Successfully added {} tags to contacts with {} tag assignments", len(req.TagIds), totalProcessedCount)
 	} else {
-		successMsg = public.LangCtx(ctx, "Successfully removed tag from {} contacts", processedCount)
+		successMsg = public.LangCtx(ctx, "Successfully removed {} tags from contacts with {} tag removals", len(req.TagIds), totalProcessedCount)
 	}
 
-	if skippedCount > 0 {
-		successMsg += public.LangCtx(ctx, " ( {}  skipped,  {}  errors)", skippedCount, errorCount)
+	if totalSkippedCount > 0 {
+		successMsg += public.LangCtx(ctx, " ( {}  skipped,  {}  errors)", totalSkippedCount, totalErrorCount)
 	}
 
 	res.SetSuccess(successMsg)

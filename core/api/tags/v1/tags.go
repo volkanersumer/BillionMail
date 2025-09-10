@@ -62,10 +62,22 @@ type BatchTagContactsReq struct {
 	g.Meta        `path:"/tags/batch_contacts" method:"post" tags:"Tag" summary:"Tag contacts in bulk"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
 	GroupId       int    `json:"group_id" v:"required|min:1" dc:"Group ID"`
-	TagId         int    `json:"tag_id" v:"required|min:1" dc:"Tag ID"`
+	TagIds        []int  `json:"tag_ids" v:"required|min-length:1" dc:"Tag IDs"`
 	Data          string `json:"data" v:"required" dc:"Contact emails, separated by new lines"`
 	MarkInclude   int    `json:"mark_include" v:"required|in:0,1" dc:"Mark include (1) or exclude (0)"`
 }
 type BatchTagContactsRes struct {
 	api_v1.StandardRes
+}
+
+type TagAllReq struct {
+	g.Meta        `path:"/tags/all" method:"get" tags:"Tag" summary:"Get tags all"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+}
+type TagAllRes struct {
+	api_v1.StandardRes
+	Data struct {
+		Total int           `json:"total" dc:"Total Count"`
+		List  []*entity.Tag `json:"list" dc:"Tag list"`
+	} `json:"data"`
 }

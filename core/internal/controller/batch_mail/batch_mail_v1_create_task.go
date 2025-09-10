@@ -14,6 +14,11 @@ import (
 func (c *ControllerV1) CreateTask(ctx context.Context, req *v1.CreateTaskReq) (res *v1.CreateTaskRes, err error) {
 	res = &v1.CreateTaskRes{}
 
+	if err = validateCreateTaskRequest(req); err != nil {
+		res.SetError(err)
+		return
+	}
+
 	// check template
 	template, err := email_template.GetTemplate(ctx, req.TemplateId)
 	if err != nil {
@@ -43,4 +48,25 @@ func (c *ControllerV1) CreateTask(ctx context.Context, req *v1.CreateTaskReq) (r
 
 	res.SetSuccess(public.LangCtx(ctx, "Task created successfully"))
 	return
+}
+
+func validateCreateTaskRequest(req *v1.CreateTaskReq) error {
+
+	if req.GroupId <= 0 {
+		return gerror.New("Must select a contact group")
+	}
+
+	if req.UseTagFilter==1 && len(req.TagIds) == 0 {
+		return gerror.New("Must select at least one tag when tag filter is enabled")
+	}
+
+	if req.UseTagFilter==1 && req.TagLogic != "" && req.TagLogic != "AND" && req.TagLogic != "OR" {
+		return gerror.New("Tag logic must be AND or OR")
+	}
+
+	if req.UseTagFilter==1 && req.TagLogic == "" {
+		req.TagLogic = "AND"
+	}
+
+	return nil
 }

@@ -13,6 +13,8 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/gvalid"
+	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -32,11 +34,14 @@ type CreateTaskArgs struct {
 	TrackOpen   int    `json:"track_open"`  // Track email opens
 	TrackClick  int    `json:"track_click"` // Track email clicks
 	//Etypes      string `json:"etypes"`      // Email types (e.g., group IDs)
-	Remark    string `json:"remark"`     // Task remark
-	StartTime int    `json:"start_time"` // Scheduled start time
-	Warmup    int    `json:"warmup"`     // Warmup campaign association
-	AddType   int    `json:"add_type"`   // Add type (0: normal)
-	GroupId   int    `json:"group_id"`   // Groups to unsubscribe from
+	Remark       string `json:"remark"`         // Task remark
+	StartTime    int    `json:"start_time"`     // Scheduled start time
+	Warmup       int    `json:"warmup"`         // Warmup campaign association
+	AddType      int    `json:"add_type"`       // Add type (0: normal)
+	GroupId      int    `json:"group_id"`       // Groups to unsubscribe from
+	TagIds       []int  `json:"tag_ids"`        // Tag IDs for filtering contacts
+	TagLogic     string `json:"tag_logic"`      // Tag logic (AND/OR)
+	UseTagFilter int    `json:"use_tag_filter"` // Whether to use tag filter
 }
 
 // ============= task related operations =============
@@ -117,6 +122,13 @@ func CreateTask(ctx context.Context, args CreateTaskArgs) (int, error) {
 	now := time.Now().Unix()
 	// generate task name
 	taskName := "task_" + gconv.String(now)
+
+	// Convert tag IDs to JSON string for database storage
+	tagIdsJson := ""
+	if len(args.TagIds) > 0 {
+		tagIdsJson = gconv.String(args.TagIds)
+	}
+
 	result, err := g.DB().Model("email_tasks").Insert(g.Map{
 		"task_name":       taskName,
 		"addresser":       args.Addresser,
@@ -130,15 +142,18 @@ func CreateTask(ctx context.Context, args CreateTaskArgs) (int, error) {
 		"unsubscribe":     args.Unsubscribe,
 		"threads":         args.Threads,
 		//"etypes":          args.Etypes,
-		"track_open":  args.TrackOpen,
-		"track_click": args.TrackClick,
-		"start_time":  args.StartTime,
-		"create_time": now,
-		"update_time": now,
-		"active":      1,
-		"remark":      args.Remark,
-		"add_type":    args.AddType,
-		"group_id":    args.GroupId,
+		"track_open":     args.TrackOpen,
+		"track_click":    args.TrackClick,
+		"start_time":     args.StartTime,
+		"create_time":    now,
+		"update_time":    now,
+		"active":         1,
+		"remark":         args.Remark,
+		"add_type":       args.AddType,
+		"group_id":       args.GroupId,
+		"tag_ids":        tagIdsJson,
+		"tag_logic":      args.TagLogic,
+		"use_tag_filter": args.UseTagFilter,
 	})
 	if err != nil {
 		g.Log().Debug(ctx, "Failed to create campaign:", err.Error())
@@ -284,8 +299,66 @@ func GetActiveContacts(ctx context.Context, groupId int) ([]*entity.Contact, err
 	return contacts, err
 }
 
+type ContactFilter struct {
+	GroupId      int
+	TagIds       []int
+	TagLogic     string // "AND" or "OR"
+	UseTagFilter int
+}
+
+func GetFilteredContacts(ctx context.Context, filter ContactFilter) ([]*entity.Contact, error) {
+	var contacts []*entity.Contact
+
+	model := g.DB().Model("bm_contacts c").
+		Where("c.active", 1).
+		Where("c.status", 1). // Confirmed email address
+		Fields("c.*")
+
+	if filter.GroupId > 0 {
+		model = model.Where("c.group_id", filter.GroupId)
+	}
+
+	if filter.UseTagFilter == 1 && len(filter.TagIds) > 0 {
+		if filter.TagLogic == "AND" {
+			// AND
+			for i, tagId := range filter.TagIds {
+				alias := g.NewVar("ct" + g.NewVar(i).String()).String()
+				model = model.InnerJoin(
+					"bm_contact_tags "+alias,
+					"c.id = "+alias+".contact_id AND "+alias+".tag_id = "+g.NewVar(tagId).String(),
+				)
+			}
+		} else {
+			// OR
+			var inValues []string
+			for _, tagId := range filter.TagIds {
+
+				inValues = append(inValues, strconv.Itoa(tagId))
+			}
+
+			subQuery := fmt.Sprintf(
+				"(SELECT DISTINCT contact_id FROM bm_contact_tags WHERE tag_id IN (%s)) ct",
+				strings.Join(inValues, ","),
+			)
+
+			model = model.InnerJoin(
+				subQuery,
+				"c.id = ct.contact_id",
+			)
+		}
+	}
+
+	err := model.Scan(&contacts)
+	if err != nil {
+		g.Log().Error(ctx, "Failed to get filtered contacts: %v", err)
+		return nil, err
+	}
+
+	return contacts, nil
+}
+
 // ============= business logic combination =============
-// add type parameter add_type default 0  todo 改用单个组
+// add type parameter add_type default 0
 //
 //	func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addType int) (int, error) {
 //		var taskId int
@@ -405,6 +478,7 @@ func GetActiveContacts(ctx context.Context, groupId int) ([]*entity.Contact, err
 //
 //		return taskId, nil
 //	}
+
 func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addType int) (int, error) {
 	var taskId int
 	var err error
@@ -421,11 +495,14 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 			TrackOpen:   req.TrackOpen,
 			TrackClick:  req.TrackClick,
 			//Etypes:      etype,
-			Remark:    req.Remark,
-			StartTime: req.StartTime,
-			Warmup:    req.Warmup,
-			AddType:   addType,
-			GroupId:   req.GroupId,
+			Remark:       req.Remark,
+			StartTime:    req.StartTime,
+			Warmup:       req.Warmup,
+			AddType:      addType,
+			GroupId:      req.GroupId,
+			TagIds:       req.TagIds,
+			TagLogic:     req.TagLogic,
+			UseTagFilter: req.UseTagFilter,
 		})
 		if err != nil {
 			return gerror.New(public.LangCtx(ctx, "Failed to create task {}", err.Error()))
@@ -452,15 +529,37 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 			}
 		}
 
-		// import recipient information
-		totalSkipped := 0
-
-		contacts, err := GetActiveContacts(ctx, req.GroupId)
-		if err != nil {
-			return gerror.New(public.LangCtx(ctx, "Failed to get contacts for group {}: {}", req.GroupId, err.Error()))
+		filter := ContactFilter{
+			GroupId:      req.GroupId,
+			TagIds:       req.TagIds,
+			TagLogic:     req.TagLogic,
+			UseTagFilter: req.UseTagFilter,
 		}
+
+		var contacts []*entity.Contact
+		if req.UseTagFilter == 1 {
+
+			contacts, err = GetFilteredContacts(ctx, filter)
+			if err != nil {
+				return gerror.New(public.LangCtx(ctx, "Failed to get filtered contacts: {}", err.Error()))
+			}
+		} else {
+			// Compatible with older versions: Use group filtering
+			if req.GroupId <= 0 {
+				return gerror.New(public.LangCtx(ctx, "Group ID is required when not using tag filter"))
+			}
+			contacts, err = GetActiveContacts(ctx, req.GroupId)
+			if err != nil {
+				return gerror.New(public.LangCtx(ctx, "Failed to get contacts for group {}: {}", req.GroupId, err.Error()))
+			}
+		}
+
 		if len(contacts) == 0 {
-			return gerror.New(public.LangCtx(ctx, "No contacts found in group {}: {}", req.GroupId))
+			if req.UseTagFilter == 1 {
+				return gerror.New(public.LangCtx(ctx, "No contacts found matching the tag filter criteria"))
+			} else {
+				return gerror.New(public.LangCtx(ctx, "No contacts found in group {}", req.GroupId))
+			}
 		}
 
 		// abnormal skip and email format validation
@@ -484,17 +583,13 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 			filteredContacts = append(filteredContacts, contact)
 		}
 
-		if skippedInGroup > 0 {
-			totalSkipped += skippedInGroup
-		}
-
 		if len(filteredContacts) == 0 {
-			return gerror.New(public.LangCtx(ctx, "No valid contacts found in group {}: {}", req.GroupId))
+			return gerror.New(public.LangCtx(ctx, "No valid contacts found after filtering"))
 		}
 
 		err = ImportRecipients(ctx, taskId, filteredContacts)
 		if err != nil {
-			return gerror.New(public.LangCtx(ctx, "Failed to import recipients for group {}: {}", req.GroupId, err.Error()))
+			return gerror.New(public.LangCtx(ctx, "Failed to import recipients: {}", err.Error()))
 		}
 
 		// update recipient count
@@ -521,6 +616,7 @@ func GetTaskInfo(ctx context.Context, taskId int) (*entity.EmailTask, error) {
 	var task entity.EmailTask
 	err := g.DB().Model("email_tasks").
 		Where("id", taskId).
+		Fields("*, tag_ids as TagIdsRaw").
 		Scan(&task)
 
 	if err != nil {

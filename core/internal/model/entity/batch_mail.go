@@ -1,5 +1,9 @@
 package entity
 
+import (
+	"encoding/json"
+)
+
 // ContactGroup Entity
 type ContactGroup struct {
 	Id          int    `json:"id"          dc:"Group ID"`
@@ -82,9 +86,45 @@ type EmailTask struct {
 	DeferredCount   int    `json:"deferredCount"    description:""`
 	StatsUpdateTime int    `json:"statsUpdateTime"  description:""`
 	GroupId         int    `json:"group_id"        dc:"Group ID"`
+	TagIdsRaw       string `json:"-"               dc:"Tag IDs (JSON string - internal use)" orm:"tag_ids"`
+	TagIds          []int  `json:"tag_ids"         dc:"Tag IDs (parsed array)"`
+	TagLogic        string `json:"tag_logic"       dc:"Tag Logic (AND/OR)"`
+	UseTagFilter    int    `json:"use_tag_filter"  dc:"Use Tag Filter (0: no, 1: yes)"`
 }
 
-// RecipientInfo Entity
+// MarshalJSON implements custom JSON marshaling to convert TagIdsRaw to TagIds array
+func (e *EmailTask) MarshalJSON() ([]byte, error) {
+	// Create a temporary struct with all fields
+	type Alias EmailTask
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(e),
+	}
+
+	// Parse TagIdsRaw to TagIds if not already parsed
+	if e.TagIdsRaw != "" && len(e.TagIds) == 0 {
+		var tagIds []int
+		err := json.Unmarshal([]byte(e.TagIdsRaw), &tagIds)
+		if err == nil {
+			aux.TagIds = tagIds
+		}
+	}
+
+	return json.Marshal(aux)
+}
+
+// AfterFind is called after retrieving data from database
+func (e *EmailTask) AfterFind() {
+	if e.TagIdsRaw != "" {
+		var tagIds []int
+		err := json.Unmarshal([]byte(e.TagIdsRaw), &tagIds)
+		if err == nil {
+			e.TagIds = tagIds
+		}
+	}
+}
+
 type RecipientInfo struct {
 	Id         int    `json:"id"          dc:"Recipient ID"`
 	TaskId     int    `json:"task_id"     dc:"Task ID"`

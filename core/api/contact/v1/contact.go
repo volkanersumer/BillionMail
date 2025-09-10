@@ -52,7 +52,6 @@ type GroupInfo struct {
 
 type TagInfo struct {
 	Id         int    `json:"id"          dc:"Tag ID"`
-	GroupId    int    `json:"group_id"    dc:"Group ID"`
 	Name       string `json:"name"        dc:"Tag Name"`
 	CreateTime int    `json:"create_time" dc:"Create Time"`
 }

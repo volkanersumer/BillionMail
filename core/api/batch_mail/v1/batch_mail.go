@@ -35,6 +35,9 @@ type EmailTask struct {
 	DeferredCount           int    `json:"deferredCount"    description:""`
 	StatsUpdateTime         int    `json:"statsUpdateTime"  description:""`
 	GroupId                 int    `json:"group_id"        dc:"Group ID"`
+	TagIds                  []int  `json:"tag_ids"        dc:"Tag IDs"`
+	UseTagFilter            int    `json:"use_tag_filter" dc:"Whether to use tag filter (1: yes, 0: no)"`
+	TagLogic                string `json:"tag_logic" dc:"Tag logic (AND: must have all tags, OR: have any tag)"`
 }
 
 type GroupInfo struct {
@@ -140,6 +143,10 @@ type CreateTaskReq struct {
 	StartTime     int    `json:"start_time" v:"required" dc:"start time"`
 	Warmup        int    `json:"warmup" v:"in:0,1" dc:"warmup" default:"0"`
 	Remark        string `json:"remark" dc:"remark"`
+
+	TagIds       []int  `json:"tag_ids" dc:"tag ids for filtering contacts"`
+	TagLogic     string `json:"tag_logic" v:"in:AND,OR" dc:"tag logic (AND: must have all tags, OR: have any tag)" default:"AND"`
+	UseTagFilter int    `json:"use_tag_filter" dc:"whether to use tag filter (1: yes, 0: no)" v:"in:0,1" default:"0"`
 }
 
 type CreateTaskRes struct {

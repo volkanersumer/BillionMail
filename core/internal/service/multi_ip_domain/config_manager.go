@@ -680,7 +680,6 @@ func (m *ConfigManager) updateMainCf(ctx context.Context, configs []map[string]i
 		smtpBindLine := "\nsmtp_bind_address = " + defaultBindIP + "\n"
 		contentStr += smtpBindLine
 
-
 		if err := ioutil.WriteFile(PostfixMainCfPath, []byte(contentStr), 0644); err != nil {
 			return gerror.Wrapf(err, "failed to write main.cf file: %s", PostfixMainCfPath)
 		}

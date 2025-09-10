@@ -1,11 +1,11 @@
 import { instance } from '@/api'
 import { instanceOptions } from './companyProfile.controller'
 import { getEditDomainStoreData } from '../store'
-import { getByteUnit, Message, isUrl } from '@/utils'
+import { getByteUnit, Message, isUrl, isObject } from '@/utils'
 import { initAiConfiguration } from '@/api/modules/domain'
 import { useGlobalStore } from '@/store'
 import i18n from '@/i18n'
-
+import { MailDomain } from '@/views/domain/interface'
 
 /**
  * @description Check if this domain has brand info
@@ -31,23 +31,40 @@ import i18n from '@/i18n'
  * @description Get domain detail
  */
 export async function getDomainDetail(domain: string) {
-	const { domainTit, quota, unit, mailboxes, catch_email, hasGotDomainConfiguration, urls } =
-		getEditDomainStoreData()
+	const {
+		domainTit,
+		domainIp,
+		hostname,
+		quota,
+		unit,
+		mailboxes,
+		catch_email,
+		hasGotDomainConfiguration,
+		urls,
+	} = getEditDomainStoreData()
 	if (hasGotDomainConfiguration.value) return
 	try {
-		const { list } = (await instance.get('/domains/list', {
+		const res = await instance.get('/domains/list', {
 			params: { keyword: domain, page: 1, page_size: 1 },
-		})) as { total: number; list: Record<string, any>[] }
-		const quotaAndUnit = getByteUnit(list[0].quota, true, 2).split(' ')
-		domainTit.value = list[0].domain
-		quota.value = quotaAndUnit[0]
-		unit.value = quotaAndUnit[1]
-		mailboxes.value = list[0].mailboxes
-		catch_email.value = list[0].email
-		urls.value =
-			list[0].urls && list[0].urls.length > 0 && list[0].urls[0] != '' ? list[0].urls : [`https://${domain}`]
-		await configurationStatus(domain)
-		hasGotDomainConfiguration.value = true
+		})
+		if (isObject<{ list: MailDomain[] }>(res)) {
+			const { list } = res
+			const quotaAndUnit = getByteUnit(list[0].quota, true, 2).split(' ')
+			domainTit.value = list[0].domain
+			domainIp.value = list[0].multi_ip_domains?.outbound_ip || ''
+			hostname.value = list[0].a_record
+			quota.value = quotaAndUnit[0]
+			unit.value = quotaAndUnit[1]
+			mailboxes.value = list[0].mailboxes
+			catch_email.value = list[0].email
+			urls.value =
+				list[0].urls && list[0].urls.length > 0 && list[0].urls[0] != ''
+					? list[0].urls
+					: [`https://${domain}`]
+
+			await configurationStatus(domain)
+			hasGotDomainConfiguration.value = true
+		}
 	} catch (error) {
 		console.warn(error)
 	}
@@ -70,12 +87,40 @@ export async function configurationStatus(domain: string) {
 	}
 }
 
+export async function testConnection() {
+	const { domainTit, domainIp } = getEditDomainStoreData()
+	if (domainIp.value == '') {
+		Message.error(i18n.global.t('domain.edit.domainConfiguration.validation.setDedicatedIpFirst'))
+		return
+	}
+
+	try {
+		await instance.post(
+			'/multi_ip_domain/test',
+			{
+				domain: domainTit.value,
+				outbound_ip: domainIp.value,
+			},
+			{
+				fetchOptions: {
+					loading: i18n.global.t('domain.edit.domainConfiguration.api.testingConnection'),
+					successMessage: true,
+				},
+			}
+		)
+	} catch (error) {
+		console.warn(error)
+	}
+}
+
 /**
  * @description Update domain
  */
 export async function updateDomain() {
 	const {
 		domainTit,
+		domainIp,
+		hostname,
 		quota,
 		unit,
 		urls,
@@ -99,6 +144,8 @@ export async function updateDomain() {
 				active: 1,
 				email: catch_email.value,
 				urls: urls.value,
+				outbound_ip: domainIp.value,
+				hostname: hostname.value,
 			},
 			instanceOptions
 		)

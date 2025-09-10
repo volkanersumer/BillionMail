@@ -5,7 +5,7 @@ export function useTemplateStore(): TemplateStore {
     const chatId = ref("")
     const questionContent = ref("")
     const chatInfo = ref<ChatInfo>({
-        domain:"",
+        domain: "",
         chatId: "",
         create_time: 0,
         files: [],
@@ -31,12 +31,14 @@ export function useTemplateStore(): TemplateStore {
     const previewCode = ref<string>("")
     const generateShow = ref<boolean>(false)
     const chatRecord = ref<Map<string, string[]>>(new Map())
-    const usageRecord= ref<Map<string,UsageInfo>>(new Map())
+    const usageRecord = ref<Map<string, UsageInfo>>(new Map())
     const isChat = ref(false)
     const chatScrollRef = ref()
     const scrollWrapperRef = ref()
     const scrollable = ref(true)
     const previewTit = ref("")
+    const useSpinTax = ref(false)
+    const spinTaxLength = ref(50)
 
     return {
         domainList,
@@ -57,6 +59,8 @@ export function useTemplateStore(): TemplateStore {
         chatScrollRef,
         scrollWrapperRef,
         scrollable,
-        previewTit
+        previewTit,
+        useSpinTax,
+        spinTaxLength
     }
 }

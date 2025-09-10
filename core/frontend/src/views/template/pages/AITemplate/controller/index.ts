@@ -107,14 +107,8 @@ export async function getChatInfo(store: TemplateStore) {
 		for (let i = 0; i < chatInfo.value.messages.length; i++) {
 			const key = `${chatInfo.value.messages[i].content}_+_${chatRecord.value.size}`
 			if (chatInfo.value.messages[i].role == 'user') {
-				chatRecord.value.set(
-					key,
-					sliceContentToArray(chatInfo.value.messages[i + 1].content)
-				)
-				usageRecord.value.set(
-					key,
-					chatInfo.value.messages[i + 1].usage
-				)
+				chatRecord.value.set(key, sliceContentToArray(chatInfo.value.messages[i + 1].content))
+				usageRecord.value.set(key, chatInfo.value.messages[i + 1].usage)
 			}
 		}
 	} catch (error) {
@@ -165,7 +159,9 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 		scrollWrapperRef,
 		chatScrollRef,
 		isChat,
-		usageRecord
+		usageRecord,
+		useSpinTax,
+		spinTaxLength,
 	} = store
 	if (isChat.value) return
 	if (!questionContent.value) return
@@ -173,7 +169,7 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 	const chatRecordKey = `${questionContent.value}_+_${chatRecord.value.size}`
 	chatRecord.value.set(chatRecordKey, [])
 	currentChatRecordKey.value = chatRecordKey
-	const chatContent = questionContent.value
+	let chatContent = questionContent.value
 	questionContent.value = ''
 	// Split string array
 	let resultArray: string[] = []
@@ -181,6 +177,11 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 	let answerText = ''
 	// Character pointer position
 	let strPos = 0
+
+	// Check Whether use spinTax
+	if (useSpinTax.value) {
+		chatContent += `  ${t('template.ai.spintax.instruction', { count: spinTaxLength.value })}`
+	}
 
 	/**
 	 * @description spliced content
@@ -244,7 +245,7 @@ export async function sendChat(store: TemplateStore, e?: KeyboardEvent) {
 		scrollable.value = true
 		chatScrollRef.value.scrollTo({ left: 0, top: scrollWrapperRef.value.offsetHeight })
 		isChat.value = false
-		getHtmlTemplateContent(store,(usage:UsageInfo)=>{
+		getHtmlTemplateContent(store, (usage: UsageInfo) => {
 			usageRecord.value.set(chatRecordKey, usage)
 		})
 	} catch (error) {
@@ -334,15 +335,18 @@ export function getContentFromTitleTags(content: string) {
 /**
  * @description Get html template code content
  */
-export async function getHtmlTemplateContent(store: TemplateStore,callback?: (usage: UsageInfo) => void) { 
+export async function getHtmlTemplateContent(
+	store: TemplateStore,
+	callback?: (usage: UsageInfo) => void
+) {
 	const { chatId, previewCode, previewTit } = store
 	try {
 		const codeContent = (await instance.post('/askai/chat/get_html', {
 			chatId: chatId.value,
-		})) as Record<string,any>
+		})) as Record<string, any>
 		previewCode.value = codeContent.html_content
 		previewTit.value = getContentFromTitleTags(previewCode.value)
-		if(callback){
+		if (callback) {
 			callback(codeContent.last_usage)
 		}
 	} catch (error) {

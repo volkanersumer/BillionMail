@@ -13,18 +13,25 @@ import (
 func (c *ControllerV1) TestMultiIPDomainConfig(ctx context.Context, req *v1.TestMultiIPDomainConfigReq) (res *v1.TestMultiIPDomainConfigRes, err error) {
 	res = &v1.TestMultiIPDomainConfigRes{}
 
-	ok, err := multi_ip_domain.MultiIPDomainServiceInstance.ValidateDNSRecords(ctx, req.Domain, req.OutboundIP)
+	ok, validateErr := multi_ip_domain.MultiIPDomainServiceInstance.ValidateDNSRecords(ctx, req.Domain, req.OutboundIP)
 	if !ok {
-		res.SetError(gerror.New(public.LangCtx(ctx, "Test configuration failed: {}", err)))
+		res.SetError(gerror.New(public.LangCtx(ctx, "Test configuration failed: {}", validateErr.Error())))
 		return res, nil
 	}
 
-	res.SetSuccess(public.LangCtx(ctx, "Configuration test passed: {} ", err))
+	msg := "Configuration test passed successfully"
+	if validateErr != nil {
+		msg = "Configuration test passed with warnings: " + validateErr.Error()
+	}
+	res.SetSuccess(public.LangCtx(ctx, msg))
 
-	// 记录操作日志
+	logDetail := "Success"
+	if validateErr != nil {
+		logDetail = "Warning: " + validateErr.Error()
+	}
 	_ = public.WriteLog(ctx, public.LogParams{
 		Type: consts.LOGTYPE.Domain,
-		Log:  "Test the outboundIP of the domain: " + req.Domain + " -> " + req.OutboundIP + " (" + err.Error() + ")",
+		Log:  "Test domain " + req.Domain + " -> " + req.OutboundIP + " (" + logDetail + ")",
 		Data: req,
 	})
 

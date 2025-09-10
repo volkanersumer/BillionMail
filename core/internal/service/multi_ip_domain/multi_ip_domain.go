@@ -3,6 +3,7 @@ package multi_ip_domain
 import (
 	v1 "billionmail-core/api/domains/v1"
 	docker "billionmail-core/internal/service/dockerapi"
+	"billionmail-core/internal/service/public"
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
@@ -190,9 +191,10 @@ func isValidIP(ip string) bool {
 
 // ValidateDNSRecords Validate domain A record and SPF record
 func (s *MultiIPDomainService) ValidateDNSRecords(ctx context.Context, domain, outboundIP string) (bool, error) {
+	formattedDomain := public.FormatMX(domain)
 
 	// 1. Validate A record (required)
-	ips, err := net.LookupIP(domain)
+	ips, err := net.LookupIP(formattedDomain)
 	if err != nil {
 		return false, gerror.Newf("failed to query A record for domain '%s': %v. Please ensure the domain is correctly resolved.", domain, err)
 	}
@@ -216,7 +218,7 @@ func (s *MultiIPDomainService) ValidateDNSRecords(ctx context.Context, domain, o
 
 	spfRecord := ""
 	for _, record := range txtRecords {
-		if strings.HasPrefix(strings.ToLower(record), "v=spf1") {
+		if strings.HasPrefix(strings.ToLower(strings.TrimSpace(record)), "v=spf1") {
 			spfRecord = record
 			break
 		}
@@ -226,21 +228,52 @@ func (s *MultiIPDomainService) ValidateDNSRecords(ctx context.Context, domain, o
 		return true, gerror.Newf("SPF record not found for domain '%s'", domain)
 	}
 
-	// Check if SPF record contains the IP or 'a' mechanism
-	sug := gerror.Newf("")
-	if !strings.Contains(spfRecord, "ip4:"+outboundIP) &&
-		!strings.Contains(spfRecord, " a ") &&
-		!strings.Contains(spfRecord, " a:"+domain) &&
-		!strings.Contains(spfRecord, " a:") &&
-		!strings.HasSuffix(spfRecord, " all") {
-		sug = gerror.Newf("It is recommended to add 'a' or 'ip4:%s' in the SPF record to ensure proper authorization of this IP for sending emails.", outboundIP)
-		g.Log().Debugf(ctx, "SPF record validation warning: The SPF record '%s' for domain '%s' may not correctly include the outbound IP '%s'. It is recommended to add 'a' or 'ip4:%s' in the SPF record.", domain, spfRecord, outboundIP, outboundIP)
-	} else {
-		sug = nil
-		g.Log().Debugf(ctx, "SPF record preliminary validation passed.")
+	// Normalize SPF record
+	spf := strings.ToLower(strings.TrimSpace(spfRecord))
+	if strings.HasPrefix(spf, `"`) && strings.HasSuffix(spf, `"`) {
+		spf = spf[1 : len(spf)-1]
+	}
+	spf = strings.ToLower(spf)
+
+	// Must start with v=spf1
+	if !strings.HasPrefix(spf, "v=spf1") {
+		return true, gerror.Newf("SPF record is malformed: does not start with 'v=spf1': %s", spfRecord)
 	}
 
-	return true, sug
+	// Must end with ~all or -all
+	if !strings.HasSuffix(spf, "~all") && !strings.HasSuffix(spf, "-all") {
+		return true, gerror.Newf("SPF record should end with '~all' or '-all' for proper policy enforcement: %s", spfRecord)
+	}
+
+	// Check if authorized: ip4, a, or include
+	ip4Mech := "ip4:" + outboundIP
+	hasIP4 := strings.Contains(spf, ip4Mech)
+
+	hasA := strings.Contains(spf, " a ") || // 中间
+		strings.Contains(spf, " a\t") || // tab 分隔
+		strings.HasPrefix(spf, "a ") || // 开头
+		strings.HasPrefix(spf, "a\t") ||
+		strings.Contains(spf, " a:") || // a:domain
+		strings.Contains(spf, " a/") // a/24
+
+	hasInclude := strings.Contains(spf, " include:"+domain) ||
+		strings.Contains(spf, " include:"+domain+".") ||
+		strings.Contains(spf, " include:"+formattedDomain) ||
+		strings.HasPrefix(spf, "include:"+domain) ||
+		strings.HasPrefix(spf, "include:"+domain+".")
+
+	if hasIP4 || hasA || hasInclude {
+		g.Log().Debugf(ctx, "SPF record validation passed: domain='%s', spf='%s'", domain, spfRecord)
+		return true, nil
+	}
+
+	// No matching mechanism found
+	suggestion := gerror.Newf(
+		"It is recommended to add 'a', 'ip4:%s', or 'include:%s' in the SPF record to ensure proper authorization of this IP for sending emails.",
+		outboundIP, domain,
+	)
+	return true, suggestion
+
 }
 
 // ApplyConfigs Apply all pending configurations

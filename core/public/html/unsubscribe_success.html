@@ -5,218 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Unsubscribe Successful</title>
     <style>
+        p {
+            margin: 0;
+        }
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background: #f5f5f5;
             margin: 0;
             padding: 20px;
-            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .success-container {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            width: 100%;
+        .container {
             max-width: 500px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
             text-align: center;
+            padding: 40px 30px 30px;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
         }
         .success-icon {
             width: 80px;
             height: 80px;
-            background-color: #28a745;
+            background: linear-gradient(135deg, #10b981, #059669);
             border-radius: 50%;
-            margin: 0 auto 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
-            color: white;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
-        h1 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #333;
+        .content {
+            padding: 32px 40px;
+            text-align: center;
+        }
+        .content h2 {
+            margin-top: 0;
+            margin-bottom: 32px;
+            color: #1f2937;
+            font-size: 24px;
             font-weight: 600;
         }
-        .email-info {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 25px 0;
-            border-left: 4px solid #28a745;
-        }
-        .email-info strong {
-            color: #28a745;
-        }
-        p {
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            color: #666;
-        }
-        .message-box {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #c3e6cb;
-            margin: 20px 0;
-        }
-        .actions {
-            margin-top: 30px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 10px;
-            transition: background-color 0.3s ease;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        .footer-text {
-            margin-top: 30px;
+        .content p {
+            margin-top: 12px;
+            color: #6b7280;
             font-size: 14px;
-            color: #999;
+            line-height: 1.5;
         }
-        .countdown {
-            font-weight: bold;
-            color: #007bff;
+        .button {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            margin-top: 16px;
+        }
+        .button:hover {
+            background: #2563eb;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 30px 30px;
+            color: #9ca3af;
+            font-size: 12px;
+            background: #f9fafb;
+            border-top: 1px solid #f3f4f6;
+        }
+        .footer a {
+            color: #9ca3af;
+            text-decoration: underline;
+        }
+        .footer a:hover {
+            color: #6b7280;
         }
     </style>
 </head>
 <body>
-    <div class="success-container">
+<div class="container">
+    <div class="header">
         <div class="success-icon">
-            ✓
-        </div>
-
-        <h1>Successfully Unsubscribed</h1>
-
-        <div class="email-info" id="email-info" style="display: none;">
-            <p><strong>Email:</strong> <span id="user-email"></span></p>
-            <p><strong>Group:</strong> <span id="group-name"></span></p>
-        </div>
-
-        <div class="message-box" id="success-message">
-            You have been successfully unsubscribed from our mailing list.
-        </div>
-
-        <p>We're sorry to see you go! You will no longer receive emails from this mailing list.</p>
-
-        <p>If you have any questions or if this was done in error, please don't hesitate to contact our support team.</p>
-
-        <div class="actions">
-            <a href="#" class="btn" id="resubscribe-btn" style="display: none;">Resubscribe</a>
-            <button class="btn btn-secondary" onclick="window.close()">Close</button>
-        </div>
-
-        <div class="footer-text">
-            <p>Thank you for being part of our community.</p>
-            <p id="redirect-message" style="display: none;">
-                You will be redirected in <span class="countdown" id="countdown">5</span> seconds...
-            </p>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="40px" height="40px">
+                <path d="M0 0h24v24H0z" fill="none" />
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
         </div>
     </div>
-
-    <script>
-        // 获取URL参数
-        function getQueryParams() {
-            const urlParams = {};
-            const queryString = window.location.search.substring(1);
-            const regex = /([^&=]+)=([^&]*)/g;
-            let m;
-            while ((m = regex.exec(queryString))) {
-                urlParams[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-            }
-            return urlParams;
-        }
-
-        // 显示用户信息
-        function displayUserInfo(email, groupName) {
-            if (email) {
-                document.getElementById('user-email').textContent = email;
-                document.getElementById('email-info').style.display = 'block';
-            }
-            if (groupName) {
-                document.getElementById('group-name').textContent = groupName;
-            }
-        }
-
-        // 显示重新订阅按钮
-        function showResubscribeButton(resubscribeUrl) {
-            if (resubscribeUrl) {
-                const btn = document.getElementById('resubscribe-btn');
-                btn.href = resubscribeUrl;
-                btn.style.display = 'inline-block';
-            }
-        }
-
-        // 自动重定向
-        function startRedirect(redirectUrl, delay = 5) {
-            if (!redirectUrl) return;
-
-            const redirectMessage = document.getElementById('redirect-message');
-            const countdownElement = document.getElementById('countdown');
-
-            redirectMessage.style.display = 'block';
-
-            let countdown = delay;
-            const timer = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = countdown;
-
-                if (countdown <= 0) {
-                    clearInterval(timer);
-                    window.location.href = redirectUrl;
-                }
-            }, 1000);
-        }
-
-        // 初始化页面
-        window.onload = function() {
-            const params = getQueryParams();
-
-            // 显示用户信息
-            if (params.email) {
-                displayUserInfo(params.email, params.group_name);
-            }
-
-            // 显示重新订阅按钮
-            if (params.resubscribe_url) {
-                showResubscribeButton(params.resubscribe_url);
-            }
-
-            // 显示自定义消息
-            if (params.message) {
-                document.getElementById('success-message').textContent = decodeURIComponent(params.message);
-            }
-
-            // 自动重定向
-            if (params.redirect_url) {
-                const delay = params.redirect_delay ? parseInt(params.redirect_delay) : 5;
-                startRedirect(decodeURIComponent(params.redirect_url), delay);
-            }
-        };
-    </script>
+    <div class="content">
+        <h2>Successfully Unsubscribed</h2>
+        <p>You have been successfully unsubscribed from our mailing list.</p>
+        <p>Thank you for being part of our community.</p>
+    </div>
+    <div class="footer">
+        <div>
+            <span>Powered by </span>
+            <a href="https://www.billionmail.com/" target="_blank">BillionMail</a>
+        </div>
+    </div>
+</div>
 </body>
 </html>
-

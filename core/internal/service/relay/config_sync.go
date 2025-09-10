@@ -226,6 +226,17 @@ func CheckRelayFirstSync(ctx context.Context) {
 
 	if gfile.Exists(mainCfPath) {
 		content := gfile.GetContents(mainCfPath)
+
+		// Comment out the old "sender_dependent_default_transport_maps" configuration
+		content = commentOutOldTransportMaps(content)
+
+		// Reply with the updated content
+		if err := gfile.PutContents(mainCfPath, content); err != nil {
+			g.Log().Errorf(ctx, "Failed to update main.cf with commented transport maps: %v", err)
+		} else {
+			g.Log().Info(ctx, "Successfully commented out old transport maps configuration")
+		}
+
 		beginIndex := strings.Index(content, beginMarker)
 		endIndex := strings.Index(content, endMarker)
 
@@ -897,4 +908,38 @@ func ensureSmtpsConfigInMasterCf(content string) (string, bool) {
 	}
 	updated += "\n" + smtpsBlock
 	return updated, true
+}
+
+// commentOutOldTransportMaps Comment out the previously manually added "sender_dependent_default_transport_maps" configuration
+func commentOutOldTransportMaps(content string) string {
+
+	beginMarker := "# BEGIN RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
+	endMarker := "# END RELAY SERVICE CONFIGURATION - DO NOT EDIT THIS MARKER"
+
+	beginIndex := strings.Index(content, beginMarker)
+	endIndex := strings.Index(content, endMarker)
+	inAutomationBlock := func(pos int) bool {
+		return beginIndex != -1 && endIndex != -1 && pos >= beginIndex && pos <= endIndex+len(endMarker)
+	}
+
+	transportRegex := regexp.MustCompile(`(?m)^\s*(sender_dependent_default_transport_maps\s*=\s*(hash|pgsql|tcp):[^\r\n]*)`)
+
+	return transportRegex.ReplaceAllStringFunc(content, func(match string) string {
+		matchIndex := strings.Index(content, match)
+		if matchIndex == -1 {
+			return match
+		}
+
+		// Within the automation block, no processing is performed
+		if inAutomationBlock(matchIndex) {
+			return match
+		}
+
+		// Commented, Not processed.
+		if strings.HasPrefix(strings.TrimSpace(match), "#") {
+			return match
+		}
+
+		return "# " + match + " # Migrated: replaced by automated config block"
+	})
 }

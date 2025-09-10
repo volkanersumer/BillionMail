@@ -181,6 +181,7 @@ type ApiMailLogs struct {
 type Tag struct {
 	Id         int    `json:"id"          dc:"Tag ID"`
 	GroupId    int    `json:"group_id"    dc:"Group ID"`
+	GroupName  string `json:"group_name" dc:"Group Name"`
 	Name       string `json:"name"       dc:"Tag Name"`
 	CreateTime int    `json:"create_time" dc:"Create Time"`
 }

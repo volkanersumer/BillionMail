@@ -3,6 +3,7 @@ package tags
 import (
 	"billionmail-core/api/tags/v1"
 	"billionmail-core/internal/model/entity"
+	"billionmail-core/internal/service/contact"
 	"billionmail-core/internal/service/public"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
@@ -32,6 +33,19 @@ func (c *ControllerV1) TagList(ctx context.Context, req *v1.TagListReq) (res *v1
 
 	if err != nil {
 		return nil, err
+	}
+
+	for _, tag := range tagList {
+
+		// check if group exists
+		GroupInfo, err := contact.GetGroup(ctx, tag.GroupId)
+ 
+		if err != nil || GroupInfo == nil {
+			tag.GroupName = "Unknown"
+		} else {
+			tag.GroupName = GroupInfo.Name
+		}
+
 	}
 
 	res.Data.Total = total

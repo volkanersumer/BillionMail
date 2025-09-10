@@ -312,7 +312,7 @@ func (s *MultiIPDomainService) ApplyConfigs(ctx context.Context) (appliedConfigs
 	}
 
 	// If the state is already "applied", then do not change it to "applying".
-	if err := s.updateStatusByIDs(ctx, toappliedIDs, "applying"); err != nil {
+	if err = s.updateStatusByIDs(ctx, toappliedIDs, "applying"); err != nil {
 		return nil, nil, nil, gerror.Wrap(err, "failed to update configuration status to 'applying'")
 	}
 

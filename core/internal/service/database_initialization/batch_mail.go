@@ -101,7 +101,7 @@ func init() {
                 id SERIAL PRIMARY KEY,
                 task_id INTEGER NOT NULL,
                 recipient VARCHAR(320) NOT NULL,
-                is_sent SMALLINT DEFAULT 0,
+                is_sent SMALLINT DEFAULT 0, -- 0: Pending processing 2: Extracted and ready for transmission 1: Transmission completed
                 sent_time INTEGER NOT NULL DEFAULT 0,
                 message_id TEXT NOT NULL,
                 create_time INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),

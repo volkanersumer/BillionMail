@@ -257,3 +257,24 @@ type TaskStatChartRes struct {
 		ClickRateChart  interface{} `json:"click_rate_chart" dc:"click rate chart"`
 	} `json:"data"`
 }
+
+type UpdateTaskInfoReq struct {
+	g.Meta        `path:"/batch_mail/task/update" method:"post" tags:"BatchMail" summary:"update task info"`
+	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
+	TaskId        int    `json:"task_id" v:"required" dc:"task id"`
+	Addresser     string `json:"addresser" dc:"addresser"`
+	Subject       string `json:"subject" dc:"subject"`
+	FullName      string `json:"full_name" dc:"full name"`
+	Remark        string `json:"remark" dc:"remark"`
+	TemplateId    int    `json:"template_id" dc:"template id"`
+	Unsubscribe   int    `json:"unsubscribe" v:"in:0,1" dc:"unsubscribe"`
+	Warmup        int    `json:"warmup" v:"in:0,1" dc:"warmup"`
+	Threads       int    `json:"threads" v:"min:0" dc:"threads"`
+	StartTime     int    `json:"start_time" dc:"start time"`
+	TagIds        []int  `json:"tag_ids" dc:"tag ids for filtering contacts"`
+	TagLogic      string `json:"tag_logic" v:"in:AND,OR" dc:"tag logic (AND: must have all tags, OR: have any tag)"`
+	UseTagFilter  int    `json:"use_tag_filter" dc:"whether to use tag filter (1: yes, 0: no)" v:"in:0,1"`
+}
+type UpdateTaskInfoRes struct {
+	api_v1.StandardRes
+}

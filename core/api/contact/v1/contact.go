@@ -298,7 +298,7 @@ type GetContactsTrendRes struct {
 }
 
 type MonthlyCount struct {
-	Month string `json:"month" dc:"Month Format: YYYY-MM"`
+	Date string `json:"date" dc:"Month Format: YYYY-MM"`
 	Count int    `json:"count" dc:"Count"`
 }
 

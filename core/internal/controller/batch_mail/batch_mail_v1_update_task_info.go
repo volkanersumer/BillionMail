@@ -49,9 +49,6 @@ func (c *ControllerV1) UpdateTaskInfo(ctx context.Context, req *v1.UpdateTaskInf
 	if req.Warmup == 0 || req.Warmup == 1 {
 		updateData["warmup"] = req.Warmup
 	}
-	if req.UseTagFilter == 0 || req.UseTagFilter == 1 {
-		updateData["use_tag_filter"] = req.UseTagFilter
-	}
 
 	if req.Addresser != "" {
 		updateData["addresser"] = req.Addresser

@@ -92,8 +92,7 @@ func init() {
 				group_id INTEGER NOT NULL DEFAULT 0,   
 				stats_update_time INTEGER NOT NULL DEFAULT 0,
 				tag_ids TEXT DEFAULT '', -- JSON array of tag ids for filtering contacts
-				tag_logic VARCHAR(10) DEFAULT 'AND', -- Tag logic (AND: must have all tags, OR: have any tag)
-				use_tag_filter SMALLINT NOT NULL DEFAULT 0 -- Whether to use tag filter (0: no, 1: yes)
+				tag_logic VARCHAR(10) DEFAULT 'AND' -- Tag logic (AND: must have all tags, OR: have any tag)
     
             )`,
 
@@ -257,7 +256,6 @@ func init() {
 		_ = AddColumnIfNotExists("email_tasks", "group_id", "INTEGER", "0", true)
 		_ = AddColumnIfNotExists("email_tasks", "tag_ids", "TEXT", "''", false)
 		_ = AddColumnIfNotExists("email_tasks", "tag_logic", "VARCHAR(10)", "'AND'", false)
-		_ = AddColumnIfNotExists("email_tasks", "use_tag_filter", "SMALLINT", "0", true)
 
 		// unsubscribe_records
 		_ = DropForeignKeyIfExists("unsubscribe_records", "group_id")

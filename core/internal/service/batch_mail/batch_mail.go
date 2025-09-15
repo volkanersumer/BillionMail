@@ -34,14 +34,13 @@ type CreateTaskArgs struct {
 	TrackOpen   int    `json:"track_open"`  // Track email opens
 	TrackClick  int    `json:"track_click"` // Track email clicks
 	//Etypes      string `json:"etypes"`      // Email types (e.g., group IDs)
-	Remark       string `json:"remark"`         // Task remark
-	StartTime    int    `json:"start_time"`     // Scheduled start time
-	Warmup       int    `json:"warmup"`         // Warmup campaign association
-	AddType      int    `json:"add_type"`       // Add type (0: normal)
-	GroupId      int    `json:"group_id"`       // Groups to unsubscribe from
-	TagIds       []int  `json:"tag_ids"`        // Tag IDs for filtering contacts
-	TagLogic     string `json:"tag_logic"`      // Tag logic (AND/OR)
-	UseTagFilter int    `json:"use_tag_filter"` // Whether to use tag filter
+	Remark    string `json:"remark"`     // Task remark
+	StartTime int    `json:"start_time"` // Scheduled start time
+	Warmup    int    `json:"warmup"`     // Warmup campaign association
+	AddType   int    `json:"add_type"`   // Add type (0: normal)
+	GroupId   int    `json:"group_id"`   // Groups to unsubscribe from
+	TagIds    []int  `json:"tag_ids"`    // Tag IDs for filtering contacts
+	TagLogic  string `json:"tag_logic"`  // Tag logic (AND/OR)
 }
 
 // ============= task related operations =============
@@ -142,18 +141,17 @@ func CreateTask(ctx context.Context, args CreateTaskArgs) (int, error) {
 		"unsubscribe":     args.Unsubscribe,
 		"threads":         args.Threads,
 		//"etypes":          args.Etypes,
-		"track_open":     args.TrackOpen,
-		"track_click":    args.TrackClick,
-		"start_time":     args.StartTime,
-		"create_time":    now,
-		"update_time":    now,
-		"active":         1,
-		"remark":         args.Remark,
-		"add_type":       args.AddType,
-		"group_id":       args.GroupId,
-		"tag_ids":        tagIdsJson,
-		"tag_logic":      args.TagLogic,
-		"use_tag_filter": args.UseTagFilter,
+		"track_open":  args.TrackOpen,
+		"track_click": args.TrackClick,
+		"start_time":  args.StartTime,
+		"create_time": now,
+		"update_time": now,
+		"active":      1,
+		"remark":      args.Remark,
+		"add_type":    args.AddType,
+		"group_id":    args.GroupId,
+		"tag_ids":     tagIdsJson,
+		"tag_logic":   args.TagLogic,
 	})
 	if err != nil {
 		g.Log().Debug(ctx, "Failed to create campaign:", err.Error())
@@ -300,10 +298,9 @@ func GetActiveContacts(ctx context.Context, groupId int) ([]*entity.Contact, err
 }
 
 type ContactFilter struct {
-	GroupId      int
-	TagIds       []int
-	TagLogic     string // "AND" or "OR"
-	UseTagFilter int
+	GroupId  int
+	TagIds   []int
+	TagLogic string // "AND" or "OR"
 }
 
 func GetFilteredContacts(ctx context.Context, filter ContactFilter) ([]*entity.Contact, error) {
@@ -318,7 +315,7 @@ func GetFilteredContacts(ctx context.Context, filter ContactFilter) ([]*entity.C
 		model = model.Where("c.group_id", filter.GroupId)
 	}
 
-	if filter.UseTagFilter == 1 && len(filter.TagIds) > 0 {
+	if len(filter.TagIds) > 0 {
 		if filter.TagLogic == "AND" {
 			// AND
 			for i, tagId := range filter.TagIds {
@@ -495,14 +492,13 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 			TrackOpen:   req.TrackOpen,
 			TrackClick:  req.TrackClick,
 			//Etypes:      etype,
-			Remark:       req.Remark,
-			StartTime:    req.StartTime,
-			Warmup:       req.Warmup,
-			AddType:      addType,
-			GroupId:      req.GroupId,
-			TagIds:       req.TagIds,
-			TagLogic:     req.TagLogic,
-			UseTagFilter: req.UseTagFilter,
+			Remark:    req.Remark,
+			StartTime: req.StartTime,
+			Warmup:    req.Warmup,
+			AddType:   addType,
+			GroupId:   req.GroupId,
+			TagIds:    req.TagIds,
+			TagLogic:  req.TagLogic,
 		})
 		if err != nil {
 			return gerror.New(public.LangCtx(ctx, "Failed to create task {}", err.Error()))
@@ -530,14 +526,13 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 		}
 
 		filter := ContactFilter{
-			GroupId:      req.GroupId,
-			TagIds:       req.TagIds,
-			TagLogic:     req.TagLogic,
-			UseTagFilter: req.UseTagFilter,
+			GroupId:  req.GroupId,
+			TagIds:   req.TagIds,
+			TagLogic: req.TagLogic,
 		}
 
 		var contacts []*entity.Contact
-		if req.UseTagFilter == 1 {
+		if len(req.TagIds) > 0 {
 
 			contacts, err = GetFilteredContacts(ctx, filter)
 			if err != nil {
@@ -555,7 +550,7 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 		}
 
 		if len(contacts) == 0 {
-			if req.UseTagFilter == 1 {
+			if len(req.TagIds) > 0 {
 				return gerror.New(public.LangCtx(ctx, "No contacts found matching the tag filter criteria"))
 			} else {
 				return gerror.New(public.LangCtx(ctx, "No contacts found in group {}", req.GroupId))

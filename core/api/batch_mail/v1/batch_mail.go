@@ -273,7 +273,6 @@ type UpdateTaskInfoReq struct {
 	StartTime     int    `json:"start_time" dc:"start time"`
 	TagIds        []int  `json:"tag_ids" dc:"tag ids for filtering contacts"`
 	TagLogic      string `json:"tag_logic" v:"in:AND,OR" dc:"tag logic (AND: must have all tags, OR: have any tag)"`
-	UseTagFilter  int    `json:"use_tag_filter" dc:"whether to use tag filter (1: yes, 0: no)" v:"in:0,1"`
 }
 type UpdateTaskInfoRes struct {
 	api_v1.StandardRes

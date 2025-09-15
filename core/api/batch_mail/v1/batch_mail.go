@@ -146,7 +146,7 @@ type CreateTaskReq struct {
 
 	TagIds       []int  `json:"tag_ids" dc:"tag ids for filtering contacts"`
 	TagLogic     string `json:"tag_logic" v:"in:AND,OR" dc:"tag logic (AND: must have all tags, OR: have any tag)" default:"AND"`
-	UseTagFilter int    `json:"use_tag_filter" dc:"whether to use tag filter (1: yes, 0: no)" v:"in:0,1" default:"0"`
+
 }
 
 type CreateTaskRes struct {

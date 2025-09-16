@@ -120,9 +120,6 @@ type ExportContactsReq struct {
 
 type ExportContactsRes struct {
 	api_v1.StandardRes
-	Data struct {
-		FileUrl string `json:"file_url" dc:"Download URL"`
-	} `json:"data"`
 }
 
 type DeleteGroupReq struct {

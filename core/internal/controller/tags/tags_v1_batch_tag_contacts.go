@@ -114,13 +114,10 @@ func (c *ControllerV1) BatchTagContacts(ctx context.Context, req *v1.BatchTagCon
 	})
 
 	successMsg := public.LangCtx(ctx, "Batch tag operation completed")
-	if req.MarkInclude == 1 {
-		successMsg = public.LangCtx(ctx, "Successfully added {} tags to contacts with {} tag assignments", len(req.TagIds), totalProcessedCount)
-	} else {
-		successMsg = public.LangCtx(ctx, "Successfully removed {} tags from contacts with {} tag removals", len(req.TagIds), totalProcessedCount)
-	}
+	//successMsg := public.LangCtx(ctx, "Successfully added {} tags to contacts with {} tag assignments", len(req.TagIds), totalProcessedCount)
 
 	if totalSkippedCount > 0 {
+		successMsg += public.LangCtx(ctx, " ( {}  skipped,  {}  errors)", totalSkippedCount, totalErrorCount)
 		successMsg += public.LangCtx(ctx, " ( {}  skipped,  {}  errors)", totalSkippedCount, totalErrorCount)
 	}
 

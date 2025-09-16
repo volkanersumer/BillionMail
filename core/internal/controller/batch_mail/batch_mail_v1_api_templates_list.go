@@ -7,7 +7,6 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	random "math/rand"
-	"time"
 )
 
 func (c *ControllerV1) ApiTemplatesList(ctx context.Context, req *v1.ApiTemplatesListReq) (res *v1.ApiTemplatesListRes, err error) {

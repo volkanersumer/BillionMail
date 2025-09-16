@@ -35,10 +35,10 @@ server:
   # Log Configuration
   logPath: "logs"
   logStdout: false
-  errorStack: true
-  errorLogEnabled: true
+  errorStack: false
+  errorLogEnabled: false
   errorLogPattern: "error-{Ymd}.log"
-  accessLogEnabled: true
+  accessLogEnabled: false
   accessLogPattern: "access-{Ymd}.log"
 
   # PProf Configuration

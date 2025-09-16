@@ -235,14 +235,28 @@ var (
 				// group.Middleware(ghttp.MiddlewareHandlerResponse)
 
 				allowActions := map[string]struct{}{
-					"/api/login":         {},
-					"/api/refresh-token": {},
-					"/api/logout":        {},
-					"/api/languages/set": {},
+					"/api/login":                 {},
+					"/api/refresh-token":         {},
+					"/api/logout":                {},
+					"/api/languages/set":         {},
+					"/api/askai/supplier/status": {},
+					"/api/askai/supplier/list":   {},
+				}
+
+				deniedActions := map[string]struct{}{
+					"/api/operation_log/output/latest": {},
 				}
 
 				// Access Control with Demo.
 				group.Middleware(func(r *ghttp.Request) {
+					if _, ok := deniedActions[r.URL.Path]; ok {
+						resp := public.CodeMap[403]
+						resp.Msg = "Action not supported"
+						r.Response.WriteJson(resp)
+						r.ExitAll()
+						return
+					}
+
 					// Only allow GET methods
 					if r.Method == "GET" {
 						r.Middleware.Next()
@@ -298,59 +312,6 @@ var (
 			}
 			s.BindHandler("/.well-known/acme-challenge/*any", func(r *ghttp.Request) {
 				ACMEChallengeProxy.ServeHTTP(r.Response.BufferWriter, r.Request)
-			})
-
-			// Proxy Rspamd GUI
-			var rspamdProxy *httputil.ReverseProxy
-			rspamdProxyMutex := sync.Mutex{}
-			s.BindHandler("/rspamd/*any", func(r *ghttp.Request) {
-				if _, err := rbac2.JWT().ParseToken(r.Session.MustGet("SignedToken", "").String()); err != nil {
-					r.Response.WriteHeader(403)
-					r.Response.Write([]byte("Access denied"))
-					return
-				}
-
-				// Ensure the Rspamd proxy created only once
-				if rspamdProxy == nil {
-					func() {
-						rspamdProxyMutex.Lock()
-						defer rspamdProxyMutex.Unlock()
-
-						if rspamdProxy == nil {
-							host := "127.0.0.1:21334"
-
-							if public.IsRunningInContainer() {
-								host = "rspamd:11334"
-							}
-
-							rspamdProxy = httputil.NewSingleHostReverseProxy(&url.URL{
-								Scheme: "http",
-								Host:   host,
-							})
-
-							rspamdProxy.Transport = &http.Transport{
-								MaxIdleConns:        10,
-								MaxIdleConnsPerHost: 2,
-								IdleConnTimeout:     15 * time.Second,
-							}
-						}
-					}()
-				}
-
-				var password string
-				err = public.OptionsMgrInstance.GetOption(ctx, "rspamd_worker_controller_password", &password)
-
-				if err == nil {
-					r.Header.Set("Password", password)
-				}
-
-				r.URL.Path = strings.Replace(r.URL.Path, "/rspamd", "", 1)
-
-				if r.URL.Path == "" {
-					r.URL.Path = "/"
-				}
-
-				rspamdProxy.ServeHTTP(r.Response.BufferWriter, r.Request)
 			})
 
 			// Email Campaign Tracker
@@ -439,9 +400,6 @@ var (
 			if httpsPort, err := public.DockerEnv("HTTPS_PORT"); err == nil && httpsPort != "" {
 				s.SetHTTPSPort(gconv.Int(httpsPort))
 			}
-
-			//s.SetHTTPSPort(82)
-			//s.SetPort(81)
 
 			s.SetSwaggerUITemplate(`<!doctype html>
 <html lang="en">

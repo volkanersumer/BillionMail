@@ -55,7 +55,7 @@ func WriteLog(ctx context.Context, params LogParams) error {
 	req := ghttp.RequestFromCtx(ctx)
 	ip := ""
 	if req != nil {
-		ip = req.GetClientIp()
+		ip = "0.0.0.0"
 	}
 	filePath := ""
 	if params.Data != nil && params.Data != "" {

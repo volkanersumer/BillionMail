@@ -1,7 +1,6 @@
 package overview
 
 import (
-	"billionmail-core/internal/service/maillog_stat"
 	"billionmail-core/internal/service/public"
 	"context"
 	"fmt"
@@ -172,6 +171,7 @@ func (c *ControllerV1) Overview(ctx context.Context, req *v1.OverviewReq) (res *
 		"sends":         totalSends,
 		"failure_rate":  public.Round(failureRate, 2),
 		"failed":        bounceCount,
+		"delay_queue":   0, // Placeholder for delay queue
 	}
 
 	res.Data.SendMailChart = map[string]interface{}{

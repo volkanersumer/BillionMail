@@ -149,9 +149,42 @@ func (e *TemplateEngine) RenderEmailTemplateWithAPI(ctx context.Context, content
 		return "", err
 	}
 
-	// Analyzing Spintax Grammar
+	// Handle spintax rendering
 	spintaxParser := GetSpintaxParser()
-	result = spintaxParser.ParseSpintax(result)
+
+	if task != nil {
+
+		executor := GetTaskExecutor(task.Id)
+		if executor != nil && executor.spintaxTemplate != nil {
+
+			hasSpintax := spintaxParser.HasSpintax(result)
+
+			if hasSpintax {
+
+				result = spintaxParser.ParseSpintax(result)
+			} else {
+
+				originalContentHash := spintaxParser.calculateHash(content)
+				if executor.spintaxTemplate.Hash == originalContentHash {
+
+					shouldUsePreTemplate := len(executor.spintaxTemplate.Parts) > 1 ||
+						(len(executor.spintaxTemplate.Parts) == 1 && executor.spintaxTemplate.Parts[0].Type == SpintaxPart)
+
+					if shouldUsePreTemplate {
+
+						result = spintaxParser.RenderTemplate(executor.spintaxTemplate)
+					}
+				} else {
+
+					result = spintaxParser.ParseSpintax(result)
+				}
+			}
+		} else {
+			result = spintaxParser.ParseSpintax(result)
+		}
+	} else {
+		result = spintaxParser.ParseSpintax(result)
+	}
 
 	return result, nil
 }

@@ -21,7 +21,7 @@ type TemplatePart struct {
 	Options []string
 }
 
-// PartType 片段类型
+// PartType
 type PartType int
 
 const (
@@ -31,8 +31,9 @@ const (
 
 // SpintaxParser Spintax parser with caching
 type SpintaxParser struct {
-	random *rand.Rand
-	cache  *TemplateCache
+	random   *rand.Rand
+	cache    *TemplateCache
+	randPool *sync.Pool
 }
 
 type TemplateCache struct {
@@ -46,6 +47,11 @@ func NewSpintaxParser() *SpintaxParser {
 	return &SpintaxParser{
 		random: rand.New(rand.NewSource(time.Now().UnixNano())),
 		cache:  NewTemplateCache(100),
+		randPool: &sync.Pool{
+			New: func() interface{} {
+				return rand.New(rand.NewSource(time.Now().UnixNano()))
+			},
+		},
 	}
 }
 
@@ -56,33 +62,81 @@ func NewTemplateCache(maxSize int) *TemplateCache {
 	}
 }
 
-// ParseSpintax Parse Spintax syntax with caching optimization
-func (p *SpintaxParser) ParseSpintax(content string) string {
+func (p *SpintaxParser) ParseTemplate(content string) *SpintaxTemplate {
+	if content == "" {
+		return &SpintaxTemplate{Parts: []TemplatePart{}}
+	}
 
 	contentHash := p.calculateHash(content)
 
 	template := p.cache.Get(contentHash)
 	if template != nil {
-		// cache hit
-		return p.renderTemplate(template)
+		return template
 	}
 
-	if !strings.Contains(content, "{") {
-		return content
+	if !strings.Contains(content, "{") || !strings.Contains(content, "|") || !p.hasValidSpintaxPattern(content) {
+
+		template = &SpintaxTemplate{
+			Parts: []TemplatePart{{
+				Type:    StaticPart,
+				Content: content,
+			}},
+			Hash: contentHash,
+		}
+	} else {
+
+		template = p.parseToTemplate(content, contentHash)
 	}
 
-	if !strings.Contains(content, "|") {
-		return content
-	}
-
-	if !p.hasValidSpintaxPattern(content) {
-		return content
-	}
-
-	template = p.parseToTemplate(content, contentHash)
 	p.cache.Set(contentHash, template)
+	return template
+}
 
-	return p.renderTemplate(template)
+func (p *SpintaxParser) RenderTemplate(template *SpintaxTemplate) string {
+	if template == nil || len(template.Parts) == 0 {
+		return ""
+	}
+
+	r := p.randPool.Get().(*rand.Rand)
+	defer p.randPool.Put(r)
+
+	var result strings.Builder
+
+	estimatedSize := 0
+	for _, part := range template.Parts {
+		if part.Type == StaticPart {
+			estimatedSize += len(part.Content)
+		} else {
+			avgLen := 0
+			for _, option := range part.Options {
+				avgLen += len(option)
+			}
+			if len(part.Options) > 0 {
+				estimatedSize += avgLen / len(part.Options)
+			}
+		}
+	}
+	result.Grow(estimatedSize + 64)
+
+	for _, part := range template.Parts {
+		switch part.Type {
+		case StaticPart:
+			result.WriteString(part.Content)
+		case SpintaxPart:
+			if len(part.Options) > 0 {
+				selectedIndex := r.Intn(len(part.Options))
+				result.WriteString(part.Options[selectedIndex])
+			}
+		}
+	}
+
+	return result.String()
+}
+
+// ParseSpintax Parse Spintax syntax with caching optimization (保持向后兼容)
+func (p *SpintaxParser) ParseSpintax(content string) string {
+	template := p.ParseTemplate(content)
+	return p.RenderTemplate(template)
 }
 
 func (p *SpintaxParser) calculateHash(content string) string {
@@ -203,41 +257,6 @@ func (p *SpintaxParser) parseSpintaxAtPosition(content string, pos int) *Spintax
 		Options: validOptions,
 		Length:  i,
 	}
-}
-
-func (p *SpintaxParser) renderTemplate(template *SpintaxTemplate) string {
-	var result strings.Builder
-
-	estimatedSize := 0
-	for _, part := range template.Parts {
-		if part.Type == StaticPart {
-			estimatedSize += len(part.Content)
-		} else {
-
-			avgLen := 0
-			for _, option := range part.Options {
-				avgLen += len(option)
-			}
-			if len(part.Options) > 0 {
-				estimatedSize += avgLen / len(part.Options)
-			}
-		}
-	}
-	result.Grow(estimatedSize + 64)
-
-	for _, part := range template.Parts {
-		switch part.Type {
-		case StaticPart:
-			result.WriteString(part.Content)
-		case SpintaxPart:
-			if len(part.Options) > 0 {
-				selectedIndex := p.random.Intn(len(part.Options))
-				result.WriteString(part.Options[selectedIndex])
-			}
-		}
-	}
-
-	return result.String()
 }
 
 func (c *TemplateCache) Get(hash string) *SpintaxTemplate {

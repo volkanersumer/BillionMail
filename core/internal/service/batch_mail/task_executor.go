@@ -148,6 +148,8 @@ type TaskExecutor struct {
 	taskConfig   *entity.EmailTask
 	configLoaded time.Time
 
+	spintaxTemplate *SpintaxTemplate
+
 	// rate controller
 	rateController *SimpleRateController
 
@@ -1045,6 +1047,13 @@ func (e *TaskExecutor) processEmailContent(ctx context.Context, content string, 
 
 		content = strings.ReplaceAll(content, "__UNSUBSCRIBE_URL__", "{{ UnsubscribeURL . }}")
 	}
+
+	// Preparse the spintax template
+	if e.spintaxTemplate == nil {
+		spintaxParser := GetSpintaxParser()
+		e.spintaxTemplate = spintaxParser.ParseTemplate(content)
+	}
+
 	return content
 }
 

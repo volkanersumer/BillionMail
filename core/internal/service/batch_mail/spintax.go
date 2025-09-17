@@ -161,15 +161,6 @@ type SpintaxResult struct {
 	Length  int
 }
 
-func (p *SpintaxParser) findNextBrace(content string, start int) int {
-	for i := start; i < len(content); i++ {
-		if content[i] == '{' {
-			return i
-		}
-	}
-	return len(content)
-}
-
 func (p *SpintaxParser) parseSpintaxAtPosition(content string, pos int) *SpintaxResult {
 	remaining := content[pos:]
 	braceCount := 1
@@ -454,49 +445,6 @@ func (p *SpintaxParser) GetCacheStats() map[string]interface{} {
 		"max_cache_size": p.cache.maxSize,
 		"cache_usage":    float64(len(p.cache.templates)) / float64(p.cache.maxSize) * 100,
 	}
-}
-
-// parseSpintaxAtPositionOptimized
-func (p *SpintaxParser) parseSpintaxAtPositionOptimized(content string, pos int, result *strings.Builder, randGen *rand.Rand) int {
-	spintaxResult := p.parseSpintaxAtPosition(content, pos)
-	if spintaxResult == nil {
-		return 0
-	}
-
-	selectedIndex := randGen.Intn(len(spintaxResult.Options))
-	result.WriteString(spintaxResult.Options[selectedIndex])
-
-	return spintaxResult.Length
-}
-
-// getSkipLengthOptimized
-func (p *SpintaxParser) getSkipLengthOptimized(content string, pos int) int {
-	if pos >= len(content) || content[pos] != '<' {
-		return 0
-	}
-
-	remaining := content[pos:]
-
-	// <style>
-	if len(remaining) >= 6 && strings.HasPrefix(strings.ToLower(remaining), "<style") {
-		if styleEnd := strings.Index(remaining, "</style>"); styleEnd >= 0 {
-			return styleEnd + 8 // 包含 </style>
-		}
-	}
-
-	// <script>
-	if len(remaining) >= 7 && strings.HasPrefix(strings.ToLower(remaining), "<script") {
-		if scriptEnd := strings.Index(remaining, "</script>"); scriptEnd >= 0 {
-			return scriptEnd + 9 // 包含 </script>
-		}
-	}
-
-	// HTML
-	if closePos := strings.Index(remaining, ">"); closePos >= 0 {
-		return closePos + 1
-	}
-
-	return 0
 }
 
 // parseSpintaxAtPositionWithBuilder

@@ -522,7 +522,7 @@ func updatePostfixMasterCf(ctx context.Context, configs []*entity.BmRelayConfig)
 		blockEnd := endIndex + len(endMarker)
 		if blockEnd < len(masterContent) && (masterContent[blockEnd] == '\n' || masterContent[blockEnd] == '\r') {
 			blockEnd++
-			// 处理 \r\n
+
 			if blockEnd < len(masterContent) && masterContent[blockEnd] == '\n' {
 				blockEnd++
 			}
@@ -557,11 +557,17 @@ func generateRelayPwdFiles(ctx context.Context, configs []*entity.BmRelayConfig)
 	var saslPasswdContent strings.Builder
 
 	if len(configs) == 0 {
-
 		saslPasswdContent.WriteString("# No active relay configurations\n")
-
 	} else {
+		hasAuthConfigs := false
 		for _, config := range configs {
+			// Only generate SASL entries for configurations that require authentication
+			if config.AuthUser == "" {
+				g.Log().Debugf(ctx, "Skipping SASL entry for relay ID %d (no authentication required): [%s]:%s",
+					config.Id, config.RelayHost, config.RelayPort)
+				continue
+			}
+
 			// Decrypt password
 			decryptedPass, err := DecryptPassword(ctx, config.AuthPassword)
 			if err != nil {
@@ -571,7 +577,11 @@ func generateRelayPwdFiles(ctx context.Context, configs []*entity.BmRelayConfig)
 
 			saslPasswdContent.WriteString(fmt.Sprintf("[%s]:%s %s:%s\n",
 				config.RelayHost, config.RelayPort, config.AuthUser, decryptedPass))
+			hasAuthConfigs = true
+		}
 
+		if !hasAuthConfigs {
+			saslPasswdContent.WriteString("# No relay configurations require authentication\n")
 		}
 	}
 

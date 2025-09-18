@@ -35,18 +35,36 @@ func (c *ControllerV1) CreateRelayConfig(ctx context.Context, req *v1.CreateRela
 		}
 	}
 
-	encryptedPass, err := relay.EncryptPassword(ctx, req.AuthPassword)
-	if err != nil {
-		res.SetError(err)
-		return res, nil
+	// Handle password encryption only if authentication is required
+	var encryptedPass string
+
+	if req.AuthUser != "" || req.AuthPassword != "" {
+		// If either username or password is provided, both are required
+		if req.AuthUser == "" || req.AuthPassword == "" {
+			res.SetError(gerror.New(public.LangCtx(ctx, "Both auth_user and auth_password must be provided when using authentication")))
+			return res, nil
+		}
+
+		encryptedPass, err = relay.EncryptPassword(ctx, req.AuthPassword)
+		if err != nil {
+			res.SetError(err)
+			return res, nil
+		}
+
+		// Set default auth method if not specified for authenticated relays
+		if req.AuthMethod == "" {
+			req.AuthMethod = "LOGIN"
+		}
+	} else {
+		// No authentication required
+		encryptedPass = ""
+		if req.AuthMethod == "" {
+			req.AuthMethod = "NONE"
+		}
 	}
 
 	now := time.Now()
 	unixTime := int(now.Unix())
-
-	if req.AuthMethod == "" {
-		req.AuthMethod = "NONE"
-	}
 
 	configData := g.Map{
 		"remark":          req.Remark,

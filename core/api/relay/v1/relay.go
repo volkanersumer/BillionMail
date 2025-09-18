@@ -76,8 +76,8 @@ type CreateRelayConfigReq struct {
 	SenderDomains []string  `json:"sender_domains" v:"required" dc:"Array of sender domains"`
 	RelayHost     string    `json:"relay_host" v:"required|max-length:255" dc:"Relay server address"`
 	RelayPort     string    `json:"relay_port" v:"required|max-length:10" dc:"Relay server port, e.g., 587"`
-	AuthUser      string    `json:"auth_user" v:"required|max-length:255" dc:"SMTP authentication username"`
-	AuthPassword  string    `json:"auth_password" v:"required|max-length:255" dc:"SMTP authentication password"`
+	AuthUser      string    `json:"auth_user" v:"max-length:255" dc:"SMTP authentication username (optional for no-auth relays)"`
+	AuthPassword  string    `json:"auth_password" v:"max-length:255" dc:"SMTP authentication password (optional for no-auth relays)"`
 	IP            string    `json:"ip" v:"max-length:255" dc:"IP for reminding users to update SPF record, e.g., +ip4:23.158.104.237"`
 	Host          string    `json:"host" v:"max-length:255" dc:"Host for reminding users to update SPF record, e.g., include:lootk.cn"`
 	Active        int       `json:"active" d:"1" v:"in:0,1" dc:"Whether enabled: 1-enabled, 0-disabled (default is 1)"`
@@ -118,7 +118,7 @@ type UpdateRelayConfigReq struct {
 	Remark        string `json:"remark,omitempty" v:"max-length:255" dc:"Remark, e.g., AWS SES Japan Region"`
 	RelayHost     string `json:"relay_host,omitempty" v:"max-length:255" dc:"Relay server address"`
 	RelayPort     string `json:"relay_port,omitempty" v:"max-length:10" dc:"Relay server port, e.g., 587"`
-	AuthUser      string `json:"auth_user,omitempty" v:"max-length:255" dc:"SMTP authentication username"`
+	AuthUser      string `json:"auth_user,omitempty" v:"max-length:255" dc:"SMTP authentication username (optional for no-auth relays)"`
 	AuthPassword  string `json:"auth_password,omitempty" v:"max-length:255" dc:"SMTP authentication password (no update if not provided)"`
 	IP            string `json:"ip,omitempty" v:"max-length:255" dc:"IP for reminding users to update SPF record, e.g., +ip4:23.158.104.237"`
 	Host          string `json:"host,omitempty" v:"max-length:255" dc:"Host for reminding users to update SPF record, e.g., include:lootk.cn"`
@@ -171,8 +171,8 @@ type TestSmtpConnectionReq struct {
 	Authorization string `json:"authorization" in:"header" dc:"Authorization" v:"required"`
 	RelayHost     string `json:"relay_host" v:"required|max-length:255" dc:"Relay server address"`
 	RelayPort     string `json:"relay_port" v:"required|max-length:10" dc:"Relay server port, e.g., 587"`
-	AuthUser      string `json:"auth_user" v:"max-length:255" dc:"SMTP authentication username"`
-	AuthPassword  string `json:"auth_password" v:"max-length:255" dc:"SMTP authentication password"`
+	AuthUser      string `json:"auth_user" v:"max-length:255" dc:"SMTP authentication username (optional for no-auth relays)"`
+	AuthPassword  string `json:"auth_password" v:"max-length:255" dc:"SMTP authentication password (optional for no-auth relays)"`
 }
 
 // TestSmtpConnectionRes Test SMTP connection response

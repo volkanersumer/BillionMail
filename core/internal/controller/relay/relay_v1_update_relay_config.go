@@ -44,18 +44,47 @@ func (c *ControllerV1) UpdateRelayConfig(ctx context.Context, req *v1.UpdateRela
 	if req.RelayPort != "" {
 		updateData["relay_port"] = req.RelayPort
 	}
+
+	// Handle authentication updates - support clearing auth info
+	authUserProvided := false
+	authPasswordProvided := false
+
+	// Check if AuthUser is explicitly provided (even if empty)
 	if req.AuthUser != "" {
 		updateData["auth_user"] = req.AuthUser
+		authUserProvided = true
+	} else {
+		// If AuthUser is explicitly set to empty string, clear authentication
+		updateData["auth_user"] = ""
+		updateData["auth_password"] = ""
+		authUserProvided = true
 	}
-	if req.AuthPassword != "" {
 
+	if req.AuthPassword != "" {
 		encryptedPwd, err := relay.EncryptPassword(ctx, req.AuthPassword)
 		if err != nil {
 			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to encrypt password: {}", err.Error())))
 			return res, nil
 		}
 		updateData["auth_password"] = encryptedPwd
+		authPasswordProvided = true
 	}
+
+	// Update AuthMethod based on authentication status
+	if req.AuthMethod != "" {
+		updateData["auth_method"] = req.AuthMethod
+	} else if authUserProvided {
+		// Auto-set AuthMethod based on whether authentication is being used
+		if updateData["auth_user"].(string) == "" {
+			updateData["auth_method"] = "NONE"
+		} else if !authPasswordProvided {
+			// If user is provided but password is not updated, keep existing auth method or default to LOGIN
+			if req.AuthMethod == "" {
+				updateData["auth_method"] = "LOGIN"
+			}
+		}
+	}
+
 	if req.IP != "" {
 		updateData["ip"] = req.IP
 	}

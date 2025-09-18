@@ -282,7 +282,8 @@
 				"auto": "自動"
 			},
 			"edit": {
-				"addTitle": "タスク追加",
+				"addTitle": "タスクを追加",
+				"editTitle": "タスクを編集",
 				"from": "送信元",
 				"to": "宛先",
 				"displayName": "表示名",
@@ -307,6 +308,8 @@
 				"testEmailPlaceholder": "テストメールを入力してください",
 				"sendTest": "テストメール送信",
 				"viewCase": "ケースを見る",
+				"tags": "タグ",
+				"tagLogic": "タグロジック",
 				"preview": {
 					"empty": "プレビューするメールテンプレートを選択してください"
 				},

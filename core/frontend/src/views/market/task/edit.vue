@@ -5,9 +5,9 @@
 				<n-breadcrumb-item>
 					<router-link to="/market/task">{{ $t('market.task.title') }}</router-link>
 				</n-breadcrumb-item>
-				<n-breadcrumb-item>{{
-					isEdit ? '编辑任务' : $t('market.task.edit.addTitle')
-				}}</n-breadcrumb-item>
+				<n-breadcrumb-item>
+					{{ isEdit ? $t('market.task.edit.editTitle') : $t('market.task.edit.addTitle') }}
+				</n-breadcrumb-item>
 			</n-breadcrumb>
 			<div class="task-edit-box" :style="{ minHeight: height + 'px' }">
 				<bt-form ref="formRef" class="task-edit-form" :model="form" :rules="rules">
@@ -50,7 +50,7 @@
 								</div>
 							</n-form-item>
 							<n-grid :cols="24" :x-gap="24">
-								<n-form-item-gi :span="6" label="标签关系">
+								<n-form-item-gi :span="6" :label="$t('market.task.edit.tagLogic')" path="tag_logic">
 									<n-select
 										v-model:value="form.tag_logic"
 										:options="logicOptions"
@@ -58,7 +58,7 @@
 										@update:value="() => getRecipientCount()">
 									</n-select>
 								</n-form-item-gi>
-								<n-form-item-gi :span="18" label="标签">
+								<n-form-item-gi :span="18" :label="$t('market.task.edit.tags')" path="tag_ids">
 									<tag-select
 										v-model:value="form.tag_ids"
 										:group-id="form.group_id"

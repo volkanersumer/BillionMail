@@ -297,6 +297,7 @@
 			},
 			"edit": {
 				"addTitle": "添加任务",
+				"editTitle": "编辑任务",
 				"from": "发件人",
 				"to": "收件人",
 				"displayName": "显示名称",
@@ -323,6 +324,8 @@
 				"testEmailPlaceholder": "请输入测试邮箱",
 				"sendTest": "发送测试邮件",
 				"viewCase": "查看案例",
+				"tags": "标签",
+				"tagLogic": "标签关系",
 				"preview": {
 					"empty": "请选择邮件模板查看预览"
 				},

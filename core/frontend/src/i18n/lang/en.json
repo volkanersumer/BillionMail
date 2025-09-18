@@ -295,6 +295,7 @@
 			},
 			"edit": {
 				"addTitle": "Add Task",
+				"editTitle": "Edit Task",
 				"from": "From",
 				"to": "To",
 				"displayName": "Display Name",
@@ -321,6 +322,8 @@
 				"testEmailPlaceholder": "Please enter test email",
 				"sendTest": "Send test mail",
 				"viewCase": "View case",
+				"tags": "Tags",
+				"tagLogic": "Tag Logic",
 				"preview": {
 					"empty": "Please select an email template to preview"
 				},

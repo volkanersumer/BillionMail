@@ -72,9 +72,10 @@ func GetTasksWithPage(ctx context.Context, page, pageSize int, keyword string, s
 		return 0, nil, err
 	}
 
-	// pagination query
+	// pagination query - include tag_ids field and map it to TagIdsRaw
 	list = make([]*v1.EmailTask, 0)
 	err = model.Page(page, pageSize).
+		Fields("*, tag_ids as TagIdsRaw").
 		Order("create_time DESC").
 		Scan(&list)
 
@@ -793,4 +794,67 @@ func getSingleTaskStats(ctx context.Context, taskId int64) map[string]interface{
 	}
 
 	return stats
+}
+
+// GetTagsByIds get tags by IDs
+func GetTagsByIds(ctx context.Context, tagIds []int) ([]v1.TagInfo, error) {
+	if len(tagIds) == 0 {
+		return []v1.TagInfo{}, nil
+	}
+
+	var tags []v1.TagInfo
+	err := g.DB().Model("bm_tags").
+		WhereIn("id", tagIds).
+		Fields("id, name, create_time").
+		Scan(&tags)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tags, nil
+}
+
+// GetTaskTagIds get tag IDs from task tag_ids field (JSON array)
+func GetTaskTagIds(tagIdsStr string) []int {
+	if tagIdsStr == "" {
+		return []int{}
+	}
+
+	var tagIds []int
+	if err := gconv.Scan(tagIdsStr, &tagIds); err != nil {
+		g.Log().Warningf(context.Background(), "Failed to parse tag_ids: %s, error: %v", tagIdsStr, err)
+		return []int{}
+	}
+
+	return tagIds
+}
+
+// GetGroupsByIds get groups by IDs
+func GetGroupsByIds(ctx context.Context, groupIds []int) (map[int]string, error) {
+	if len(groupIds) == 0 {
+		return make(map[int]string), nil
+	}
+
+	var groups []struct {
+		Id   int    `json:"id"`
+		Name string `json:"name"`
+	}
+
+	err := g.DB().Model("bm_contact_groups").
+		WhereIn("id", groupIds).
+		Fields("id, name").
+		Scan(&groups)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to map for quick lookup
+	groupMap := make(map[int]string)
+	for _, group := range groups {
+		groupMap[group.Id] = group.Name
+	}
+
+	return groupMap, nil
 }

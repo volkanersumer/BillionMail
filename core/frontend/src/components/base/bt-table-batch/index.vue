@@ -10,7 +10,7 @@
 		<n-button
 			v-for="item in options"
 			:key="item.value"
-			:disabled="btnDisabled"
+			:disabled="btnDisabled || item.disabled"
 			@click="onClick(item.value as string)">
 			{{ item.label }}
 		</n-button>

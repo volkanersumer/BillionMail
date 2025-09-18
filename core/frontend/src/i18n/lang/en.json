@@ -348,6 +348,7 @@
 			},
 			"loading": {
 				"creating": "Creating task, please wait...",
+				"updating": "Updating task, please wait...",
 				"deleting": "Deleting task, please wait...",
 				"pausing": "Pausing task, please wait...",
 				"resuming": "Resuming task, please wait...",
@@ -457,32 +458,59 @@
 	"contacts": {
 		"subscribers": {
 			"joinGroup": "Join Group",
+			"tags": "Tags",
 			"selectGroupHint": "Please select a group on the right",
 			"trends": {
 				"title": "Subscription Trends",
 				"subscriber": "Subscriber"
 			},
 			"search": {
-				"emailPlaceholder": "Enter an email address to search"
+				"emailPlaceholder": "Enter email address to search"
 			},
 			"columns": {
 				"email": "Email",
 				"name": "Group Name",
-				"createdAt": "Creation Time"
+				"createdAt": "Created Time",
+				"lastActiveAt": "Last Active Time"
 			},
 			"status": {
 				"subscribed": "Subscribed",
-				"unsubscribed": "Unsubscribed"
+				"unsubscribed": "Unsubscribed",
+				"unconfirmed": "Unconfirmed"
+			},
+			"labels": {
+				"status": "Status: ",
+				"tags": "Tags: ",
+				"active": "Active: "
+			},
+			"activeSelect": {
+				"options": {
+					"all": "All",
+					"yes": "Yes",
+					"no": "No"
+				},
+				"timeOptions": {
+					"past7Days": "Past 7 days",
+					"pastMonth": "Past month",
+					"past90Days": "Past 90 days",
+					"pastHalfYear": "Past 6 months",
+					"pastYear": "Past year"
+				}
 			},
 			"actions": {
-				"changeGroup": "Change Group"
+				"changeGroup": "Change Group",
+				"setTag": "Set Tag"
 			},
 			"delete": {
 				"title": "Delete Subscriber",
-				"confirm": "Are you sure you want to delete the subscriber {email}?"
+				"confirm": "Are you sure you want to delete subscriber {email}?"
+			},
+			"batchDelete": {
+				"title": "Batch Delete",
+				"confirm": "Are you sure you want to delete the selected subscribers?"
 			},
 			"select": {
-				"prefix": "Group: "
+				"prefix": "Group:"
 			},
 			"edit": {
 				"title": "Change Group",
@@ -506,12 +534,12 @@
 				"pasteData": "Paste Data",
 				"uploadFile": "Upload File",
 				"pastePlaceholder": [
-					"Please paste data, one email, attributes(can be empty) per line",
-					"e.g., example1@example.com",
+					"Please paste data, one email per line, attributes (optional)",
+					"Example: example1@example.com",
 					"example1@example.com,\"{\"\"age\"\": \"\"13\"\", \"\"Gender\"\": \"\"XXX\"\"}\""
 				],
-				"fileTypeHint": "File type: csv, not exceeding 5 MB",
-				"overwriteLabel": "Overwrite Existing Users",
+				"fileTypeHint": "File type: csv, no more than 5 MB",
+				"overwriteLabel": "Overwrite existing users",
 				"overwriteDescription": "Whether to overwrite existing customer information in the list according to imported data during import",
 				"subscriptionStatus": "Subscription Status",
 				"status": "Status",
@@ -534,10 +562,25 @@
 					"fileRequired": "Please upload file"
 				}
 			},
+			"batchSetTag": {
+				"title": "Batch Set Tag",
+				"labels": {
+					"tag": "Tag",
+					"action": "Action"
+				},
+				"actions": {
+					"add": "Add",
+					"remove": "Remove"
+				}
+			},
+			"tagSelect": {
+				"manageTags": "Manage Tags"
+			},
 			"loading": {
 				"importSubscribers": "Importing contacts, please wait...",
 				"updateSubscriberGroup": "Updating group, please wait...",
-				"deleteSubscriber": "Deleting contacts, please wait..."
+				"deleteSubscriber": "Deleting contacts, please wait...",
+				"batchSetTag": "Processing, please wait..."
 			}
 		},
 		"group": {
@@ -575,7 +618,7 @@
 				"confirm": "Are you sure to delete group {name}?"
 			},
 			"fileUpload": {
-				"hint": "File type: csv, not exceeding 5 MB",
+				"hint": "File type: csv, not exceeding 10 MB",
 				"emptyHint": "An empty group will be created when no file is uploaded"
 			},
 			"loading": {
@@ -590,7 +633,8 @@
 			"title": "Settings",
 			"tabs": {
 				"subscribeForm": "Subscribe Form",
-				"subscribeSettings": "Subscribe Settings"
+				"subscribeSettings": "Subscribe Settings",
+				"unsubscribeSettings": "Unsubscribe Settings"
 			},
 			"subscribeForm": {
 				"separateSubscriptionPage": {
@@ -632,6 +676,12 @@
 				"alreadySubscribed": {
 					"redirectLink": "Already Subscribed Redirect Link"
 				}
+			},
+			"unsubscribeSettings": {
+				"subject": "Unsubscribe Subject",
+				"redirectLink": "Unsubscribe Redirect Link",
+				"emailPage": "Unsubscribe Email Page",
+				"enabledDescription": "When enabled, an unsubscribe email will be sent to users when they unsubscribe or API unsubscribe. Manually added users will not trigger this feature."
 			}
 		},
 		"suspend": {
@@ -689,6 +739,56 @@
 					"clearing": "Clearing, please wait...",
 					"setting": "Setting, please wait..."
 				}
+			}
+		},
+		"tags": {
+			"title": "Tag Management",
+			"addTag": "Add Tag",
+			"bulkTag": "Bulk Tag",
+			"searchPlaceholder": "Search tags",
+			"columns": {
+				"name": "Tag Name",
+				"groupName": "Group Name",
+				"createTime": "Created Time",
+				"actions": "Actions"
+			},
+			"delete": {
+				"title": "Delete Tag",
+				"confirm": "Are you sure you want to delete this tag 【{name}】?"
+			},
+			"bulk": {
+				"title": "Bulk tag contact",
+				"form": {
+					"group": "Group",
+					"tags": "Tags",
+					"emails": "Emails",
+					"action": "Action",
+					"emailsPlaceholder": "Please paste emails, one per line"
+				},
+				"actions": {
+					"tagThese": "Tag these emails",
+					"tagExcept": "Tag everyone except these emails"
+				}
+			},
+			"form": {
+				"title": {
+					"create": "Create Tag",
+					"edit": "Edit Tag"
+				},
+				"fields": {
+					"name": "Tag Name",
+					"group": "Group"
+				},
+				"validation": {
+					"nameRequired": "Please enter tag name",
+					"groupRequired": "Please select group"
+				}
+			},
+			"loading": {
+				"creating": "Creating tag, please wait...",
+				"deleting": "Deleting tag, please wait...",
+				"updating": "Updating tag, please wait...",
+				"bulkSetting": "Bulk setting, please wait..."
 			}
 		}
 	},

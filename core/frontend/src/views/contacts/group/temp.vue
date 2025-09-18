@@ -51,13 +51,12 @@
 import { DataTableColumns, NButton, NFlex } from 'naive-ui'
 import { useModal } from '@/hooks/modal/useModal'
 import { useTableData } from '@/hooks/useTableData'
-import { confirm, formatTime, isObject } from '@/utils'
+import { confirm, formatTime } from '@/utils'
 import { getGroupList, deleteGroup, exportGroup } from '@/api/modules/contacts/group'
 import type { Group, GroupParams } from './types/base.ts'
 
 import GroupAdd from './components/GroupAdd.vue'
 import GroupRename from './components/GroupRename.vue'
-import { downloadFile } from '@/api/modules/public'
 
 const { t } = useI18n()
 
@@ -207,15 +206,12 @@ const handleExport = () => {
 		title: t('contacts.group.export.title'),
 		content: t('contacts.group.export.confirm', { count: checkedKeys.value.length }),
 		onConfirm: async () => {
-			const res = await exportGroup({
+			await exportGroup({
 				format: 'csv',
 				include_unsubscribe: true,
 				group_ids: checkedKeys.value,
 				export_type: 1,
 			})
-			if (isObject<{ file_url: string }>(res)) {
-				downloadFile({ file_path: res.file_url })
-			}
 		},
 	})
 }

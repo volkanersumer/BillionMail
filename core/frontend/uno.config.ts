@@ -1,11 +1,11 @@
+import { globSync } from 'glob'
 import { defineConfig } from 'unocss'
+import path from 'path'
 import presetUno from '@unocss/preset-uno'
 import presetIcons from '@unocss/preset-icons'
 import presetAttributify from '@unocss/preset-attributify'
 import transformerDirectives from '@unocss/transformer-directives'
 import { FileSystemIconLoader } from '@iconify/utils/lib/loader/node-loaders'
-import path from 'node:path'
-import { globSync } from 'glob'
 
 function getIcons() {
 	const icons = {}

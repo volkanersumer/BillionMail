@@ -22,4 +22,9 @@ export interface GroupInfo {
 	active_count: number
 	unsubscribe_count: number
 	subscribe_link: string
+	unsubscribe_subject: string
+	unsubscribe_redirect_url: string
+	unsubscribe_mail_html: string
+	unsubscribe_mail_drag: string
+	send_unsubscribe_email: number
 }

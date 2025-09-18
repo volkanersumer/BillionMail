@@ -10,7 +10,11 @@
 				</n-form-item>
 				<n-form-item :label="t('contacts.group.form.file')" path="file_data">
 					<div class="flex-1">
-						<bt-file-upload :is-upload="false" :accept="['csv']" @change="handleChangeFile">
+						<bt-file-upload
+							:is-upload="false"
+							:max-size="10"
+							:accept="['csv']"
+							@change="handleChangeFile">
 						</bt-file-upload>
 						<div class="mt-8px text-desc">
 							<span class="mr-4px">{{ t('contacts.group.fileUpload.hint') }}</span>

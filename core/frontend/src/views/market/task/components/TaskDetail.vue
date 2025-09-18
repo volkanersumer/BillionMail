@@ -16,8 +16,14 @@
 				{{ row.subject }}
 			</n-descriptions-item>
 			<n-descriptions-item :label="$t('market.task.detail.groups')">
+				{{ row.group_name }}
+			</n-descriptions-item>
+			<n-descriptions-item label="标签关系">
+				{{ row.tag_logic }}
+			</n-descriptions-item>
+			<n-descriptions-item label="标签">
 				<n-flex>
-					<n-tag v-for="item of row.groups" :key="item.id" size="small">{{ item.name }}</n-tag>
+					<n-tag v-for="item of row.tags" :key="item.id" size="small">{{ item.name }}</n-tag>
 				</n-flex>
 			</n-descriptions-item>
 			<n-descriptions-item :label="$t('market.task.detail.sendTime')">

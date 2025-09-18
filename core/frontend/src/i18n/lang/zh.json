@@ -350,6 +350,7 @@
 			},
 			"loading": {
 				"creating": "正在创建任务，请稍候...",
+				"updating": "正在编辑任务中，请稍候...",
 				"deleting": "正在删除任务，请稍候...",
 				"pausing": "正在暂停任务，请稍候...",
 				"resuming": "正在恢复任务，请稍候...",
@@ -461,6 +462,7 @@
 	"contacts": {
 		"subscribers": {
 			"joinGroup": "加入分组",
+			"tags": "标签",
 			"selectGroupHint": "请在右侧选择一个分组",
 			"trends": {
 				"title": "订阅趋势",
@@ -472,18 +474,44 @@
 			"columns": {
 				"email": "邮箱",
 				"name": "分组名称",
-				"createdAt": "创建时间"
+				"createdAt": "创建时间",
+				"lastActiveAt": "上次活动时间"
+			},
+			"activeSelect": {
+				"options": {
+					"all": "所有",
+					"yes": "是",
+					"no": "否"
+				},
+				"timeOptions": {
+					"past7Days": "过去7天",
+					"pastMonth": "过去1个月",
+					"past90Days": "过去90天",
+					"pastHalfYear": "过去6个月",
+					"pastYear": "过去1年"
+				}
 			},
 			"status": {
 				"subscribed": "订阅",
-				"unsubscribed": "取消订阅"
+				"unsubscribed": "取消订阅",
+				"unconfirmed": "未确认"
+			},
+			"labels": {
+				"status": "状态：",
+				"tags": "标签：",
+				"active": "活跃："
 			},
 			"actions": {
-				"changeGroup": "更改分组"
+				"changeGroup": "更改分组",
+				"setTag": "设置标签"
 			},
 			"delete": {
 				"title": "删除订阅者",
 				"confirm": "确定要删除订阅者 {email} 吗？"
+			},
+			"batchDelete": {
+				"title": "批量删除",
+				"confirm": "确定要删除选中的订阅者吗？"
 			},
 			"select": {
 				"prefix": "分组："
@@ -517,26 +545,27 @@
 				"fileTypeHint": "文件类型：csv，不超过5 MB",
 				"overwriteLabel": "覆盖现有用户",
 				"overwriteDescription": "在导入时是否按照导入数据来覆盖列表中存在的客户信息",
-				"subscriptionStatus": "订阅状态",
-				"status": "状态",
-				"exampleCsvLabel": "CSV示例",
-				"overwriteOptions": {
-					"no": "否",
-					"yes": "是"
+				"subscriptionStatus": "订阅状态"
+			},
+			"batchSetTag": {
+				"title": "批量设置标签",
+				"labels": {
+					"tag": "标签",
+					"action": "操作"
 				},
-				"subscriptionOptions": {
-					"subscribe": "订阅",
-					"unsubscribe": "取消订阅"
-				},
-				"statusOptions": {
-					"confirmed": "已确认",
-					"unconfirmed": "未确认"
-				},
-				"validation": {
-					"groupRequired": "请选择分组",
-					"dataRequired": "请粘贴数据，每行一个邮箱",
-					"fileRequired": "请上传文件"
+				"actions": {
+					"add": "添加",
+					"remove": "移除"
 				}
+			},
+			"tagSelect": {
+				"manageTags": "管理标签"
+			},
+			"loading": {
+				"importSubscribers": "正在导入联系人，请稍候...",
+				"updateSubscriberGroup": "正在更新分组，请稍候...",
+				"deleteSubscriber": "正在删除联系人，请稍候...",
+				"batchSetTag": "正在处理中，请稍候..."
 			}
 		},
 		"group": {
@@ -574,7 +603,7 @@
 				"confirm": "确定要删除分组 {name} 吗？"
 			},
 			"fileUpload": {
-				"hint": "文件类型：csv，不超过5 MB",
+				"hint": "文件类型：csv，不超过10MB",
 				"emptyHint": "文件传空时，会自动创建一个空分组"
 			},
 			"loading": {
@@ -589,7 +618,8 @@
 			"title": "设置",
 			"tabs": {
 				"subscribeForm": "订阅表单",
-				"subscribeSettings": "订阅设置"
+				"subscribeSettings": "订阅设置",
+				"unsubscribeSettings": "取消订阅设置"
 			},
 			"subscribeForm": {
 				"separateSubscriptionPage": {
@@ -631,6 +661,12 @@
 				"alreadySubscribed": {
 					"redirectLink": "订阅已存在的跳转链接"
 				}
+			},
+			"unsubscribeSettings": {
+				"subject": "退订主题",
+				"redirectLink": "退订的跳转链接",
+				"emailPage": "退订邮件页面",
+				"enabledDescription": "启用后，当用户取消订阅或API取消订阅时，将向用户发送退订邮件。手动添加的用户不会触发此功能。"
 			}
 		},
 		"suspend": {
@@ -688,6 +724,56 @@
 					"clearing": "正在清理，请稍候...",
 					"setting": "正在设置，请稍候..."
 				}
+			}
+		},
+		"tags": {
+			"title": "标签管理",
+			"addTag": "添加标签",
+			"bulkTag": "批量标签",
+			"searchPlaceholder": "搜索标签",
+			"columns": {
+				"name": "标签名称",
+				"groupName": "分组名称",
+				"createTime": "创建时间",
+				"actions": "操作"
+			},
+			"delete": {
+				"title": "删除标签",
+				"confirm": "确定要删除此标签【{name}】吗？"
+			},
+			"bulk": {
+				"title": "批量标记联系人",
+				"form": {
+					"group": "分组",
+					"tags": "标签",
+					"emails": "邮箱",
+					"action": "操作",
+					"emailsPlaceholder": "请粘贴邮箱，一行一个"
+				},
+				"actions": {
+					"tagThese": "标记这些邮箱",
+					"tagExcept": "标记除这些邮箱外的所有人"
+				}
+			},
+			"form": {
+				"title": {
+					"create": "创建标签",
+					"edit": "编辑标签"
+				},
+				"fields": {
+					"name": "标签名称",
+					"group": "分组"
+				},
+				"validation": {
+					"nameRequired": "请输入标签名称",
+					"groupRequired": "请选择分组"
+				}
+			},
+			"loading": {
+				"creating": "正在创建标签中，请稍候...",
+				"deleting": "正在删除标签中，请稍候...",
+				"updating": "正在编辑标签中，请稍候...",
+				"bulkSetting": "正在批量设置中，请稍候..."
 			}
 		}
 	},

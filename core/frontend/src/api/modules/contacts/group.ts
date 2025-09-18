@@ -1,5 +1,5 @@
-import i18n from '@/i18n'
 import { instance } from '@/api'
+import { i18n } from '@/i18n'
 import { GroupParams } from '@/views/contacts/group/types/base'
 
 const { t } = i18n.global
@@ -54,6 +54,14 @@ export const getContactCount = (data: { group_ids: number[] }) => {
 	return instance.post('/contact/group/contact_count', data)
 }
 
+export const getContactTagCount = (data: {
+	group_id: number
+	tag_ids: number[]
+	tag_logic: string
+}) => {
+	return instance.post('/contact/group/tag_contact_count', data)
+}
+
 export const exportGroup = (data: {
 	format: string
 	include_unsubscribe: boolean
@@ -61,6 +69,7 @@ export const exportGroup = (data: {
 	export_type: number
 }) => {
 	return instance.post('/contact/group/export', data, {
+		responseType: 'blob',
 		fetchOptions: {
 			loading: t('contacts.group.loading.exportGroup'),
 			successMessage: true,
@@ -84,6 +93,22 @@ export const saveSubscribeSetting = (data: {
 	already_url: string
 }) => {
 	return instance.post('/contact/group/update', data, {
+		fetchOptions: {
+			loading: t('contacts.group.loading.saveSettings'),
+			successMessage: true,
+		},
+	})
+}
+
+export const saveUnsubscribeSetting = (data: {
+	group_id: number
+	unsubscribe_subject: string
+	unsubscribe_redirect_url: string
+	send_unsubscribe_email: number
+	unsubscribe_mail_html: string
+	unsubscribe_mail_drag: string
+}) => {
+	return instance.post('/contact/group/update_unsubscribe', data, {
 		fetchOptions: {
 			loading: t('contacts.group.loading.saveSettings'),
 			successMessage: true,

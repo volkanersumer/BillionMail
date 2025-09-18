@@ -437,55 +437,116 @@
 	},
 	"contacts": {
 		"subscribers": {
+			"joinGroup": "グループに参加",
+			"tags": "タグ",
+			"selectGroupHint": "右側でグループを選択してください",
+			"trends": {
+				"title": "購読トレンド",
+				"subscriber": "購読者"
+			},
 			"search": {
 				"emailPlaceholder": "メールアドレスを入力して検索"
 			},
 			"columns": {
 				"email": "メール",
 				"name": "グループ名",
-				"createdAt": "作成日時"
+				"createdAt": "作成時間",
+				"lastActiveAt": "最終アクティブ時間"
 			},
 			"status": {
-				"subscribed": "購読中",
-				"unsubscribed": "購読解除"
+				"subscribed": "購読済み",
+				"unsubscribed": "購読解除",
+				"unconfirmed": "未確認"
+			},
+			"labels": {
+				"status": "ステータス：",
+				"tags": "タグ：",
+				"active": "アクティブ："
+			},
+			"activeSelect": {
+				"options": {
+					"all": "すべて",
+					"yes": "はい",
+					"no": "いいえ"
+				},
+				"timeOptions": {
+					"past7Days": "過去7日間",
+					"pastMonth": "過去1ヶ月",
+					"past90Days": "過去90日間",
+					"pastHalfYear": "過去6ヶ月",
+					"pastYear": "過去1年"
+				}
 			},
 			"actions": {
-				"changeGroup": "グループ変更"
+				"changeGroup": "グループ変更",
+				"setTag": "タグ設定"
 			},
 			"delete": {
-				"title": "購読者削除",
+				"title": "購読者を削除",
 				"confirm": "購読者 {email} を削除してもよろしいですか？"
 			},
+			"batchDelete": {
+				"title": "一括削除",
+				"confirm": "選択した購読者を削除してもよろしいですか？"
+			},
 			"select": {
-				"prefix": "グループ: "
+				"prefix": "グループ："
 			},
 			"edit": {
 				"title": "グループ変更",
 				"email": "メール",
 				"group": "グループ",
+				"status": "ステータス",
+				"attributes": "属性",
+				"statusOptions": {
+					"subscribe": "購読",
+					"unsubscribe": "購読解除"
+				},
 				"validation": {
 					"emailRequired": "メールを入力してください",
 					"groupRequired": "グループを選択してください"
 				}
 			},
 			"import": {
-				"title": "連絡先インポート",
+				"title": "連絡先をインポート",
 				"group": "グループ",
 				"data": "データ",
 				"pasteData": "データを貼り付け",
 				"uploadFile": "ファイルをアップロード",
-				"pastePlaceholder": "1行につき1メールでデータを貼り付けてください",
-				"fileTypeHint": "ファイル形式: txt、1行につき1メール、5MB以内",
+				"pastePlaceholder": [
+					"データを貼り付けてください。1行に1つのメールアドレス、属性（オプション）",
+					"例：example1@example.com",
+					"example1@example.com,\"{\"\"age\"\": \"\"13\"\", \"\"Gender\"\": \"\"XXX\"\"}\""
+				],
+				"fileTypeHint": "ファイルタイプ：csv、5MB以下",
+				"overwriteLabel": "既存ユーザーを上書き",
+				"overwriteDescription": "インポート時にインポートデータに従ってリスト内の既存の顧客情報を上書きするかどうか",
+				"subscriptionStatus": "購読状況",
 				"validation": {
 					"groupRequired": "グループを選択してください",
 					"dataRequired": "1行につき1メールでデータを貼り付けてください",
 					"fileRequired": "ファイルをアップロードしてください"
 				}
 			},
+			"batchSetTag": {
+				"title": "バッチタグ設定",
+				"labels": {
+					"tag": "タグ",
+					"action": "アクション"
+				},
+				"actions": {
+					"add": "追加",
+					"remove": "削除"
+				}
+			},
+			"tagSelect": {
+				"manageTags": "タグを管理"
+			},
 			"loading": {
 				"importSubscribers": "連絡先をインポート中... お待ちください",
 				"updateSubscriberGroup": "グループを更新中... お待ちください",
-				"deleteSubscriber": "連絡先を削除中... お待ちください"
+				"deleteSubscriber": "連絡先を削除中... お待ちください",
+				"batchSetTag": "処理中... お待ちください"
 			}
 		},
 		"group": {
@@ -514,13 +575,68 @@
 				"confirm": "グループ {name} を削除してもよろしいですか？"
 			},
 			"fileUpload": {
-				"hint": "ファイル形式: txt、1行につき1メール、5MB以内",
+				"hint": "ファイル形式: txt、1行につき1メール、10MB以内",
 				"emptyHint": "ファイルをアップロードしない場合は空のグループが作成されます"
 			},
 			"loading": {
 				"createGroup": "グループ作成中... お待ちください",
 				"updateGroup": "グループ更新中... お待ちください",
 				"deleteGroup": "グループ削除中... お待ちください"
+			}
+		},
+		"settings": {
+			"title": "設定",
+			"tabs": {
+				"subscribeForm": "購読フォーム",
+				"subscribeSettings": "購読設定",
+				"unsubscribeSettings": "購読解除設定"
+			},
+			"subscribeForm": {
+				"separateSubscriptionPage": {
+					"title": "Separate Subscription Page",
+					"description": "Simply copy and share this URL with users – the subscription form is ready to use."
+				},
+				"embeddableForm": {
+					"title": "Embeddable Form",
+					"description": "Easily embed this subscription form into your website pages."
+				}
+			},
+			"subscribeSettings": {
+				"listType": {
+					"label": "List Type",
+					"placeholder": "Please select list type",
+					"options": {
+						"doubleOptin": "Double Opt-in",
+						"singleOptin": "Single Opt-in"
+					}
+				},
+				"confirmEmail": {
+					"subject": "Confirmation Email Subject",
+					"redirectLink": "Confirmation Redirect Link",
+					"redirectDescription": "Enter the custom link below to redirect users to a confirmation page for their 'Double Opt-in' subscription",
+					"emailContent": "Confirmation Email",
+					"emailTip1": "If you customize the confirmation email, don't forget to include the confirmation link",
+					"emailTip2": "somewhere in your message"
+				},
+				"welcomeEmail": {
+					"subject": "Welcome Email Subject",
+					"redirectLink": "Welcome Redirect Link",
+					"redirectDescription": "Please enter the link below to direct users to a custom confirmation page after they subscribe successfully",
+					"emailContent": "Welcome Email",
+					"sendThroughTip": "Messages are sent through the",
+					"mailboxTip": "mailbox of the default sending domain",
+					"enabledDescription": "When enabled, a thank you email will be sent to the user when they subscribe via the subscription form or API. This will not be triggered for manually added users.",
+					"templateVariablesTip": "You can use the information you collect in the subject and message of your thank you email, which is the Template Variables."
+				},
+				"alreadySubscribed": {
+					"redirectLink": "Already Subscribed Redirect Link"
+				},
+				"unsubscribeSettings": {
+					"subject": "購読解除件名",
+					"redirectLink": "購読解除リダイレクトリンク",
+					"emailPage": "購読解除メールページ",
+					"enabledDescription": "有効にすると、ユーザーが購読解除またはAPI購読解除を行った際に、購読解除メールが送信されます。手動で追加されたユーザーはこの機能をトリガーしません。"
+				}
 			}
 		},
 		"suspend": {
@@ -579,8 +695,59 @@
 					"setting": "設定中です。しばらくお待ちください..."
 				}
 			}
+		},
+		"tags": {
+			"title": "タグ管理",
+			"addTag": "タグを追加",
+			"bulkTag": "一括タグ",
+			"searchPlaceholder": "タグを検索",
+			"columns": {
+				"name": "タグ名",
+				"groupName": "グループ名",
+				"createTime": "作成時間",
+				"actions": "操作"
+			},
+			"delete": {
+				"title": "タグを削除",
+				"confirm": "このタグ【{name}】を削除してもよろしいですか？"
+			},
+			"bulk": {
+				"title": "連絡先の一括タグ付け",
+				"form": {
+					"group": "グループ",
+					"tags": "タグ",
+					"emails": "メール",
+					"action": "アクション",
+					"emailsPlaceholder": "メールアドレスを貼り付けてください、1行に1つ"
+				},
+				"actions": {
+					"tagThese": "これらのメールにタグを付ける",
+					"tagExcept": "これらのメール以外の全員にタグを付ける"
+				}
+			},
+			"form": {
+				"title": {
+					"create": "タグを作成",
+					"edit": "タグを編集"
+				},
+				"fields": {
+					"name": "タグ名",
+					"group": "グループ"
+				},
+				"validation": {
+					"nameRequired": "タグ名を入力してください",
+					"groupRequired": "グループを選択してください"
+				}
+			},
+			"loading": {
+				"creating": "タグを作成中、お待ちください...",
+				"deleting": "タグを削除中、お待ちください...",
+				"updating": "タグを更新中、お待ちください...",
+				"bulkSetting": "一括設定中、お待ちください..."
+			}
 		}
 	},
+
 	"domain": {
 		"title": "MailDomain",
 		"addDomain": "ドメインを追加",
@@ -814,6 +981,14 @@
 			"validation": {
 				"groupNameRequired": "グループ名を入力してください"
 			}
+		},
+		"loading": {
+			"creating": "タスクを作成中... お待ちください",
+			"updating": "タスクを編集中... お待ちください",
+			"deleting": "タスクを削除中... お待ちください",
+			"pausing": "タスクを一時停止中... お待ちください",
+			"resuming": "タスクを再開中... お待ちください",
+			"sendingTest": "テストメールを送信中... お待ちください"
 		}
 	},
 	"mailbox": {

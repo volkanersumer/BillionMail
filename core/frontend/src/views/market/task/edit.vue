@@ -5,7 +5,9 @@
 				<n-breadcrumb-item>
 					<router-link to="/market/task">{{ $t('market.task.title') }}</router-link>
 				</n-breadcrumb-item>
-				<n-breadcrumb-item>{{ $t('market.task.edit.addTitle') }}</n-breadcrumb-item>
+				<n-breadcrumb-item>{{
+					isEdit ? '编辑任务' : $t('market.task.edit.addTitle')
+				}}</n-breadcrumb-item>
 			</n-breadcrumb>
 			<div class="task-edit-box" :style="{ minHeight: height + 'px' }">
 				<bt-form ref="formRef" class="task-edit-form" :model="form" :rules="rules">
@@ -28,9 +30,43 @@
 								</n-input>
 							</n-form-item>
 							<n-form-item :label="$t('market.task.edit.recipients')" type="group_ids">
-								<group-select v-model:value="form.group_ids" v-model:label="groupNames">
-								</group-select>
+								<div class="flex-1">
+									<div class="flex items-center">
+										<group-select
+											v-model:value="form.group_id"
+											v-model:label="groupName"
+											:disabled="isEdit">
+										</group-select>
+									</div>
+									<i18n-t
+										class="mt-8px"
+										tag="div"
+										scope="global"
+										keypath="market.task.edit.recipientsCount">
+										<template #count>
+											<b>{{ recipientsCount }}</b>
+										</template>
+									</i18n-t>
+								</div>
 							</n-form-item>
+							<n-grid :cols="24" :x-gap="24">
+								<n-form-item-gi :span="6" label="标签关系">
+									<n-select
+										v-model:value="form.tag_logic"
+										:options="logicOptions"
+										:disabled="isEdit"
+										@update:value="() => getRecipientCount()">
+									</n-select>
+								</n-form-item-gi>
+								<n-form-item-gi :span="18" label="标签">
+									<tag-select
+										v-model:value="form.tag_ids"
+										:group-id="form.group_id"
+										:disabled="isEdit"
+										@update:value="() => getRecipientCount()">
+									</tag-select>
+								</n-form-item-gi>
+							</n-grid>
 							<n-form-item :label="$t('market.task.edit.template')" path="template_id">
 								<div class="flex-1">
 									<template-select
@@ -126,7 +162,7 @@
 							<div class="preview-header-item">
 								<div class="preview-label">{{ t('market.task.edit.to') }}:</div>
 								<div class="preview-value">
-									{{ groupNames.length > 0 ? groupNames.join(', ') : '--' }}
+									{{ groupName || '--' }}
 								</div>
 							</div>
 							<div class="preview-header-item">
@@ -159,18 +195,22 @@ import { FormRules } from 'naive-ui'
 import { useGlobalStore } from '@/store'
 import { useElementBounding } from '@vueuse/core'
 import { confirm, isObject, Message } from '@/utils'
-import { addTask, getTaskDetails, sendTestEmail } from '@/api/modules/market/task'
+import { addTask, getTaskDetails, sendTestEmail, updateTask } from '@/api/modules/market/task'
 import { Task } from './interface'
 import { Template } from '../template/interface'
 
 import FromSelect from './components/FromSelect.vue'
 import GroupSelect from './components/GroupSelect.vue'
+import TagSelect from './components/TagSelect.vue'
 import TemplateSelect from './components/TemplateSelect.vue'
+import { getContactTagCount } from '@/api/modules/contacts/group'
 
 const { t } = useI18n()
-const globalStore = useGlobalStore()
-const router = useRouter()
+
 const route = useRoute()
+const router = useRouter()
+
+const globalStore = useGlobalStore()
 
 const formRef = useTemplateRef('formRef')
 
@@ -178,12 +218,16 @@ const formContentRef = useTemplateRef('formContentRef')
 
 const { height } = useElementBounding(formContentRef)
 
+const isEdit = ref(false)
+
+const taskId = ref(0)
+
 // 表单数据
 const form = reactive({
 	addresser: null as null | string,
 	full_name: '',
 	subject: '',
-	group_ids: [] as number[],
+	group_id: null as null | number,
 	template_id: null as null | number,
 	is_record: 1,
 	unsubscribe: 1,
@@ -191,7 +235,20 @@ const form = reactive({
 	threads: 0,
 	start_time: null as number | null,
 	remark: '',
+	tag_ids: [] as number[],
+	tag_logic: 'OR',
 })
+
+const logicOptions = [
+	{
+		label: 'OR',
+		value: 'OR',
+	},
+	{
+		label: 'AND',
+		value: 'AND',
+	},
+]
 
 const rules: FormRules = {
 	full_name: {
@@ -215,7 +272,7 @@ const rules: FormRules = {
 	group_ids: {
 		trigger: 'change',
 		validator: () => {
-			if (form.group_ids.length === 0) {
+			if (!form.group_id) {
 				return new Error(t('market.task.edit.validation.recipientsRequired'))
 			}
 			return true
@@ -241,7 +298,10 @@ const rules: FormRules = {
 }
 
 // 分组名称
-const groupNames = ref<string[]>([])
+const groupName = ref<string>('')
+
+// 联系人数量
+const recipientsCount = ref(0)
 
 // 线程类型
 const threadsType = ref(0)
@@ -260,9 +320,6 @@ const handleGoTemplate = () => {
 	router.push('/template')
 }
 
-// 查看案例
-// const handleViewCase = () => {}
-
 // 更新线程类型
 const handleUpdateThread = (val: number) => {
 	if (val === 0) {
@@ -272,6 +329,7 @@ const handleUpdateThread = (val: number) => {
 	}
 }
 
+// 更新发送时间类型
 const handleUpdateSend = () => {
 	if (sendTimeType.value === 0) {
 		form.start_time = null
@@ -302,7 +360,7 @@ const handleSendTest = async () => {
 }
 
 const handleGoBack = () => {
-	if (form.subject || form.group_ids.length > 0) {
+	if (form.subject || form.group_id) {
 		confirm({
 			title: t('market.task.edit.discard.title'),
 			content: t('market.task.edit.discard.content'),
@@ -312,6 +370,22 @@ const handleGoBack = () => {
 		})
 	} else {
 		router.go(-1)
+	}
+}
+
+const getRecipientCount = async () => {
+	if (!form.group_id) {
+		recipientsCount.value = 0
+		return
+	}
+
+	const res = await getContactTagCount({
+		group_id: form.group_id || 0,
+		tag_ids: form.tag_ids,
+		tag_logic: form.tag_logic,
+	})
+	if (isObject<{ total: number }>(res)) {
+		recipientsCount.value = res.total
 	}
 }
 
@@ -326,7 +400,7 @@ const getParams = () => {
 		addresser: form.addresser || '',
 		full_name: form.full_name,
 		subject: form.subject,
-		group_ids: form.group_ids,
+		group_id: form.group_id || 0,
 		template_id: form.template_id || 0,
 		is_record: form.is_record,
 		unsubscribe: form.unsubscribe,
@@ -334,12 +408,21 @@ const getParams = () => {
 		threads: form.threads,
 		start_time: startTime / 1000,
 		remark: form.remark,
+		tag_ids: form.tag_ids,
+		tag_logic: form.tag_logic,
 	}
 }
 
 const handleSubmit = async () => {
 	await formRef.value?.validate()
-	await addTask(getParams())
+	if (!isEdit.value) {
+		await addTask(getParams())
+	} else {
+		await updateTask({
+			task_id: taskId.value,
+			...getParams(),
+		})
+	}
 	router.push('/market/task')
 }
 
@@ -358,20 +441,33 @@ function findTemplateId(list: Template[]) {
 }
 
 const initForm = async () => {
-	const { task_id: id } = route.query
+	const { task_id: id, type } = route.query
+	if (type === 'edit') {
+		taskId.value = Number(id)
+		isEdit.value = true
+	} else {
+		taskId.value = 0
+		isEdit.value = false
+	}
+
 	if (!id) return
 	const res = await getTaskDetails({ id: Number(id) })
 	if (isObject<Task>(res)) {
 		form.addresser = res.addresser
 		form.full_name = res.full_name
 		form.subject = res.subject
-		form.group_ids = res.etypes.split(',').map(item => Number(item))
+		form.group_id = res.group_id
+		// form.group_id = res.etypes.split(',').map(item => Number(item))
 		form.template_id = res.template_id
 		form.is_record = res.is_record
 		form.unsubscribe = res.unsubscribe
 		form.threads = res.threads
 		threadsType.value = res.threads === 0 ? 0 : 1
 		form.remark = res.remark
+		form.tag_logic = res.tag_logic
+		nextTick(() => {
+			form.tag_ids = res.tag_ids
+		})
 	}
 }
 

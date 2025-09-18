@@ -74,8 +74,13 @@ const getDomainOptions = async () => {
 			label: item.domain,
 			value: item.domain,
 		}))
-		if (domain.value === null && domainRes.length > 0) {
-			domain.value = domainRes[0].domain
+		if (!domain.value && domainRes.length > 0) {
+			const domainData = domainRes.filter(item => item.default)
+			if (domainData.length > 0) {
+				domain.value = domainData[0].domain
+			} else {
+				domain.value = domainRes[0].domain
+			}
 		}
 	}
 }

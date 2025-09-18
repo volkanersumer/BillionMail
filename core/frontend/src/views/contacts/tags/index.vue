@@ -140,7 +140,7 @@ const router = useRouter()
 const onView = (row: Tag) => {
 	router.push({
 		path: '/contacts/subscribers',
-		state: { tag_id: row.id },
+		state: { group_id: row.group_id, tag_id: row.id },
 	})
 }
 

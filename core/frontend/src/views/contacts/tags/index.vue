@@ -38,6 +38,7 @@
 
 <script lang="tsx" setup>
 import { DataTableColumns, NButton, NFlex } from 'naive-ui'
+import { useBrowserLocation } from '@vueuse/core'
 import { confirm, formatTime } from '@/utils'
 import { useModal } from '@/hooks/modal/useModal'
 import { useDataTable } from '@/hooks/useDataTable'
@@ -48,12 +49,14 @@ import GroupSelect from './components/GroupSelect.vue'
 import TagForm from './components/TagForm.vue'
 import TagBulk from './components/TagBulk.vue'
 
+const location = useBrowserLocation()
+
 const { t } = useI18n()
 
 const { tableProps, pageProps, tableParams, fetchTable } = useDataTable<Tag, TagParams>({
 	params: {
 		keyword: '',
-		group_id: 0,
+		group_id: location.value.state.group_id || 0,
 		page: 1,
 		page_size: 10,
 	},

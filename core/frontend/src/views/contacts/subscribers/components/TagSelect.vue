@@ -1,7 +1,9 @@
 <template>
 	<n-select v-model:value="value" :options="options" :multiple="true" max-tag-count="responsive">
 		<template #action>
-			<n-button block @click="handleManageTags">{{ t('contacts.subscribers.tagSelect.manageTags') }}</n-button>
+			<n-button block @click="handleManageTags">{{
+				t('contacts.subscribers.tagSelect.manageTags')
+			}}</n-button>
 		</template>
 	</n-select>
 </template>
@@ -47,7 +49,10 @@ getOptions()
 const router = useRouter()
 
 const handleManageTags = () => {
-	router.push('/contacts/tags')
+	router.push({
+		path: '/contacts/tags',
+		state: { group_id: groupId },
+	})
 }
 </script>
 

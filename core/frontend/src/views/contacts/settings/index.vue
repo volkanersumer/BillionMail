@@ -17,6 +17,9 @@
 			<n-tab-pane name="subscribe" :tab="$t('contacts.settings.tabs.subscribeSettings')">
 				<subscribe-settings />
 			</n-tab-pane>
+			<n-tab-pane name="unsubscribe" tab="Unsubscribe settings">
+				<unsubscribe-settings />
+			</n-tab-pane>
 		</n-tabs>
 	</div>
 </template>
@@ -29,6 +32,7 @@ import type { GroupInfo } from './types/base'
 
 import SubscribeForm from './components/SubscribeForm.vue'
 import SubscribeSettings from './components/SubscribeSettings.vue'
+import UnsubscribeSettings from './components/UnsubscribeSettings.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -37,7 +41,7 @@ const id = computed(() => {
 	return Number(route.params.id)
 })
 
-const activeTab = ref('form')
+const activeTab = ref('unsubscribe')
 
 const groupInfo = ref<GroupInfo | null>(null)
 

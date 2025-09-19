@@ -117,16 +117,6 @@ const rules: FormRules = {
 			return true
 		},
 	},
-	auth_user: {
-		required: true,
-		message: t('smtp.form.validation.usernameRequired'),
-		trigger: ['blur', 'input'],
-	},
-	auth_password: {
-		required: true,
-		message: t('smtp.form.validation.passwordRequired'),
-		trigger: ['blur', 'input'],
-	},
 }
 
 const domainOptions = ref<SelectOption[]>([])

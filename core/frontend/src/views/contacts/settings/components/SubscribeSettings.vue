@@ -173,7 +173,7 @@ watchEffect(() => {
 
 .setting-description {
 	line-height: 20px;
-	color: #666;
+	color: var(--color-text-2);
 }
 
 .action-buttons {

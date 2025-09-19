@@ -595,13 +595,20 @@ func (o *Overview) chartClickRate(campaignID int64, domain string, startTime, en
 
 	query.LeftJoin(`LATERAL(
 	SELECT id
+	FROM mailstat_opened
+	WHERE sm.postfix_message_id = postfix_message_id
+	LIMIT 1
+) as o`, "true")
+
+	query.LeftJoin(`LATERAL(
+	SELECT id
 	FROM mailstat_clicked
 	WHERE sm.postfix_message_id = postfix_message_id
 	LIMIT 1
 ) as c`, "true")
 
 	query.Fields(xAxisField)
-	query.Fields("case when coalesce(sum(case when status='sent' and dsn like '2.%' then 1 else 0 end), 0) > 0 then round(1.0 * count(c.id) / coalesce(sum(case when status='sent' and dsn like '2.%' then 1 else 0 end), 0) * 100, 2) else 0.0 end as click_rate")
+	query.Fields("case when count(o.id) > 0 then round(1.0 * count(c.id) / count(o.id) * 100, 2) else 0.0 end as click_rate")
 
 	query.Group("x")
 

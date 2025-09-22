@@ -4,9 +4,11 @@ import (
 	"billionmail-core/internal/consts"
 	"billionmail-core/internal/service/public"
 	"context"
+	"github.com/gogf/gf/os/gtimer"
 	"github.com/gogf/gf/v2/os/gfile"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 
@@ -59,12 +61,12 @@ func (c *ControllerV1) SetSystemConfig(ctx context.Context, req *v1.SetSystemCon
 			return res, nil
 		}
 
-		err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, consts.SERVICES.Core)
-
-		if err != nil {
-			res.SetError(gerror.New(public.LangCtx(ctx, "Failed to restart container: {}", err)))
-			return res, nil
-		}
+		gtimer.AddOnce(500*time.Millisecond, func() {
+			err = public.DockerApiFromCtx(ctx).RestartContainerByName(context.Background(), consts.SERVICES.Core)
+			if err != nil {
+				return
+			}
+		})
 
 		_ = public.WriteLog(ctx, public.LogParams{
 			Type: consts.LOGTYPE.Settings,

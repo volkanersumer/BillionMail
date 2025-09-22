@@ -22,4 +22,6 @@ type ISettingsV1 interface {
 	AddIPWhitelist(ctx context.Context, req *v1.AddIPWhitelistReq) (res *v1.AddIPWhitelistRes, err error)
 	SetReverseProxyDomain(ctx context.Context, req *v1.SetReverseProxyDomainReq) (res *v1.SetReverseProxyDomainRes, err error)
 	DeleteReverseProxyDomain(ctx context.Context, req *v1.DeleteReverseProxyDomainReq) (res *v1.DeleteReverseProxyDomainRes, err error)
+	RegenerateAPIToken(ctx context.Context, req *v1.RegenerateAPITokenReq) (res *v1.RegenerateAPITokenRes, err error)
+	SetAPIDocSwagger(ctx context.Context, req *v1.SetAPIDocSwaggerReq) (res *v1.SetAPIDocSwaggerRes, err error)
 }

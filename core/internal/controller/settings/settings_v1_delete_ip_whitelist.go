@@ -46,7 +46,7 @@ func (c *ControllerV1) DeleteIPWhitelist(ctx context.Context, req *v1.DeleteIPWh
 			g.Log().Error(ctx, "Failed to set IP whitelist enable: {}", err)
 		}
 		gtimer.AddOnce(500*time.Millisecond, func() {
-			err = public.DockerApiFromCtx(ctx).RestartContainerByName(ctx, consts.SERVICES.Core)
+			err = public.DockerApiFromCtx(ctx).RestartContainerByName(context.Background(), consts.SERVICES.Core)
 			if err != nil {
 				g.Log().Error(ctx, "Failed to restart container: {}", err)
 				return

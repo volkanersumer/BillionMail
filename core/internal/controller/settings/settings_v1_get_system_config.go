@@ -41,9 +41,28 @@ func (c *ControllerV1) GetSystemConfig(ctx context.Context, req *v1.GetSystemCon
 	if err != nil {
 		reverseProxyDomain = ""
 	}
-
+	BaseURL := domains.GetBaseURL()
 	config.ReverseProxyDomain.ReverseProxy = reverseProxyDomain
-	config.ReverseProxyDomain.CurrentUrl = domains.GetBaseURL()
+	config.ReverseProxyDomain.CurrentUrl = BaseURL
+
+	// Load API configuration
+	var apiDocEnabled bool
+	var apiToken string
+
+	err = public.OptionsMgrInstance.GetOption(ctx, "API_DOC_ENABLED", &apiDocEnabled)
+	if err != nil {
+		apiDocEnabled = true
+	}
+
+	err = public.OptionsMgrInstance.GetOption(ctx, "API_TOKEN", &apiToken)
+	if err != nil {
+		apiToken = ""
+	}
+
+	config.APIDocSwagger.APIDocEnabled = apiDocEnabled
+	config.APIDocSwagger.APIToken = apiToken
+	config.APIDocSwagger.APIDocURL = BaseURL + "/api.json"
+	config.APIDocSwagger.SwaggerURL = BaseURL + "/swagger"
 
 	res.Data = config
 

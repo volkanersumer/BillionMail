@@ -140,6 +140,76 @@ func BatchUpsertAbnormalRecipients(ctx context.Context, recipients []string, add
 	return nil
 }
 
+// BatchUpsertAbnormalRecipientsWithDetails
+func BatchUpsertAbnormalRecipientsWithDetails(ctx context.Context, recipientDetails []RecipientDetail, addType int, baseDescription string) error {
+	now := time.Now().Unix()
+
+	if len(recipientDetails) == 0 {
+		return nil
+	}
+
+	recipients := make([]string, len(recipientDetails))
+	detailsMap := make(map[string]RecipientDetail)
+	for i, detail := range recipientDetails {
+		recipients[i] = detail.Email
+		detailsMap[detail.Email] = detail
+	}
+
+	var existList []entity.AbnormalRecipient
+	err := g.DB().Model("abnormal_recipient").WhereIn("recipient", recipients).Scan(&existList)
+	if err != nil {
+		return fmt.Errorf("Failed to query existing abnormal recipients: %w", err)
+	}
+	existMap := make(map[string]*entity.AbnormalRecipient)
+	for _, r := range existList {
+		existMap[r.Recipient] = &r
+	}
+
+	// 1. Update the existing records
+	for _, r := range existList {
+		detail := detailsMap[r.Recipient]
+		description := fmt.Sprintf("%s - %s", baseDescription, detail.ErrorReason)
+
+		_, err := g.DB().Model("abnormal_recipient").Where("id", r.Id).Data(g.Map{
+			"count":       r.Count + 1,
+			"description": description,
+			"add_type":    addType,
+		}).Update()
+		if err != nil {
+			return fmt.Errorf("Failed to update abnormal recipient: %w", err)
+		}
+	}
+
+	// 2. Inserting a non-existent record
+	var insertList []g.Map
+	for _, detail := range recipientDetails {
+		if _, ok := existMap[detail.Email]; !ok {
+			description := fmt.Sprintf("%s - %s", baseDescription, detail.ErrorReason)
+			insertList = append(insertList, g.Map{
+				"recipient":   detail.Email,
+				"count":       1,
+				"add_type":    addType,
+				"description": description,
+				"create_time": now,
+			})
+		}
+	}
+
+	if len(insertList) > 0 {
+		_, err := g.DB().Model("abnormal_recipient").Data(insertList).InsertIgnore()
+		if err != nil {
+			return fmt.Errorf("Failed to insert abnormal recipients: %w", err)
+		}
+	}
+
+	return nil
+}
+
+type RecipientDetail struct {
+	Email       string `json:"email"`
+	ErrorReason string `json:"error_reason"`
+}
+
 func AbnormalRecipientAutoStat(ctx context.Context) {
 
 	var abnormalSwitch string

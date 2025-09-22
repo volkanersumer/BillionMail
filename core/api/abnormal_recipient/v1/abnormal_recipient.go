@@ -73,7 +73,7 @@ type AbnormalSwitchRes struct {
 }
 
 type SetAbnormalSwitchReq struct {
-	g.Meta        `path:"/abnormal_recipient/set_check_switch" method:"post" tags:"Abnormal Recipient" summary:"Abnormal Switch"`
+	g.Meta        `path:"/abnormal_recipient/set_check_switch" method:"post" tags:"Abnormal Recipient" summary:"Set Check Abnormal Switch"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
 	Oper          int    `json:"oper" v:"required|in:0,1" dc:"Operation type (1 for on, 0 for off)"`
 }

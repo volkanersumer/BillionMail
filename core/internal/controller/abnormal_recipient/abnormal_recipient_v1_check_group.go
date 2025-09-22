@@ -15,6 +15,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -22,7 +23,7 @@ type DNSRecord struct {
 	Type  string `json:"type"`
 	Host  string `json:"host"`
 	Value string `json:"value"`
-	Valid bool   `json:"valid"`
+	Valid bool `json:"valid"`
 }
 
 func (c *ControllerV1) CheckGroup(ctx context.Context, req *v1.CheckGroupReq) (res *v1.CheckGroupRes, err error) {
@@ -85,34 +86,58 @@ func (c *ControllerV1) CheckGroup(ctx context.Context, req *v1.CheckGroupReq) (r
 			totalCount    = len(emails)
 			validCount    = 0
 			invalidCount  = 0
+			wg            sync.WaitGroup
+			mutex         sync.Mutex
+
+			invalidEmailDetails []abnormal_recipient.RecipientDetail
 		)
 
-		for domain, domainEmails := range domainMap {
-			date := time.Now().Format("2006-01-02 15:04:05")
-			record := DNSRecord{
-				Type:  "MX",
-				Host:  "@",
-				Value: domain,
-			}
-			//g.Log().Info(ctx, "Checking domain:", domain, "emails:", domainEmails)
-			status := ValidateMXRecord(record, domain)
-			//g.Log().Info(ctx, "ValidateMXRecord result for domain:", domain, "status:", status)
-			if status {
-				validEmails = append(validEmails, domainEmails...)
-				validCount += len(domainEmails)
-				appendLogLine(logDir, fmt.Sprintf("%s: %s -----------------------------  √", date, domain))
+		// Use a channel to control concurrency, limiting to 20 concurrent DNS lookups
+		const maxConcurrency = 20
+		semaphore := make(chan struct{}, maxConcurrency)
 
-			} else {
-				invalidEmails = append(invalidEmails, domainEmails...)
-				invalidCount += len(domainEmails)
-				appendLogLine(logDir, fmt.Sprintf("%s: %s ----------------------------- x  mx logging error", date, domain))
-			}
+		for domain, domainEmails := range domainMap {
+			wg.Add(1)
+			go func(domain string, domainEmails []string) {
+				defer wg.Done()
+				semaphore <- struct{}{}        // Acquire a token
+				defer func() { <-semaphore }() // Release the token
+
+				date := time.Now().Format("2006-01-02 15:04:05")
+				record := DNSRecord{
+					Type:  "MX",
+					Host:  "@",
+					Value: domain,
+				}
+				status, reason := ValidateMXRecord(record, domain)
+
+				mutex.Lock()
+				defer mutex.Unlock()
+
+				if status {
+					validEmails = append(validEmails, domainEmails...)
+					validCount += len(domainEmails)
+					appendLogLine(logDir, fmt.Sprintf("%s: %s -----------------------------  √", date, domain))
+				} else {
+					invalidEmails = append(invalidEmails, domainEmails...)
+					for _, email := range domainEmails {
+						invalidEmailDetails = append(invalidEmailDetails, abnormal_recipient.RecipientDetail{
+							Email:       email,
+							ErrorReason: reason,
+						})
+					}
+					invalidCount += len(domainEmails)
+					appendLogLine(logDir, fmt.Sprintf("%s: %s ----------------------------- x  %s", date, domain, reason))
+				}
+			}(domain, domainEmails)
 		}
+
+		wg.Wait() // Wait for all goroutines to finish
 
 		switch req.Oper {
 		case 2: // Add abnormal table
-			_ = abnormal_recipient.BatchUpsertAbnormalRecipients(ctx, invalidEmails, 3, "Manual scanning group")
-			appendLogLine(logDir, "Adding invalid emails to blocklist...")
+			_ = abnormal_recipient.BatchUpsertAbnormalRecipientsWithDetails(ctx, invalidEmailDetails, 3, "Manual scanning group (MX check)")
+			appendLogLine(logDir, "Adding invalid emails to blocklist with details...")
 		case 3: // Remove from the group
 			_, _ = g.DB().Model("bm_contacts").Where("group_id", req.GroupId).WhereIn("email", invalidEmails).Delete()
 			appendLogLine(logDir, "Removing invalid emails from group...")
@@ -138,10 +163,10 @@ func (c *ControllerV1) CheckGroup(ctx context.Context, req *v1.CheckGroupReq) (r
 	return res, nil
 }
 
-func ValidateMXRecord(record DNSRecord, domain string, aRecordHosts ...string) bool {
+func ValidateMXRecord(record DNSRecord, domain string, aRecordHosts ...string) (bool, string) {
 	g.Log().Info(context.Background(), "ValidateMXRecord called with:", record, domain)
 	if strings.ToUpper(record.Type) != "MX" {
-		return false
+		return false, "Invalid record type"
 	}
 
 	if record.Host != "@" {
@@ -163,18 +188,16 @@ func ValidateMXRecord(record DNSRecord, domain string, aRecordHosts ...string) b
 
 	if err != nil {
 		g.Log().Error(context.Background(), "Failed to query MX records after retries:", err)
-		return false
+		return false, "DNS lookup failed: " + err.Error()
 	}
 
 	g.Log().Debug(context.Background(), "Query MX records success", mxRecords)
 
-	aRecordHosts = append([]string{record.Value}, aRecordHosts...)
-
 	if len(mxRecords) > 0 {
-		return true
+		return true, ""
 	}
 
-	return false
+	return false, "no MX record"
 }
 
 func appendLogLine(filePath, line string) {

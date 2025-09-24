@@ -1,6 +1,6 @@
 import { instance } from '@/api'
+import { i18n } from '@/i18n'
 import { SubscriberParams } from '@/views/contacts/subscribers/interface'
-import i18n from '@/i18n'
 
 const { t } = i18n.global
 
@@ -12,7 +12,13 @@ export const getSubscriberListNdp = (params: SubscriberParams) => {
 	return instance.get('/contact/list_ndp', { params })
 }
 
-export const getSubscriberTrend = (params: { group_id?: number }) => {
+export const getSubscriberTrend = (params: {
+	group_id: number
+	active: number
+	last_active_status: number
+	time_interval: number
+	tags: string
+}) => {
 	return instance.get('/contact/trend', { params })
 }
 
@@ -90,6 +96,15 @@ export const deleteSubscriberNdp = (data: { ids: number[] }) => {
 	return instance.post('/contact/delete_ndp', data, {
 		fetchOptions: {
 			loading: t('contacts.subscribers.loading.deleteSubscriber'),
+			successMessage: true,
+		},
+	})
+}
+
+export const batchSetTag = (data: { ids: number[]; tag_ids: number[]; action: number }) => {
+	return instance.post('/contact/batch_tags_opt', data, {
+		fetchOptions: {
+			loading: t('contacts.subscribers.loading.batchSetTag'),
 			successMessage: true,
 		},
 	})

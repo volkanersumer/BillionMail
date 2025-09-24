@@ -1,6 +1,8 @@
 <template>
 	<n-spin class="mb-16px" :show="loading">
-		<div class="text-center fw-bold text-16px text-default">{{ t('contacts.subscribers.trends.title') }}</div>
+		<div class="text-center fw-bold text-16px text-default">
+			{{ t('contacts.subscribers.trends.title') }}
+		</div>
 		<div class="w-96% h-160px mx-auto">
 			<bt-charts :options="chartOptions" />
 		</div>
@@ -11,11 +13,21 @@
 import { isArray, isObject } from '@/utils'
 import { getSubscriberTrend } from '@/api/modules/contacts/subscribers'
 import type { ECOptionLine } from '@/types/chart'
-import type { SubscriberTrend } from '../interface'
+import type { SubscriberParams, SubscriberTrend } from '../interface'
 
-const { groupId } = defineProps({
-	groupId: {
-		type: Number,
+const { params } = defineProps({
+	params: {
+		type: Object as PropType<SubscriberParams>,
+		default: () => ({
+			page: 1,
+			page_size: 10,
+			group_id: 0,
+			keyword: '',
+			active: -1,
+			last_active_status: -1,
+			time_interval: 0,
+			tags: [],
+		}),
 	},
 })
 
@@ -42,7 +54,7 @@ const chartOptions = computed<ECOptionLine>(() => {
 			containLabel: true,
 		},
 		xAxis: {
-			data: subscribe.value.map(item => item.month),
+			data: subscribe.value.map(item => item.date),
 			axisTick: {
 				show: false,
 			},
@@ -92,16 +104,34 @@ const chartOptions = computed<ECOptionLine>(() => {
 const getData = async () => {
 	try {
 		loading.value = true
-		const res = await getSubscriberTrend({ group_id: groupId })
-		if (isObject<{ subscribe: SubscriberTrend[]; unsubscribe: SubscriberTrend[] }>(res)) {
-			subscribe.value = isArray(res.subscribe) ? res.subscribe : []
+		const res = await getSubscriberTrend({
+			group_id: params.group_id,
+			active: params.active,
+			last_active_status: params.last_active_status,
+			time_interval: params.time_interval,
+			tags: params.tags.join(','),
+		})
+		if (
+			isObject<{
+				time_granularity: string
+				daily_data: SubscriberTrend[]
+				monthly_data: SubscriberTrend[]
+			}>(res)
+		) {
+			if (res.time_granularity === 'monthly') {
+				subscribe.value = isArray(res.monthly_data) ? res.monthly_data : []
+			} else if (res.time_granularity === 'daily') {
+				subscribe.value = isArray(res.daily_data) ? res.daily_data : []
+			}
 		}
 	} finally {
 		loading.value = false
 	}
 }
 
-getData()
+onMounted(() => {
+	getData()
+})
 
 defineExpose({
 	getData,

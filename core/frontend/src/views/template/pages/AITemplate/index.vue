@@ -17,8 +17,8 @@
 				</div> -->
 
 				<div ref="answerRef" class="answer" @wheel="handleScroll">
-					<n-card class="h-100%">
-						<n-scrollbar ref="chatScrollRef" style="height: calc(100vh - 415px)">
+					<n-card class="answer-card" :bordered="false" :content-style="{ height: '100%' }">
+						<n-scrollbar ref="chatScrollRef" trigger="none" class="h-full p-16px">
 							<div v-if="chatRecord.size == 0" class="answer-container">
 								<div class="ask-content">
 									<div class="pic">
@@ -91,23 +91,28 @@
 						</n-scrollbar>
 					</n-card>
 				</div>
-				<div class="question">
-					<n-card style="height: 100%">
+				<n-card class="question-card" :bordered="false">
+					<div class="question-card-content">
 						<n-input
 							v-model:value="questionContent"
 							type="textarea"
-							:placeholder="$t('template.ai.welcomeMessage', { domain: chatInfo.domain })"
 							class="question-input"
-							@keydown.enter="e => sendChat(store, e)"></n-input>
+							:autosize="{ minRows: 4 }"
+							:placeholder="$t('template.ai.welcomeMessage', { domain: chatInfo.domain })"
+							@keydown.enter="e => sendChat(store, e)">
+						</n-input>
 						<div class="question-tools">
 							<div class="flex justify-start gap-10px">
-								<n-select
-									v-model:value="currentModelTitle"
-									:options="modelList"
-									label-field="title"
-									value-field="title"
-									@update:value="changeModel">
-								</n-select>
+								<div class="w-160px">
+									<n-select
+										v-model:value="currentModelTitle"
+										:options="modelList"
+										:consistent-menu-width="false"
+										label-field="title"
+										value-field="title"
+										@update:value="changeModel">
+									</n-select>
+								</div>
 								<div class="flex justify-start items-center">
 									<n-checkbox v-model:checked="useSpinTax" style="flex-shrink: 0">
 										Spintax
@@ -135,8 +140,8 @@
 									@click="stopChat(store)"></i>
 							</div>
 						</div>
-					</n-card>
-				</div>
+					</div>
+				</n-card>
 			</div>
 			<div class="view-area">
 				<n-card style="height: 100%">
@@ -331,64 +336,103 @@ onMounted(() => {
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @use '@/styles/index' as base;
 @use '../../mixin.scss';
 
 .wrapper {
-	width: 100% !important;
-
-	@mixin content-card {
-		border-radius: 5px;
-		padding: 20px;
-	}
-
-	@include mixin.wrapper;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	padding: 20px 24px;
+	overflow: hidden;
 
 	.page-tit {
-		@include mixin.page-tit;
+		display: flex;
+		flex-direction: row;
+		justify-content: start;
+		align-items: center;
+		margin-bottom: 16px;
+		.tit-content {
+			font-size: 18px;
+			color: var(--color-text-1);
+			font-weight: bold;
+		}
 	}
 
 	.ai-container {
+		flex: 1;
+		display: flex;
 		width: 100%;
-		display: grid;
-		grid-template-columns: minmax(400px, 2fr) 5fr;
-		gap: 15px;
+		gap: 16px;
+		overflow: hidden;
 
 		.chat-area {
-			display: grid;
-			grid-template-rows: 1fr 230px;
-			gap: 15px;
+			display: flex;
+			flex-direction: column;
+			width: 36%;
+			max-width: 520px;
+			min-width: 420px;
+			gap: 16px;
 
 			.answer {
-				width: 100%;
+				flex: 1;
+				flex-shrink: 1;
+				overflow: hidden;
+
+				.answer-card {
+					--n-padding-top: 0;
+					--n-padding-left: 0;
+					--n-padding-right: 0;
+					--n-padding-bottom: 0;
+					height: 100%;
+				}
 
 				.answer-container {
-					padding: 30px 10px;
+					& + .answer-container {
+						margin-top: 16px;
+					}
+
+					.ask-content {
+						margin-bottom: 16px;
+					}
+
+					.answer-content {
+						background: var(--color-bg-2);
+					}
 
 					.ask-content,
 					.answer-content {
-						@include content-card();
-						background: var(--color-bg-3);
 						display: grid;
 						grid-template-rows: 30px 1fr;
+						padding: 16px;
+						border-radius: 4px;
 						gap: 10px;
-						margin-bottom: 20px;
+						background: var(--color-bg-3);
 
 						.pic {
-							@include base.row-flex;
+							display: flex;
 							align-items: center;
 						}
 
+						.text {
+							line-height: 24px;
+							font-size: 14px;
+							:deep(a) {
+								text-decoration: underline;
+							}
+						}
+
 						@mixin item-tool {
-							@include base.row-flex-start;
-							cursor: pointer;
+							display: inline-flex;
 							gap: 5px;
 							padding: 5px 10px;
 							align-items: center;
 							font-size: 12px;
 							border-radius: 3px;
 							transition: 0.1s all ease-in-out;
+							cursor: pointer;
 
 							&:hover {
 								background: var(--color-primary-1);
@@ -400,46 +444,45 @@ onMounted(() => {
 							}
 						}
 
-						.text {
-							font-size: 14px;
-						}
-
 						.answer-tool {
-							@include base.row-flex-end;
+							display: flex;
+							justify-content: flex-end;
+							gap: 10px;
+							padding-top: 16px;
 							border-top: 1px solid var(--color-border-1);
-							height: 30px;
-							padding-top: 20px;
 
 							.tool-item {
 								@include item-tool();
 							}
 						}
 					}
-
-					.answer-content {
-						background: var(--color-bg-2);
-					}
 				}
 			}
 
-			.question {
-				position: relative;
+			.question-card {
+				.question-card-content {
+					position: relative;
+				}
 
 				.question-input {
-					height: 100%;
-					font-size: 14px;
+					--n-padding-left: 12px;
+					--n-padding-right: 12px;
+					--n-padding-vertical: 12px;
+					--n-font-size: 14px;
+					min-height: 160px;
+					max-height: 240px;
+					padding-bottom: 46px;
 				}
 
 				.question-tools {
 					position: absolute;
-					padding: 5px 30px;
-					@include base.row-flex;
-					gap: 100px;
-					bottom: 22px;
 					left: 0;
-					width: 100%;
-
+					bottom: 0;
+					display: flex;
+					align-items: center;
 					justify-content: space-between;
+					width: 100%;
+					padding: 0 12px 12px;
 
 					.send-btn {
 						@include base.row-flex-start;
@@ -453,25 +496,17 @@ onMounted(() => {
 			}
 		}
 
-		/* .view-area {
-			background: linear-gradient(-45deg, rgba(238, 152, 82, 0.3),rgba(35, 166, 213,.3), rgba(231, 60, 60, 0.3),  rgba(35, 213, 171,.3));
-                background-size: 400% 400%;
-                animation: gradient 15s ease infinite;
+		.view-area {
+			flex: 1;
+			overflow: hidden;
+		}
 
-                @keyframes gradient {
-                    0% {
-                        background-position: 0% 50%;
-                    }
-
-                    50% {
-                        background-position: 100% 50%;
-                    }
-
-                    100% {
-                        background-position: 0% 50%;
-                    }
-                } 
-		} */
+		.n-card {
+			--n-padding-top: 16px;
+			--n-padding-left: 16px;
+			--n-padding-right: 16px;
+			--n-padding-bottom: 16px;
+		}
 	}
 }
 </style>

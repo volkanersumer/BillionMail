@@ -23,6 +23,12 @@
       "google": "de",
       "title": "Deutsch",
       "cn": "German"
+    },
+    {
+      "name": "tr",
+      "google": "tr",
+      "title": "Turkish",
+      "cn": "Turkish"
     }
   ]
 }

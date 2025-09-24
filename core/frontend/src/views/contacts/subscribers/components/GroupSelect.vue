@@ -1,5 +1,5 @@
 <template>
-	<n-select v-model:value="value" :options="groupOptions" :renderTag="renderTag"></n-select>
+	<n-select v-model:value="value" :options="groupOptions"> </n-select>
 </template>
 
 <script lang="ts" setup>
@@ -13,10 +13,6 @@ const { t } = useI18n()
 const value = defineModel<string | number>('value')
 
 const groupOptions = ref<SelectOption[]>([{ label: t('common.all.text'), value: 0 }])
-
-const renderTag = ({ option }: { option: SelectOption }) => {
-	return `${t('contacts.subscribers.select.prefix')}${option.label}`
-}
 
 const getGroupOptions = async () => {
 	const res = await getGroupAll()

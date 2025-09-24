@@ -213,7 +213,16 @@ const columns = ref<DataTableColumns<Task>>([
 							: t('market.task.actions.pause')}
 					</NButton>
 				)}
-
+				{row.task_process === 3 && (
+					<NButton
+						type="primary"
+						text={true}
+						onClick={() => {
+							handleEdit(row)
+						}}>
+						{t('common.actions.edit')}
+					</NButton>
+				)}
 				<NButton
 					type="primary"
 					text={true}
@@ -222,6 +231,16 @@ const columns = ref<DataTableColumns<Task>>([
 					}}>
 					{t('market.task.actions.analytics')}
 				</NButton>
+				{row.task_process === 2 && (
+					<NButton
+						type="primary"
+						text={true}
+						onClick={() => {
+							handleDetail(row)
+						}}>
+						{t('market.task.actions.detail')}
+					</NButton>
+				)}
 				<NButton
 					type="primary"
 					text={true}
@@ -229,14 +248,6 @@ const columns = ref<DataTableColumns<Task>>([
 						handleCopy(row)
 					}}>
 					{t('common.actions.copy')}
-				</NButton>
-				<NButton
-					type="primary"
-					text={true}
-					onClick={() => {
-						handleDetail(row)
-					}}>
-					{t('market.task.actions.detail')}
 				</NButton>
 				<NButton
 					type="error"
@@ -319,6 +330,10 @@ const handleDelete = (row: Task) => {
 			getTableData()
 		},
 	})
+}
+
+const handleEdit = (row: Task) => {
+	router.push(`/market/task/edit?task_id=${row.id}&type=edit`)
 }
 </script>
 

@@ -435,19 +435,27 @@ var (
 				s.SetHTTPSPort(gconv.Int(httpsPort))
 			}
 
-			//s.SetHTTPSPort(82)
-			//s.SetPort(81)
+			var apiDocEnabled bool
+			err = public.OptionsMgrInstance.GetOption(ctx, "API_DOC_ENABLED", &apiDocEnabled)
+			if err != nil {
+				apiDocEnabled = false
+			}
+
+			if apiDocEnabled {
+				s.SetOpenApiPath("/api.json")
+				s.SetSwaggerPath("/swagger")
+			}
 
 			s.SetSwaggerUITemplate(`<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>openAPI UI</title>
-  </head>
-  <body>
-    <div id="openapi-ui-container" spec-url="{SwaggerUIDocUrl}" theme="light"></div>
-    <script src="https://cdn.jsdelivr.net/npm/openapi-ui-dist@latest/lib/openapi-ui.umd.js"></script>
-  </body>
+ <head>
+   <meta charset="UTF-8" />
+   <title>openAPI UI</title>
+ </head>
+ <body>
+   <div id="openapi-ui-container" spec-url="{SwaggerUIDocUrl}" theme="light"></div>
+   <script src="https://cdn.jsdelivr.net/npm/openapi-ui-dist@latest/lib/openapi-ui.umd.js"></script>
+ </body>
 </html>`)
 
 			s.Run()

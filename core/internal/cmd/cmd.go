@@ -138,6 +138,7 @@ var (
 				"/favicon.ico":                   {},
 				"/robots.txt":                    {},
 				"/unsubscribe.html":              {},
+				"/unsubscribe_new.html":          {},
 				"/api/unsubscribe/user_group":    {},
 				"/api/unsubscribe":               {},
 				"/api/unsubscribe_new":           {},

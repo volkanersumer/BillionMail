@@ -51,7 +51,7 @@ func (c *ControllerV1) GetSystemConfig(ctx context.Context, req *v1.GetSystemCon
 
 	err = public.OptionsMgrInstance.GetOption(ctx, "API_DOC_ENABLED", &apiDocEnabled)
 	if err != nil {
-		apiDocEnabled = true
+		apiDocEnabled = false
 	}
 
 	err = public.OptionsMgrInstance.GetOption(ctx, "API_TOKEN", &apiToken)

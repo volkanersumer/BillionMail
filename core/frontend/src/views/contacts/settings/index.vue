@@ -41,7 +41,7 @@ const id = computed(() => {
 	return Number(route.params.id)
 })
 
-const activeTab = ref('unsubscribe')
+const activeTab = ref('form')
 
 const groupInfo = ref<GroupInfo | null>(null)
 

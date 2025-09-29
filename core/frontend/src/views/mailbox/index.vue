@@ -110,6 +110,7 @@ const columns = ref<DataTableColumns<MailBox>>([
 	{
 		key: 'username',
 		title: t('mailbox.columns.username'),
+		width: '14%',
 		minWidth: 120,
 		ellipsis: {
 			tooltip: true,
@@ -118,45 +119,57 @@ const columns = ref<DataTableColumns<MailBox>>([
 	{
 		key: 'password',
 		title: t('mailbox.columns.password'),
-		width: '18%',
-		minWidth: 120,
+		width: '16%',
+		minWidth: 140,
 		render: row => <TablePassword value={row.password || `--`} />,
 	},
 	{
 		key: 'login',
 		title: t('mailbox.columns.loginInfo'),
-		align: 'center',
+		ellipsis: {
+			tooltip: true,
+		},
+		minWidth: 140,
 		render: row => {
 			return (
-				<NButton
-					text
-					type="primary"
-					onClick={() => {
-						copyText(
-							t('mailbox.loginInfo.template', {
-								webmail: window.location.origin + '/roundcube',
-								username: row.username,
-								password: row.password,
-								mx: row.mx,
-							})
-						)
-					}}>
-					{t('common.actions.copy')}
-				</NButton>
+				<div class="flex justify-center w-160px">
+					<NButton
+						text
+						type="primary"
+						onClick={() => {
+							copyText(
+								t('mailbox.loginInfo.template', {
+									webmail: window.location.origin + '/roundcube',
+									username: row.username,
+									password: row.password,
+									mx: row.mx,
+								})
+							)
+						}}>
+						{t('common.actions.copy')}
+					</NButton>
+				</div>
 			)
 		},
 	},
+	// {
+	// 	key: 'quota',
+	// 	title: t('mailbox.columns.quota'),
+	// 	width: '18%',
+	// 	minWidth: 160,
+	// 	render: row => `${getByteUnit(row.used_quota)} / ${getByteUnit(row.quota)}`,
+	// },
 	{
 		key: 'quota',
 		title: t('mailbox.columns.quota'),
-		width: '14%',
-		minWidth: 120,
-		render: row => getByteUnit(row.quota),
+		width: '18%',
+		minWidth: 160,
+		render: row => `${getByteUnit(row.quota)}`,
 	},
 	{
 		key: 'is_admin',
 		title: t('mailbox.columns.type'),
-		width: '14%',
+		width: '12%',
 		minWidth: 100,
 		render: row => {
 			return row.is_admin === 1 ? t('mailbox.userType.admin') : t('mailbox.userType.general')
@@ -165,7 +178,7 @@ const columns = ref<DataTableColumns<MailBox>>([
 	{
 		key: 'status',
 		title: t('mailbox.columns.status'),
-		width: '12%',
+		width: '10%',
 		minWidth: 80,
 		render: row => {
 			return (
@@ -254,7 +267,7 @@ const handleDelete = (row: MailBox) => {
 
 const batchOptions = [
 	{
-		label: t('mailbox.actions.batchDelete'),
+		label: t('common.actions.delete'),
 		value: 'delete',
 	},
 ]

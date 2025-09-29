@@ -14,8 +14,6 @@ import { isArray, isObject } from '@/utils'
 import { getTemplateAll } from '@/api/modules/market/template'
 import { Template } from '@/views/market/template/interface'
 
-
-
 const templateId = defineModel<number | null>('value')
 
 const content = defineModel<string>('content')
@@ -31,7 +29,7 @@ const handleUpdateTemplate = (val: number, option: SelectOption) => {
 	}
 }
 
-const emits = defineEmits(["listReady"])
+const emits = defineEmits(['listReady'])
 
 const getList = async () => {
 	try {
@@ -52,7 +50,7 @@ const getList = async () => {
 					content.value = template.html_content
 				}
 			}
-			emits("listReady",res)
+			emits('listReady', res)
 		}
 	} finally {
 		loading.value = false

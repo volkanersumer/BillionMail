@@ -62,7 +62,7 @@ export const deleteMailbox = (params: { emails: string[] }) => {
 	})
 }
 
-export const exportMailbox = (params: { domain: string }) => {
+export const exportMailbox = (params: { domain: string; file_type: string }) => {
 	return instance.post('/mailbox/export', params, {
 		responseType: 'blob',
 		fetchOptions: {

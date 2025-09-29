@@ -1387,6 +1387,19 @@
 					"title": "Reset Reverse Proxy",
 					"content": "Confirm to reset reverse proxy?"
 				}
+			},
+			"api": {
+				"title": "API Settings",
+				"enableApi": "Enable API",
+				"apiDocUrl": "API Documentation URL",
+				"swaggerUrl": "Swagger URL",
+				"token": "Token",
+				"confirm": {
+					"enable": "Enable API",
+					"disable": "Disable API",
+					"enableContent": "Do you want to enable API settings?",
+					"disableContent": "Do you want to disable API settings?"
+				}
 			}
 		},
 		"api": {

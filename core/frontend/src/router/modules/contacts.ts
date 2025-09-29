@@ -23,7 +23,7 @@ const route: RouteRecordRaw = {
 					path: 'group',
 					name: 'ContactsGroup',
 					meta: { title: 'Group', titleKey: 'layout.menu.group' },
-					component: () => import('@/views/contacts/group/temp.vue'),
+					component: () => import('@/views/contacts/group/index.vue'),
 				},
 				{
 					path: 'subscribers',

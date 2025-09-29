@@ -1125,104 +1125,221 @@
 		}
 	},
 	"settings": {
-		"title": "設定",
+		"title": "Settings",
 		"service": {
-			"title": "サービス状態",
-			"tips": "ヒント: Ctrl+F で検索、Ctrl+S で保存、Ctrl+H で検索置換",
-			"editTitle": "{name} をオンライン編集",
+			"title": "Service Status",
+			"tips": "Tips: Ctrl+F Search keywords, Ctrl+S Save, Ctrl+H Search and replace",
+			"editTitle": "Online Edit {name}",
 			"columns": {
-				"name": "サービス名",
-				"status": "状態"
+				"name": "Service Name",
+				"status": "Status"
 			},
 			"status": {
-				"running": "稼働中",
-				"stopped": "停止中"
+				"running": "Running",
+				"stopped": "Stopped"
 			},
 			"actions": {
-				"restart": "再起動"
+				"restart": "Restart"
 			},
 			"restart": {
-				"title": "サービス再起動",
-				"confirm": "[{name}] を再起動してもよろしいですか？"
+				"title": "Restart Service",
+				"confirm": "Are you sure you want to restart [{name}]?"
 			}
 		},
 		"bcc": {
-			"title": "BCC 管理",
-			"add": "BCC 追加",
-			"edit": "BCC 編集",
-			"needCopy": "コピー元",
-			"copyTo": "コピー先",
-			"domain": "ドメイン",
-			"type": "BCC タイプ",
-			"status": "状態",
-			"active": "有効",
+			"title": "BCC Management",
+			"add": "Add BCC",
+			"edit": "Edit BCC",
+			"needCopy": "Need Copy",
+			"copyTo": "Copy to",
+			"domain": "Domain",
+			"type": "BCC Type",
+			"status": "Status",
+			"active": "Active",
 			"types": {
-				"sender": "送信時",
-				"recipient": "受信時"
+				"sender": "When sending",
+				"recipient": "When receiving"
 			},
 			"delete": {
-				"title": "BCC [{address}] を削除",
-				"content": "BCC 設定を削除しますか？"
+				"title": "Delete BCC [{address}]",
+				"content": "Whether to delete the BCC setting?"
 			},
 			"placeholders": {
-				"needCopy": "BCC 対象ユーザーを入力",
-				"copyTo": "BCC 受信メールを入力"
+				"needCopy": "Enter the users you need to BCC",
+				"copyTo": "Enter the email you need to receive the BCC"
 			},
 			"loading": {
-				"adding": "BCC を追加中... お待ちください",
-				"saving": "BCC を保存中... お待ちください",
-				"deleting": "BCC を削除中... お待ちください"
+				"adding": "Adding BCC, please wait...",
+				"saving": "Saving BCC, please wait...",
+				"deleting": "Deleting BCC, please wait..."
 			}
 		},
 		"forward": {
-			"add": "転送追加",
-			"edit": "転送編集",
+			"add": "Add Forward",
+			"edit": "Edit Forward",
 			"columns": {
-				"address": "アドレス",
-				"goto": "転送先",
-				"domain": "ドメイン",
-				"created": "作成日",
-				"modified": "更新日",
-				"status": "状態"
+				"address": "Address",
+				"goto": "Goto",
+				"domain": "Domain",
+				"created": "Created",
+				"modified": "Modified",
+				"status": "Status"
 			},
 			"form": {
-				"status": "状態",
-				"forwardedUsers": "転送元ユーザー",
-				"forwardedUsersPlaceholder": "転送元メールを入力",
-				"domain": "ドメイン",
-				"domainPlaceholder": "転送元ユーザーのドメイン名",
-				"receivingUser": "受信ユーザー",
-				"receivingUserPlaceholder": "転送メール受信者。複数ある場合は改行区切り"
+				"status": "Status",
+				"forwardedUsers": "Forwarded users",
+				"forwardedUsersPlaceholder": "Enter the mailbox that needs to be forwarded",
+				"domain": "Domain",
+				"domainPlaceholder": "Domain name of the Forwarded users",
+				"receivingUser": "Receiving user",
+				"receivingUserPlaceholder": "Users who need to accept forwarded mail. If there are multiple, please separate them with newlines"
 			},
 			"delete": {
-				"title": "メール転送削除",
-				"content": "メール転送 [{address}] を削除してもよろしいですか？"
+				"title": "Delete mail forward",
+				"content": "Are you sure you want to delete mail forward [{address}]?"
 			},
 			"loading": {
-				"adding": "メール転送を追加中... お待ちください",
-				"editing": "メール転送を編集中... お待ちください",
-				"deleting": "メール転送を削除中... お待ちください"
+				"adding": "Adding mail forward, please wait...",
+				"editing": "Editing mail forward, please wait...",
+				"deleting": "Deleting mail forward, please wait..."
 			}
 		},
 		"common": {
-			"confirm": "更新",
+			"confirm": "Update",
+			"security": {
+				"title": "Security Settings",
+				"username": "Change Username",
+				"currentUsername": "Current Username",
+				"newUsernamePlaceholder": "Enter new username",
+				"usernameRule": "4-20 characters, letters and numbers",
+				"usernameExists": "Username already exists",
+				"changePassword": "Change Password",
+				"currentPassword": "Current Password",
+				"newPassword": "New Password",
+				"confirmPassword": "Confirm New Password",
+				"passwordStrength": "Password Strength",
+				"passwordMismatch": "Passwords do not match",
+				"strength": {
+					"weak": "Weak",
+					"medium": "Medium",
+					"strong": "Strong"
+				},
+				"securityPath": "Change Security Path",
+				"currentPath": "Current Path",
+				"newPathPlaceholder": "Enter new path, e.g. admin-abc123",
+				"pathRule": "Recommend using complex path for enhanced security",
+				"usernameValidation": {
+					"lengthError": "Username length must be between 4 and 20 characters",
+					"formatError": "Username must consist of letters, numbers or underscores",
+					"duplicateError": "Username cannot be the same as current username"
+				}
+			},
+			"network": {
+				"title": "Network Configuration",
+				"domain": "Domain Settings",
+				"currentDomain": "The access domain name of the console",
+				"newDomainPlaceholder": "Enter new domain, e.g. admin.yourdomain.com",
+				"domainRule": "Please enter a valid domain",
+				"ssl": "SSL Certificate Configuration",
+				"sslEnabled": "SSL Enabled",
+				"certStatus": "Certificate Status",
+				"certValid": "({days} days remaining)",
+				"sslCert": "SSL Certificate (PEM format)",
+				"sslKey": "Private Key (PEM format)",
+				"certPlaceholder": "-----BEGIN CERTIFICATE-----\nMIIFazCCA1OgAwIBAgIURv...\n-----END CERTIFICATE-----",
+				"keyPlaceholder": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG...\n-----END PRIVATE KEY-----",
+				"updateSSL": "Update SSL Certificate",
+				"certValidStatus": "Certificate Valid",
+				"certExpiredStatus": "Certificate Expired",
+				"certExpireTime": "Certificate expires: {time}"
+			},
+			"system": {
+				"title": "System Configuration",
+				"port": "Port Settings",
+				"currentPort": "Current Port",
+				"terminalRequired": "This setting requires terminal operation",
+				"copyCommand": "Copy the above command and execute it in the server terminal",
+				"commandCopied": "Command copied to clipboard",
+				"timezone": "Timezone Settings",
+				"currentTime": "Current System Timezone"
+			},
+			"ipWhitelist": {
+				"title": "IP Whitelist",
+				"enable": "Enable",
+				"disable": "Disable",
+				"add": "Add",
+				"clear": "Clear",
+				"description": "Only allow IPs in the list to access, terminal command to disable: bm.sh cancel-ip-limit",
+				"placeholder": "Please enter IP address",
+				"validation": {
+					"ipRequired": "Please enter IP address"
+				},
+				"confirm": {
+					"deleteTitle": "Delete IP Whitelist",
+					"deleteContent": "Confirm to delete IP whitelist: {ip}",
+					"enableTitle": "Enable IP Whitelist",
+					"disableTitle": "Disable IP Whitelist",
+					"enableContent": "Confirm to enable IP whitelist, only whitelisted IP addresses can access after enabling",
+					"disableContent": "Confirm to disable IP whitelist, all IP addresses can access after disabling",
+					"clearTitle": "Clear IP Whitelist",
+					"clearContent": "Confirm to clear IP whitelist, all IP addresses can access after clearing"
+				}
+			},
 			"proxy": {
-				"title": "リバースプロキシ",
-				"description": "リバースプロキシアドレス、外部公開時に使用します。例：購読リスト、配信停止メールなど",
-				"placeholder": "リバースプロキシアドレスを入力してください",
-				"formatTip": "形式：https://example.com",
-				"reset": "リセット",
+				"title": "Reverse Proxy",
+				"description": "Reverse proxy address, used for external exposure, such as: subscription lists, unsubscribe emails, etc.",
+				"placeholder": "Please enter reverse proxy address",
+				"formatTip": "Format: https://example.com",
+				"reset": "Reset",
 				"resetConfirm": {
-					"title": "リバースプロキシをリセット",
-					"content": "リバースプロキシをリセットしてもよろしいですか？"
+					"title": "Reset Reverse Proxy",
+					"content": "Confirm to reset reverse proxy?"
+				}
+			},
+			"api": {
+				"title": "API設定",
+				"enableApi": "APIを有効にする",
+				"apiDocUrl": "APIドキュメントURL",
+				"swaggerUrl": "Swagger URL",
+				"token": "Token",
+				"confirm": {
+					"enable": "APIを有効にする",
+					"disable": "APIを無効にする",
+					"enableContent": "API設定を有効にしますか？",
+					"disableContent": "API設定を無効にしますか？"
 				}
 			}
 		},
 		"api": {
 			"loading": {
-				"restarting": "サービスを再起動中... お待ちください",
-				"saving": "設定を保存中... お待ちください"
+				"restarting": "Restarting service, please wait...",
+				"saving": "Saving configuration, please wait...",
+				"setting": "Setting, please wait...",
+				"settingSSL": "Setting SSL, please wait...",
+				"applyingCert": "Applying certificate, please wait...",
+				"adding": "Adding, please wait...",
+				"deleting": "Deleting, please wait...",
+				"clearing": "Clearing, please wait..."
 			}
+		},
+		"aiModel": {
+			"modelId": "Model ID",
+			"modelAlias": "Model Alias",
+			"modelFeature": "Model Feature",
+			"contentLength": "Maximum Context Length",
+			"supplierTitle": "Supplier Title",
+			"supplierName": "Supplier Name",
+			"cancel": "Cancel",
+			"confirm": "Confirm",
+			"aPIKey": "API Key",
+			"apiPath": "Base Url",
+			"check": "Check",
+			"getKey": "Click to Get Key",
+			"example": "Example",
+			"saveAPI": "Save API",
+			"model": "Model",
+			"byDefault": "By default, all models are retrieved from /models",
+			"addModel": "Add Model"
 		}
 	},
 	"logs": {

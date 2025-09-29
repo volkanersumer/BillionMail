@@ -49,6 +49,13 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 
 	const currentProxy = ref('')
 
+	const apiInfo = reactive({
+		api_doc_enabled: false,
+		api_doc_url: '',
+		api_token: '',
+		swagger_url: '',
+	})
+
 	const checkPasswordStrength = () => {
 		const password = securityForm.newPassword
 		let score = 0
@@ -100,6 +107,13 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 				currentProxy.value =
 					res.reverse_proxy_domain.reverse_proxy || res.reverse_proxy_domain.current_url
 			}
+
+			if (res.api_doc_swagger) {
+				apiInfo.api_doc_enabled = res.api_doc_swagger.api_doc_enabled
+				apiInfo.api_doc_url = res.api_doc_swagger.api_doc_url
+				apiInfo.api_token = res.api_doc_swagger.api_token
+				apiInfo.swagger_url = res.api_doc_swagger.swagger_url
+			}
 		}
 	}
 
@@ -122,6 +136,10 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 		serverIp.value = ''
 		passwordMismatch.value = false
 		passwordStrength.value = { level: 'weak', score: 0 }
+		apiInfo.api_doc_enabled = false
+		apiInfo.api_doc_url = ''
+		apiInfo.api_token = ''
+		apiInfo.swagger_url = ''
 	}
 
 	return {
@@ -142,6 +160,7 @@ export const useSettingsStore = defineStore('SettingsCommonStore', () => {
 		ipWhitelistEnable,
 		ipWhitelistList,
 		currentProxy,
+		apiInfo,
 
 		// 方法
 		checkPasswordStrength,

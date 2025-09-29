@@ -30,6 +30,9 @@
 					<template-select v-model:value="form.template_id" v-model:content="form.template_content">
 					</template-select>
 				</div>
+				<!-- <n-button text type="primary" class="ml-12px" @click="handleEditTemplate">
+					{{ $t('common.actions.edit') }}
+				</n-button> -->
 				<n-button text type="primary" class="ml-12px" @click="handlePreviewTemplate">
 					{{ $t('common.actions.preview') }}
 				</n-button>
@@ -117,6 +120,10 @@ const handlePreviewTemplate = () => {
 	previewModalApi.setState({ html: form.template_content })
 	previewModalApi.open()
 }
+
+// const handleEditTemplate = () => {
+// 	console.log(1)
+// }
 
 const resetForm = () => {
 	form.id = 0

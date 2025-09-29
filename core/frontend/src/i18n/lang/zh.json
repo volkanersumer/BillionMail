@@ -1372,6 +1372,19 @@
 					"title": "重置反向代理",
 					"content": "确认重置反向代理吗？"
 				}
+			},
+			"api": {
+				"title": "API Settings",
+				"enableApi": "开启API",
+				"apiDocUrl": "API文档地址",
+				"swaggerUrl": "Swagger地址",
+				"token": "Token",
+				"confirm": {
+					"enable": "开启API",
+					"disable": "关闭API",
+					"enableContent": "是否开启API设置？",
+					"disableContent": "是否关闭API设置？"
+				}
 			}
 		},
 		"api": {

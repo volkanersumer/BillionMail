@@ -16,6 +16,7 @@ export interface MailDomain {
 	default: number
 	email: string
 	hasbrandinfo: number
+	current_quota: number
 	urls: string[]
 	dns_records: DomainDnsRecords
 	cert_info: DomainCertInfo

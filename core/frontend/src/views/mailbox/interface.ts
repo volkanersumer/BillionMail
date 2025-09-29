@@ -20,4 +20,6 @@ export interface MailBox {
 	create_time: number
 	update_time: number
 	active: number
+	used_quota: number
+	quota_active: number
 }

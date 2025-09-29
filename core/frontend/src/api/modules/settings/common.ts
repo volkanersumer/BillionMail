@@ -90,3 +90,12 @@ export const clearReverseProxyDomain = (params = {}) => {
 		},
 	})
 }
+
+export const setApiDocEnabled = (params: { api_doc_enabled: boolean }) => {
+	return instance.post('/settings/set_api_doc_swagger', params, {
+		fetchOptions: {
+			loading: t('settings.api.loading.setting'),
+			successMessage: true,
+		},
+	})
+}

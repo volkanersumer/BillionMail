@@ -64,4 +64,10 @@ export interface SystemInfo {
 		current_url: string
 		reverse_proxy: string
 	}
+	api_doc_swagger: {
+		api_doc_enabled: boolean
+		api_doc_url: string
+		api_token: string
+		swagger_url: string
+	}
 }

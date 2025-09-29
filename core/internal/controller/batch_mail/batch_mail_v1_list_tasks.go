@@ -133,7 +133,7 @@ func (c *ControllerV1) ListTasks(ctx context.Context, req *v1.ListTasksReq) (res
 
 		if task.RecipientCount > 0 {
 			detail.Progress = int(float64(sentCount) / float64(task.RecipientCount) * 100)
-			if detail.Progress > 100 || detail.Progress == 99 {
+			if detail.Progress > 100 || detail.Progress >= 98 {
 				detail.Progress = 100
 			}
 		} else {

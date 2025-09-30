@@ -67,10 +67,10 @@ body:
     attributes:
       label: Reproducible in Latest Version?
       options:
-        - Option "Yes, occurs in the latest stable release"
-        - Option "No, only in older versions (specify version)"
-      validations:
-        required: true
+        - "Yes, occurs in the latest stable release"
+        - "No, only in older versions (specify version)"
+    validations:
+      required: true
 
   # 3. Core Bug Description (Required)
   - type: textarea

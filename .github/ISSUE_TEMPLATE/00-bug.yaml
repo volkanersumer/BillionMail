@@ -67,8 +67,8 @@ body:
     attributes:
       label: Reproducible in Latest Version?
       options:
-        - "Yes, occurs in the latest stable release"
-        - "No, only in older versions (specify version)"
+        - Option "Yes, occurs in the latest stable release"
+        - Option "No, only in older versions (specify version)"
       validations:
         required: true
 

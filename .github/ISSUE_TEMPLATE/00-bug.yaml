@@ -62,15 +62,15 @@ body:
     validations:
       required: false
 
-  - type: checkboxes
+  - type: dropdown
     id: reproduce_latest
     attributes:
       label: Reproducible in Latest Version?
       options:
-        - label: "Yes, occurs in the latest stable release"
-          required: false
-        - label: "No, only in older versions (specify version)"
-          required: false
+        - "Yes, occurs in the latest stable release"
+        - "No, only in older versions (specify version)"
+      validations:
+        required: true
 
   # 3. Core Bug Description (Required)
   - type: textarea
